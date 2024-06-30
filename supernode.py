@@ -120,11 +120,79 @@ class RemoveBackground:
         return (tensors["images"], tensors["mask"])
 
 
+class GenerateLightningImage:
+    API_URL = f"{COMFY_AIR_SERVER_ADDRESS}/supernode/realvis4lightning"
+
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "prompt": ("STRING", {"multiline": True, "dynamicPrompts": True}),
+                "seed": ("INT", {"default": 0, "min": 0, "max": 0xFFFFFFFFFFFFFFFF}),
+                "width": ("INT", {"default": 1024, "min": 16, "max": 1024, "step": 8}),
+                "height": ("INT", {"default": 1024, "min": 16, "max": 1024, "step": 8}),
+                "cfg": (
+                    "FLOAT",
+                    {
+                        "default": 1.5,
+                        "min": 0.0,
+                        "max": 10.0,
+                        "step": 0.1,
+                        "round": 0.01,
+                    },
+                ),
+                "batch_size": ("INT", {"default": 1, "min": 1, "max": 4}),
+                "API_KEY": ("STRING", {"default": "YOUR_API_KEY"}),
+            }
+        }
+
+    RETURN_TYPES = ("IMAGE",)
+    FUNCTION = "generate_image"
+
+    CATEGORY = "ComfyAir"
+
+    def generate_image(self, prompt, seed, width, height, cfg, batch_size, API_KEY=""):
+        assert (
+            width <= 1024 and height <= 1024
+        ), f"width and height must be less than 1024, but got {width} and {height}"
+
+        payload = {
+            "batch_size": batch_size,
+            "width": width,
+            "height": height,
+            "prompt": prompt,
+            "cfg": cfg,
+            "seed": seed,
+        }
+        auth = f"Bearer {API_KEY}"
+        headers = {
+            "accept": "application/json",
+            "content-type": "application/json",
+            "authorization": auth,
+        }
+
+        try:
+            response = requests.post(self.API_URL, json=payload, headers=headers)
+            response.raise_for_status()
+        except requests.exceptions.RequestException as e:
+            raise Exception(f"Failed to connect to the server: {e}")
+
+        data = json.loads(response.text)["data"]
+        tensor_bytes = base64.b64decode(data["payload"])
+        if data["is_compress"]:
+            tensor_bytes = zlib.decompress(tensor_bytes)
+        tensors = pickle.loads(tensor_bytes)
+
+        return (tensors,)
+
+
 NODE_CLASS_MAPPINGS = {
     "ComfyAirSuperResolution": SuperResolution,
     "ComfyAirRemoveBackground": RemoveBackground,
+    "ComfyAirGenerateLightningImage": GenerateLightningImage,
 }
 NODE_DISPLAY_NAME_MAPPINGS = {
     "ComfyAirSuperResolution": "ComfyAir Super Resolution",
     "ComfyAirRemoveBackground": "ComfyAir Remove Background",
+    "ComfyAirGenerateLightningImage": "Generate Lightning Image",
 }
