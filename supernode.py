@@ -8,7 +8,7 @@ import time
 import requests
 
 COMFY_AIR_SERVER_ADDRESS = os.getenv(
-    "COMFY_AIR_SERVER_ADDRESS", "http://127.0.0.1:8000"
+    "COMFY_AIR_SERVER_ADDRESS", "https://api.siliconflow.cn"
 )
 
 
@@ -31,10 +31,13 @@ class SuperResolution:
     CATEGORY = "ComfyAir"
 
     def super_resolution(self, image, scale="2x", API_KEY=""):
-        _, w, h, _ = image.shape
+        _, w, h, c = image.shape
         assert (
             w <= 512 and h <= 512
         ), f"width and height must be less than 512, but got {w} and {h}"
+
+        # support RGB mode only now
+        image = image[:, :, :, :3]
 
         payload = {
             "scale": scale,
