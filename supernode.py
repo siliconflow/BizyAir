@@ -106,7 +106,7 @@ class GenerateLightningImage:
         return {
             "required": {
                 "prompt": ("STRING", {"multiline": True, "dynamicPrompts": True}),
-                "seed": ("INT", {"default": 0, "min": 0, "max": 0xFFFFFFFFFFFFFFFF}),
+                "seed": ("INT", {"default": 1, "min": 0, "max": 0xFFFFFFFFFFFFFFFF}),
                 "width": ("INT", {"default": 1024, "min": 16, "max": 1024, "step": 8}),
                 "height": ("INT", {"default": 1024, "min": 16, "max": 1024, "step": 8}),
                 "cfg": (
