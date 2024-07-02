@@ -1,11 +1,4 @@
-import base64
-import json
 import os
-import pickle
-import zlib
-import time
-
-import requests
 
 from .utils import decode_and_deserialize, send_post_request, serialize_and_encode
 
