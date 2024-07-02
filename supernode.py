@@ -7,7 +7,7 @@ import time
 
 import requests
 
-from .utils import decode_and_deserialize, send_post_request
+from .utils import decode_and_deserialize, send_post_request, serialize_and_encode
 
 COMFY_AIR_SERVER_ADDRESS = os.getenv(
     "COMFY_AIR_SERVER_ADDRESS", "https://api.siliconflow.cn"
@@ -52,12 +52,11 @@ class SuperResolution:
             "content-type": "application/json",
             "authorization": auth,
         }
-        input_image = pickle.dumps(image)
-        input_image = zlib.compress(input_image)
-        input_image = base64.b64encode(input_image).decode("utf-8")
+        input_image, compress = serialize_and_encode(image, compress=True)
         payload["image"] = input_image
+        payload["is_compress"] = compress
 
-        response = send_post_request(self.API_URL, json=payload, headers=headers)
+        response = send_post_request(self.API_URL, payload=payload, headers=headers)
         image = decode_and_deserialize(response.text)
 
         return (image,)
@@ -96,12 +95,11 @@ class RemoveBackground:
             "content-type": "application/json",
             "authorization": auth,
         }
-        input_image = pickle.dumps(image)
-        input_image = zlib.compress(input_image)
-        input_image = base64.b64encode(input_image).decode("utf-8")
+        input_image, compress = serialize_and_encode(image, compress=True)
         payload["image"] = input_image
+        payload["is_compress"] = compress
 
-        response = send_post_request(self.API_URL, json=payload, headers=headers)
+        response = send_post_request(self.API_URL, payload=payload, headers=headers)
         tensors = decode_and_deserialize(response.text)
 
         return (tensors["images"], tensors["mask"])
