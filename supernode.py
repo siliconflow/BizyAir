@@ -2,13 +2,13 @@ import os
 
 from .utils import decode_and_deserialize, send_post_request, serialize_and_encode
 
-COMFY_AIR_SERVER_ADDRESS = os.getenv(
-    "COMFY_AIR_SERVER_ADDRESS", "https://api.siliconflow.cn"
+COMFYAIR_SERVER_ADDRESS = os.getenv(
+    "COMFYAIR_SERVER_ADDRESS", "https://api.siliconflow.cn"
 )
 
 
 class SuperResolution:
-    API_URL = f"{COMFY_AIR_SERVER_ADDRESS}/supernode/superresolution"
+    API_URL = f"{COMFYAIR_SERVER_ADDRESS}/supernode/superresolution"
 
     @classmethod
     def INPUT_TYPES(s):
@@ -56,7 +56,7 @@ class SuperResolution:
 
 
 class RemoveBackground:
-    API_URL = f"{COMFY_AIR_SERVER_ADDRESS}/supernode/removebg"
+    API_URL = f"{COMFYAIR_SERVER_ADDRESS}/supernode/removebg"
 
     @classmethod
     def INPUT_TYPES(s):
@@ -99,7 +99,7 @@ class RemoveBackground:
 
 
 class GenerateLightningImage:
-    API_URL = f"{COMFY_AIR_SERVER_ADDRESS}/supernode/realvis4lightning"
+    API_URL = f"{COMFYAIR_SERVER_ADDRESS}/supernode/realvis4lightning"
 
     @classmethod
     def INPUT_TYPES(s):
