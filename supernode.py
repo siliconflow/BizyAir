@@ -7,7 +7,7 @@ import time
 
 import requests
 
-from .utils import decode_and_deserialize
+from .utils import decode_and_deserialize, send_post_request
 
 COMFY_AIR_SERVER_ADDRESS = os.getenv(
     "COMFY_AIR_SERVER_ADDRESS", "https://api.siliconflow.cn"
@@ -57,12 +57,7 @@ class SuperResolution:
         input_image = base64.b64encode(input_image).decode("utf-8")
         payload["image"] = input_image
 
-        try:
-            response = requests.post(self.API_URL, json=payload, headers=headers)
-            response.raise_for_status()
-        except requests.exceptions.RequestException as e:
-            raise Exception(f"Failed to connect to the server: {e}")
-
+        response = send_post_request(self.API_URL, json=payload, headers=headers)
         image = decode_and_deserialize(response.text)
 
         return (image,)
@@ -106,12 +101,7 @@ class RemoveBackground:
         input_image = base64.b64encode(input_image).decode("utf-8")
         payload["image"] = input_image
 
-        try:
-            response = requests.post(self.API_URL, json=payload, headers=headers)
-            response.raise_for_status()
-        except requests.exceptions.RequestException as e:
-            raise Exception(f"Failed to connect to the server: {e}")
-
+        response = send_post_request(self.API_URL, json=payload, headers=headers)
         tensors = decode_and_deserialize(response.text)
 
         return (tensors["images"], tensors["mask"])
@@ -168,12 +158,7 @@ class GenerateLightningImage:
             "authorization": auth,
         }
 
-        try:
-            response = requests.post(self.API_URL, json=payload, headers=headers)
-            response.raise_for_status()
-        except requests.exceptions.RequestException as e:
-            raise Exception(f"Failed to connect to the server: {e}")
-
+        response = send_post_request(self.API_URL, payload=payload, headers=headers)
         tensors = decode_and_deserialize(response.text)
 
         return (tensors,)
