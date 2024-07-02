@@ -7,6 +7,8 @@ import time
 
 import requests
 
+from .utils import decode_and_deserialize
+
 COMFY_AIR_SERVER_ADDRESS = os.getenv(
     "COMFY_AIR_SERVER_ADDRESS", "https://api.siliconflow.cn"
 )
@@ -61,11 +63,7 @@ class SuperResolution:
         except requests.exceptions.RequestException as e:
             raise Exception(f"Failed to connect to the server: {e}")
 
-        data = json.loads(response.text)["data"]
-        tensor_bytes = base64.b64decode(data["payload"])
-        if data["is_compress"]:
-            tensor_bytes = zlib.decompress(tensor_bytes)
-        image = pickle.loads(tensor_bytes)
+        image = decode_and_deserialize(response.text)
 
         return (image,)
 
@@ -114,11 +112,7 @@ class RemoveBackground:
         except requests.exceptions.RequestException as e:
             raise Exception(f"Failed to connect to the server: {e}")
 
-        data = json.loads(response.text)["data"]
-        tensor_bytes = base64.b64decode(data["payload"])
-        if data["is_compress"]:
-            tensor_bytes = zlib.decompress(tensor_bytes)
-        tensors = pickle.loads(tensor_bytes)
+        tensors = decode_and_deserialize(response.text)
 
         return (tensors["images"], tensors["mask"])
 
@@ -180,11 +174,7 @@ class GenerateLightningImage:
         except requests.exceptions.RequestException as e:
             raise Exception(f"Failed to connect to the server: {e}")
 
-        data = json.loads(response.text)["data"]
-        tensor_bytes = base64.b64decode(data["payload"])
-        if data["is_compress"]:
-            tensor_bytes = zlib.decompress(tensor_bytes)
-        tensors = pickle.loads(tensor_bytes)
+        tensors = decode_and_deserialize(response.text)
 
         return (tensors,)
 
