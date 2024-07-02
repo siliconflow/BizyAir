@@ -2,7 +2,7 @@ import os
 
 from .utils import decode_and_deserialize, send_post_request, serialize_and_encode
 
-COMFY_AIR_SERVER_ADDRESS = os.getenv(
+COMFYAIR_SERVER_ADDRESS = os.getenv(
     "COMFY_AIR_SERVER_ADDRESS", "https://api.siliconflow.cn"
 )
 
