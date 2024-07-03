@@ -104,3 +104,9 @@ def format_bytes(num_bytes: int) -> str:
         return f"{num_bytes / 1024:.2f} KB"
     else:
         return f"{num_bytes / (1024 * 1024):.2f} MB"
+
+
+def validate_api_key(key: str):
+    assert key.startswith(
+        "sk"
+    ), "please refer to https://cloud.siliconflow.cn to get your API_KEY"

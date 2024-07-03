@@ -1,6 +1,11 @@
 import os
 
-from .utils import decode_and_deserialize, send_post_request, serialize_and_encode
+from .utils import (
+    decode_and_deserialize,
+    send_post_request,
+    serialize_and_encode,
+    validate_api_key,
+)
 
 COMFYAIR_SERVER_ADDRESS = os.getenv(
     "COMFYAIR_SERVER_ADDRESS", "https://api.siliconflow.cn"
@@ -26,6 +31,7 @@ class SuperResolution:
     CATEGORY = "ComfyAir"
 
     def super_resolution(self, image, scale="2x", API_KEY=""):
+        validate_api_key(API_KEY)
         device = image.device
         _, w, h, c = image.shape
         assert (
@@ -74,6 +80,7 @@ class RemoveBackground:
     CATEGORY = "ComfyAir"
 
     def remove_background(self, image, API_KEY=""):
+        validate_api_key(API_KEY)
         device = image.device
         _, w, h, _ = image.shape
         assert (
@@ -133,6 +140,7 @@ class GenerateLightningImage:
     CATEGORY = "ComfyAir"
 
     def generate_image(self, prompt, seed, width, height, cfg, batch_size, API_KEY=""):
+        validate_api_key(API_KEY)
         assert (
             width <= 1024 and height <= 1024
         ), f"width and height must be less than 1024, but got {width} and {height}"
@@ -158,13 +166,30 @@ class GenerateLightningImage:
         return (tensors,)
 
 
+class LoadAPIKey:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {"required": {"API_KEY": ("STRING", {"default": "YOUR_API_KEY"}),}}
+
+    RETURN_TYPES = ("STRING",)
+    FUNCTION = "load_api_key"
+
+    CATEGORY = "ComfyAir"
+
+    def load_api_key(self, API_KEY="YOUR_API_KEY"):
+        validate_api_key(API_KEY)
+        return (API_KEY,)
+
+
 NODE_CLASS_MAPPINGS = {
     "ComfyAirSuperResolution": SuperResolution,
     "ComfyAirRemoveBackground": RemoveBackground,
     "ComfyAirGenerateLightningImage": GenerateLightningImage,
+    "ComfyAirLoadAPIKey": LoadAPIKey,
 }
 NODE_DISPLAY_NAME_MAPPINGS = {
-    "ComfyAirSuperResolution": "ComfyAir Super Resolution",
+    "ComfyAirSuperResolution": "ComfyAir Anime Image Super Resolution",
     "ComfyAirRemoveBackground": "ComfyAir Remove Background",
-    "ComfyAirGenerateLightningImage": "Generate Lightning Image",
+    "ComfyAirGenerateLightningImage": "ComfyAir Generate Lightning Image",
+    "ComfyAirLoadAPIKey": "Load API Key",
 }
