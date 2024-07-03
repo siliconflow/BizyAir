@@ -165,6 +165,7 @@ class LoadAPIKey:
     FUNCTION = "load_api_key"
 
     CATEGORY = "ComfyAir"
+    OUTPUT_NODE = True
 
     def load_api_key(self, API_KEY="YOUR_API_KEY"):
         set_api_key(API_KEY)
