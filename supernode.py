@@ -1,10 +1,12 @@
 import os
+import uuid
 
 from .utils import (
     decode_and_deserialize,
     send_post_request,
     serialize_and_encode,
-    validate_api_key,
+    get_api_key,
+    set_api_key,
 )
 
 COMFYAIR_SERVER_ADDRESS = os.getenv(
@@ -17,21 +19,15 @@ class SuperResolution:
 
     @classmethod
     def INPUT_TYPES(s):
-        return {
-            "required": {
-                "image": ("IMAGE",),
-                "API_KEY": ("STRING", {"default": "YOUR_API_KEY"}),
-                "scale": (["2x", "4x"],),
-            }
-        }
+        return {"required": {"image": ("IMAGE",), "scale": (["2x", "4x"],),}}
 
     RETURN_TYPES = ("IMAGE",)
     FUNCTION = "super_resolution"
 
     CATEGORY = "ComfyAir"
 
-    def super_resolution(self, image, scale="2x", API_KEY=""):
-        validate_api_key(API_KEY)
+    def super_resolution(self, image, scale="2x"):
+        API_KEY = get_api_key()
         device = image.device
         _, w, h, c = image.shape
         assert (
@@ -67,20 +63,15 @@ class RemoveBackground:
 
     @classmethod
     def INPUT_TYPES(s):
-        return {
-            "required": {
-                "image": ("IMAGE",),
-                "API_KEY": ("STRING", {"default": "YOUR_API_KEY"}),
-            }
-        }
+        return {"required": {"image": ("IMAGE",),}}
 
     RETURN_TYPES = ("IMAGE", "MASK")
     FUNCTION = "remove_background"
 
     CATEGORY = "ComfyAir"
 
-    def remove_background(self, image, API_KEY=""):
-        validate_api_key(API_KEY)
+    def remove_background(self, image):
+        API_KEY = get_api_key()
         device = image.device
         _, w, h, _ = image.shape
         assert (
@@ -130,7 +121,6 @@ class GenerateLightningImage:
                     },
                 ),
                 "batch_size": ("INT", {"default": 1, "min": 1, "max": 4}),
-                "API_KEY": ("STRING", {"default": "YOUR_API_KEY"}),
             }
         }
 
@@ -139,8 +129,8 @@ class GenerateLightningImage:
 
     CATEGORY = "ComfyAir"
 
-    def generate_image(self, prompt, seed, width, height, cfg, batch_size, API_KEY=""):
-        validate_api_key(API_KEY)
+    def generate_image(self, prompt, seed, width, height, cfg, batch_size):
+        API_KEY = get_api_key()
         assert (
             width <= 1024 and height <= 1024
         ), f"width and height must be less than 1024, but got {width} and {height}"
@@ -171,14 +161,18 @@ class LoadAPIKey:
     def INPUT_TYPES(s):
         return {"required": {"API_KEY": ("STRING", {"default": "YOUR_API_KEY"}),}}
 
-    RETURN_TYPES = ("STRING",)
+    RETURN_TYPES = ()
     FUNCTION = "load_api_key"
 
     CATEGORY = "ComfyAir"
 
     def load_api_key(self, API_KEY="YOUR_API_KEY"):
-        validate_api_key(API_KEY)
-        return (API_KEY,)
+        set_api_key(API_KEY)
+        return {}
+
+    @classmethod
+    def IS_CHANGED(s, latent):
+        return uuid.uuid4().hex
 
 
 NODE_CLASS_MAPPINGS = {
