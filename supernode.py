@@ -186,5 +186,5 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "ComfyAirSuperResolution": "ComfyAir Anime Image Super Resolution",
     "ComfyAirRemoveBackground": "ComfyAir Remove Background",
     "ComfyAirGenerateLightningImage": "ComfyAir Generate Lightning Image",
-    "ComfyAirLoadAPIKey": "Load API Key",
+    "ComfyAirLoadAPIKey": "Load SiliconCloud API Key",
 }
