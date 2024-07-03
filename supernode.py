@@ -26,6 +26,7 @@ class SuperResolution:
     CATEGORY = "ComfyAir"
 
     def super_resolution(self, image, scale="2x", API_KEY=""):
+        device = image.device
         _, w, h, c = image.shape
         assert (
             w <= 512 and h <= 512
@@ -51,7 +52,7 @@ class SuperResolution:
 
         response = send_post_request(self.API_URL, payload=payload, headers=headers)
         image = decode_and_deserialize(response.text)
-
+        image = image.to(device)
         return (image,)
 
 
@@ -73,6 +74,7 @@ class RemoveBackground:
     CATEGORY = "ComfyAir"
 
     def remove_background(self, image, API_KEY=""):
+        device = image.device
         _, w, h, _ = image.shape
         assert (
             w <= 1024 and h <= 1024
@@ -94,8 +96,9 @@ class RemoveBackground:
 
         response = send_post_request(self.API_URL, payload=payload, headers=headers)
         tensors = decode_and_deserialize(response.text)
-
-        return (tensors["images"], tensors["mask"])
+        t_images = tensors["images"].to(device)
+        t_mask = tensors["mask"].to(device)
+        return (t_images, t_mask)
 
 
 class GenerateLightningImage:
