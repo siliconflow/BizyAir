@@ -121,3 +121,36 @@ def get_api_key():
 def set_api_key(key: str):
     validate_api_key(key)
     os.environ["COMFYAIR_API_KEY"] = key
+
+
+def get_llm_response(
+    model: str,
+    system_prompt: str,
+    user_prompt: str,
+    max_tokens: int = 1024,
+    temperature: float = 0.7,
+):
+    api_url = "https://api.siliconflow.cn/v1/chat/completions"
+    API_KEY = get_api_key()
+    validate_api_key(API_KEY)
+    headers = {
+        "accept": "application/json",
+        "content-type": "application/json",
+        "Authorization": f"Bearer {API_KEY}",
+    }
+
+    payload = {
+        "model": model,
+        "messages": [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt},
+        ],
+        "max_tokens": max_tokens,
+        "temperature": temperature,
+        "top_p": 0.9,
+        "top_k": 50,
+        "stream": False,
+        "n": 1,
+    }
+    response = send_post_request(api_url, headers=headers, payload=payload)
+    return response
