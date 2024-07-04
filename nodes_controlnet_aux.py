@@ -9,17 +9,12 @@ from .utils import (
     get_api_key,
 )
 
-
-COMFYAIR_API_KEY = "sk-ycizqcyawvlzuqvnzafjdyzykeuwhkgfxxuenzevifhadufd"
-
 # https://uat-cloud.siliconflow.cn/account/ak
 # export COMFYAIR_SERVER_ADDRESS=http://127.0.0.1:8000
+# export COMFYAIR_SERVER_ADDRESS=https://uat-api.siliconflow.cn
 COMFYAIR_SERVER_ADDRESS = os.getenv(
     "COMFYAIR_SERVER_ADDRESS", "https://uat-api.siliconflow.cn"
 )
-
-
-set_api_key(COMFYAIR_API_KEY)
 
 auth = f"Bearer {get_api_key()}"
 HEADERS = {
