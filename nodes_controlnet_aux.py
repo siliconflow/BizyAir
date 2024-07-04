@@ -1,21 +1,36 @@
 import numpy as np
 import os
 
-from .utils import decode_and_deserialize, send_post_request, serialize_and_encode
-
-COMFY_AIR_SERVER_ADDRESS = os.getenv(
-    "COMFY_AIR_SERVER_ADDRESS", "http://127.0.0.1:8000"
+from .utils import (
+    decode_and_deserialize,
+    send_post_request,
+    serialize_and_encode,
+    set_api_key,
+    get_api_key,
 )
-# auth = f"Bearer {API_KEY}"
+
+
+COMFYAIR_API_KEY = "sk-ycizqcyawvlzuqvnzafjdyzykeuwhkgfxxuenzevifhadufd"
+
+# https://uat-cloud.siliconflow.cn/account/ak
+# export COMFYAIR_SERVER_ADDRESS=http://127.0.0.1:8000
+COMFYAIR_SERVER_ADDRESS = os.getenv(
+    "COMFYAIR_SERVER_ADDRESS", "https://uat-api.siliconflow.cn"
+)
+
+
+set_api_key(COMFYAIR_API_KEY)
+
+auth = f"Bearer {get_api_key()}"
 HEADERS = {
     "accept": "application/json",
     "content-type": "application/json",
-    # "authorization": auth,
+    "authorization": auth,
 }
 
 # Sync with theoritical limit from Comfy base
 # https://github.com/comfyanonymous/ComfyUI/blob/eecd69b53a896343775bcb02a4f8349e7442ffd1/nodes.py#L45
-MAX_RESOLUTION = 2048
+MAX_RESOLUTION = 1024
 
 
 class BasePreprocessor:
@@ -23,7 +38,7 @@ class BasePreprocessor:
         super().__init_subclass__(**kwargs)
         if not hasattr(cls, "model_name"):
             raise TypeError("Subclass must define 'model_name'")
-        cls.API_URL = f"{COMFY_AIR_SERVER_ADDRESS}{cls.model_name}"
+        cls.API_URL = f"{COMFYAIR_SERVER_ADDRESS}{cls.model_name}"
         cls.CATEGORY = f"ComfyAir/{cls.CATEGORY}"
 
     RETURN_TYPES = ("IMAGE",)
@@ -59,7 +74,7 @@ def create_node_input_types(**extra_kwargs):
 
 
 class PiDiNetPreprocessor(BasePreprocessor):
-    model_name = "/controlnet_aux/pidinetpreprocessor"
+    model_name = "/supernode/controlnet-aux-pidinetpreprocessor"
 
     @classmethod
     def INPUT_TYPES(s):
@@ -74,7 +89,7 @@ class PiDiNetPreprocessor(BasePreprocessor):
 
 
 class ColorPreprocessor(BasePreprocessor):
-    model_name = "/controlnet_aux/colorpreprocessor"
+    model_name = "/supernode/controlnet-aux-colorpreprocessor"
 
     @classmethod
     def INPUT_TYPES(s):
@@ -87,7 +102,7 @@ class ColorPreprocessor(BasePreprocessor):
 
 
 class CannyEdgePreprocessor(BasePreprocessor):
-    model_name = "/controlnet_aux/cannyedgepreprocessor"
+    model_name = "/supernode/controlnet-aux-cannyedgepreprocessor"
 
     @classmethod
     def INPUT_TYPES(s):
@@ -100,7 +115,7 @@ class CannyEdgePreprocessor(BasePreprocessor):
 
 
 class SAMPreprocessor(BasePreprocessor):
-    model_name = "/controlnet_aux/sampreprocessor"
+    model_name = "/supernode/controlnet-aux-sampreprocessor"
 
     @classmethod
     def INPUT_TYPES(s):
@@ -110,7 +125,7 @@ class SAMPreprocessor(BasePreprocessor):
 
 
 class BinaryPreprocessor(BasePreprocessor):
-    model_name = "/controlnet_aux/binarypreprocessor"
+    model_name = "/supernode/controlnet-aux-binarypreprocessor"
 
     @classmethod
     def INPUT_TYPES(s):
@@ -125,7 +140,7 @@ class BinaryPreprocessor(BasePreprocessor):
 
 
 class ScribblePreprocessor(BasePreprocessor):
-    model_name = "/controlnet_aux/scribblepreprocessor"
+    model_name = "/supernode/controlnet-aux-scribblepreprocessor"
 
     @classmethod
     def INPUT_TYPES(s):
@@ -140,7 +155,7 @@ class ScribblePreprocessor(BasePreprocessor):
 
 
 class M_LSDPreprocessor(BasePreprocessor):
-    model_name = "/controlnet_aux/m-lsdpreprocessor"
+    model_name = "/supernode/controlnet-aux-m-lsdpreprocessor"
 
     @classmethod
     def INPUT_TYPES(s):
@@ -162,7 +177,7 @@ class M_LSDPreprocessor(BasePreprocessor):
 
 
 class UniFormer_SemSegPreprocessor(BasePreprocessor):
-    model_name = "/controlnet_aux/uniformer-semsegpreprocessor"
+    model_name = "/supernode/controlnet-aux-uniformer-semsegpreprocessor"
 
     @classmethod
     def INPUT_TYPES(s):
@@ -174,7 +189,7 @@ class UniFormer_SemSegPreprocessor(BasePreprocessor):
 
 
 class Zoe_DepthMapPreprocessor(BasePreprocessor):
-    model_name = "/controlnet_aux/zoe-depthmappreprocessor"
+    model_name = "/supernode/controlnet-aux-zoe-depthmappreprocessor"
 
     @classmethod
     def INPUT_TYPES(s):
@@ -187,7 +202,7 @@ class Zoe_DepthMapPreprocessor(BasePreprocessor):
 
 
 class MiDaS_NormalMapPreprocessor(BasePreprocessor):
-    model_name = "/controlnet_aux/midas-normalmappreprocessor"
+    model_name = "/supernode/controlnet-aux-midas-normalmappreprocessor"
 
     @classmethod
     def INPUT_TYPES(s):
@@ -205,7 +220,7 @@ class MiDaS_NormalMapPreprocessor(BasePreprocessor):
 
 
 class MiDaS_DepthMapPreprocessor(BasePreprocessor):
-    model_name = "/controlnet_aux/midas-depthmappreprocessor"
+    model_name = "/supernode/controlnet-aux-midas-depthmappreprocessor"
 
     @classmethod
     def INPUT_TYPES(s):
@@ -224,7 +239,7 @@ class MiDaS_DepthMapPreprocessor(BasePreprocessor):
 
 
 class OpenposePreprocessor(BasePreprocessor):
-    model_name = "/controlnet_aux/openposepreprocessor"
+    model_name = "/supernode/controlnet-aux-openposepreprocessor"
 
     @classmethod
     def INPUT_TYPES(s):
@@ -239,7 +254,7 @@ class OpenposePreprocessor(BasePreprocessor):
 
 
 class LineArtPreprocessor(BasePreprocessor):
-    model_name = "/controlnet_aux/lineartpreprocessor"
+    model_name = "/supernode/controlnet-aux-lineartpreprocessor"
 
     @classmethod
     def INPUT_TYPES(s):
@@ -251,7 +266,7 @@ class LineArtPreprocessor(BasePreprocessor):
 
 
 class LeReS_DepthMapPreprocessor(BasePreprocessor):
-    model_name = "/controlnet_aux/leres-depthmappreprocessor"
+    model_name = "/supernode/controlnet-aux-leres-depthmappreprocessor"
 
     @classmethod
     def INPUT_TYPES(s):
@@ -269,7 +284,7 @@ class LeReS_DepthMapPreprocessor(BasePreprocessor):
 
 class BAE_NormalMapPreprocessor(BasePreprocessor):
 
-    model_name = "/controlnet_aux/bae-normalmappreprocessor"
+    model_name = "/supernode/controlnet-aux-bae-normalmappreprocessor"
 
     @classmethod
     def INPUT_TYPES(s):
@@ -279,7 +294,7 @@ class BAE_NormalMapPreprocessor(BasePreprocessor):
 
 
 class OneFormer_COCO_SemSegPreprocessor(BasePreprocessor):
-    model_name = "/controlnet_aux/oneformer-coco-semsegpreprocessor"
+    model_name = "/supernode/controlnet-aux-oneformer-coco-semsegpreprocessor"
 
     @classmethod
     def INPUT_TYPES(s):
@@ -291,7 +306,7 @@ class OneFormer_COCO_SemSegPreprocessor(BasePreprocessor):
 
 
 class OneFormer_ADE20K_SemSegPreprocessor(BasePreprocessor):
-    model_name = "/controlnet_aux/oneformer-ade20k-semsegpreprocessor"
+    model_name = "/supernode/controlnet-aux-oneformer-ade20k-semsegpreprocessor"
 
     @classmethod
     def INPUT_TYPES(s):
@@ -301,7 +316,7 @@ class OneFormer_ADE20K_SemSegPreprocessor(BasePreprocessor):
 
 
 class HEDPreprocessor(BasePreprocessor):
-    model_name = "/controlnet_aux/hedpreprocessor"
+    model_name = "/supernode/controlnet-aux-hedpreprocessor"
 
     @classmethod
     def INPUT_TYPES(s):
@@ -313,7 +328,7 @@ class HEDPreprocessor(BasePreprocessor):
 
 
 class FakeScribblePreprocessor(BasePreprocessor):
-    model_name = "/controlnet_aux/fakescribblepreprocessor"
+    model_name = "/supernode/controlnet-aux-fakescribblepreprocessor"
 
     @classmethod
     def INPUT_TYPES(s):
@@ -325,7 +340,7 @@ class FakeScribblePreprocessor(BasePreprocessor):
 
 
 class TilePreprocessor(BasePreprocessor):
-    model_name = "/controlnet_aux/tilepreprocessor"
+    model_name = "/supernode/controlnet-aux-tilepreprocessor"
 
     @classmethod
     def INPUT_TYPES(s):
@@ -337,7 +352,7 @@ class TilePreprocessor(BasePreprocessor):
 
 
 class DepthAnythingV2Preprocessor(BasePreprocessor):
-    model_name = "/controlnet_aux/depthanythingv2preprocessor"
+    model_name = "/supernode/controlnet-aux-depthanythingv2preprocessor"
 
     @classmethod
     def INPUT_TYPES(s):
@@ -357,7 +372,7 @@ class DepthAnythingV2Preprocessor(BasePreprocessor):
 
 
 class Metric3D_DepthMapPreprocessor(BasePreprocessor):
-    model_name = "/controlnet_aux/metric3d-depthmappreprocessor"
+    model_name = "/supernode/controlnet-aux-metric3d-depthmappreprocessor"
 
     @classmethod
     def INPUT_TYPES(s):
@@ -374,7 +389,7 @@ class Metric3D_DepthMapPreprocessor(BasePreprocessor):
 
 
 class Metric3D_NormalMapPreprocessor(BasePreprocessor):
-    model_name = "/controlnet_aux/metric3d-normalmappreprocessor"
+    model_name = "/supernode/controlnet-aux-metric3d-normalmappreprocessor"
 
     @classmethod
     def INPUT_TYPES(s):
@@ -391,7 +406,7 @@ class Metric3D_NormalMapPreprocessor(BasePreprocessor):
 
 
 class DWPreprocessor(BasePreprocessor):
-    model_name = "/controlnet_aux/dwpreprocessor"
+    model_name = "/supernode/controlnet-aux-dwpreprocessor"
 
     @classmethod
     def INPUT_TYPES(s):
