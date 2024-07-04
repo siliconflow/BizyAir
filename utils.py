@@ -109,7 +109,7 @@ def format_bytes(num_bytes: int) -> str:
 def validate_api_key(key: str):
     assert key.startswith(
         "sk"
-    ), "invalid key, please refer to https://cloud.siliconflow.cn to get your API_KEY"
+    ), f"invalid key, please refer to https://cloud.siliconflow.cn to get your API_KEY, got {key}"
 
 
 def get_api_key():
