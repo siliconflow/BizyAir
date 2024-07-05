@@ -5,25 +5,15 @@ from .utils import (
     decode_and_deserialize,
     send_post_request,
     serialize_and_encode,
-    set_api_key,
     get_api_key,
 )
 
-# https://uat-cloud.siliconflow.cn/account/ak
 # export COMFYAIR_SERVER_ADDRESS=http://127.0.0.1:8000
 # export COMFYAIR_SERVER_ADDRESS=https://uat-api.siliconflow.cn
 COMFYAIR_SERVER_ADDRESS = os.getenv(
     "COMFYAIR_SERVER_ADDRESS", "https://uat-api.siliconflow.cn"
 )
 
-auth = f"Bearer {get_api_key()}"
-HEADERS = {
-    "accept": "application/json",
-    "content-type": "application/json",
-    "authorization": auth,
-}
-# /supernode/controlnetauxpidinetpreprocessor
-# /supernode/controlnetauxpidinetpreprocessor(/|$)(.*)
 # Sync with theoritical limit from Comfy base
 # https://github.com/comfyanonymous/ComfyUI/blob/eecd69b53a896343775bcb02a4f8349e7442ffd1/nodes.py#L45
 MAX_RESOLUTION = 1024
@@ -37,6 +27,14 @@ class BasePreprocessor:
         cls.API_URL = f"{COMFYAIR_SERVER_ADDRESS}{cls.model_name}"
         cls.CATEGORY = f"ComfyAir/{cls.CATEGORY}"
 
+    @staticmethod
+    def get_headers():
+        return {
+            "accept": "application/json",
+            "content-type": "application/json",
+            "authorization": f"Bearer {get_api_key()}",
+        }
+
     RETURN_TYPES = ("IMAGE",)
     FUNCTION = "execute"
 
@@ -45,7 +43,9 @@ class BasePreprocessor:
         image = kwargs.pop("image")
         kwargs["image"] = serialize_and_encode(image, compress)[0]
         kwargs["is_compress"] = compress
-        response = send_post_request(self.API_URL, payload=kwargs, headers=HEADERS)
+        response = send_post_request(
+            self.API_URL, payload=kwargs, headers=self.get_headers()
+        )
         image = decode_and_deserialize(response.text)
         return (image,)
 
