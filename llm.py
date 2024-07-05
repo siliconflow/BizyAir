@@ -17,24 +17,25 @@ class SiliconCloudLLMAPI:
     @classmethod
     def INPUT_TYPES(s):
         models = list(s.display_name_to_id.keys())
+        default_sysmtem_prompt = """你是一个 stable diffusion prompt 专家，为我生成适用于 Stable Diffusion 模型的prompt。
+我给你相关的单词，你帮我扩写为适合 Stable Diffusion 文生图的 prompt。要求：
+1. 英文输出
+2. 除了 prompt 外，不要输出任何其它的信息
+"""
         return {
             "required": {
                 "model": (models, {"default": "(Free)GLM4 9B Chat"}),
                 "system_prompt": (
                     "STRING",
                     {
-                        "default": "You are a helpful assistant",
+                        "default": default_sysmtem_prompt,
                         "multiline": True,
                         "dynamicPrompts": True,
                     },
                 ),
                 "user_prompt": (
                     "STRING",
-                    {
-                        "default": "为我生成适用于 SDXL 模型的提示词，用于画一只可爱的小猫，在户外",
-                        "multiline": True,
-                        "dynamicPrompts": True,
-                    },
+                    {"default": "小猫，梵高风格", "multiline": True, "dynamicPrompts": True,},
                 ),
                 "max_tokens": ("INT", {"default": 512, "min": 100, "max": 1e5}),
                 "temperature": (
