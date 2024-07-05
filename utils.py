@@ -115,8 +115,6 @@ def validate_api_key(key: str):
 
 def get_api_key():
     from .auth import API_KEY
-
-    print(f"get_api_key: {API_KEY}")
     validate_api_key(API_KEY)
     return API_KEY
 
