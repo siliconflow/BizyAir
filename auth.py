@@ -3,6 +3,8 @@ import uuid
 import server
 from aiohttp import web
 
+from .utils import validate_api_key
+
 API_KEY = None
 
 
@@ -50,6 +52,7 @@ class SetAPIKey:
     OUTPUT_NODE = True
 
     def set_api_key(self, API_KEY="YOUR_API_KEY"):
+        validate_api_key(API_KEY)
         return {"ui": {"api_key": (API_KEY,)}, "result": ()}
 
     @classmethod
