@@ -8,10 +8,8 @@ from .utils import (
     get_api_key,
 )
 
-# export COMFYAIR_SERVER_ADDRESS=http://127.0.0.1:8000
-# export COMFYAIR_SERVER_ADDRESS=https://uat-api.siliconflow.cn
 COMFYAIR_SERVER_ADDRESS = os.getenv(
-    "COMFYAIR_SERVER_ADDRESS", "https://uat-api.siliconflow.cn"
+    "COMFYAIR_SERVER_ADDRESS", "https://api.siliconflow.cn"
 )
 
 # Sync with theoritical limit from Comfy base
