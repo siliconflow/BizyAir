@@ -18,7 +18,7 @@ use_directory_urls: false
 theme:
   name: material
   custom_dir: 'overrides/'
-  logo: assets/kidslogo.svg
+  logo: assets/bizyair.svg
 
   # 404 page
   static_templates:
@@ -95,8 +95,22 @@ markdown_extensions:
 
 extra_javascript:
   - javascripts/config.js
-  - https://polyfill.io/v3/polyfill.min.js?features=es6
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+extra_css:
+  - css/custom.css
+
 
 nav:
-  - 首页: index.md
+  - Homepage: index.md
+  - Getting Started:
+    - Installation: getting-started/installation.md
+    - Quick Start: getting-started/quick-start.md
+  - Controlnet Preprocessing:
+    - Line Extraction: controlnet-preprocessing/line-extraction.md
+    - T2I Adapter: controlnet-preprocessing/t2i-adapter.md
+    - Semantic Segmentation: controlnet-preprocessing/semantic-segmentation.md
+    - Normal and Depth Estimation: controlnet-preprocessing/normal-and-depth-estimation.md
+    - Face and Pose Detection: controlnet-preprocessing/face-and-pose-detection.md
+    - Others: controlnet-preprocessing/others.md
+
+
