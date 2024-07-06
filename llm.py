@@ -61,7 +61,7 @@ class SiliconCloudLLMAPI:
             max_tokens,
             temperature,
         )
-        ret = json.loads(response.text)
+        ret = json.loads(response)
         text = ret["choices"][0]["message"]["content"]
         return {"ui": {"text": (text,)}, "result": (text,)}
 
