@@ -23,7 +23,7 @@ class SuperResolution:
     RETURN_TYPES = ("IMAGE",)
     FUNCTION = "super_resolution"
 
-    CATEGORY = "ComfyAir"
+    CATEGORY = "BizyAir"
 
     def super_resolution(self, image, scale="2x"):
         API_KEY = get_api_key()
@@ -67,7 +67,7 @@ class RemoveBackground:
     RETURN_TYPES = ("IMAGE", "MASK")
     FUNCTION = "remove_background"
 
-    CATEGORY = "ComfyAir"
+    CATEGORY = "BizyAir"
 
     def remove_background(self, image):
         API_KEY = get_api_key()
@@ -126,7 +126,7 @@ class GenerateLightningImage:
     RETURN_TYPES = ("IMAGE",)
     FUNCTION = "generate_image"
 
-    CATEGORY = "ComfyAir"
+    CATEGORY = "BizyAir"
 
     def generate_image(self, prompt, seed, width, height, cfg, batch_size):
         API_KEY = get_api_key()
@@ -156,12 +156,12 @@ class GenerateLightningImage:
 
 
 NODE_CLASS_MAPPINGS = {
-    "ComfyAirSuperResolution": SuperResolution,
-    "ComfyAirRemoveBackground": RemoveBackground,
-    "ComfyAirGenerateLightningImage": GenerateLightningImage,
+    "BizyAirSuperResolution": SuperResolution,
+    "BizyAirRemoveBackground": RemoveBackground,
+    "BizyAirGenerateLightningImage": GenerateLightningImage,
 }
 NODE_DISPLAY_NAME_MAPPINGS = {
-    "ComfyAirSuperResolution": "ComfyAir Anime Image Super Resolution",
-    "ComfyAirRemoveBackground": "ComfyAir Remove Background",
-    "ComfyAirGenerateLightningImage": "ComfyAir Generate Image",
+    "BizyAirSuperResolution": "BizyAir Anime Image Super Resolution",
+    "BizyAirRemoveBackground": "BizyAir Remove Background",
+    "BizyAirGenerateLightningImage": "BizyAir Generate Image",
 }

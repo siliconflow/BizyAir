@@ -19,7 +19,7 @@ or you can only use nodes locally.`);
 
     },
     async beforeRegisterNodeDef(nodeType, nodeData, app) {
-        if (nodeData.name === "ComfyAirSetAPIKey") {
+        if (nodeData.name === "BizyAirSetAPIKey") {
             async function set_api_key_to_cookies(text) {
                 const body = new FormData();
                 body.append("api_key", text);
