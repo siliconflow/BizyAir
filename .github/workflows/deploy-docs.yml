@@ -29,4 +29,6 @@ jobs:
       run: |
         mkdocs build
         mkdocs gh-deploy --force
+      env:
+        GITHUB_TOKEN: ${{ secrets.UPDATE_GH_PAGES }}
       working-directory: ./docs
