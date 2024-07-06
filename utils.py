@@ -6,7 +6,7 @@ import zlib
 
 import requests
 
-COMFYAIR_DEBUG = os.getenv("COMFYAIR_DEBUG", False)
+BIZYAIR_DEBUG = os.getenv("BIZYAIR_DEBUG", False)
 
 
 def send_post_request(api_url, payload, headers):
@@ -46,14 +46,14 @@ def serialize_and_encode(obj, compress=True):
     if compress:
         serialized_obj = zlib.compress(serialized_obj)
 
-    if COMFYAIR_DEBUG:
+    if BIZYAIR_DEBUG:
         print(
             f"serialize_and_encode: size of bytes is {format_bytes(len(serialized_obj))}"
         )
 
     encoded_obj = base64.b64encode(serialized_obj).decode("utf-8")
 
-    if COMFYAIR_DEBUG:
+    if BIZYAIR_DEBUG:
         print(
             f"serialize_and_encode: size of base64 text is {format_bytes(len(serialized_obj))}"
         )
@@ -62,7 +62,7 @@ def serialize_and_encode(obj, compress=True):
 
 
 def decode_and_deserialize(response_text):
-    if COMFYAIR_DEBUG:
+    if BIZYAIR_DEBUG:
         print(
             f"decode_and_deserialize: size of text is {format_bytes(len(response_text))}"
         )
@@ -73,7 +73,10 @@ def decode_and_deserialize(response_text):
         msg = json.loads(ret["result"])
     else:
         msg = ret
-    if msg["type"] != "comfyair":
+    if (
+        msg["type"] != "comfyair"
+    ):  # DO NOT CHANGE THIS LINE: "comfyair" is the type from the server node
+        # TODO: change both server and client "comfyair" to "bizyair"
         raise Exception(f"Unexpected response type: {msg}")
 
     data = msg["data"]
@@ -82,7 +85,7 @@ def decode_and_deserialize(response_text):
     if data["is_compress"]:
         tensor_bytes = zlib.decompress(tensor_bytes)
 
-    if COMFYAIR_DEBUG:
+    if BIZYAIR_DEBUG:
         print(
             f"decode_and_deserialize: size of bytes is {format_bytes(len(tensor_bytes))}"
         )

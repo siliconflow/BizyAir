@@ -48,7 +48,7 @@ class SetAPIKey:
     RETURN_TYPES = ()
     FUNCTION = "set_api_key"
 
-    CATEGORY = "ComfyAir"
+    CATEGORY = "BizyAir"
     OUTPUT_NODE = True
 
     def set_api_key(self, API_KEY="YOUR_API_KEY"):
@@ -61,8 +61,8 @@ class SetAPIKey:
 
 
 NODE_CLASS_MAPPINGS = {
-    "ComfyAirSetAPIKey": SetAPIKey,
+    "BizyAirSetAPIKey": SetAPIKey,
 }
 NODE_DISPLAY_NAME_MAPPINGS = {
-    "ComfyAirSetAPIKey": "Set SiliconCloud API Key",
+    "BizyAirSetAPIKey": "Set SiliconCloud API Key",
 }

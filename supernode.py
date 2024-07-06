@@ -8,13 +8,13 @@ from .utils import (
     get_api_key,
 )
 
-COMFYAIR_SERVER_ADDRESS = os.getenv(
-    "COMFYAIR_SERVER_ADDRESS", "https://api.siliconflow.cn"
+BIZYAIR_SERVER_ADDRESS = os.getenv(
+    "BIZYAIR_SERVER_ADDRESS", "https://api.siliconflow.cn"
 )
 
 
 class SuperResolution:
-    API_URL = f"{COMFYAIR_SERVER_ADDRESS}/supernode/superresolution"
+    API_URL = f"{BIZYAIR_SERVER_ADDRESS}/supernode/superresolution"
 
     @classmethod
     def INPUT_TYPES(s):
@@ -23,7 +23,7 @@ class SuperResolution:
     RETURN_TYPES = ("IMAGE",)
     FUNCTION = "super_resolution"
 
-    CATEGORY = "ComfyAir"
+    CATEGORY = "BizyAir"
 
     def super_resolution(self, image, scale="2x"):
         API_KEY = get_api_key()
@@ -58,7 +58,7 @@ class SuperResolution:
 
 
 class RemoveBackground:
-    API_URL = f"{COMFYAIR_SERVER_ADDRESS}/supernode/removebg"
+    API_URL = f"{BIZYAIR_SERVER_ADDRESS}/supernode/removebg"
 
     @classmethod
     def INPUT_TYPES(s):
@@ -67,7 +67,7 @@ class RemoveBackground:
     RETURN_TYPES = ("IMAGE", "MASK")
     FUNCTION = "remove_background"
 
-    CATEGORY = "ComfyAir"
+    CATEGORY = "BizyAir"
 
     def remove_background(self, image):
         API_KEY = get_api_key()
@@ -99,7 +99,7 @@ class RemoveBackground:
 
 
 class GenerateLightningImage:
-    API_URL = f"{COMFYAIR_SERVER_ADDRESS}/supernode/realvis4lightning"
+    API_URL = f"{BIZYAIR_SERVER_ADDRESS}/supernode/realvis4lightning"
 
     @classmethod
     def INPUT_TYPES(s):
@@ -126,7 +126,7 @@ class GenerateLightningImage:
     RETURN_TYPES = ("IMAGE",)
     FUNCTION = "generate_image"
 
-    CATEGORY = "ComfyAir"
+    CATEGORY = "BizyAir"
 
     def generate_image(self, prompt, seed, width, height, cfg, batch_size):
         API_KEY = get_api_key()
@@ -156,12 +156,12 @@ class GenerateLightningImage:
 
 
 NODE_CLASS_MAPPINGS = {
-    "ComfyAirSuperResolution": SuperResolution,
-    "ComfyAirRemoveBackground": RemoveBackground,
-    "ComfyAirGenerateLightningImage": GenerateLightningImage,
+    "BizyAirSuperResolution": SuperResolution,
+    "BizyAirRemoveBackground": RemoveBackground,
+    "BizyAirGenerateLightningImage": GenerateLightningImage,
 }
 NODE_DISPLAY_NAME_MAPPINGS = {
-    "ComfyAirSuperResolution": "ComfyAir Anime Image Super Resolution",
-    "ComfyAirRemoveBackground": "ComfyAir Remove Background",
-    "ComfyAirGenerateLightningImage": "ComfyAir Generate Image",
+    "BizyAirSuperResolution": "BizyAir Anime Image Super Resolution",
+    "BizyAirRemoveBackground": "BizyAir Remove Background",
+    "BizyAirGenerateLightningImage": "BizyAir Generate Image",
 }

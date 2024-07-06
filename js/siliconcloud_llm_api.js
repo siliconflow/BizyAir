@@ -2,9 +2,9 @@ import { app } from "../../scripts/app.js";
 import { ComfyWidgets } from "../../../scripts/widgets.js";
 
 app.registerExtension({
-    name: "comfyair.siliconcloud.llm.api",
+    name: "bizyair.siliconcloud.llm.api",
     async beforeRegisterNodeDef(nodeType, nodeData, app) {
-        if (nodeData.name === "ComfyAirSiliconCloudLLMAPI") {
+        if (nodeData.name === "BizyAirSiliconCloudLLMAPI") {
             function populate(text) {
                 if (this.widgets) {
                     const pos = this.widgets.findIndex((w) => w.name === "showtext");
