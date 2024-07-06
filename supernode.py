@@ -6,7 +6,6 @@ from .utils import (
     send_post_request,
     serialize_and_encode,
     get_api_key,
-    set_api_key,
 )
 
 COMFYAIR_SERVER_ADDRESS = os.getenv(
@@ -156,35 +155,13 @@ class GenerateLightningImage:
         return (tensors,)
 
 
-class LoadAPIKey:
-    @classmethod
-    def INPUT_TYPES(s):
-        return {"required": {"API_KEY": ("STRING", {"default": "YOUR_API_KEY"}),}}
-
-    RETURN_TYPES = ()
-    FUNCTION = "load_api_key"
-
-    CATEGORY = "ComfyAir"
-    OUTPUT_NODE = True
-
-    def load_api_key(self, API_KEY="YOUR_API_KEY"):
-        set_api_key(API_KEY)
-        return {}
-
-    @classmethod
-    def IS_CHANGED(s, latent):
-        return uuid.uuid4().hex
-
-
 NODE_CLASS_MAPPINGS = {
     "ComfyAirSuperResolution": SuperResolution,
     "ComfyAirRemoveBackground": RemoveBackground,
     "ComfyAirGenerateLightningImage": GenerateLightningImage,
-    "ComfyAirLoadAPIKey": LoadAPIKey,
 }
 NODE_DISPLAY_NAME_MAPPINGS = {
     "ComfyAirSuperResolution": "ComfyAir Anime Image Super Resolution",
     "ComfyAirRemoveBackground": "ComfyAir Remove Background",
-    "ComfyAirGenerateLightningImage": "ComfyAir Generate Lightning Image",
-    "ComfyAirLoadAPIKey": "Load SiliconCloud API Key",
+    "ComfyAirGenerateLightningImage": "ComfyAir Generate Image",
 }
