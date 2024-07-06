@@ -51,8 +51,10 @@ class SuperResolution:
         payload["image"] = input_image
         payload["is_compress"] = compress
 
-        response = send_post_request(self.API_URL, payload=payload, headers=headers)
-        image = decode_and_deserialize(response.text)
+        response: str = send_post_request(
+            self.API_URL, payload=payload, headers=headers
+        )
+        image = decode_and_deserialize(response)
         image = image.to(device)
         return (image,)
 
@@ -91,8 +93,10 @@ class RemoveBackground:
         payload["image"] = input_image
         payload["is_compress"] = compress
 
-        response = send_post_request(self.API_URL, payload=payload, headers=headers)
-        tensors = decode_and_deserialize(response.text)
+        response: str = send_post_request(
+            self.API_URL, payload=payload, headers=headers
+        )
+        tensors = decode_and_deserialize(response)
         t_images = tensors["images"].to(device)
         t_mask = tensors["mask"].to(device)
         return (t_images, t_mask)
@@ -149,8 +153,10 @@ class GenerateLightningImage:
             "authorization": auth,
         }
 
-        response = send_post_request(self.API_URL, payload=payload, headers=headers)
-        tensors = decode_and_deserialize(response.text)
+        response: str = send_post_request(
+            self.API_URL, payload=payload, headers=headers
+        )
+        tensors = decode_and_deserialize(response)
 
         return (tensors,)
 
