@@ -73,7 +73,10 @@ def decode_and_deserialize(response_text):
         msg = json.loads(ret["result"])
     else:
         msg = ret
-    if msg["type"] != "comfyair":
+    if (
+        msg["type"] != "comfyair"
+    ):  # DO NOT CHANGE THIS LINE: "comfyair" is the type from the server node
+        # TODO: change both server and client "comfyair" to "bizyair"
         raise Exception(f"Unexpected response type: {msg}")
 
     data = msg["data"]

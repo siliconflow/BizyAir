@@ -3,7 +3,7 @@ import { api } from "../../../../scripts/api.js";
 
 
 app.registerExtension({
-    name: "comfyair.set.api.key",
+    name: "bizyair.set.api.key",
     async setup() {
         const response = await api.fetchApi("/bizyair/get_api_key",
             { method: "GET" });
