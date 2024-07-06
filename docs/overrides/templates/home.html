@@ -226,12 +226,14 @@
         <div class="mdx-hero">
 
             <!-- Hero image -->
+            
             <div class="mdx-hero__image">
-            <img
+                <img id="random-image" src="" alt="" draggable="false">
+            <!-- <img
               src="assets/item.png"
               alt=""
               draggable="false"
-            >
+            > -->
           </div>
 
             <!-- Hero content -->
@@ -258,6 +260,22 @@
 <div class="top-hr">
 
 </div>
+
+<script>
+    // Function to get a random integer between min and max (inclusive)
+    function getRandomInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    // Generate a random number between 1 and 9
+    const randomNumber = getRandomInt(1, 9);
+
+    // Select the image element
+    const imageElement = document.getElementById('random-image');
+
+    // Set the src attribute to the random image
+    imageElement.src = `assets/item${randomNumber}.png`;
+  </script>
 
 {% endblock %}
 {% block content %}{% endblock %}
