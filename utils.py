@@ -107,20 +107,17 @@ def format_bytes(num_bytes: int) -> str:
 
 
 def validate_api_key(key: str):
+    assert isinstance(key, str), f"API_KEY must be a string, got {type(key)}"
     assert key.startswith(
         "sk"
     ), f"invalid key, please refer to https://cloud.siliconflow.cn to get your API_KEY, got {key}"
 
 
 def get_api_key():
-    api_key = os.getenv("COMFYAIR_API_KEY", "")
-    validate_api_key(api_key)
-    return api_key
+    from .auth import API_KEY
 
-
-def set_api_key(key: str):
-    validate_api_key(key)
-    os.environ["COMFYAIR_API_KEY"] = key
+    validate_api_key(API_KEY)
+    return API_KEY
 
 
 def get_llm_response(
