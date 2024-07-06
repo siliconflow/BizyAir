@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - add_docs_and_ci
 
 jobs:
   deploy:
