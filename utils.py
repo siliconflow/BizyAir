@@ -2,9 +2,9 @@ import base64
 import json
 import os
 import pickle
+import urllib.request
+import urllib.parse
 import zlib
-
-import requests
 
 BIZYAIR_DEBUG = os.getenv("BIZYAIR_DEBUG", False)
 
@@ -22,12 +22,13 @@ def send_post_request(api_url, payload, headers):
         Exception: If there is an error connecting to the server or the request fails.
     """
     try:
-        response = requests.post(api_url, json=payload, headers=headers)
-        response.raise_for_status()
-    except requests.exceptions.RequestException as e:
+        data = json.dumps(payload).encode("utf-8")
+        req = urllib.request.Request(api_url, data=data, headers=headers, method="POST")
+        with urllib.request.urlopen(req) as response:
+            response_data = response.read().decode("utf-8")
+        return response_data
+    except urllib.error.URLError as e:
         raise Exception(f"Failed to connect to the server: {e}")
-
-    return response
 
 
 def serialize_and_encode(obj, compress=True):

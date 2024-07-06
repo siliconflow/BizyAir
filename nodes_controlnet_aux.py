@@ -41,10 +41,10 @@ class BasePreprocessor:
         image = kwargs.pop("image")
         kwargs["image"] = serialize_and_encode(image, compress)[0]
         kwargs["is_compress"] = compress
-        response = send_post_request(
+        response: str = send_post_request(
             self.API_URL, payload=kwargs, headers=self.get_headers()
         )
-        image = decode_and_deserialize(response.text)
+        image = decode_and_deserialize(response)
         return (image,)
 
 
