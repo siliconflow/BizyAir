@@ -8,8 +8,8 @@ from .utils import (
     get_api_key,
 )
 
-COMFYAIR_SERVER_ADDRESS = os.getenv(
-    "COMFYAIR_SERVER_ADDRESS", "https://api.siliconflow.cn"
+BIZYAIR_SERVER_ADDRESS = os.getenv(
+    "BIZYAIR_SERVER_ADDRESS", "https://api.siliconflow.cn"
 )
 
 # Sync with theoritical limit from Comfy base
@@ -22,7 +22,7 @@ class BasePreprocessor:
         super().__init_subclass__(**kwargs)
         if not hasattr(cls, "model_name"):
             raise TypeError("Subclass must define 'model_name'")
-        cls.API_URL = f"{COMFYAIR_SERVER_ADDRESS}{cls.model_name}"
+        cls.API_URL = f"{BIZYAIR_SERVER_ADDRESS}{cls.model_name}"
         cls.CATEGORY = f"BizyAir/{cls.CATEGORY}"
 
     @staticmethod

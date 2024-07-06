@@ -8,13 +8,13 @@ from .utils import (
     get_api_key,
 )
 
-COMFYAIR_SERVER_ADDRESS = os.getenv(
-    "COMFYAIR_SERVER_ADDRESS", "https://api.siliconflow.cn"
+BIZYAIR_SERVER_ADDRESS = os.getenv(
+    "BIZYAIR_SERVER_ADDRESS", "https://api.siliconflow.cn"
 )
 
 
 class SuperResolution:
-    API_URL = f"{COMFYAIR_SERVER_ADDRESS}/supernode/superresolution"
+    API_URL = f"{BIZYAIR_SERVER_ADDRESS}/supernode/superresolution"
 
     @classmethod
     def INPUT_TYPES(s):
@@ -58,7 +58,7 @@ class SuperResolution:
 
 
 class RemoveBackground:
-    API_URL = f"{COMFYAIR_SERVER_ADDRESS}/supernode/removebg"
+    API_URL = f"{BIZYAIR_SERVER_ADDRESS}/supernode/removebg"
 
     @classmethod
     def INPUT_TYPES(s):
@@ -99,7 +99,7 @@ class RemoveBackground:
 
 
 class GenerateLightningImage:
-    API_URL = f"{COMFYAIR_SERVER_ADDRESS}/supernode/realvis4lightning"
+    API_URL = f"{BIZYAIR_SERVER_ADDRESS}/supernode/realvis4lightning"
 
     @classmethod
     def INPUT_TYPES(s):
