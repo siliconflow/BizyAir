@@ -43,7 +43,7 @@ theme:
     code: Roboto Mono
   # icon:
   #   logo: logo
-  favicon: assets/bizyair.png
+  favicon: assets/bizyair.svg
 
 # Plugins
 plugins:
