@@ -1,6 +1,10 @@
+import copy
+import os
+
+
 import numpy as np
 import torch
-import os
+
 
 from .utils import (
     decode_and_deserialize,
@@ -62,6 +66,47 @@ class BizyAirKolorsTextEncode:
         for k, v in kolors_embeds.items():
             kolors_embeds[k] = torch.from_numpy(v)
         return (kolors_embeds,)
+
+
+class BizyAirKolorsVAEEncode:
+    API_URL = f"{BIZYAIR_SERVER_ADDRESS}/supernode/kolorsvaeencode"
+
+    @classmethod
+    def INPUT_TYPES(s):
+        return {"required": {"pixels": ("IMAGE",),}}
+
+    RETURN_TYPES = ("LATENT",)
+    FUNCTION = "encode"
+
+    CATEGORY = "BizyAir/Kolors"
+
+    def encode(self, pixels):
+        API_KEY = get_api_key()
+        device = pixels.device
+        payload = {
+            "images": None,
+            "is_compress": True,
+        }
+        auth = f"Bearer {API_KEY}"
+        headers = {
+            "accept": "application/json",
+            "content-type": "application/json",
+            "authorization": auth,
+        }
+        np_pixels = copy.deepcopy(pixels)
+        np_pixels = np_pixels.cpu().detach().numpy()
+        images, compress = serialize_and_encode(np_pixels, compress=True)
+        payload["images"] = images
+        payload["is_compress"] = compress
+        response: str = send_post_request(
+            self.API_URL, payload=payload, headers=headers
+        )
+        samples = decode_and_deserialize(response)
+        for k, v in samples.items():
+            samples[k] = torch.from_numpy(v)
+            samples[k] = samples[k].to(device=device)
+        print("yaochi debug, what you pass is ", type(samples))
+        return (samples,)
 
 
 class BizyAirKolorsVAEDecode:
@@ -179,15 +224,17 @@ class BizyAirKolorsSampler:
         }
 
         # convert the tensors to numpy array
-        for k, v in kolors_embeds.items():
+        np_kolors_embeds = copy.deepcopy(kolors_embeds)
+        np_latent = copy.deepcopy(latent) if latent is not None else None
+        for k, v in np_kolors_embeds.items():
             if hasattr(v, "cpu"):
-                kolors_embeds[k] = v.cpu().detach().numpy()
-        if latent is not None:
+                np_kolors_embeds[k] = v.cpu().detach().numpy()
+        if np_latent is not None:
             for k, v in latent.items():
                 if hasattr(v, "cpu"):
-                    latent[k] = v.cpu().detach().numpy()
+                    np_latent[k] = v.cpu().detach().numpy()
         inputs_dict, is_compress = serialize_and_encode(
-            {"kolors_embeddings": kolors_embeds, "latent": latent}, compress=True
+            {"kolors_embeddings": np_kolors_embeds, "latent": np_latent}, compress=True
         )
 
         payload["inputs"] = inputs_dict
@@ -211,11 +258,13 @@ class BizyAirKolorsSampler:
 
 NODE_CLASS_MAPPINGS = {
     "BizyAirKolorsTextEncode": BizyAirKolorsTextEncode,
+    "BizyAirKolorsVAEEncode": BizyAirKolorsVAEEncode,
     "BizyAirKolorsVAEDecode": BizyAirKolorsVAEDecode,
     "BizyAirKolorsSampler": BizyAirKolorsSampler,
 }
 NODE_DISPLAY_NAME_MAPPINGS = {
     "BizyAirKolorsTextEncode": "BizyAir KolorsTextEncode",
+    "BizyAirKolorsVAEEncode": "BizyAir KolorsVAEEecode",
     "BizyAirKolorsVAEDecode": "BizyAir KolorsVAEDecode",
     "BizyAirKolorsSampler": "BizyAir KolorsSampler",
 }
