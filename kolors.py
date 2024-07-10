@@ -263,8 +263,8 @@ NODE_CLASS_MAPPINGS = {
     "BizyAirKolorsSampler": BizyAirKolorsSampler,
 }
 NODE_DISPLAY_NAME_MAPPINGS = {
-    "BizyAirKolorsTextEncode": "BizyAir KolorsTextEncode",
-    "BizyAirKolorsVAEEncode": "BizyAir KolorsVAEEecode",
-    "BizyAirKolorsVAEDecode": "BizyAir KolorsVAEDecode",
-    "BizyAirKolorsSampler": "BizyAir KolorsSampler",
+    "BizyAirKolorsTextEncode": "☁️BizyAir KolorsTextEncode",
+    "BizyAirKolorsVAEEncode": "☁️BizyAir KolorsVAEEecode",
+    "BizyAirKolorsVAEDecode": "☁️BizyAir KolorsVAEDecode",
+    "BizyAirKolorsSampler": "☁️BizyAir KolorsSampler",
 }
