@@ -102,10 +102,11 @@ nav:
   - Getting Started:
     - Installation: getting-started/installation.md
     - Quick Start: getting-started/quick-start.md
-  - Controlnet Preprocessing:
-    - Line Extraction: controlnet-preprocessing/line-extraction.md
-    - T2I Adapter: controlnet-preprocessing/t2i-adapter.md
-    - Semantic Segmentation: controlnet-preprocessing/semantic-segmentation.md
-    - Normal and Depth Estimation: controlnet-preprocessing/normal-and-depth-estimation.md
-    - Face and Pose Detection: controlnet-preprocessing/face-and-pose-detection.md
-    - Others: controlnet-preprocessing/others.md
+  - Kolors: kolors/introduce.md
+  # - Controlnet Preprocessing:
+  #   - Line Extraction: controlnet-preprocessing/line-extraction.md
+  #   - T2I Adapter: controlnet-preprocessing/t2i-adapter.md
+  #   - Semantic Segmentation: controlnet-preprocessing/semantic-segmentation.md
+  #   - Normal and Depth Estimation: controlnet-preprocessing/normal-and-depth-estimation.md
+  #   - Face and Pose Detection: controlnet-preprocessing/face-and-pose-detection.md
+  #   - Others: controlnet-preprocessing/others.md
