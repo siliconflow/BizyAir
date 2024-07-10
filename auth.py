@@ -64,5 +64,5 @@ NODE_CLASS_MAPPINGS = {
     "BizyAirSetAPIKey": SetAPIKey,
 }
 NODE_DISPLAY_NAME_MAPPINGS = {
-    "BizyAirSetAPIKey": "Set SiliconCloud API Key",
+    "BizyAirSetAPIKey": "☁️Set SiliconCloud API Key",
 }
