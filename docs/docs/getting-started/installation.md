@@ -6,12 +6,9 @@ BizyAir is a set of ComfyUI nodes that allows you to skip the time-consuming pro
 
 ## Method 1: Install via ComfyUI Manager
 
-*Coming soon...*
+Assuming your ComfyUI already has the ComfyUI Manager installed, search for BizyAir as shown in the image below. Click "Install" to complete the installation.
+![ComfyUI_Manager_BizyAir_Search_Screenshot](./imgs/ComfyUI_Manager_BizyAir_Search_Screenshot.png)
 
-<!--
- Assuming your ComfyUI already has the ComfyUI Manager installed, search for BizyAir as shown in the image below. Click "Install" to complete the installation.
-
- ![]() -->
 
 ## Method 2: Install via git clone
 
@@ -26,7 +23,16 @@ Then, restart ComfyUI.
 
 ## Method 3: Install via Comfy CLI
 
-*Coming soon...*
+- Prerequisites
+    - Ensure `pip install comfy-cli` is installed.
+    - Installing ComfyUI `comfy install`
+  
+To install the `BizyAir`, use the following command:
+
+```shell
+comfy node install bizyair
+```
+
 
 ## Method 4: Download windows portable ComfyUI
 
