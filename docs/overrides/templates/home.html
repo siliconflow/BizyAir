@@ -1,0 +1,279 @@
+<!-- Custom HTML site displayed as the Home chapter -->
+
+{% extends "main.html" %}
+{% block tabs %}
+{{ super() }}
+<style>
+    @-webkit-keyframes mdx-heart {
+
+        0%,
+        40%,
+        80%,
+        to {
+            transform: scale(1)
+        }
+
+        20%,
+        60% {
+            transform: scale(1.15)
+        }
+    }
+
+    @keyframes mdx-heart {
+
+        0%,
+        40%,
+        80%,
+        to {
+            transform: scale(1)
+        }
+
+        20%,
+        60% {
+            transform: scale(1.15)
+        }
+    }
+
+    .mdx-hero {
+        color: var(--md-primary-bg-color);
+        margin: 0 .8rem
+    }
+
+    .mdx-hero h1 {
+        color: currentColor;
+        font-weight: 700;
+        margin-bottom: 1rem
+    }
+
+    @media screen and (max-width: 29.9375em) {
+        .mdx-hero h1 {
+            font-size: 1.4rem
+        }
+    }
+
+    .mdx-hero__content {
+        padding-bottom: 20rem
+    }
+
+    @media screen and (min-width: 60em) {
+        .mdx-hero {
+            align-items: stretch;
+            display: flex
+        }
+
+        .mdx-hero__content {
+            margin-top: 3.5rem;
+            max-width: 19rem;
+            /* padding-bottom: 14vw */
+        }
+
+        .mdx-hero__image {
+            order: 1;
+            transform: translateX(10rem);
+            width: 40rem;
+            height: 20rem
+        }
+    }
+
+    @media screen and (min-width: 76.25em) {
+        .mdx-hero__image {
+            transform: translateX(10rem)
+        }
+    }
+
+    .mdx-hero .md-button {
+        color: var(--md-primary-bg-color);
+        margin-right: .5rem;
+        margin-top: .5rem
+    }
+
+    .mdx-hero .md-button:focus,
+    .mdx-hero .md-button:hover {
+        background-color: var(--md-accent-fg-color);
+        border-color: var(--md-accent-fg-color);
+        color: var(--md-accent-bg-color)
+    }
+
+    .mdx-hero .md-button--primary {
+        background-color: var(--md-primary-bg-color);
+        border-color: var(--md-primary-bg-color);
+        color: #02a6f2
+    }
+
+    .tx-container {
+        padding-top: .0rem;
+        background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1123 258'><path d='m1125,30c0,0 0,256 0,256l-1125,0l0,-48c0,0 16,5 55,5c116,0 197,-92 325,-92c121,0 114,46 254,46c140,0 214,-167 572,-166l-81,-1z' style='fill: hsla(0, 0%, 100%, 1)' /></svg>") no-repeat bottom, linear-gradient(to bottom, var(--md-primary-fg-color), #add7ff 100%, var(--md-default-bg-color) 99%);
+    }
+
+
+
+
+    .feature-item h2 svg {
+        height: 30px;
+        float: left;
+        margin-right: 10px;
+        transform: translateY(10%);
+    }
+
+    .top-hr {
+        margin-top: 42px;
+    }
+
+    .feature-item {
+        font-family: 'Lato', sans-serif;
+        font-weight: 300;
+        box-sizing: border-box;
+        padding: 0 15px;
+        word-break: break-word
+    }
+
+    .feature-item h2 {
+        color: #333;
+        font-weight: 300;
+        font-size: 25px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        line-height: normal;
+        margin-top: 20px;
+        margin-bottom: 10px;
+        font-family: inherit;
+    }
+
+    .feature-item p {
+        font-size: 16px;
+        line-height: 1.8em;
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+        color: #111;
+        margin: 0 0 10px;
+        display: block;
+    }
+
+    @media screen and (min-width:76.25em) {
+        .md-sidebar--primary {
+            display: none
+        }
+
+        .top-hr {
+            width: 100%;
+            display: flex;
+            max-width: 61rem;
+            margin-right: auto;
+            margin-left: auto;
+            padding: 0 .2rem;
+        }
+
+        .bottom-hr {
+            margin-top: 10px;
+            width: 100%;
+            display: flex;
+            max-width: 61rem;
+            margin-right: auto;
+            margin-left: auto;
+            padding: 0 .2rem;
+        }
+
+        .feature-item {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .feature-item:hover {
+            background-color: #add7ff;
+            border-radius: 3px;
+        }
+    }
+
+    .hr {
+        border-bottom: 1px solid #eee;
+        width: 100%;
+        margin: 20px 0;
+    }
+
+    .md-footer-meta__inner {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        margin-top: 1.0rem;
+    }
+
+    .md-footer-social {
+        padding-top: 20px;
+    }
+
+    .hover-image {
+        position: absolute;
+        left:30%;
+        top:30%;
+        display: none; /* 初始时隐藏图片 */
+    }
+
+    .hover-image img {
+        width: 10rem; /* 设置图片宽度 */
+        height: auto; /* 自动计算高度，保持原始比例 */
+    }
+
+    .md-button:hover .hover-image,
+    .md-button.cliked .hover-image {
+        display: block; /* 鼠标悬停时显示图片 */
+    }
+</style>
+
+<!-- Main site Entry button descriptions -->
+<section class="tx-container">
+    <div class="md-grid md-typeset">
+        <div class="mdx-hero">
+
+            <!-- Hero image -->
+            
+            <div class="mdx-hero__image">
+                <img id="random-image" src="" alt="" draggable="false">
+          </div>
+
+            <!-- Hero content -->
+            <div class="mdx-hero__content">
+                <h1>ComfyUI - BizyAir</h1>
+                <p>Run AI nodes anywhere, anytime.</p>
+                <a href="https://discord.gg/bQAaYwfr" title=""
+                    class="md-button">
+                    Discord
+                </a>
+                <a href="#" title="" class="md-button">
+                    微信群
+                    <span class="hover-image">
+                        <img src="assets/qrcode.jpg" alt="">
+                    </span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+</section>
+
+<!-- Main site box descriptions -->
+<div class="top-hr">
+
+</div>
+
+<script>
+    // Function to get a random integer between min and max (inclusive)
+    function getRandomInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    // Generate a random number between 1 and 9
+    //const randomNumber = getRandomInt(1, 9);
+
+    const randomNumber = 6;
+
+    // Select the image element
+    const imageElement = document.getElementById('random-image');
+
+    // Set the src attribute to the random image
+    imageElement.src = `assets/item${randomNumber}.png`;
+  </script>
+
+{% endblock %}
+{% block content %}{% endblock %}
+{% block footer %}{% endblock %}

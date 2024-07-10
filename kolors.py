@@ -37,7 +37,7 @@ class BizyAirKolorsTextEncode:
     RETURN_TYPES = ("KOLORS_EMBEDS",)
     RETURN_NAMES = ("kolors_embeds",)
     FUNCTION = "encode"
-    CATEGORY = "BizyAir/Kolors"
+    CATEGORY = "☁️BizyAir/Kolors"
 
     def encode(self, prompt, negative_prompt, num_images_per_prompt):
         API_KEY = get_api_key()
@@ -78,7 +78,7 @@ class BizyAirKolorsVAEEncode:
     RETURN_TYPES = ("LATENT",)
     FUNCTION = "encode"
 
-    CATEGORY = "BizyAir/Kolors"
+    CATEGORY = "☁️BizyAir/Kolors"
 
     def encode(self, pixels):
         API_KEY = get_api_key()
@@ -119,7 +119,7 @@ class BizyAirKolorsVAEDecode:
     RETURN_TYPES = ("IMAGE",)
     FUNCTION = "decode"
 
-    CATEGORY = "BizyAir/Kolors"
+    CATEGORY = "☁️BizyAir/Kolors"
 
     def decode(self, samples):
         API_KEY = get_api_key()
@@ -190,7 +190,7 @@ class BizyAirKolorsSampler:
     RETURN_TYPES = ("LATENT",)
     RETURN_NAMES = ("latent",)
     FUNCTION = "process"
-    CATEGORY = "BizyAir/Kolors"
+    CATEGORY = "☁️BizyAir/Kolors"
 
     def process(
         self,
@@ -264,7 +264,7 @@ NODE_CLASS_MAPPINGS = {
 }
 NODE_DISPLAY_NAME_MAPPINGS = {
     "BizyAirKolorsTextEncode": "☁️BizyAir KolorsTextEncode",
-    "BizyAirKolorsVAEEncode": "☁️BizyAir KolorsVAEEecode",
-    "BizyAirKolorsVAEDecode": "☁️BizyAir KolorsVAEDecode",
+    "BizyAirKolorsVAEEncode": "☁️BizyAir Kolors VAE Encode",
+    "BizyAirKolorsVAEDecode": "☁️BizyAir Kolors VAE Decode",
     "BizyAirKolorsSampler": "☁️BizyAir KolorsSampler",
 }

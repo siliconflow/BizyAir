@@ -48,7 +48,7 @@ class SetAPIKey:
     RETURN_TYPES = ()
     FUNCTION = "set_api_key"
 
-    CATEGORY = "BizyAir"
+    CATEGORY = "☁️BizyAir"
     OUTPUT_NODE = True
 
     def set_api_key(self, API_KEY="YOUR_API_KEY"):
