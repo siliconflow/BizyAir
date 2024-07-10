@@ -23,7 +23,7 @@ class SuperResolution:
     RETURN_TYPES = ("IMAGE",)
     FUNCTION = "super_resolution"
 
-    CATEGORY = "BizyAir"
+    CATEGORY = "☁️BizyAir"
 
     def super_resolution(self, image, scale="2x"):
         API_KEY = get_api_key()
@@ -69,7 +69,7 @@ class RemoveBackground:
     RETURN_TYPES = ("IMAGE", "MASK")
     FUNCTION = "remove_background"
 
-    CATEGORY = "BizyAir"
+    CATEGORY = "☁️BizyAir"
 
     def remove_background(self, image):
         API_KEY = get_api_key()
@@ -109,7 +109,7 @@ class GenerateLightningImage:
     def INPUT_TYPES(s):
         return {
             "required": {
-                "prompt": ("STRING", {"multiline": True, "dynamicPrompts": True}),
+                "prompt": ("STRING", {"multiline": True, "dynamicPrompts": True, "default":"a dog"}),
                 "seed": ("INT", {"default": 1, "min": 0, "max": 0xFFFFFFFFFFFFFFFF}),
                 "width": ("INT", {"default": 1024, "min": 16, "max": 1024, "step": 8}),
                 "height": ("INT", {"default": 1024, "min": 16, "max": 1024, "step": 8}),
@@ -130,7 +130,7 @@ class GenerateLightningImage:
     RETURN_TYPES = ("IMAGE",)
     FUNCTION = "generate_image"
 
-    CATEGORY = "BizyAir"
+    CATEGORY = "☁️BizyAir"
 
     def generate_image(self, prompt, seed, width, height, cfg, batch_size):
         API_KEY = get_api_key()
@@ -162,12 +162,12 @@ class GenerateLightningImage:
 
 
 NODE_CLASS_MAPPINGS = {
-    "BizyAirSuperResolution": SuperResolution,
+    #"BizyAirSuperResolution": SuperResolution,
     "BizyAirRemoveBackground": RemoveBackground,
     "BizyAirGenerateLightningImage": GenerateLightningImage,
 }
 NODE_DISPLAY_NAME_MAPPINGS = {
-    "BizyAirSuperResolution": "BizyAir Anime Image Super Resolution",
+    #"BizyAirSuperResolution": "BizyAir Anime Image Super Resolution",
     "BizyAirRemoveBackground": "BizyAir Remove Background",
     "BizyAirGenerateLightningImage": "BizyAir Generate Image",
 }
