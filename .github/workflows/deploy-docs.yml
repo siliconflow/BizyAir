@@ -33,12 +33,11 @@ jobs:
     - name: List current directory contents
       run: |
         ls -la
-        ls -la ./_site
+        ls -la ./site
       working-directory: ./docs
 
     - name: Deploy
       uses: peaceiris/actions-gh-pages@v3
       with:
-        github_token: ${{ secrets.UPDATE_GH_PAGES }}
-        publish_dir: ./site
-      working-directory: ./docs
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./docs/site
