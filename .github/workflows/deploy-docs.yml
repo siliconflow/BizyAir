@@ -28,11 +28,12 @@ jobs:
     - name: Build and deploy docs
       run: |
         mkdocs build
-        ls ./docs/site
+        ls ./site
+        pwd
       working-directory: ./docs
 
     - name: Deploy
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.UPDATE_GH_PAGES }}
-        publish_dir: ./docs/site
+        publish_dir: ./site
