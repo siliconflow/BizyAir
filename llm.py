@@ -49,7 +49,7 @@ class SiliconCloudLLMAPI:
     FUNCTION = "get_llm_model_response"
     OUTPUT_NODE = True
 
-    CATEGORY = "BizyAir"
+    CATEGORY = "☁️BizyAir"
 
     def get_llm_model_response(
         self, model, system_prompt, user_prompt, max_tokens, temperature

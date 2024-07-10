@@ -23,7 +23,7 @@ class SuperResolution:
     RETURN_TYPES = ("IMAGE",)
     FUNCTION = "super_resolution"
 
-    CATEGORY = "BizyAir"
+    CATEGORY = "☁️BizyAir"
 
     def super_resolution(self, image, scale="2x"):
         API_KEY = get_api_key()
@@ -69,7 +69,7 @@ class RemoveBackground:
     RETURN_TYPES = ("IMAGE", "MASK")
     FUNCTION = "remove_background"
 
-    CATEGORY = "BizyAir"
+    CATEGORY = "☁️BizyAir"
 
     def remove_background(self, image):
         API_KEY = get_api_key()
@@ -130,7 +130,7 @@ class GenerateLightningImage:
     RETURN_TYPES = ("IMAGE",)
     FUNCTION = "generate_image"
 
-    CATEGORY = "BizyAir"
+    CATEGORY = "☁️BizyAir"
 
     def generate_image(self, prompt, seed, width, height, cfg, batch_size):
         API_KEY = get_api_key()

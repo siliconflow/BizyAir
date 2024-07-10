@@ -28,7 +28,10 @@ jobs:
     - name: Build and deploy docs
       run: |
         mkdocs build
-        mkdocs gh-deploy --force
-      env:
-        GITHUB_TOKEN: ${{ secrets.UPDATE_GH_PAGES }}
       working-directory: ./docs
+
+    - name: Deploy
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.UPDATE_GH_PAGES }}
+        publish_dir: ./site
