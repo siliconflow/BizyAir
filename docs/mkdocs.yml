@@ -17,7 +17,7 @@ use_directory_urls: false
 theme:
   name: material
   custom_dir: 'overrides/'
-  logo: assets/bizyair.svg
+  # logo: assets/bizyair.svg
 
   # 404 page
   static_templates:
@@ -43,7 +43,7 @@ theme:
     code: Roboto Mono
   # icon:
   #   logo: logo
-  favicon: assets/bizyair.svg
+  # favicon: assets/bizyair.svg
 
 # Plugins
 plugins:
