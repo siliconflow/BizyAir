@@ -70,6 +70,5 @@ NODE_CLASS_MAPPINGS = {
     "BizyAirSiliconCloudLLMAPI": SiliconCloudLLMAPI,
 }
 NODE_DISPLAY_NAME_MAPPINGS = {
-    "BizyAirSiliconCloudLLMAPI": "BizyAir SiliconCloud LLM API",
-    "BizyAirShowText": "BizyAir Show Text",
+    "BizyAirSiliconCloudLLMAPI": "☁️BizyAir SiliconCloud LLM API",
 }
