@@ -9,6 +9,6 @@ Repository = "https://github.com/siliconflow/BizyAir"
 #  Used by Comfy Registry https://comfyregistry.org
 
 [tool.comfy]
-PublisherId = ""
-DisplayName = "BizyAir"
-Icon = ""
+PublisherId = "siliconflow"
+DisplayName = "☁️BizyAir"
+Icon = "https://framerusercontent.com/images/4li2PjWxZJmoGkzXRMJWU1rJmI.svg"
