@@ -22,3 +22,5 @@ git clone https://github.com/siliconflow/BizyAir.git
 Then, restart ComfyUI.
 
 ## Method 3: Install via Comfy CLI
+
+*Coming soon...*
