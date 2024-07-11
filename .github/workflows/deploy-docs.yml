@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - sync_docs_website
 
 jobs:
   deploy:
@@ -40,3 +41,23 @@ jobs:
       with:
         github_token: ${{ secrets.UPDATE_GH_PAGES  }}
         publish_dir: ./docs/site
+    
+    - name: Remove existing files on remote server
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.REMOTE_HOST }}
+        username: ${{ secrets.REMOTE_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        port: ${{ secrets.REMOTE_PORT }}
+        script: |
+          rm -rf ${{ secrets.REMOTE_DEST_PATH }}
+
+    - name: Deploy via scp
+      uses: appleboy/scp-action@master
+      with:
+        host: ${{ secrets.REMOTE_HOST }}
+        username: ${{ secrets.REMOTE_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        port: ${{ secrets.REMOTE_PORT }}
+        source: "./docs/site"
+        target: ${{ secrets.REMOTE_DEST_PATH }}
