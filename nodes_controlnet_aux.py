@@ -1,6 +1,8 @@
 import numpy as np
 import os
 
+import torch
+
 from .utils import (
     decode_and_deserialize,
     send_post_request,
@@ -38,14 +40,16 @@ class BasePreprocessor:
 
     def execute(self, **kwargs):
         compress = True
-        image = kwargs.pop("image")
+        image: torch.Tensor = kwargs.pop("image")
+        device = image.device
         kwargs["image"] = serialize_and_encode(image, compress)[0]
         kwargs["is_compress"] = compress
         response: str = send_post_request(
             self.API_URL, payload=kwargs, headers=self.get_headers()
         )
-        image = decode_and_deserialize(response)
-        return (image,)
+        image_np = decode_and_deserialize(response)
+        image_torch = torch.from_numpy(image_np).to(device)
+        return (image_torch,)
 
 
 def create_node_input_types(**extra_kwargs):
