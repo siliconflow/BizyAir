@@ -21,7 +21,7 @@ Run ComfyUI anywhere, anytime, without worrying about the environment or hardwar
 You can install BizyAir by downloading the BizyAir repository to the custom_nodes subdirectory of ComfyUI by using git clone.
 
 ```bash
-cd /path/to/ComfyUI && \
+cd /path/to/ComfyUI/custom_nodes && \
 git clone https://github.com/siliconflow/BizyAir.git
 ```
 
