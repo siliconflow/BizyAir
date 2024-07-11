@@ -1,5 +1,9 @@
 # BizyAir
 
+
+- [2024/07/11] 🌩️ We release new nodes, featuring removing image background, photo-quality image generation, and animation super-resolution capabilities.
+- [2024/07/10] 🌩️ We release nodes that support Kolors and LLM(large language models).
+
 BizyAir is a collection of [ComfyUI](https://github.com/comfyanonymous/ComfyUI) nodes that help you overcome environmental and hardware limitations, allowing you to more easily generate high-quality content with ComfyUI.
 
 ![](./docs/docs/getting-started/imgs/text2img.gif)
@@ -12,6 +16,7 @@ BizyAir is a collection of [ComfyUI](https://github.com/comfyanonymous/ComfyUI) 
 - [Installation](#installation)
 - [Examples](#examples)
 - [Usage](#usage)
+
 
 ## Features
 
