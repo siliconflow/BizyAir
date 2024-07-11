@@ -103,6 +103,7 @@ nav:
     - Installation: getting-started/installation.md
     - Quick Start: getting-started/quick-start.md
   - Kolors: kolors/introduce.md
+  - Others: others/index.md
   # - Controlnet Preprocessing:
   #   - Line Extraction: controlnet-preprocessing/line-extraction.md
   #   - T2I Adapter: controlnet-preprocessing/t2i-adapter.md

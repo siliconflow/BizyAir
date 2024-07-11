@@ -2,20 +2,20 @@
 
 BizyAir is a set of ComfyUI nodes that allows you to skip the time-consuming process of downloading models and setting up requirements, enabling you to run ComfyUI workflows directly without being constrained by environmental limitations.
 
- You can choose any of the following methods to install BizyAir
+You can choose any of the following methods to install BizyAir
 
-## Method 1: Install via ComfyUI Manager
+### Method 1: Install via ComfyUI Manager
 
 Assuming your ComfyUI already has the ComfyUI Manager installed, search for BizyAir as shown in the image below. Click "Install" to complete the installation.
 ![ComfyUI_Manager_BizyAir_Search_Screenshot](./imgs/ComfyUI_Manager_BizyAir_Search_Screenshot.png)
 
 
-## Method 2: Install via git clone
+### Method 2: Install via git clone
 
 You can install BizyAir by downloading the BizyAir repository to the custom_nodes subdirectory of ComfyUI by using git clone.
 
 ```bash
-cd /path/to/ComfyUI && \
+cd /path/to/ComfyUI/custom_nodes && \
 git clone https://github.com/siliconflow/BizyAir.git
 ```
 
@@ -26,7 +26,7 @@ Then, restart ComfyUI.
 - Prerequisites
     - Ensure `pip install comfy-cli` is installed.
     - Installing ComfyUI `comfy install`
-  
+
 To install the `BizyAir`, use the following command:
 
 ```shell
