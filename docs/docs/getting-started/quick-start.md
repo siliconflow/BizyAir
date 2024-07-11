@@ -6,7 +6,11 @@ For the first use, you need to set your API key using "Set SiliconCloud API Key"
 
 ![](./imgs/how-to-set-key.gif)
 
-You **should** then remove this node.
+!!! note
+    You **should** remove this node after you set the key.
+
+!!! note
+    You don't need to set the key every time you start the program. The key is cached in your local browser, and as long as you don't get a pop-up prompt asking you to enter the key, you can continue to use BizyAir Nodes.
 
 ## 2. Using BizyAir Nodes
 
