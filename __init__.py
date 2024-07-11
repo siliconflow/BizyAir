@@ -10,10 +10,10 @@ NODE_DISPLAY_NAME_MAPPINGS = {
 
 WEB_DIRECTORY = "./js"
 
-# from . import supernode
+from . import supernode
 
-# NODE_CLASS_MAPPINGS.update(**supernode.NODE_CLASS_MAPPINGS)
-# NODE_DISPLAY_NAME_MAPPINGS.update(**supernode.NODE_DISPLAY_NAME_MAPPINGS)
+NODE_CLASS_MAPPINGS.update(**supernode.NODE_CLASS_MAPPINGS)
+NODE_DISPLAY_NAME_MAPPINGS.update(**supernode.NODE_DISPLAY_NAME_MAPPINGS)
 
 from . import llm
 
