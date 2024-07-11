@@ -50,7 +50,7 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         port: ${{ secrets.REMOTE_PORT }}
         script: |
-          rm -rf ${{ secrets.REMOTE_DEST_PATH }}
+          rm -rf ${{ secrets.REMOTE_DEST_PATH }}/../../docs
 
     - name: Deploy via scp
       uses: appleboy/scp-action@master
