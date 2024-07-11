@@ -20,10 +20,10 @@ from . import llm
 NODE_CLASS_MAPPINGS.update(**llm.NODE_CLASS_MAPPINGS)
 NODE_DISPLAY_NAME_MAPPINGS.update(**llm.NODE_DISPLAY_NAME_MAPPINGS)
 
-# from . import nodes_controlnet_aux
+from . import nodes_controlnet_aux
 
-# NODE_CLASS_MAPPINGS.update(**nodes_controlnet_aux.NODE_CLASS_MAPPINGS)
-# NODE_DISPLAY_NAME_MAPPINGS.update(**nodes_controlnet_aux.NODE_DISPLAY_NAME_MAPPINGS)
+NODE_CLASS_MAPPINGS.update(**nodes_controlnet_aux.NODE_CLASS_MAPPINGS)
+NODE_DISPLAY_NAME_MAPPINGS.update(**nodes_controlnet_aux.NODE_DISPLAY_NAME_MAPPINGS)
 
 from . import kolors
 
