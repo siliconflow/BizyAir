@@ -1,6 +1,8 @@
 import os
 import uuid
 
+import torch
+
 from .utils import (
     decode_and_deserialize,
     send_post_request,
@@ -159,7 +161,8 @@ class GenerateLightningImage:
         response: str = send_post_request(
             self.API_URL, payload=payload, headers=headers
         )
-        tensors = decode_and_deserialize(response)
+        tensors_np = decode_and_deserialize(response)
+        tensors = torch.from_numpy(tensors_np)
 
         return (tensors,)
 
