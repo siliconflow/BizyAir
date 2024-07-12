@@ -1,6 +1,8 @@
 import os
 import uuid
 
+import torch
+
 from .utils import (
     decode_and_deserialize,
     send_post_request,
@@ -109,7 +111,10 @@ class GenerateLightningImage:
     def INPUT_TYPES(s):
         return {
             "required": {
-                "prompt": ("STRING", {"multiline": True, "dynamicPrompts": True, "default":"a dog"}),
+                "prompt": (
+                    "STRING",
+                    {"multiline": True, "dynamicPrompts": True, "default": "a dog"},
+                ),
                 "seed": ("INT", {"default": 1, "min": 0, "max": 0xFFFFFFFFFFFFFFFF}),
                 "width": ("INT", {"default": 1024, "min": 16, "max": 1024, "step": 8}),
                 "height": ("INT", {"default": 1024, "min": 16, "max": 1024, "step": 8}),
@@ -156,18 +161,19 @@ class GenerateLightningImage:
         response: str = send_post_request(
             self.API_URL, payload=payload, headers=headers
         )
-        tensors = decode_and_deserialize(response)
+        tensors_np = decode_and_deserialize(response)
+        tensors = torch.from_numpy(tensors_np)
 
         return (tensors,)
 
 
 NODE_CLASS_MAPPINGS = {
-    #"BizyAirSuperResolution": SuperResolution,
+    "BizyAirSuperResolution": SuperResolution,
     "BizyAirRemoveBackground": RemoveBackground,
     "BizyAirGenerateLightningImage": GenerateLightningImage,
 }
 NODE_DISPLAY_NAME_MAPPINGS = {
-    #"BizyAirSuperResolution": "BizyAir Anime Image Super Resolution",
-    "BizyAirRemoveBackground": "BizyAir Remove Background",
-    "BizyAirGenerateLightningImage": "BizyAir Generate Image",
+    "BizyAirSuperResolution": "☁️BizyAir Anime Image Super Resolution",
+    "BizyAirRemoveBackground": "☁️BizyAir Remove Image Background",
+    "BizyAirGenerateLightningImage": "☁️BizyAir Generate Photorealistic Images",
 }

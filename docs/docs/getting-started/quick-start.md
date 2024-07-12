@@ -2,19 +2,27 @@
 
 ## 1. Setting API Key
 
+!!! note
+    You can get your API KEY from [SiliconCloud](https://cloud.siliconflow.cn/) for free.
+
 For the first use, you need to set your API key using "Set SiliconCloud API Key". Add the "Set SiliconCloud API Key" node and run it(click "Queue Prompt" button). The key changes to "**********", indicating successful operation.
 
-![](./imgs/howtosetkey.png)
+![](./imgs/how-to-set-key.gif)
 
-You **should** then remove this node.
+!!! note
+    You **should** remove this node after you set the key.
+
+!!! note
+    You don't need to set the key every time you start the program. The key is cached in your local browser, and as long as you don't get a pop-up prompt asking you to enter the key, you can continue to use BizyAir Nodes.
 
 ## 2. Using BizyAir Nodes
 
-All BizyAir nodes are under the "☁️BizyAir" category. Taking "☁️BizyAir SiliconCloud LLM API" node as an example, it can assist you by leveraging a LLM (large language model) to refine prompts, translate, or perform any other tasks you want it to do.
+All BizyAir nodes are under the "☁️BizyAir" category.
 
+Here is a simple example of using the Kolors nodes.
 
-![](./imgs/llm_api_node.png)
+![](./imgs/text2img.gif)
 
-or you can use [Kolors](../kolors/introduce.md) nodes to generate images.
+or you can use LLM to refine your prompt.
 
-![](../kolors/imgs/bizyair_kolors_txt2img.png)
+![](./imgs/llmnode.gif)

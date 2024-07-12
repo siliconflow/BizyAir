@@ -20,6 +20,6 @@ Here is an example of a image-to-image workflow using Kolors:
 ![](./imgs/bizyair_kolors_img2img.png)
 
 
- The nodes provided by BizyAir are compatible with the nodes provided by (ComfyUI-KwaiKolorsWrapper)[https://github.com/kijai/ComfyUI-KwaiKolorsWrapper], allowing you to freely combine them.
+ The nodes provided by BizyAir are compatible with the nodes provided by [ComfyUI-KwaiKolorsWrapper](https://github.com/kijai/ComfyUI-KwaiKolorsWrapper) , allowing you to freely combine them.
  
  Enjoy.
