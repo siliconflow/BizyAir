@@ -25,7 +25,7 @@ class BasePreprocessor:
         if not hasattr(cls, "model_name"):
             raise TypeError("Subclass must define 'model_name'")
         cls.API_URL = f"{BIZYAIR_SERVER_ADDRESS}{cls.model_name}"
-        cls.CATEGORY = f"BizyAir/{cls.CATEGORY}"
+        cls.CATEGORY = f"☁️BizyAir/{cls.CATEGORY}"
 
     @staticmethod
     def get_headers():
@@ -119,7 +119,7 @@ class SAMPreprocessor(BasePreprocessor):
     def INPUT_TYPES(s):
         return create_node_input_types()
 
-    CATEGORY = "ControlNet Preprocessors/others"
+    CATEGORY = "ControlNet Preprocessors/Semantic Segmentation"
 
 
 class BinaryPreprocessor(BasePreprocessor):
@@ -467,28 +467,28 @@ NODE_CLASS_MAPPINGS = {
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
-    "BizyAirPiDiNetPreprocessor": "BizyAir PiDiNet Soft-Edge Lines",
-    "BizyAirColorPreprocessor": "BizyAir Color Pallete",
-    "BizyAirCannyEdgePreprocessor": "BizyAir Canny Edge",
-    "BizyAirSAMPreprocessor": "BizyAir SAM Segmentor",
-    "BizyAirBinaryPreprocessor": "BizyAir Binary Lines",
-    "BizyAirScribblePreprocessor": "BizyAir Scribble Lines",
-    "BizyAirM_LSDPreprocessor": "BizyAir M-LSD Lines",
-    "BizyAirUniFormer_SemSegPreprocessor": "BizyAir UniFormer Segmentor",
-    "BizyAirZoe_DepthMapPreprocessor": "BizyAir Zoe Depth Map",
-    "BizyAirMiDaS_NormalMapPreprocessor": "BizyAir MiDaS Normal Map",
-    "BizyAirMiDaS_DepthMapPreprocessor": "BizyAir MiDaS Depth Map",
-    "BizyAirOpenposePreprocessor": "BizyAir OpenPose Pose",
-    "BizyAirLineArtPreprocessor": "BizyAir Realistic Lineart",
-    "BizyAirLeReS_DepthMapPreprocessor": "BizyAir LeReS Depth Map (enable boost for leres++)",
-    "BizyAirBAE_NormalMapPreprocessor": "BizyAir BAE Normal Map",
-    "BizyAirOneFormer_COCO_SemSegPreprocessor": "BizyAir OneFormer COCO Segmentor",
-    "BizyAirOneFormer_ADE20K_SemSegPreprocessor": "BizyAir OneFormer ADE20K Segmentor",
-    "BizyAirHEDPreprocessor": "BizyAir HED Soft-Edge Lines",
-    "BizyAirFakeScribblePreprocessor": "BizyAir Fake Scribble Lines (aka scribble_hed)",
-    "BizyAirTilePreprocessor": "BizyAir Tile",
-    "BizyAirDepthAnythingV2Preprocessor": "BizyAir Depth Anything V2 - Relative",
-    "BizyAirMetric3D_DepthMapPreprocessor": "BizyAir Metric3D Depth Map",
-    "BizyAirMetric3D_NormalMapPreprocessor": "BizyAir Metric3D Normal Map",
-    "BizyAirDWPreprocessor": "BizyAir DWPose Estimator",
+    "BizyAirPiDiNetPreprocessor": "☁️BizyAir PiDiNet Soft-Edge Lines",
+    "BizyAirColorPreprocessor": "☁️BizyAir Color Pallete",
+    "BizyAirCannyEdgePreprocessor": "☁️BizyAir Canny Edge",
+    "BizyAirSAMPreprocessor": "☁️BizyAir SAM Segmentor",
+    "BizyAirBinaryPreprocessor": "☁️BizyAir Binary Lines",
+    "BizyAirScribblePreprocessor": "☁️BizyAir Scribble Lines",
+    "BizyAirM_LSDPreprocessor": "☁️BizyAir M-LSD Lines",
+    "BizyAirUniFormer_SemSegPreprocessor": "☁️BizyAir UniFormer Segmentor",
+    "BizyAirZoe_DepthMapPreprocessor": "☁️BizyAir Zoe Depth Map",
+    "BizyAirMiDaS_NormalMapPreprocessor": "☁️BizyAir MiDaS Normal Map",
+    "BizyAirMiDaS_DepthMapPreprocessor": "☁️BizyAir MiDaS Depth Map",
+    "BizyAirOpenposePreprocessor": "☁️BizyAir OpenPose Pose",
+    "BizyAirLineArtPreprocessor": "☁️BizyAir Realistic Lineart",
+    "BizyAirLeReS_DepthMapPreprocessor": "☁️BizyAir LeReS Depth Map (enable boost for leres++)",
+    "BizyAirBAE_NormalMapPreprocessor": "☁️BizyAir BAE Normal Map",
+    "BizyAirOneFormer_COCO_SemSegPreprocessor": "☁️BizyAir OneFormer COCO Segmentor",
+    "BizyAirOneFormer_ADE20K_SemSegPreprocessor": "☁️BizyAir OneFormer ADE20K Segmentor",
+    "BizyAirHEDPreprocessor": "☁️BizyAir HED Soft-Edge Lines",
+    "BizyAirFakeScribblePreprocessor": "☁️BizyAir Fake Scribble Lines (aka scribble_hed)",
+    "BizyAirTilePreprocessor": "☁️BizyAir Tile",
+    "BizyAirDepthAnythingV2Preprocessor": "☁️BizyAir Depth Anything V2 - Relative",
+    "BizyAirMetric3D_DepthMapPreprocessor": "☁️BizyAir Metric3D Depth Map",
+    "BizyAirMetric3D_NormalMapPreprocessor": "☁️BizyAir Metric3D Normal Map",
+    "BizyAirDWPreprocessor": "☁️BizyAir DWPose Estimator",
 }
