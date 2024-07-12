@@ -19,7 +19,7 @@ BIZYAIR_SERVER_ADDRESS = os.getenv(
 
 
 class BizyAirKolorsTextEncode:
-    API_URL = f"{BIZYAIR_SERVER_ADDRESS}/supernode/kolorschatglm"
+    API_URL = f"{BIZYAIR_SERVER_ADDRESS}/supernode/kolorschatglmv2"
 
     @classmethod
     def INPUT_TYPES(s):
@@ -148,7 +148,7 @@ class BizyAirKolorsVAEDecode:
 
 
 class BizyAirKolorsSampler:
-    API_URL = f"{BIZYAIR_SERVER_ADDRESS}/supernode/kolorssampler"
+    API_URL = f"{BIZYAIR_SERVER_ADDRESS}/supernode/kolorssamplerv2"
 
     @classmethod
     def INPUT_TYPES(s):
