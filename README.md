@@ -2,7 +2,7 @@
 
 - [2024/07/11] 🌩️ We release new nodes that can perform ControlNet preprocessing. [BizyAir Controlnet Auxiliary Preprocessors](https://siliconflow.github.io/BizyAir/controlnet-preprocessor/introduce.html)
 - [2024/07/11] 🌩️ We release new nodes, featuring removing image background, photo-quality image generation, and animation super-resolution capabilities.
-- [2024/07/10] 🌩️ We release nodes that support Kolors and LLM(large language models).
+- [2024/07/10] 🌩️ We release nodes that support Kolors and LLM(large language models). [Kolors](https://siliconflow.github.io/BizyAir/kolors/introduce.html)
 
 BizyAir is a collection of [ComfyUI](https://github.com/comfyanonymous/ComfyUI) nodes that help you overcome environmental and hardware limitations, allowing you to more easily generate high-quality content with ComfyUI.
 
