@@ -1,8 +1,8 @@
 # BizyAir
 
-
+- [2024/07/11] 🌩️ We release new nodes that can perform ControlNet preprocessing. [BizyAir Controlnet Auxiliary Preprocessors](https://siliconflow.github.io/BizyAir/controlnet-preprocessor/introduce.html)
 - [2024/07/11] 🌩️ We release new nodes, featuring removing image background, photo-quality image generation, and animation super-resolution capabilities.
-- [2024/07/10] 🌩️ We release nodes that support Kolors and LLM(large language models).
+- [2024/07/10] 🌩️ We release nodes that support Kolors and LLM(large language models). [Kolors](https://siliconflow.github.io/BizyAir/kolors/introduce.html)
 
 BizyAir is a collection of [ComfyUI](https://github.com/comfyanonymous/ComfyUI) nodes that help you overcome environmental and hardware limitations, allowing you to more easily generate high-quality content with ComfyUI.
 
@@ -13,14 +13,22 @@ BizyAir is a collection of [ComfyUI](https://github.com/comfyanonymous/ComfyUI) 
 ## Table of Contents
 
 - [Features](#features)
+- [Usage](#usage)
 - [Installation](#installation)
 - [Examples](#examples)
-- [Usage](#usage)
 
 
 ## Features
 
 Run ComfyUI anywhere, anytime, without worrying about the environment or hardware requirements.
+
+## Usage
+
+Please see the [Quick Start](https://siliconflow.github.io/BizyAir/getting-started/quick-start.html) page to set up BizyAir.
+
+Make sure to **set your API KEY** for the **first time** use!
+
+![](./docs/docs/getting-started/imgs/how-to-set-key.gif)
 
 ## Installation
 
@@ -70,8 +78,3 @@ https://bizy-air.oss-cn-beijing.aliyuncs.com/new_ComfyUI_windows_portable_nvidia
 ## Examples
 
 There are some workflow examples in the [examples](./examples) directory.
-
-
-## Usage
-
-Please see the [Quick Start](https://siliconflow.github.io/BizyAir/getting-started/quick-start.html) page to set up BizyAir.
