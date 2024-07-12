@@ -23,7 +23,7 @@ BizyAir offers more than 20 ControlNet preprocessing nodes.
 
 ## T2I-Adapter Only
 
-- BizyAirColorPreprocessor": "☁️BizyAir Color Pallete
+- ☁️BizyAir Color Pallete
 
 ## Semantic Segmentation
 

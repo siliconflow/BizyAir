@@ -13,9 +13,9 @@ BizyAir is a collection of [ComfyUI](https://github.com/comfyanonymous/ComfyUI) 
 ## Table of Contents
 
 - [Features](#features)
+- [Usage](#usage)
 - [Installation](#installation)
 - [Examples](#examples)
-- [Usage](#usage)
 
 
 ## Features

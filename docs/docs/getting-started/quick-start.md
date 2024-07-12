@@ -2,6 +2,9 @@
 
 ## 1. Setting API Key
 
+!!! note
+    You can get your API KEY from [SiliconCloud](https://cloud.siliconflow.cn/) for free.
+
 For the first use, you need to set your API key using "Set SiliconCloud API Key". Add the "Set SiliconCloud API Key" node and run it(click "Queue Prompt" button). The key changes to "**********", indicating successful operation.
 
 ![](./imgs/how-to-set-key.gif)
