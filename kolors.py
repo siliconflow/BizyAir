@@ -42,10 +42,10 @@ class BizyAirKolorsTextEncode:
     def encode(self, prompt, negative_prompt, num_images_per_prompt):
         API_KEY = get_api_key()
         split_pos_text = prompt.split("|")
-        split_neg_text = negative_prompt.split("|")
+        num_prompts = len(split_pos_text)
         assert (
-            len(split_pos_text) <= 2 and len(split_neg_text) <= 2
-        ), f"number of prompts must be less than 2, but got {len(split_pos_text)} and {len(split_neg_text)}, reduce the '|' symbol"
+            num_prompts * num_images_per_prompt <= 4
+        ), f"The num_prompts*num_images_per_prompt should be less than or equal 4, got {num_prompts}x{num_images_per_prompt}={num_prompts*num_images_per_prompt}, try to reduce the '|' or num_images_per_prompt"
 
         payload = {
             "positive_prompt": prompt,
@@ -155,10 +155,10 @@ class BizyAirKolorsSampler:
         return {
             "required": {
                 "kolors_embeds": ("KOLORS_EMBEDS",),
-                "width": ("INT", {"default": 1024, "min": 64, "max": 2048, "step": 64}),
+                "width": ("INT", {"default": 1024, "min": 64, "max": 1536, "step": 64}),
                 "height": (
                     "INT",
-                    {"default": 1024, "min": 64, "max": 2048, "step": 64},
+                    {"default": 1024, "min": 64, "max": 1536, "step": 64},
                 ),
                 "seed": ("INT", {"default": 0, "min": 0, "max": 0xFFFFFFFFFFFFFFFF}),
                 "steps": ("INT", {"default": 25, "min": 1, "max": 35, "step": 1}),
