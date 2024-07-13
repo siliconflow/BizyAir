@@ -11,7 +11,8 @@ class SiliconCloudLLMAPI:
         "DeepSeekV2 Chat": "deepseek-ai/DeepSeek-V2-Chat",
         "(Free)GLM4 9B Chat": "THUDM/glm-4-9b-chat",
         "Qwen2 72B Instruct": "Qwen/Qwen2-72B-Instruct",
-        "Qwen2 7B Instruct": "Qwen/Qwen2-7B-Instruct",
+        "(Free)Qwen2 7B Instruct": "Qwen/Qwen2-7B-Instruct",
+        "No LLM Enhancement": "Bypass",
     }
 
     @classmethod
@@ -54,6 +55,8 @@ class SiliconCloudLLMAPI:
     def get_llm_model_response(
         self, model, system_prompt, user_prompt, max_tokens, temperature
     ):
+        if self.display_name_to_id[model] == "Bypass":
+            return {"ui": {"text": (user_prompt,)}, "result": (user_prompt,)}
         response = get_llm_response(
             self.display_name_to_id[model],
             system_prompt,

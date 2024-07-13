@@ -29,7 +29,7 @@ class BizyAirKolorsTextEncode:
                 "negative_prompt": ("STRING", {"multiline": True, "default": "",}),
                 "num_images_per_prompt": (
                     "INT",
-                    {"default": 1, "min": 1, "max": 2, "step": 1},
+                    {"default": 1, "min": 1, "max": 4, "step": 1},
                 ),
             },
         }
