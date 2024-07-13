@@ -222,6 +222,10 @@ class BizyAirKolorsSampler:
             "inputs": None,
             "is_compress": True,
         }
+        if latent is not None:
+            assert (
+                latent["samples"].shape[0] == kolors_embeds["prompt_embeds"].shape[0]
+            ), f"The batch size of latent samples should be the same as the prompt_embeds, got {latent['samples'].shape[0]} and {kolors_embeds['prompt_embeds'].shape[0]}"
 
         # convert the tensors to numpy array
         np_kolors_embeds = copy.deepcopy(kolors_embeds)
@@ -233,6 +237,7 @@ class BizyAirKolorsSampler:
             for k, v in latent.items():
                 if hasattr(v, "cpu"):
                     np_latent[k] = v.cpu().detach().numpy()
+
         inputs_dict, is_compress = serialize_and_encode(
             {"kolors_embeddings": np_kolors_embeds, "latent": np_latent}, compress=True
         )
