@@ -6,18 +6,18 @@ import numpy as np
 import numpy as np
 import requests
 import torch
+import oneflow as flow
 from .image_utils import encode_comfy_image, decode_comfy_image
-from .diffusers_server_client import DiffusersServerClient
 
 
-class DiffusersKSampler:
+class StableDiffusionXLControlNetUnionPipeline:
     @classmethod
     def INPUT_TYPES(s):
         return {
             "required": {
-                "model": ("MODEL",),
                 "seed": ("INT", {"default": 0, "min": 0, "max": 0xFFFFFFFFFFFFFFFF}),
-                "steps": ("INT", {"default": 20, "min": 1, "max": 10000}),
+                "num_inference_steps": ("INT", {"default": 20, "min": 1, "max": 50}),
+                "num_images_per_prompt": ("INT", {"default": 1, "min": 1, "max": 4}),
                 "guidance_scale": (
                     "FLOAT",
                     {
@@ -28,31 +28,7 @@ class DiffusersKSampler:
                         "round": 0.01,
                     },
                 ),
-                # "sampler_name": (comfy.samplers.KSampler.SAMPLERS, ),
-                # "scheduler": (comfy.samplers.KSampler.SCHEDULERS, ),
-                # "positive": ("CONDITIONING", ),
-                # "negative": ("CONDITIONING", ),
-                "latent_image": ("LATENT",),
-                "denoise": (
-                    "FLOAT",
-                    {"default": 1.0, "min": 0.0, "max": 1.0, "step": 0.01},
-                ),
-            }
-        }
-
-    RETURN_TYPES = ("LATENT",)
-    FUNCTION = "sample"
-    CATEGORY = "☁️BizyAir/sampling"
-
-    def sample(self, *args, **kwargs):
-        return
-
-
-class ControlNetPlusNode:
-    @classmethod
-    def INPUT_TYPES(s):
-        return {
-            "required": {},
+            },
             "optional": {
                 "openpose_image": ("IMAGE",),
                 "depth_image": ("IMAGE",),
@@ -60,19 +36,26 @@ class ControlNetPlusNode:
                 "canny_lineart_anime_lineart_mlsd_image": ("IMAGE",),
                 "normal_image": ("IMAGE",),
                 "segment_image": ("IMAGE",),
+                "prompt": ("STRING", {"forceInput": True}),
+                "negative_prompt": ("STRING", {"forceInput": True}),
+                "control_guidance_start": (
+                    "FLOAT",
+                    {"default": 0, "min": 0.0, "max": 1, "step": 0.1,},
+                ),
+                "control_guidance_end": (
+                    "FLOAT",
+                    {"default": 1.0, "min": 0.0, "max": 1, "step": 0.1,},
+                ),
             },
         }
 
     RETURN_TYPES = ("IMAGE",)
     FUNCTION = "process"
-
-    CATEGORY = "☁️BizyAir/ControlNetPlus"
+    CATEGORY = "☁️BizyAir/diffusers/Pipeline"
 
     def __init__(self):
         create_task_url = "http://0.0.0.0:8000/supernode/diffusers/v1/controlnetplus"
-        get_result_url = "http://localhost:8000/supernode/diffusers/results/{task_id}"
         self.create_task_url = create_task_url
-        self.get_result_url = get_result_url
 
     def process(
         self,
@@ -82,11 +65,8 @@ class ControlNetPlusNode:
         canny_lineart_anime_lineart_mlsd_image=None,
         normal_image=None,
         segment_image=None,
+        **kwargs,
     ):
-        height, width = openpose_image.shape[1:3]
-        ratio = np.sqrt(1024.0 * 1024.0 / (width * height))
-        new_width, new_height = int(width * ratio), int(height * ratio)
-        print(f"{new_height=}x{new_width=}")
         controlnet_img = {
             0: openpose_image,
             1: depth_image,
@@ -96,49 +76,42 @@ class ControlNetPlusNode:
             5: segment_image,
         }
 
-        # 0 -- openpose
-        # 1 -- depth
-        # 2 -- hed/pidi/scribble/ted
-        # 3 -- canny/lineart/anime_lineart/mlsd
-        # 4 -- normal
-        # 5 -- segment
         for k, v in controlnet_img.items():
             if v is not None:
+                height, width = v.shape[1:3]
+                ratio = np.sqrt(1024.0 * 1024.0 / (width * height))
+                new_width, new_height = int(width * ratio), int(height * ratio)
                 controlnet_img[k] = encode_comfy_image(v)
 
+        print(
+            f"Utilizing a height of {new_height} and width of {width} for processing."
+        )
         payload = {
-            "seed": 1,  # Optional, can be None
             "width": new_width,
             "height": new_height,
-            "num_inference_steps": 30,  # Optional, defaults to 30
-            "prompt": "a girl",  # Required
-            "negative_prompt": "longbody, lowres, bad anatomy, bad hands, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality",  # Required
             "controlnet_img": controlnet_img,
         }
+        payload.update(**kwargs)
 
-        with DiffusersServerClient(self.create_task_url, self.get_result_url) as client:
-            task_id = client.create_task(payload)
-            if task_id is None:
-                return
-            print(f"Task created with ID: {task_id}")
-            response_text = client.get_task_result(task_id)
-            if response_text is None:
-                raise RuntimeError()
+        response = requests.post(
+            self.create_task_url,
+            json=payload,
+            headers={"Content-Type": "application/json"},
+        )
+        if response.status_code != 200:
+            raise RuntimeError(f"Failed to create task: {response.json()['error']}")
 
-            import json
-
-            ret = json.loads(response_text)
-            img_data = ret["data"]["payload"]
-            output = decode_comfy_image(img_data)
+        img_data = response.json()["data"]["payload"]
+        output = decode_comfy_image(img_data)
+        torch.cuda.empty_cache()
+        flow.cuda.empty_cache()
         return (output,)
 
 
 NODE_CLASS_MAPPINGS = {
-    "ControlNetPlusNode": ControlNetPlusNode,
-    "DiffusersKSampler": DiffusersKSampler,
+    "StableDiffusionXLControlNetUnionPipeline": StableDiffusionXLControlNetUnionPipeline,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
-    "ControlNetPlusNode": "ControlNet Plus Node",
-    "DiffusersKSampler": "Diffusers KSampler",
+    "StableDiffusionXLControlNetUnionPipeline": "☁️BizyAir StableDiffusionXLControlNetUnionPipeline",
 }

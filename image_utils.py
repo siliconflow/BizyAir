@@ -1,6 +1,6 @@
 import io
 import base64
-from typing import Union
+from typing import Union, List
 from PIL import Image
 import imageio.v2 as imageio
 import numpy as np
@@ -62,7 +62,13 @@ def encode_comfy_image(image: torch.Tensor, image_format="png") -> str:
     return base64ed_image
 
 
-def decode_comfy_image(img_data: str, image_format="png") -> torch.tensor:
+def decode_comfy_image(img_data: Union[List, str], image_format="png") -> torch.tensor:
+    if isinstance(img_data, List):
+        decoded_imgs = [decode_comfy_image(x) for x in img_data]
+
+        combined_imgs = torch.cat(decoded_imgs, dim=0)
+        return combined_imgs
+
     out = decode_base64_to_np(img_data, format=image_format)
     out = np.array(out).astype(np.float32) / 255.0
     output = torch.from_numpy(out)[
