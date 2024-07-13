@@ -5,8 +5,6 @@ github: https://github.com/xinsir6/ControlNetPlus/tree/main
 import numpy as np
 import numpy as np
 import requests
-import torch
-import oneflow as flow
 from .image_utils import encode_comfy_image, decode_comfy_image
 
 
@@ -103,8 +101,6 @@ class StableDiffusionXLControlNetUnionPipeline:
 
         img_data = response.json()["data"]["payload"]
         output = decode_comfy_image(img_data)
-        torch.cuda.empty_cache()
-        flow.cuda.empty_cache()
         return (output,)
 
 
