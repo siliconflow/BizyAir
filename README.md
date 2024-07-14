@@ -1,5 +1,6 @@
 # BizyAir
 
+- [2024/07/14] 🌩️ We release Image Caption nodes and add a tutorial for utilizing the LLM node. [AI Assistant](https://siliconflow.github.io/BizyAir/ai-assistants/introduce.html)
 - [2024/07/11] 🌩️ We release new nodes that can perform ControlNet preprocessing. [BizyAir Controlnet Auxiliary Preprocessors](https://siliconflow.github.io/BizyAir/controlnet-preprocessor/introduce.html)
 - [2024/07/11] 🌩️ We release new nodes, featuring removing image background, photo-quality image generation, and animation super-resolution capabilities.
 - [2024/07/10] 🌩️ We release nodes that support Kolors and LLM(large language models). [Kolors](https://siliconflow.github.io/BizyAir/kolors/introduce.html)
