@@ -61,7 +61,7 @@ class SiliconCloudLLMAPI:
     FUNCTION = "get_llm_model_response"
     OUTPUT_NODE = True
 
-    CATEGORY = "☁️BizyAir/Language AI Solutions"
+    CATEGORY = "☁️BizyAir/AI Assistants"
 
     def get_llm_model_response(
         self, model, system_prompt, user_prompt, max_tokens, temperature
@@ -97,10 +97,10 @@ class BizyAirImageCaption:
     RETURN_NAMES = ("caption",)
     OUTPUT_NODE = True
     FUNCTION = "detailed_caption"
-    CATEGORY = "☁️BizyAir/Language AI Solutions"
+    CATEGORY = "☁️BizyAir/AI Assistants"
 
     def detailed_caption(
-        self, image, num_beams=3, max_new_tokens=1024,
+        self, image, num_beams, max_new_tokens,
     ):
         API_KEY = get_api_key()
 
