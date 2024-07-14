@@ -77,14 +77,14 @@ class SiliconCloudLLMAPI:
         return {"ui": {"text": (text,)}, "result": (text,)}
 
 
-class ImageCaption:
+class BizyAirImageCaption:
     API_URL = f"{BIZYAIR_SERVER_ADDRESS}/supernode/florence2imagecaption"
 
     @classmethod
     def INPUT_TYPES(s):
         return {
-            "required": {"image": ("IMAGE",),},
-            "optional": {
+            "required": {
+                "image": ("IMAGE",),
                 "max_new_tokens": ("INT", {"default": 1024, "min": 1, "max": 4096}),
                 "num_beams": ("INT", {"default": 3, "min": 1, "max": 15}),
             },
@@ -127,7 +127,7 @@ class ImageCaption:
 
 NODE_CLASS_MAPPINGS = {
     "BizyAirSiliconCloudLLMAPI": SiliconCloudLLMAPI,
-    "BizyAirImageCaption": ImageCaption,
+    "BizyAirImageCaption": BizyAirImageCaption,
 }
 NODE_DISPLAY_NAME_MAPPINGS = {
     "BizyAirSiliconCloudLLMAPI": "☁️BizyAir SiliconCloud LLM API",

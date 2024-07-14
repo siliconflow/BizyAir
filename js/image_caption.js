@@ -2,9 +2,9 @@ import { app } from "../../scripts/app.js";
 import { ComfyWidgets } from "../../../scripts/widgets.js";
 
 app.registerExtension({
-    name: "bizyair.siliconcloud.llm.api",
+    name: "bizyair.image.to.caption",
     async beforeRegisterNodeDef(nodeType, nodeData, app) {
-        if (nodeData.name === "ImageCaption") {
+        if (nodeData.name === "BizyAirImageCaption") {
             function populate(text) {
                 if (this.widgets) {
                     const pos = this.widgets.findIndex((w) => w.name === "showtext");
