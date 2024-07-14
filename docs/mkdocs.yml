@@ -102,7 +102,8 @@ nav:
   - Getting Started:
     - Installation: getting-started/installation.md
     - Quick Start: getting-started/quick-start.md
-  - Kolors: kolors/introduce.md
+  - AI Assistant: ai-assistants/introduce.md
   - Controlnet Preprocessing: controlnet-preprocessor/introduce.md
+  - Kolors: kolors/introduce.md
   - Others: others/index.md
   
