@@ -1,7 +1,18 @@
 import json
 import os
 
+from .utils import (
+    decode_and_deserialize,
+    send_post_request,
+    serialize_and_encode,
+    get_api_key,
+)
+
 from .utils import get_llm_response
+
+BIZYAIR_SERVER_ADDRESS = os.getenv(
+    "BIZYAIR_SERVER_ADDRESS", "https://api.siliconflow.cn"
+)
 
 
 class SiliconCloudLLMAPI:
@@ -49,7 +60,7 @@ class SiliconCloudLLMAPI:
     FUNCTION = "get_llm_model_response"
     OUTPUT_NODE = True
 
-    CATEGORY = "☁️BizyAir"
+    CATEGORY = "☁️BizyAir/Language AI Solutions"
 
     def get_llm_model_response(
         self, model, system_prompt, user_prompt, max_tokens, temperature
@@ -66,9 +77,60 @@ class SiliconCloudLLMAPI:
         return {"ui": {"text": (text,)}, "result": (text,)}
 
 
+class ImageCaption:
+    API_URL = f"{BIZYAIR_SERVER_ADDRESS}/supernode/florence2imagecaption"
+
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {"image": ("IMAGE",),},
+            "optional": {
+                "max_new_tokens": ("INT", {"default": 1024, "min": 1, "max": 4096}),
+                "num_beams": ("INT", {"default": 3, "min": 1, "max": 15}),
+            },
+        }
+
+    RETURN_TYPES = ("STRING",)
+    RETURN_NAMES = ("caption",)
+    OUTPUT_NODE = True
+    FUNCTION = "detailed_caption"
+    CATEGORY = "☁️BizyAir/Language AI Solutions"
+
+    def detailed_caption(
+        self, image, num_beams=3, max_new_tokens=1024,
+    ):
+        API_KEY = get_api_key()
+        device = image.device
+
+        payload = {
+            "max_new_tokens": max_new_tokens,
+            "num_beams": num_beams,
+            "is_compress": None,
+            "image": None,
+        }
+        auth = f"Bearer {API_KEY}"
+        headers = {
+            "accept": "application/json",
+            "content-type": "application/json",
+            "authorization": auth,
+        }
+        input_image, compress = serialize_and_encode(image, compress=True)
+        payload["image"] = input_image
+        payload["is_compress"] = compress
+
+        response: str = send_post_request(
+            self.API_URL, payload=payload, headers=headers
+        )
+        caption = decode_and_deserialize(response)
+
+        return {"ui": {"text": (caption,)}, "result": (caption,)}
+
+
 NODE_CLASS_MAPPINGS = {
     "BizyAirSiliconCloudLLMAPI": SiliconCloudLLMAPI,
+    "BizyAirImageCaption": ImageCaption,
 }
 NODE_DISPLAY_NAME_MAPPINGS = {
     "BizyAirSiliconCloudLLMAPI": "☁️BizyAir SiliconCloud LLM API",
+    "BizyAirImageCaption": "☁️BizyAir Image Caption",
 }
