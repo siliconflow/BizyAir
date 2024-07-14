@@ -100,7 +100,6 @@ class ImageCaption:
         self, image, num_beams=3, max_new_tokens=1024,
     ):
         API_KEY = get_api_key()
-        device = image.device
 
         payload = {
             "max_new_tokens": max_new_tokens,
@@ -114,7 +113,7 @@ class ImageCaption:
             "content-type": "application/json",
             "authorization": auth,
         }
-        input_image, compress = serialize_and_encode(image, compress=True)
+        input_image, compress = serialize_and_encode(image.cpu().numpy(), compress=True)
         payload["image"] = input_image
         payload["is_compress"] = compress
 
