@@ -21,6 +21,10 @@ or you can only use nodes locally.`);
     async beforeRegisterNodeDef(nodeType, nodeData, app) {
         if (nodeData.name === "BizyAirSetAPIKey") {
             async function set_api_key_to_cookies(text) {
+                if (text === "sk-****************") {
+                    alert("API Key has been set, remove the API 'Set SiliconCloud API Key' node please.")
+                    return;
+                }
                 const body = new FormData();
                 body.append("api_key", text);
                 const response = await api.fetchApi("/bizyair/set_api_key",
@@ -37,7 +41,7 @@ or you can only use nodes locally.`);
                     const text = await response.text();
                 }
 
-                this.widgets[0].value = "****************";
+                this.widgets[0].value = "sk-****************";
             }
             const onExecuted = nodeType.prototype.onExecuted;
             nodeType.prototype.onExecuted = function (message) {
