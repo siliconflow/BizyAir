@@ -2,7 +2,6 @@ import io
 import base64
 from typing import Union, List
 from PIL import Image
-import imageio.v2 as imageio
 import numpy as np
 import torch
 
@@ -18,7 +17,7 @@ def encode_image_to_base64(
 ) -> str:
     image = convert_image_to_rgb(image)
     with io.BytesIO() as output:
-        imageio.imwrite(output, image, format=format, quality=quality)
+        image.save(output, format=format, quality=quality)
         output.seek(0)
         img_bytes = output.getvalue()
         print(f"encode_image_to_base64: {format_bytes(len(img_bytes))}")
@@ -29,8 +28,10 @@ def decode_base64_to_np(img_data: str, format: str = "WEBP") -> np.ndarray:
     img_bytes = base64.b64decode(img_data)
     print(f"decode_base64_to_np: {format_bytes(len(img_bytes))}")
     with io.BytesIO(img_bytes) as input_buffer:
-        img = imageio.imread(input_buffer, format=format)
-    return img
+        img = Image.open(input_buffer)
+        img = img.convert("RGB")
+        img_np = np.array(img)
+    return img_np
 
 
 def decode_base64_to_image(img_data: str, format: str = "WEBP") -> Image.Image:
