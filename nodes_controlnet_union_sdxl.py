@@ -2,13 +2,17 @@
 huggingface: https://huggingface.co/xinsir/controlnet-union-sdxl-1.0
 github: https://github.com/xinsir6/ControlNetPlus/tree/main
 """
+import json
 import os
 import numpy as np
 import requests
+from .utils import get_api_key
 from .image_utils import encode_comfy_image, decode_comfy_image
+
 BIZYAIR_SERVER_ADDRESS = os.getenv(
     "BIZYAIR_SERVER_ADDRESS", "https://api.siliconflow.cn"
 )
+
 
 class StableDiffusionXLControlNetUnionPipeline:
     @classmethod
@@ -54,8 +58,16 @@ class StableDiffusionXLControlNetUnionPipeline:
     CATEGORY = "☁️BizyAir/diffusers/Pipeline"
 
     def __init__(self):
-        create_task_url = f"{BIZYAIR_SERVER_ADDRESS}/supernode/diffusers/v1/stablediffusionxlcontrolnetunionpipeline"
+        create_task_url = f"{BIZYAIR_SERVER_ADDRESS}/supernode/diffusers-v1-stablediffusionxlcontrolnetunionpipeline"
         self.create_task_url = create_task_url
+
+    @staticmethod
+    def get_headers():
+        return {
+            "accept": "application/json",
+            "content-type": "application/json",
+            "authorization": f"Bearer {get_api_key()}",
+        }
 
     def process(
         self,
@@ -94,14 +106,19 @@ class StableDiffusionXLControlNetUnionPipeline:
         payload.update(**kwargs)
 
         response = requests.post(
-            self.create_task_url,
-            json=payload,
-            headers={"Content-Type": "application/json"},
+            self.create_task_url, json=payload, headers=self.get_headers(),
         )
-        if response.status_code != 200:
-            raise RuntimeError(f"Failed to create task: {response.json()['error']}")
 
-        img_data = response.json()["data"]["payload"]
+        result = response.json()
+        if response.status_code != 200:
+            raise RuntimeError(f"Failed to create task: {result['error']}")
+
+        if "result" in result:  # cloud
+            msg = json.loads(result["result"])
+            img_data = msg["data"]["payload"]
+        else:  # local
+            img_data = result["data"]["payload"]
+
         output = decode_comfy_image(img_data)
         return (output,)
 
