@@ -2,11 +2,13 @@
 huggingface: https://huggingface.co/xinsir/controlnet-union-sdxl-1.0
 github: https://github.com/xinsir6/ControlNetPlus/tree/main
 """
-import numpy as np
+import os
 import numpy as np
 import requests
 from .image_utils import encode_comfy_image, decode_comfy_image
-
+BIZYAIR_SERVER_ADDRESS = os.getenv(
+    "BIZYAIR_SERVER_ADDRESS", "https://api.siliconflow.cn"
+)
 
 class StableDiffusionXLControlNetUnionPipeline:
     @classmethod
@@ -52,7 +54,7 @@ class StableDiffusionXLControlNetUnionPipeline:
     CATEGORY = "☁️BizyAir/diffusers/Pipeline"
 
     def __init__(self):
-        create_task_url = "http://0.0.0.0:8000/supernode/diffusers/v1/controlnetplus"
+        create_task_url = f"{BIZYAIR_SERVER_ADDRESS}/supernode/diffusers/v1/stablediffusionxlcontrolnetunionpipeline"
         self.create_task_url = create_task_url
 
     def process(
