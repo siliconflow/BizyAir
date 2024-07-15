@@ -15,6 +15,8 @@ BIZYAIR_SERVER_ADDRESS = os.getenv(
 
 
 class StableDiffusionXLControlNetUnionPipeline:
+    API_URL = f"{BIZYAIR_SERVER_ADDRESS}/supernode/diffusers-v1-stablediffusionxlcontrolnetunionpipeline"
+
     @classmethod
     def INPUT_TYPES(s):
         return {
@@ -55,11 +57,7 @@ class StableDiffusionXLControlNetUnionPipeline:
 
     RETURN_TYPES = ("IMAGE",)
     FUNCTION = "process"
-    CATEGORY = "☁️BizyAir/diffusers/Pipeline"
-
-    def __init__(self):
-        create_task_url = f"{BIZYAIR_SERVER_ADDRESS}/supernode/diffusers-v1-stablediffusionxlcontrolnetunionpipeline"
-        self.create_task_url = create_task_url
+    CATEGORY = "☁️BizyAir/ControlNet"
 
     @staticmethod
     def get_headers():
@@ -106,7 +104,7 @@ class StableDiffusionXLControlNetUnionPipeline:
         payload.update(**kwargs)
 
         response = requests.post(
-            self.create_task_url, json=payload, headers=self.get_headers(),
+            self.API_URL, json=payload, headers=self.get_headers(),
         )
 
         result = response.json()
