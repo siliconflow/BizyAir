@@ -2,12 +2,9 @@ import base64
 import json
 import os
 import pickle
-from typing import Tuple, Union
 import urllib.request
 import urllib.parse
 import zlib
-
-import numpy as np
 
 BIZYAIR_DEBUG = os.getenv("BIZYAIR_DEBUG", False)
 
@@ -34,7 +31,7 @@ def send_post_request(api_url, payload, headers):
         raise Exception(f"Failed to connect to the server: {e}")
 
 
-def serialize_and_encode(obj: Union[np.ndarray], compress=True) -> Tuple[str, bool]:
+def serialize_and_encode(obj, compress=True):
     """
     Serializes a Python object, optionally compresses it, and then encodes it in base64.
 
@@ -65,7 +62,7 @@ def serialize_and_encode(obj: Union[np.ndarray], compress=True) -> Tuple[str, bo
     return (encoded_obj, compress)
 
 
-def decode_and_deserialize(response_text) -> np.ndarray:
+def decode_and_deserialize(response_text):
     if BIZYAIR_DEBUG:
         print(
             f"decode_and_deserialize: size of text is {format_bytes(len(response_text))}"
@@ -77,9 +74,8 @@ def decode_and_deserialize(response_text) -> np.ndarray:
         msg = json.loads(ret["result"])
     else:
         msg = ret
-    if msg["type"] not in (
-        "comfyair",
-        "bizyair",
+    if (
+        msg["type"] != "comfyair"
     ):  # DO NOT CHANGE THIS LINE: "comfyair" is the type from the server node
         # TODO: change both server and client "comfyair" to "bizyair"
         raise Exception(f"Unexpected response type: {msg}")
@@ -87,7 +83,7 @@ def decode_and_deserialize(response_text) -> np.ndarray:
     data = msg["data"]
 
     tensor_bytes = base64.b64decode(data["payload"])
-    if data.get("is_compress", None):
+    if data["is_compress"]:
         tensor_bytes = zlib.decompress(tensor_bytes)
 
     if BIZYAIR_DEBUG:
