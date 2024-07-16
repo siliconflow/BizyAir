@@ -115,7 +115,9 @@ def format_bytes(num_bytes: int) -> str:
 
 
 def validate_api_key(key: str):
-    assert isinstance(key, str), f"API_KEY must be a string, got {type(key)}"
+    assert isinstance(
+        key, str
+    ), f"API_KEY must be a string, got {type(key)}. Please refer to https://cloud.siliconflow.cn to get your API_KEY"
     assert key.startswith(
         "sk"
     ), f"invalid key, please refer to https://cloud.siliconflow.cn to get your API_KEY, got {key}"
