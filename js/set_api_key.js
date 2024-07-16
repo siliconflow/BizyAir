@@ -22,7 +22,6 @@ or you can only use nodes locally.`);
         if (nodeData.name === "BizyAirSetAPIKey") {
             async function set_api_key_to_cookies(text) {
                 if (text === "sk-****************") {
-                    alert("API Key has been set, remove the API 'Set SiliconCloud API Key' node please.")
                     return;
                 }
                 const body = new FormData();
