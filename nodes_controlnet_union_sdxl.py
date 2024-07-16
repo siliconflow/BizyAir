@@ -88,15 +88,26 @@ class StableDiffusionXLControlNetUnionPipeline:
 
         for k, v in controlnet_img.items():
             if v is not None:
-                # # need to resize the image resolution to 1024 * 1024 or same bucket resolution to get the best performance
+                # need to resize the image resolution to 1024 * 1024 or same bucket resolution to get the best performance
                 # https://github.com/xinsir6/ControlNetPlus/blob/ba6c35b62e9df4c8f3b6429c4844ecc92685c8ec/controlnet_union_test_depth.py#L54-L56
                 height, width = v.shape[1:3]
                 ratio = np.sqrt(1024.0 * 1024.0 / (width * height))
                 new_width, new_height = int(width * ratio), int(height * ratio)
                 controlnet_img[k] = encode_comfy_image(v)
 
+        if new_width > 1536 or new_height > 1536:
+            error_message = (
+                f"Error: Adjusted image dimensions exceed the limit. "
+                f"Height: {new_height}, Width: {new_width}. "
+                f"Please resize the original image with dimensions "
+                f"Height: {height}, Width: {width} to ensure "
+                f"Adjusted image dimensions are within 1536 pixels. "
+                f"Recommended dimensions: Height: {1024}, Width: {1024}."
+            )
+            raise RuntimeError(error_message)
+
         print(
-            f"Utilizing a height of {new_height} and width of {width} for processing."
+            f"Utilizing a height of {new_height} and width of {new_width} for processing."
         )
         payload = {
             "width": new_width,
