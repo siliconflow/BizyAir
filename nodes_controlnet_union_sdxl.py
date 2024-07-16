@@ -88,6 +88,8 @@ class StableDiffusionXLControlNetUnionPipeline:
 
         for k, v in controlnet_img.items():
             if v is not None:
+                # # need to resize the image resolution to 1024 * 1024 or same bucket resolution to get the best performance
+                # https://github.com/xinsir6/ControlNetPlus/blob/ba6c35b62e9df4c8f3b6429c4844ecc92685c8ec/controlnet_union_test_depth.py#L54-L56
                 height, width = v.shape[1:3]
                 ratio = np.sqrt(1024.0 * 1024.0 / (width * height))
                 new_width, new_height = int(width * ratio), int(height * ratio)
@@ -113,6 +115,8 @@ class StableDiffusionXLControlNetUnionPipeline:
 
         if "result" in result:  # cloud
             msg = json.loads(result["result"])
+            if "error" in msg:
+                raise RuntimeError(f"{msg['error']}")
             img_data = msg["data"]["payload"]
         else:  # local
             img_data = result["data"]["payload"]
