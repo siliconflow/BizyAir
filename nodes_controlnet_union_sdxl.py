@@ -126,5 +126,5 @@ NODE_CLASS_MAPPINGS = {
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
-    "StableDiffusionXLControlNetUnionPipeline": "☁️BizyAir StableDiffusionXLControlNetUnionPipeline",
+    "StableDiffusionXLControlNetUnionPipeline": "☁️BizyAir Controlnet Union SDXL 1.0",
 }
