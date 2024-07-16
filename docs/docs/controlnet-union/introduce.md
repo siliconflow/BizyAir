@@ -1,6 +1,6 @@
-## ☁️BizyAir All in One Controlnet SDXL 1.0
+## ☁️BizyAir Controlnet Union SDXL 1.0
 
- ☁️BizyAir All in One Controlnet SDXL 1.0 integrates the project [controlnet-union-sdxl-1.0](https://huggingface.co/xinsir/controlnet-union-sdxl-1.0) . With this node, you can generate images using various control types.
+☁️BizyAir Controlnet Union SDXL 1.0 integrates the project [controlnet-union-sdxl-1.0](https://huggingface.co/xinsir/controlnet-union-sdxl-1.0) . With this node, you can generate images using various control types.
 
 In conjunction with the [controlnet preprocessors](../controlnet-preprocessor/introduce.md) already provided by BizyAir, you do not need to prepare models and environments; you can directly perform tasks like image-to-image generation.
 
