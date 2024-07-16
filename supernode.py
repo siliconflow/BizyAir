@@ -78,7 +78,7 @@ class RemoveBackground:
         device = image.device
         _, w, h, _ = image.shape
         assert (
-            w <= 1024 and h <= 1024
+            w <= 1536 and h <= 1536
         ), f"width and height must be less than 1024, but got {w} and {h}"
 
         payload = {
