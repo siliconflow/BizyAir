@@ -36,7 +36,7 @@ async def get_api_key(request):
     if os.path.exists(file_path):
         config = configparser.ConfigParser()
         config.read(file_path)
-        api_key = config.get('auth', 'api_key', fallback='')
+        api_key = config.get('auth', 'api_key', fallback='').strip()
         # print(f"api_key from file = {api_key}")
     if api_key=='':
         api_key = request.cookies.get("api_key")
