@@ -1,5 +1,6 @@
 import uuid
-
+import os
+import configparser
 import server
 from aiohttp import web
 
@@ -25,15 +26,27 @@ async def set_api_key(request):
     except Exception as e:
         return web.Response(text=str(e), status=500)
 
-
 @server.PromptServer.instance.routes.get("/bizyair/get_api_key")
 async def get_api_key(request):
     global API_KEY
-    api_key = request.cookies.get("api_key")
+    # 检查是否存在 api_key.ini，文件中是否存在 key
+    api_key = ''
+    current_directory = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(current_directory, 'api_key.ini')
+    if os.path.exists(file_path):
+        config = configparser.ConfigParser()
+        config.read(file_path)
+        api_key = config.get('auth', 'api_key', fallback='').strip()
+        # print(f"api_key from file = {api_key}")
+    if api_key=='':
+        api_key = request.cookies.get("api_key")
+    # print(f"api_key = {api_key}")
     try:
         if api_key:
             API_KEY = api_key
-            return web.Response(text="ok")
+            response = web.Response(text="ok")
+            response.set_cookie("api_key", api_key)
+            return response
         else:
             return web.Response(text="No api key found in cookie", status=404)
     except Exception as e:
