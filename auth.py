@@ -26,19 +26,20 @@ async def set_api_key(request):
     except Exception as e:
         return web.Response(text=str(e), status=500)
 
+
 @server.PromptServer.instance.routes.get("/bizyair/get_api_key")
 async def get_api_key(request):
     global API_KEY
     # 检查是否存在 api_key.ini，文件中是否存在 key
-    api_key = ''
+    api_key = ""
     current_directory = os.path.dirname(os.path.abspath(__file__))
-    file_path = os.path.join(current_directory, 'api_key.ini')
+    file_path = os.path.join(current_directory, "api_key.ini")
     if os.path.exists(file_path):
         config = configparser.ConfigParser()
         config.read(file_path)
-        api_key = config.get('auth', 'api_key', fallback='').strip()
+        api_key = config.get("auth", "api_key", fallback="").strip()
         # print(f"api_key from file = {api_key}")
-    if api_key=='':
+    if api_key == "":
         api_key = request.cookies.get("api_key")
     # print(f"api_key = {api_key}")
     try:
