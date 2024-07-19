@@ -1,14 +1,54 @@
 import base64
 import io
 import os
-from typing import Union, List
-
-
+import pickle
+from functools import singledispatch
+from typing import List, Union
+import zlib
+import copy
 import numpy as np
-from PIL import Image
 import torch
+from PIL import Image
 
+# Marker to identify base64-encoded tensors
+TENSOR_MARKER = "TENSOR:"
 BIZYAIR_DEBUG = os.getenv("BIZYAIR_DEBUG", False)
+from typing import Dict
+
+
+def create_node_data(class_type: str, inputs: dict, outputs: dict):
+    assert (
+        outputs.get("slot_index", None) is not None
+    ), "outputs must contain 'slot_index'"
+    assert isinstance(outputs["slot_index"], int), "'slot_index' must be an integer"
+    assert isinstance(class_type, str)
+
+    out = {
+        "class_type": class_type,
+        "inputs": inputs,
+        "outputs": outputs,
+    }
+
+    return out
+
+
+class BizyAirNodeIO:
+    user_id_counter = 50 # user_ids
+    def __init__(self, node_id: int = "0", nodes: Dict[str, Dict[str, any]] = {}):
+        self.node_id = node_id
+        self.nodes = nodes
+
+    def copy(self, node_id=None):
+        if node_id is None:
+            new_node_id = self.new_node_id()
+        else:
+            new_node_id = node_id
+        return BizyAirNodeIO(nodes=copy.deepcopy(self.nodes), node_id=new_node_id)
+
+    @staticmethod
+    def new_node_id():
+        BizyAirNodeIO.user_id_counter +=1
+        return str(BizyAirNodeIO.user_id_counter)
 
 
 def convert_image_to_rgb(image: Image.Image) -> Image.Image:
@@ -90,6 +130,90 @@ def decode_comfy_image(img_data: Union[List, str], image_format="png") -> torch.
     return output
 
 
-# Example usage:
-# encoded_image = encode_image_to_base64(some_image_object)
-# decoded_image = decode_base64_to_image(encoded_image)
+def tensor_to_base64(tensor: torch.Tensor) -> str:
+    tensor_np = tensor.cpu().detach().numpy()
+
+    tensor_bytes = pickle.dumps(tensor_np)
+
+    tensor_bytes = zlib.compress(tensor_bytes)
+
+    tensor_b64 = base64.b64encode(tensor_bytes).decode("utf-8")
+    return tensor_b64
+
+
+def base64_to_tensor(tensor_b64: str) -> torch.Tensor:
+    tensor_bytes = base64.b64decode(tensor_b64)
+
+    tensor_bytes = zlib.decompress(tensor_bytes)
+
+    tensor_np = pickle.loads(tensor_bytes)
+
+    tensor = torch.from_numpy(tensor_np)
+    return tensor
+
+
+@singledispatch
+def decode_data(input):
+    raise NotImplementedError(f"Unsupported type: {type(input)}")
+
+
+@decode_data.register(int)
+@decode_data.register(float)
+@decode_data.register(bool)
+@decode_data.register(type(None))
+def _(input):
+    return input
+
+
+@decode_data.register(dict)
+def _(input):
+    return {k: decode_data(v) for k, v in input.items()}
+
+
+@decode_data.register(list)
+def _(input):
+    return [decode_data(x) for x in input]
+
+
+@decode_data.register(str)
+def _(input):
+    if input.startswith(TENSOR_MARKER):
+        tensor_b64 = input[len(TENSOR_MARKER) :]
+        return base64_to_tensor(tensor_b64)
+    return input
+
+
+@singledispatch
+def encode_data(output):
+    raise NotImplementedError(f"Unsupported type: {type(output)}")
+
+
+@encode_data.register(dict)
+def _(output):
+    return {k: encode_data(v) for k, v in output.items()}
+
+
+@encode_data.register(list)
+def _(output):
+    return [encode_data(x) for x in output]
+
+
+@encode_data.register(torch.Tensor)
+def _(output):
+    return TENSOR_MARKER + tensor_to_base64(output)
+
+
+@encode_data.register(BizyAirNodeIO)
+def _(output: BizyAirNodeIO):
+    origin_id = output.node_id
+    origin_slot = output.nodes[origin_id]["outputs"]["slot_index"]
+    return [origin_id, origin_slot]
+
+
+@encode_data.register(int)
+@encode_data.register(float)
+@encode_data.register(str)
+@encode_data.register(bool)
+@encode_data.register(type(None))
+def _(output):
+    return output
