@@ -33,21 +33,35 @@ def create_node_data(class_type: str, inputs: dict, outputs: dict):
 
 
 class BizyAirNodeIO:
-    user_id_counter = 50 # user_ids
-    def __init__(self, node_id: int = "0", nodes: Dict[str, Dict[str, any]] = {}):
+    user_id_counter = 50  # user_ids
+
+    def __init__(
+        self,
+        node_id: int = "0",
+        nodes: Dict[str, Dict[str, any]] = {},
+        request_mode="batch",
+    ):
         self.node_id = node_id
         self.nodes = nodes
+        valid_modes = ["batch", "instant"]
+        assert (
+            request_mode in valid_modes
+        ), f"Invalid request mode: {request_mode}. Must be one of {valid_modes}."
+        self.request_mode = request_mode
 
     def copy(self, node_id=None):
         if node_id is None:
             new_node_id = self.new_node_id()
         else:
             new_node_id = node_id
-        return BizyAirNodeIO(nodes=copy.deepcopy(self.nodes), node_id=new_node_id)
+        return BizyAirNodeIO(
+            nodes=self.nodes.copy(), node_id=new_node_id, request_mode=self.request_mode
+        )
 
     @staticmethod
     def new_node_id():
-        BizyAirNodeIO.user_id_counter +=1
+        # TODO refine sys_id
+        BizyAirNodeIO.user_id_counter += 1
         return str(BizyAirNodeIO.user_id_counter)
 
 

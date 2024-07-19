@@ -26,7 +26,7 @@ class BizyAir_KSampler:
             "required": {
                 "model": (data_types.MODEL,),
                 "seed": ("INT", {"default": 0, "min": 0, "max": 0xFFFFFFFFFFFFFFFF},),
-                "steps": ("INT", {"default": 20, "min": 1, "max": 10000}),
+                "steps": ("INT", {"default": 20, "min": 1, "max": 50}),
                 "cfg": (
                     "FLOAT",
                     {
@@ -67,7 +67,7 @@ class BizyAir_KSampler:
         latent_image,
         denoise=1,
     ):
-        new_model = model.copy()
+        new_model: BizyAirNodeIO = model.copy()
         node_data = create_node_data(
             class_type="KSampler",
             inputs={
@@ -92,6 +92,9 @@ class BizyAir_KSampler:
         if isinstance(negative, BizyAirNodeIO):
             new_model.nodes.update(**negative.nodes)
 
+        if new_model.request_mode == "batch":
+            return (new_model,)
+
         response = requests.post(
             url,
             headers=headers,
@@ -107,7 +110,10 @@ class BizyAir_CheckpointLoaderSimple:
     @classmethod
     def INPUT_TYPES(s):  # TODO fix ckpt_name
         return {
-            "required": {"ckpt_name": (folder_paths.get_filename_list("checkpoints"),),}
+            "required": {
+                "ckpt_name": (folder_paths.get_filename_list("checkpoints"),),
+                "request_mode": (["batch", "instant"],),
+            }
         }
 
     RETURN_TYPES = (data_types.MODEL, data_types.CLIP, data_types.VAE)
@@ -119,7 +125,10 @@ class BizyAir_CheckpointLoaderSimple:
         f"vae{take_off_emojis}",
     )
 
-    def load_checkpoint(self, ckpt_name):
+    def load_checkpoint(self, ckpt_name, request_mode="batch"):
+        #  request_mode: A tuple containing the modes of data processing.
+        #  "batch" for processing all data at once,
+        #  "instant" for processing data as it comes.
 
         node_datas = [
             create_node_data(
@@ -129,7 +138,10 @@ class BizyAir_CheckpointLoaderSimple:
             )
             for slot_index in range(3)
         ]
-        outs = [BizyAirNodeIO("0", {"0": data}) for data in node_datas]
+        outs = [
+            BizyAirNodeIO("0", {"0": data}, request_mode=request_mode)
+            for data in node_datas
+        ]
 
         return (
             outs[0],
@@ -191,6 +203,9 @@ class BizyAir_VAEDecode:
         )
         node_data = encode_data(node_data)
         new_vae.nodes.update(**{new_vae.node_id: node_data})
+        if isinstance(samples, BizyAirNodeIO):
+            new_vae.nodes.update(**samples.nodes)
+
         response = requests.post(
             url,
             headers=headers,
@@ -232,28 +247,20 @@ class BizyAir_LoraLoader:
     def load_lora(self, model, clip, lora_name, strength_model, strength_clip):
         new_model: BizyAirNodeIO = model.copy()
         new_clip: BizyAirNodeIO = clip.copy(new_model.node_id)
-        model_node_data = create_node_data(
-            class_type="LoraLoader",
-            inputs={
-                "model": model,
-                "clip": clip,
-                "lora_name": lora_name,
-                "strength_model": strength_model,
-                "strength_clip": strength_clip,
-            },
-            outputs={"slot_index": 0},
-        )
-        clip_node_data = create_node_data(
-            class_type="LoraLoader",
-            inputs={
-                "model": model,
-                "clip": clip,
-                "lora_name": lora_name,
-                "strength_model": strength_model,
-                "strength_clip": strength_clip,
-            },
-            outputs={"slot_index": 1},
-        )
+        model_node_data, clip_node_data = [
+            create_node_data(
+                class_type="LoraLoader",
+                inputs={
+                    "model": model,
+                    "clip": clip,
+                    "lora_name": lora_name,
+                    "strength_model": strength_model,
+                    "strength_clip": strength_clip,
+                },
+                outputs={"slot_index": slot_index},
+            )
+            for slot_index in range(2)
+        ]
         model_node_data, clip_node_data = (
             encode_data(model_node_data),
             encode_data(clip_node_data),
@@ -314,9 +321,7 @@ class BizyAir_VAEEncodeForInpaint:
 
     RETURN_TYPES = (f"LATENT",)
     RETURN_NAMES = (f"LATENT{landing_emojis}",)
-
     FUNCTION = "encode"
-
     CATEGORY = f"{PREFIX}/latent/inpaint"
 
     def encode(self, vae, pixels, mask, grow_mask_by=6):
@@ -346,7 +351,7 @@ class BizyAir_VAEEncodeForInpaint:
         return real_out[0]
 
 
-@register_node(f"{PREFIX} Load ControlNet Model")
+@register_node()
 class BizyAir_ControlNetLoader:
     @classmethod
     def INPUT_TYPES(s):
