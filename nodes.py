@@ -2,7 +2,7 @@ import os
 from typing import List
 import comfy
 import folder_paths
-from .register import register_node
+from .register import BizyAirBaseNode
 from .image_utils import (
     create_node_data,
     BizyAirNodeIO,
@@ -17,8 +17,7 @@ url = "http://0.0.0.0:8000/supernode/diffusers-v1-comfy-server-demo"
 headers = {"Content-Type": "application/json"}
 
 
-@register_node()
-class BizyAir_KSampler:
+class BizyAir_KSampler(BizyAirBaseNode):
     @classmethod
     def INPUT_TYPES(s):
         return {
@@ -66,7 +65,7 @@ class BizyAir_KSampler:
         latent_image,
         denoise=1,
     ):
-        new_model: BizyAirNodeIO = model.copy()
+        new_model: BizyAirNodeIO = model.copy(self.assigned_id)
         new_model.add_node_data(
             class_type="KSampler",
             inputs={
@@ -83,11 +82,11 @@ class BizyAir_KSampler:
             },
             outputs={"slot_index": 0},
         )
+
         return new_model.send_request(url=url, headers=headers)
 
 
-@register_node(f"{PREFIX} Load Checkpoint")
-class BizyAir_CheckpointLoaderSimple:
+class BizyAir_CheckpointLoaderSimple(BizyAirBaseNode):
     @classmethod
     def INPUT_TYPES(s):  # TODO fix ckpt_name
         return {
@@ -110,8 +109,6 @@ class BizyAir_CheckpointLoaderSimple:
         #  request_mode: A tuple containing the modes of data processing.
         #  "batch" for processing all data at once,
         #  "instant" for processing data as it comes.
-        if request_mode == "batch":  # TODO
-            raise RuntimeError("")
 
         node_datas = [
             create_node_data(
@@ -123,9 +120,13 @@ class BizyAir_CheckpointLoaderSimple:
         ]
         current_directory = os.path.dirname(__file__)
         config_file = os.path.join(current_directory, "config", "sdxl_config.yaml")
+        assigned_id = self.assigned_id
         outs = [
             BizyAirNodeIO(
-                "0", {"0": data}, request_mode=request_mode, config_file=config_file
+                assigned_id,
+                {assigned_id: data},
+                request_mode=request_mode,
+                config_file=config_file,
             )
             for data in node_datas
         ]
@@ -137,8 +138,7 @@ class BizyAir_CheckpointLoaderSimple:
         )
 
 
-@register_node(f"{PREFIX} CLIP Text Encode (Prompt)")
-class BizyAir_CLIPTextEncode:
+class BizyAir_CLIPTextEncode(BizyAirBaseNode):
     @classmethod
     def INPUT_TYPES(s):
         return {
@@ -155,7 +155,7 @@ class BizyAir_CLIPTextEncode:
     CATEGORY = f"{PREFIX}/conditioning"
 
     def encode(self, clip, text):
-        new_clip: BizyAirNodeIO = clip.copy()
+        new_clip: BizyAirNodeIO = clip.copy(self.assigned_id)
 
         new_clip.add_node_data(
             class_type="CLIPTextEncode",
@@ -165,8 +165,7 @@ class BizyAir_CLIPTextEncode:
         return (new_clip,)
 
 
-@register_node()
-class BizyAir_VAEDecode:
+class BizyAir_VAEDecode(BizyAirBaseNode):
     @classmethod
     def INPUT_TYPES(s):
         return {"required": {"samples": ("LATENT",), "vae": (data_types.VAE,)}}
@@ -178,7 +177,7 @@ class BizyAir_VAEDecode:
     CATEGORY = f"{PREFIX}/latent"
 
     def decode(self, vae, samples):
-        new_vae: BizyAirNodeIO = vae.copy()
+        new_vae: BizyAirNodeIO = vae.copy(self.assigned_id)
         new_vae.add_node_data(
             class_type="VAEDecode",
             inputs={"samples": samples, "vae": vae,},
@@ -187,8 +186,7 @@ class BizyAir_VAEDecode:
         return new_vae.send_request(url=url, headers=headers)
 
 
-@register_node()
-class BizyAir_LoraLoader:
+class BizyAir_LoraLoader(BizyAirBaseNode):
     @classmethod
     def INPUT_TYPES(s):
         return {
@@ -215,8 +213,9 @@ class BizyAir_LoraLoader:
     CATEGORY = f"{PREFIX}/loaders"
 
     def load_lora(self, model, clip, lora_name, strength_model, strength_clip):
-        new_model: BizyAirNodeIO = model.copy()
-        new_clip: BizyAirNodeIO = clip.copy(new_model.node_id)
+        assigned_id = self.assigned_id
+        new_model: BizyAirNodeIO = model.copy(assigned_id)
+        new_clip: BizyAirNodeIO = clip.copy(assigned_id)
         instances: List[BizyAirNodeIO] = [new_model, new_clip]
         for slot_index, ins in zip(range(2), instances):
             ins.add_node_data(
@@ -236,8 +235,7 @@ class BizyAir_LoraLoader:
         )
 
 
-@register_node()
-class BizyAir_VAEEncode:
+class BizyAir_VAEEncode(BizyAirBaseNode):
     @classmethod
     def INPUT_TYPES(s):
         return {"required": {"pixels": ("IMAGE",), "vae": (data_types.VAE,)}}
@@ -248,7 +246,7 @@ class BizyAir_VAEEncode:
     CATEGORY = f"{PREFIX}/latent"
 
     def encode(self, vae, pixels):
-        new_vae: BizyAirNodeIO = vae.copy()
+        new_vae: BizyAirNodeIO = vae.copy(self.assigned_id)
         new_vae.add_node_data(
             class_type="VAEEncode",
             inputs={"vae": vae, "pixels": pixels,},
@@ -257,8 +255,7 @@ class BizyAir_VAEEncode:
         return new_vae.send_request(url=url, headers=headers)
 
 
-@register_node()
-class BizyAir_VAEEncodeForInpaint:
+class BizyAir_VAEEncodeForInpaint(BizyAirBaseNode):
     @classmethod
     def INPUT_TYPES(s):
         return {
@@ -276,7 +273,7 @@ class BizyAir_VAEEncodeForInpaint:
     CATEGORY = f"{PREFIX}/latent/inpaint"
 
     def encode(self, vae, pixels, mask, grow_mask_by=6):
-        new_vae: BizyAirNodeIO = vae.copy()
+        new_vae: BizyAirNodeIO = vae.copy(self.assigned_id)
         new_vae.add_node_data(
             class_type="VAEEncodeForInpaint",
             inputs={
@@ -290,8 +287,7 @@ class BizyAir_VAEEncodeForInpaint:
         return new_vae.send_request(url, headers)
 
 
-@register_node()
-class BizyAir_ControlNetLoader:
+class BizyAir_ControlNetLoader(BizyAirBaseNode):
     @classmethod
     def INPUT_TYPES(s):
         return {
@@ -307,17 +303,18 @@ class BizyAir_ControlNetLoader:
     CATEGORY = f"{PREFIX}/loaders"
 
     def load_controlnet(self, control_net_name):
+
         node_data = create_node_data(
             class_type="ControlNetLoader",
             inputs={"control_net_name": control_net_name,},
             outputs={"slot_index": 0},
         )
-        node = BizyAirNodeIO("1", {"1": node_data})
+        assigned_id = self.assigned_id
+        node = BizyAirNodeIO(assigned_id, {assigned_id: node_data})
         return (node,)
 
 
-@register_node(f"{PREFIX} Apply ControlNet")
-class BizyAir_ControlNetApply:
+class BizyAir_ControlNetApply(BizyAirBaseNode):
     @classmethod
     def INPUT_TYPES(s):
         return {
@@ -341,7 +338,7 @@ class BizyAir_ControlNetApply:
     def apply_controlnet(
         self, conditioning, control_net: BizyAirNodeIO, image, strength
     ):
-        new_cond: BizyAirNodeIO = conditioning.copy()
+        new_cond: BizyAirNodeIO = conditioning.copy(self.assigned_id)
         new_cond.add_node_data(
             class_type="ControlNetApply",
             inputs={

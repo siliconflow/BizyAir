@@ -35,8 +35,6 @@ def create_node_data(class_type: str, inputs: dict, outputs: dict):
 
 
 class BizyAirNodeIO:
-    user_id_counter = 1  # user_ids
-
     def __init__(
         self,
         node_id: int = "0",
@@ -45,6 +43,8 @@ class BizyAirNodeIO:
         config_file=None,
         configs: dict = None,
     ):
+        self._validate_node_id(node_id=node_id)
+
         self.node_id = node_id
         self.nodes = nodes
         valid_modes = ["batch", "instant"]
@@ -67,20 +67,21 @@ class BizyAirNodeIO:
             config = yaml.safe_load(file)
             return config
 
-    def copy(self, node_id=None):
+    def _validate_node_id(self, node_id) -> bool:
         if node_id is None:
-            BizyAirNodeIO.user_id_counter += 1
-            new_node_id = str(BizyAirNodeIO.user_id_counter)
-        else:
-            try:
-                if not isinstance(node_id, str):
-                    raise ValueError("Node ID must be a string.")
-                int(node_id)
-            except ValueError:
-                raise ValueError(
-                    "Node ID must be a string that can be converted to an integer."
-                )
-            new_node_id = node_id
+            raise ValueError("Node ID cannot be None.")
+        if not isinstance(node_id, str):
+            raise ValueError("Node ID must be a string.")
+        if not node_id.isdigit():
+            raise ValueError(
+                "Node ID must be a string that can be converted to an integer."
+            )
+        return True
+
+    def copy(self, new_node_id: str = None):
+        self._validate_node_id(new_node_id)
+        if new_node_id in self.nodes:
+            raise ValueError(f"Node ID '{new_node_id}' already exists.")
 
         return BizyAirNodeIO(
             nodes=self.nodes.copy(),
@@ -142,6 +143,7 @@ class BizyAirNodeIO:
                     ]
                 else:
                     workflow[node_id]["inputs"][in_key] = value
+
         return {"workflow": workflow, "last_link_id": node_id_mapping[self.node_id]}
 
     def add_node_data(
@@ -168,7 +170,15 @@ class BizyAirNodeIO:
                 self.nodes.update(other.nodes)
 
     def send_request(self, url, headers) -> any:
-        response = requests.post(url, headers=headers, json=self.workflow_api,)
+        if (
+            self.request_mode == "batch"
+            and self.nodes[self.node_id]["class_type"] != "VAEDecode"
+        ):
+            print(f"pass ~~")
+            return (self,)
+
+        response = requests.post(url, headers=headers, json=self.workflow_api)
+
         if response.status_code != 200:
             raise Exception(f"Request failed with status code {response.status_code}")
 
