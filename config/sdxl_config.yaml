@@ -1,0 +1,40 @@
+server_format:
+  BizyAir_KSampler: KSampler
+
+class_types:
+  CheckpointLoaderSimple:
+    max_instances: 1
+    node_ids: [0]
+    ckpt_name: 
+      - Juggernaut-XL_v9_RunDiffusionPhoto_v2.safetensors
+  ControlNetLoader:
+    max_instances: 1
+    node_ids: [1]
+    control_net_name:
+      - diffusion_pytorch_model_promax.safetensors
+  ControlNetApply:
+    max_instances: 1
+    node_ids: [2]
+  CLIPTextEncode:
+    max_instances: 2
+    node_ids: [3, 4]
+  VAEDecode:
+    max_instances: 1
+    node_ids: [5]
+  VAEEncode:
+    max_instances: 1
+    node_ids: [6]
+  VAEEncodeForInpaint:
+    max_instances: 1
+    node_ids: [7]
+  LoraLoader:
+    max_instances: 2
+    node_ids: [8, 9]
+    lora_name:
+      - watercolor_v1_sdxl_lora.safetensors
+  KSampler:
+    max_instances: 1
+    node_ids: [10]
+
+
+

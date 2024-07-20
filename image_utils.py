@@ -1,14 +1,16 @@
 import base64
+from collections import deque
 import io
 import os
 import pickle
 from functools import singledispatch
-from typing import List, Union
+from typing import Any, List, Union
 import zlib
-import copy
 import numpy as np
+import requests
 import torch
 from PIL import Image
+import yaml
 
 # Marker to identify base64-encoded tensors
 TENSOR_MARKER = "TENSOR:"
@@ -33,13 +35,15 @@ def create_node_data(class_type: str, inputs: dict, outputs: dict):
 
 
 class BizyAirNodeIO:
-    user_id_counter = 50  # user_ids
+    user_id_counter = 1  # user_ids
 
     def __init__(
         self,
         node_id: int = "0",
         nodes: Dict[str, Dict[str, any]] = {},
         request_mode="batch",
+        config_file=None,
+        configs: dict = None,
     ):
         self.node_id = node_id
         self.nodes = nodes
@@ -49,20 +53,129 @@ class BizyAirNodeIO:
         ), f"Invalid request mode: {request_mode}. Must be one of {valid_modes}."
         self.request_mode = request_mode
 
+        if config_file:
+            if not os.path.exists(config_file):
+                raise FileNotFoundError(
+                    f"Configuration file '{config_file}' does not exist."
+                )
+            self.configs = self._load_config_file(config_file)
+        else:
+            self.configs = configs
+
+    def _load_config_file(self, config_file) -> dict:
+        with open(config_file, "r") as file:
+            config = yaml.safe_load(file)
+            return config
+
     def copy(self, node_id=None):
         if node_id is None:
-            new_node_id = self.new_node_id()
+            BizyAirNodeIO.user_id_counter += 1
+            new_node_id = str(BizyAirNodeIO.user_id_counter)
         else:
+            try:
+                if not isinstance(node_id, str):
+                    raise ValueError("Node ID must be a string.")
+                int(node_id)
+            except ValueError:
+                raise ValueError(
+                    "Node ID must be a string that can be converted to an integer."
+                )
             new_node_id = node_id
+
         return BizyAirNodeIO(
-            nodes=self.nodes.copy(), node_id=new_node_id, request_mode=self.request_mode
+            nodes=self.nodes.copy(),
+            node_id=new_node_id,
+            request_mode=self.request_mode,
+            configs=self.configs,
         )
 
-    @staticmethod
-    def new_node_id():
-        # TODO refine sys_id
-        BizyAirNodeIO.user_id_counter += 1
-        return str(BizyAirNodeIO.user_id_counter)
+    @property
+    def workflow_api(self):
+        class_configs = self.configs.get("class_types", {})
+        class_usage_count = {}
+        for _, instance_info in self.nodes.items():
+            class_type = instance_info["class_type"]
+            if class_type not in class_configs:
+                raise NotImplementedError(f"NotImplementedError for {class_type}")
+            if class_type not in class_usage_count:
+                class_usage_count[class_type] = 0
+            class_usage_count[class_type] += 1
+
+            max_instances = class_configs[class_type]["max_instances"]
+            # Check if the maximum instances limit has been exceeded
+            if max_instances < class_usage_count[class_type]:
+                raise RuntimeError(
+                    False,
+                    f"{class_type} max_instances is too large, allowed: {max_instances}",
+                )
+
+            wokflow_api = self.generate_workflow_with_allocated_ids()
+            return wokflow_api
+
+    def generate_workflow_with_allocated_ids(self):
+        class_configs = self.configs.get("class_types", {})
+        class_id_counter = {}
+        node_id_mapping = {}
+
+        for node_id, node_data in self.nodes.items():
+            class_type = node_data["class_type"]
+            class_node_ids = class_configs[class_type]["node_ids"]
+            class_id_counter.setdefault(class_type, 0)
+            allocated_id = class_node_ids[class_id_counter[class_type]]
+            class_id_counter[class_type] += 1
+            node_id_mapping[node_id] = str(allocated_id)
+
+        workflow = {}
+        for ins_id, ins_info in self.nodes.items():
+            node_id = node_id_mapping[ins_id]
+            workflow[node_id] = {
+                "class_type": ins_info["class_type"],
+                "outputs": ins_info["outputs"],
+                "inputs": {},
+            }
+
+            for in_key, value in ins_info["inputs"].items():
+                if isinstance(value, list) and len(value) == 2:
+                    workflow[node_id]["inputs"][in_key] = [
+                        node_id_mapping[value[0]],
+                        value[1],
+                    ]
+                else:
+                    workflow[node_id]["inputs"][in_key] = value
+        return {"workflow": workflow, "last_link_id": node_id_mapping[self.node_id]}
+
+    def add_node_data(
+        self, class_type: str, inputs: Dict[str, Any], outputs: Dict[str, Any]
+    ):
+        node_data = create_node_data(
+            class_type=class_type, inputs=inputs, outputs=outputs,
+        )
+
+        encoded_node_data = encode_data(node_data)
+
+        self.update_nodes_from_others(*inputs.values())
+
+        if self.node_id in self.nodes:
+            print(
+                f"Warning: Node ID {self.node_id} already exists. Data will be overwritten."
+            )
+
+        self.nodes[self.node_id] = encoded_node_data
+
+    def update_nodes_from_others(self, *others):
+        for other in others:
+            if isinstance(other, BizyAirNodeIO):
+                self.nodes.update(other.nodes)
+
+    def send_request(self, url, headers) -> any:
+        response = requests.post(url, headers=headers, json=self.workflow_api,)
+        if response.status_code != 200:
+            raise Exception(f"Request failed with status code {response.status_code}")
+
+        # local
+        out = response.json()["data"]["payload"]
+        real_out = decode_data(out)
+        return real_out[0]
 
 
 def convert_image_to_rgb(image: Image.Image) -> Image.Image:

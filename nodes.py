@@ -1,10 +1,9 @@
-import requests
+import os
+from typing import List
 import comfy
 import folder_paths
 from .register import register_node
 from .image_utils import (
-    encode_data,
-    decode_data,
     create_node_data,
     BizyAirNodeIO,
 )
@@ -68,7 +67,7 @@ class BizyAir_KSampler:
         denoise=1,
     ):
         new_model: BizyAirNodeIO = model.copy()
-        node_data = create_node_data(
+        new_model.add_node_data(
             class_type="KSampler",
             inputs={
                 "model": model,
@@ -84,25 +83,7 @@ class BizyAir_KSampler:
             },
             outputs={"slot_index": 0},
         )
-
-        node_data = encode_data(node_data)
-        new_model.nodes.update(**{new_model.node_id: node_data})
-        if isinstance(positive, BizyAirNodeIO):
-            new_model.nodes.update(**positive.nodes)
-        if isinstance(negative, BizyAirNodeIO):
-            new_model.nodes.update(**negative.nodes)
-
-        if new_model.request_mode == "batch":
-            return (new_model,)
-
-        response = requests.post(
-            url,
-            headers=headers,
-            json={"workflow": new_model.nodes, "last_link_id": new_model.node_id,},
-        )
-        out = response.json()["data"]["payload"]
-        real_out = decode_data(out)
-        return real_out[0]
+        return new_model.send_request(url=url, headers=headers)
 
 
 @register_node(f"{PREFIX} Load Checkpoint")
@@ -112,7 +93,7 @@ class BizyAir_CheckpointLoaderSimple:
         return {
             "required": {
                 "ckpt_name": (folder_paths.get_filename_list("checkpoints"),),
-                "request_mode": (["batch", "instant"],),
+                "request_mode": (["instant", "batch",],),
             }
         }
 
@@ -129,6 +110,8 @@ class BizyAir_CheckpointLoaderSimple:
         #  request_mode: A tuple containing the modes of data processing.
         #  "batch" for processing all data at once,
         #  "instant" for processing data as it comes.
+        if request_mode == "batch":  # TODO
+            raise RuntimeError("")
 
         node_datas = [
             create_node_data(
@@ -138,8 +121,12 @@ class BizyAir_CheckpointLoaderSimple:
             )
             for slot_index in range(3)
         ]
+        current_directory = os.path.dirname(__file__)
+        config_file = os.path.join(current_directory, "config", "sdxl_config.yaml")
         outs = [
-            BizyAirNodeIO("0", {"0": data}, request_mode=request_mode)
+            BizyAirNodeIO(
+                "0", {"0": data}, request_mode=request_mode, config_file=config_file
+            )
             for data in node_datas
         ]
 
@@ -168,16 +155,13 @@ class BizyAir_CLIPTextEncode:
     CATEGORY = f"{PREFIX}/conditioning"
 
     def encode(self, clip, text):
-        new_clip = clip.copy()
+        new_clip: BizyAirNodeIO = clip.copy()
 
-        node_data = create_node_data(
+        new_clip.add_node_data(
             class_type="CLIPTextEncode",
             inputs={"text": text, "clip": clip,},
             outputs={"slot_index": 0},
         )
-
-        node_data = encode_data(node_data)
-        new_clip.nodes.update(**{new_clip.node_id: node_data})
         return (new_clip,)
 
 
@@ -195,26 +179,12 @@ class BizyAir_VAEDecode:
 
     def decode(self, vae, samples):
         new_vae: BizyAirNodeIO = vae.copy()
-
-        node_data = create_node_data(
+        new_vae.add_node_data(
             class_type="VAEDecode",
             inputs={"samples": samples, "vae": vae,},
             outputs={"slot_index": 0},
         )
-        node_data = encode_data(node_data)
-        new_vae.nodes.update(**{new_vae.node_id: node_data})
-        if isinstance(samples, BizyAirNodeIO):
-            new_vae.nodes.update(**samples.nodes)
-
-        response = requests.post(
-            url,
-            headers=headers,
-            json={"workflow": new_vae.nodes, "last_link_id": new_vae.node_id},
-        )
-        # local
-        out = response.json()["data"]["payload"]
-        real_out = decode_data(out)
-        return real_out[0]
+        return new_vae.send_request(url=url, headers=headers)
 
 
 @register_node()
@@ -247,8 +217,9 @@ class BizyAir_LoraLoader:
     def load_lora(self, model, clip, lora_name, strength_model, strength_clip):
         new_model: BizyAirNodeIO = model.copy()
         new_clip: BizyAirNodeIO = clip.copy(new_model.node_id)
-        model_node_data, clip_node_data = [
-            create_node_data(
+        instances: List[BizyAirNodeIO] = [new_model, new_clip]
+        for slot_index, ins in zip(range(2), instances):
+            ins.add_node_data(
                 class_type="LoraLoader",
                 inputs={
                     "model": model,
@@ -259,14 +230,6 @@ class BizyAir_LoraLoader:
                 },
                 outputs={"slot_index": slot_index},
             )
-            for slot_index in range(2)
-        ]
-        model_node_data, clip_node_data = (
-            encode_data(model_node_data),
-            encode_data(clip_node_data),
-        )
-        new_clip.nodes.update(**{new_clip.node_id: clip_node_data})
-        new_model.nodes.update(**{new_model.node_id: model_node_data})
         return (
             new_model,
             new_clip,
@@ -286,24 +249,12 @@ class BizyAir_VAEEncode:
 
     def encode(self, vae, pixels):
         new_vae: BizyAirNodeIO = vae.copy()
-        node_data = create_node_data(
+        new_vae.add_node_data(
             class_type="VAEEncode",
             inputs={"vae": vae, "pixels": pixels,},
             outputs={"slot_index": 0},
         )
-        node_data = encode_data(node_data)
-
-        new_vae.nodes.update(**{new_vae.node_id: node_data})
-
-        response = requests.post(
-            url,
-            headers=headers,
-            json={"workflow": new_vae.nodes, "last_link_id": new_vae.node_id},
-        )
-        # local
-        out = response.json()["data"]["payload"]
-        real_out = decode_data(out)
-        return real_out[0]
+        return new_vae.send_request(url=url, headers=headers)
 
 
 @register_node()
@@ -326,7 +277,7 @@ class BizyAir_VAEEncodeForInpaint:
 
     def encode(self, vae, pixels, mask, grow_mask_by=6):
         new_vae: BizyAirNodeIO = vae.copy()
-        node_data = create_node_data(
+        new_vae.add_node_data(
             class_type="VAEEncodeForInpaint",
             inputs={
                 "vae": vae,
@@ -336,19 +287,7 @@ class BizyAir_VAEEncodeForInpaint:
             },
             outputs={"slot_index": 0},
         )
-        node_data = encode_data(node_data)
-
-        new_vae.nodes.update(**{new_vae.node_id: node_data})
-
-        response = requests.post(
-            url,
-            headers=headers,
-            json={"workflow": new_vae.nodes, "last_link_id": new_vae.node_id},
-        )
-        # local
-        out = response.json()["data"]["payload"]
-        real_out = decode_data(out)
-        return real_out[0]
+        return new_vae.send_request(url, headers)
 
 
 @register_node()
@@ -403,7 +342,7 @@ class BizyAir_ControlNetApply:
         self, conditioning, control_net: BizyAirNodeIO, image, strength
     ):
         new_cond: BizyAirNodeIO = conditioning.copy()
-        node_data = create_node_data(
+        new_cond.add_node_data(
             class_type="ControlNetApply",
             inputs={
                 "conditioning": conditioning,
@@ -413,8 +352,4 @@ class BizyAir_ControlNetApply:
             },
             outputs={"slot_index": 0},
         )
-        node_data = encode_data(node_data)
-
-        new_cond.nodes.update(**control_net.nodes)
-        new_cond.nodes.update(**{new_cond.node_id: node_data})
         return (new_cond,)
