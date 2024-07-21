@@ -92,7 +92,7 @@ class BizyAir_CheckpointLoaderSimple(BizyAirBaseNode):
         return {
             "required": {
                 "ckpt_name": (folder_paths.get_filename_list("checkpoints"),),
-                "request_mode": (["instant", "batch",],),
+                "request_mode": (["batch", "instant"],),
             }
         }
 
@@ -350,3 +350,25 @@ class BizyAir_ControlNetApply(BizyAirBaseNode):
             outputs={"slot_index": 0},
         )
         return (new_cond,)
+
+
+class BizyAir_CLIPVisionLoader(BizyAirBaseNode):
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {"clip_name": (folder_paths.get_filename_list("clip_vision"),),}
+        }
+
+    RETURN_TYPES = ("CLIP_VISION",)
+    FUNCTION = "load_clip"
+
+    CATEGORY = "loaders"
+
+    def load_clip(self, clip_name):
+        node_data = create_node_data(
+            class_type="CLIPVisionLoader",
+            inputs={"clip_name": clip_name},
+            outputs={"slot_index": 0},
+        )
+        clip_vision = BizyAirNodeIO(self.assigned_id, {self.assigned_id: node_data})
+        return (clip_vision,)

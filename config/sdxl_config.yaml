@@ -35,6 +35,20 @@ class_types:
   KSampler:
     max_instances: 1
     node_ids: [10]
-
-
-
+  IPAdapterUnifiedLoader:
+    max_instances: 1
+    node_ids: [11]
+    preset:
+      - "PLUS (high strength)"
+  IPAdapter:
+    max_instances: 1
+    node_ids: [12]
+  IPAdapterAdvanced:
+    max_instances: 1
+    node_ids: [13]
+  CLIPVisionLoader:
+    max_instances: 1
+    node_ids: [14]
+  IPAdapterStyleComposition:
+    max_instances: 1
+    node_ids: [15]

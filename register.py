@@ -1,5 +1,10 @@
+import os
 import threading
 import nodes as comfy_nodes
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 LOGO = "☁️"
 PREFIX = f"BizyAir"
@@ -16,16 +21,19 @@ def validate_category(cls, prefix):
 
 
 def register_node(cls, prefix):
-    class_name = cls.__name__
-    assert class_name.startswith(
-        f"{prefix}_"
-    ), f"Class name '{class_name}' must start with prefix '{prefix}_'"
+    class_name = (
+        f"{prefix}_{cls.__name__}"
+        if not cls.__name__.startswith(prefix)
+        else cls.__name__
+    )
+    logger.debug(
+        f"Class: {cls}, Name: {class_name}, Has DISPLAY_NAME: {hasattr(cls, 'NODE_DISPLAY_NAME')}"
+    )
 
     if hasattr(cls, "NODE_DISPLAY_NAME"):
         display_name = cls.NODE_DISPLAY_NAME
-        assert display_name.startswith(
-            f"{LOGO}{prefix}"
-        ), f"Display name '{display_name}' must start with '{LOGO}{prefix}'"
+        if not display_name.startswith(f"{LOGO}{prefix}"):
+            display_name = f"{LOGO}{prefix} {display_name}"
     else:
         base_name = class_name[len(prefix) + 1 :]
         if base_name in comfy_nodes.NODE_DISPLAY_NAME_MAPPINGS:
@@ -34,14 +42,12 @@ def register_node(cls, prefix):
             )
         else:
             display_name = f"{LOGO}{prefix} {base_name}"
-            print(
-                f"Warning: Display name '{display_name}' might differ from the native display name."
+            logger.warning(
+                f"Display name '{display_name}' might differ from the native display name."
             )
 
     NODE_CLASS_MAPPINGS[class_name] = cls
     NODE_DISPLAY_NAME_MAPPINGS[class_name] = display_name
-
-
 
 
 class IDAllocator:
@@ -55,11 +61,11 @@ class IDAllocator:
 
     @property
     def assigned_id(self):
-        print(f"{self._assigned_id=}")
         return str(self._assigned_id)
 
 
 class BizyAirBaseNode(IDAllocator):
     def __init_subclass__(cls, **kwargs):
-        validate_category(cls, PREFIX)
+        if not cls.CATEGORY.startswith(f"{LOGO}{PREFIX}"):
+            cls.CATEGORY = os.path.join(f"{LOGO}{PREFIX}", cls.CATEGORY)
         register_node(cls, PREFIX)

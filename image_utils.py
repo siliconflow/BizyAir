@@ -62,6 +62,21 @@ class BizyAirNodeIO:
         else:
             self.configs = configs
 
+    def _short_repr(self, obj: Any, max_length: int = 50) -> str:
+        if isinstance(obj, str):
+            if len(obj) > max_length:
+                return obj[:max_length] + "..."
+            return obj
+        elif isinstance(obj, torch.Tensor):
+            return f"Tensor(shape={obj.shape}, dtype={obj.dtype})"
+        elif isinstance(obj, dict):
+            return {k: self._short_repr(v) for k, v in obj.items()}
+        else:
+            obj_str = repr(obj)
+            if len(obj_str) > max_length:
+                return obj_str[:max_length] + "..."
+            return obj_str
+
     def _load_config_file(self, config_file) -> dict:
         with open(config_file, "r") as file:
             config = yaml.safe_load(file)
@@ -176,7 +191,8 @@ class BizyAirNodeIO:
         ):
             print(f"pass ~~")
             return (self,)
-
+        #  self._short_repr(self.nodes, max_length=100)
+        #  self._short_repr(self.workflow_api, max_length=100)
         response = requests.post(url, headers=headers, json=self.workflow_api)
 
         if response.status_code != 200:
