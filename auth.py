@@ -74,6 +74,10 @@ set_api_key_html = """
         <h1>Set API Key</h1>
         <input type="password" id="apiKey" placeholder="Enter API Key">
         <button onclick="setApiKey()">Set API Key</button>
+        <p>To get your key, visit <a href="https://cloud.siliconflow.cn" target="_blank">https://cloud.siliconflow.cn</a></p>
+    </div>
+</body>
+</html>
     </div>
 </body>
 </html>
@@ -156,5 +160,5 @@ NODE_CLASS_MAPPINGS = {
     "BizyAirSetAPIKey": SetAPIKey,
 }
 NODE_DISPLAY_NAME_MAPPINGS = {
-    "BizyAirSetAPIKey": "☁️Set SiliconCloud API Key",
+    "BizyAirSetAPIKey": "☁️Set SiliconCloud API Key(deprecated)",
 }

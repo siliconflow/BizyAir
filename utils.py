@@ -31,7 +31,15 @@ def send_post_request(api_url, payload, headers):
             response_data = response.read().decode("utf-8")
         return response_data
     except urllib.error.URLError as e:
-        raise Exception(f"Failed to connect to the server: {e}")
+        if "Unauthorized" in str(e):
+            raise Exception(
+                "Key is invalid, please refer to https://cloud.siliconflow.cn to get the API key.\n"
+                "If you have the key, please click the 'BizyAir Key' button at the bottom right to set the key."
+            )
+        else:
+            raise Exception(
+                f"Failed to connect to the server: {e}, if you have no key, "
+            )
 
 
 def serialize_and_encode(obj: Union[np.ndarray], compress=True) -> Tuple[str, bool]:
