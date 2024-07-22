@@ -19,7 +19,7 @@ BIZYAIR_SERVER_ADDRESS = os.getenv(
 
 
 class BizyAirMZChatGLM3TextEncode:
-    API_URL = f"{BIZYAIR_SERVER_ADDRESS}/supernode/mzkolorschatglm"
+    API_URL = f"{BIZYAIR_SERVER_ADDRESS}/supernode/mzkolorschatglm3"
 
     @classmethod
     def INPUT_TYPES(s):
