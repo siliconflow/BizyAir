@@ -22,7 +22,6 @@ jobs:
       id: check_docs
       run: |
         if git diff --name-only HEAD^ HEAD | grep -q '^docs/'; then
-          echo "::set-output name=changed::true"
           echo "changed=true" >> $GITHUB_OUTPUT
         else
           echo "changed=false" >> $GITHUB_OUTPUT
