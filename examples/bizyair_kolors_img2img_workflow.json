@@ -10,7 +10,7 @@
         99
       ],
       "size": {
-        "0": 210,
+        "0": 226.8000030517578,
         "1": 26
       },
       "flags": {},
@@ -46,7 +46,7 @@
         93
       ],
       "size": {
-        "0": 210,
+        "0": 226.8000030517578,
         "1": 26
       },
       "flags": {},
@@ -114,6 +114,65 @@
       ]
     },
     {
+      "id": 3,
+      "type": "PreviewImage",
+      "pos": [
+        1186,
+        178
+      ],
+      "size": {
+        "0": 728.3642578125,
+        "1": 404.66302490234375
+      },
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 25
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      }
+    },
+    {
+      "id": 21,
+      "type": "BizyAirKolorsTextEncode",
+      "pos": [
+        554,
+        508
+      ],
+      "size": {
+        "0": 400,
+        "1": 200
+      },
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "kolors_embeds",
+          "type": "KOLORS_EMBEDS",
+          "links": [
+            29
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAirKolorsTextEncode"
+      },
+      "widgets_values": [
+        "cinematic photograph a cyborg girl",
+        "",
+        1
+      ]
+    },
+    {
       "id": 20,
       "type": "BizyAirKolorsSampler",
       "pos": [
@@ -163,65 +222,6 @@
         "EulerDiscreteScheduler",
         0.75
       ]
-    },
-    {
-      "id": 21,
-      "type": "BizyAirKolorsTextEncode",
-      "pos": [
-        554,
-        508
-      ],
-      "size": {
-        "0": 400,
-        "1": 200
-      },
-      "flags": {},
-      "order": 1,
-      "mode": 0,
-      "outputs": [
-        {
-          "name": "kolors_embeds",
-          "type": "KOLORS_EMBEDS",
-          "links": [
-            29
-          ],
-          "shape": 3,
-          "slot_index": 0
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "BizyAirKolorsTextEncode"
-      },
-      "widgets_values": [
-        "illustration a girl|cinematic photograph a cyborg girl",
-        "",
-        1
-      ]
-    },
-    {
-      "id": 3,
-      "type": "PreviewImage",
-      "pos": [
-        1186,
-        178
-      ],
-      "size": [
-        728.3642303466797,
-        404.66301269531255
-      ],
-      "flags": {},
-      "order": 5,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "images",
-          "type": "IMAGE",
-          "link": 25
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "PreviewImage"
-      }
     }
   ],
   "links": [
@@ -272,7 +272,7 @@
     "ds": {
       "scale": 0.9090909090909091,
       "offset": {
-        "0": 53.90248107910156,
+        "0": 54.40091857910156,
         "1": 197.60369873046875
       }
     }
