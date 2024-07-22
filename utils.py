@@ -114,19 +114,9 @@ def format_bytes(num_bytes: int) -> str:
         return f"{num_bytes / (1024 * 1024):.2f} MB"
 
 
-def validate_api_key(key: str):
-    assert isinstance(
-        key, str
-    ), f"API_KEY must be a string, got {type(key)}. Please refer to https://cloud.siliconflow.cn to get your API_KEY"
-    assert key.startswith(
-        "sk"
-    ), f"invalid key, please refer to https://cloud.siliconflow.cn to get your API_KEY, got {key}"
-
-
 def get_api_key():
     from .auth import API_KEY
 
-    validate_api_key(API_KEY)
     return API_KEY
 
 
@@ -139,7 +129,6 @@ def get_llm_response(
 ):
     api_url = "https://api.siliconflow.cn/v1/chat/completions"
     API_KEY = get_api_key()
-    validate_api_key(API_KEY)
     headers = {
         "accept": "application/json",
         "content-type": "application/json",
