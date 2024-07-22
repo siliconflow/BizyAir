@@ -37,3 +37,8 @@ NODE_CLASS_MAPPINGS.update(**nodes_controlnet_union_sdxl.NODE_CLASS_MAPPINGS)
 NODE_DISPLAY_NAME_MAPPINGS.update(
     **nodes_controlnet_union_sdxl.NODE_DISPLAY_NAME_MAPPINGS
 )
+
+from . import mzkolors
+
+NODE_CLASS_MAPPINGS.update(**mzkolors.NODE_CLASS_MAPPINGS)
+NODE_DISPLAY_NAME_MAPPINGS.update(**mzkolors.NODE_DISPLAY_NAME_MAPPINGS)
