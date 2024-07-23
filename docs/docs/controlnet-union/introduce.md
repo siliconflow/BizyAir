@@ -27,7 +27,7 @@ Here are 6 types of inputs, each corresponding to a specific type of ControlNet 
 - normal_image
 - segment_image
 
-If you are unsure how to obtain such images, you can use the [BizyAir ControlNet Preprocessor](../controlnet-preprocessor/introduce.md) to generate them. You can use one or more control images simultaneously, for example, connecting both `openpose_image` and `depth_image`. However, from a practical perspective, it is not recommended to connect more than two control images simultaneously.
+If you are unsure how to obtain such images, you can use the [BizyAir ControlNet Preprocessor](../controlnet-preprocessor/introduce.md) to generate them. You can use one or more control images simultaneously, for example, connecting both `openpose_image` and `depth_image`. However, from a practical view, it is not recommended to connect more than two control images simultaneously.
 
 `prompt` and `negative_prompt` correspond to the positive and negative prompts, respectively.
 
