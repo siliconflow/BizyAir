@@ -88,11 +88,10 @@ class BizyAir_KSampler(BizyAirBaseNode):
 
 class BizyAir_CheckpointLoaderSimple(BizyAirBaseNode):
     @classmethod
-    def INPUT_TYPES(s):  # TODO fix ckpt_name
+    def INPUT_TYPES(s):
         return {
             "required": {
-                "ckpt_name": (folder_paths.get_filename_list("checkpoints"),),
-                "request_mode": (["batch", "instant"],),
+                "ckpt_name": (["Juggernaut-XL_v9_RunDiffusionPhoto_v2.safetensors",],),
             }
         }
 
@@ -105,11 +104,7 @@ class BizyAir_CheckpointLoaderSimple(BizyAirBaseNode):
         f"vae{take_off_emojis}",
     )
 
-    def load_checkpoint(self, ckpt_name, request_mode="batch"):
-        #  request_mode: A tuple containing the modes of data processing.
-        #  "batch" for processing all data at once,
-        #  "instant" for processing data as it comes.
-
+    def load_checkpoint(self, ckpt_name):
         node_datas = [
             create_node_data(
                 class_type="CheckpointLoaderSimple",
@@ -122,12 +117,7 @@ class BizyAir_CheckpointLoaderSimple(BizyAirBaseNode):
         config_file = os.path.join(current_directory, "config", "sdxl_config.yaml")
         assigned_id = self.assigned_id
         outs = [
-            BizyAirNodeIO(
-                assigned_id,
-                {assigned_id: data},
-                request_mode=request_mode,
-                config_file=config_file,
-            )
+            BizyAirNodeIO(assigned_id, {assigned_id: data}, config_file=config_file,)
             for data in node_datas
         ]
 
@@ -292,7 +282,7 @@ class BizyAir_ControlNetLoader(BizyAirBaseNode):
     def INPUT_TYPES(s):
         return {
             "required": {
-                "control_net_name": (folder_paths.get_filename_list("controlnet"),)
+                "control_net_name": (["diffusion_pytorch_model_promax.safetensors"],)
             }
         }
 

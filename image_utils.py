@@ -39,7 +39,6 @@ class BizyAirNodeIO:
         self,
         node_id: int = "0",
         nodes: Dict[str, Dict[str, any]] = {},
-        request_mode="batch",
         config_file=None,
         configs: dict = None,
     ):
@@ -47,11 +46,6 @@ class BizyAirNodeIO:
 
         self.node_id = node_id
         self.nodes = nodes
-        valid_modes = ["batch", "instant"]
-        assert (
-            request_mode in valid_modes
-        ), f"Invalid request mode: {request_mode}. Must be one of {valid_modes}."
-        self.request_mode = request_mode
 
         if config_file:
             if not os.path.exists(config_file):
@@ -101,7 +95,6 @@ class BizyAirNodeIO:
         return BizyAirNodeIO(
             nodes=self.nodes.copy(),
             node_id=new_node_id,
-            request_mode=self.request_mode,
             configs=self.configs,
         )
 
@@ -159,7 +152,7 @@ class BizyAirNodeIO:
                 else:
                     workflow[node_id]["inputs"][in_key] = value
 
-        return {"workflow": workflow, "last_link_id": node_id_mapping[self.node_id]}
+        return {"prompt": workflow, "last_node_id": node_id_mapping[self.node_id]}
 
     def add_node_data(
         self, class_type: str, inputs: Dict[str, Any], outputs: Dict[str, Any]
@@ -185,12 +178,6 @@ class BizyAirNodeIO:
                 self.nodes.update(other.nodes)
 
     def send_request(self, url, headers) -> any:
-        if (
-            self.request_mode == "batch"
-            and self.nodes[self.node_id]["class_type"] != "VAEDecode"
-        ):
-            print(f"pass ~~")
-            return (self,)
         #  self._short_repr(self.nodes, max_length=100)
         #  self._short_repr(self.workflow_api, max_length=100)
         response = requests.post(url, headers=headers, json=self.workflow_api)
