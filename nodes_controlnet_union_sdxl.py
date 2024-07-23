@@ -42,15 +42,25 @@ class StableDiffusionXLControlNetUnionPipeline:
                 "canny_lineart_anime_lineart_mlsd_image": ("IMAGE",),
                 "normal_image": ("IMAGE",),
                 "segment_image": ("IMAGE",),
-                "prompt": ("STRING", {"forceInput": True}),
-                "negative_prompt": ("STRING", {"forceInput": True}),
+                "prompt": (
+                    "STRING",
+                    {"default": "a car", "multiline": True, "dynamicPrompts": True,},
+                ),
+                "negative_prompt": (
+                    "STRING",
+                    {
+                        "default": "watermark, text",
+                        "multiline": True,
+                        "dynamicPrompts": True,
+                    },
+                ),
                 "control_guidance_start": (
                     "FLOAT",
-                    {"default": 0, "min": 0.0, "max": 1, "step": 0.1,},
+                    {"default": 0, "min": 0.0, "max": 1, "step": 0.01,},
                 ),
                 "control_guidance_end": (
                     "FLOAT",
-                    {"default": 1.0, "min": 0.0, "max": 1, "step": 0.1,},
+                    {"default": 1.0, "min": 0.0, "max": 1, "step": 0.01,},
                 ),
             },
         }
