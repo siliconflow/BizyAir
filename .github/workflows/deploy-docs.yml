@@ -39,6 +39,7 @@ jobs:
 
     - name: Install dependencies
       run: |
+        ls -lh
         python -m pip install --upgrade pip
         pip install -r docs_requirements.txt
       working-directory: ./docs

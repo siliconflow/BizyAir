@@ -18,7 +18,7 @@ Looking forward to sharing more of your creative uses, enjoy!
 
 ## Parameter Explanation
 
-Here are 6 types of inputs, each corresponding to a specific type of ControlNet control image, and they are all of the IMAGE type.
+Here are 6 types of inputs, each corresponding to a specific type of ControlNet control image, and they are all of the `IMAGE` type.
 
 - openpose_image
 - depth_image
