@@ -1,0 +1,44 @@
+name: Check Black Formatting
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  black-formatting:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install black==24.4.2
+
+    - name: Run Black formatting check
+      run: python3 -m black --check .
+
+    - name: Add PR review comment if formatting is incorrect
+      if: failure()
+      uses: actions/github-script@v4
+      with:
+        script: |
+          const { pull_request } = context.payload;
+          const comment = "Your code does not meet the Black formatting standards.\nPlease run `python3 -m pip install black==24.4.2 && python3 -m black .` to format your code.";
+          await github.issues.createComment({
+            issue_number: pull_request.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: comment
+          });
