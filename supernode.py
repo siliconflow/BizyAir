@@ -20,7 +20,12 @@ class SuperResolution:
 
     @classmethod
     def INPUT_TYPES(s):
-        return {"required": {"image": ("IMAGE",), "scale": (["2x", "4x"],),}}
+        return {
+            "required": {
+                "image": ("IMAGE",),
+                "scale": (["2x", "4x"],),
+            }
+        }
 
     RETURN_TYPES = ("IMAGE",)
     FUNCTION = "super_resolution"
@@ -66,7 +71,11 @@ class RemoveBackground:
 
     @classmethod
     def INPUT_TYPES(s):
-        return {"required": {"image": ("IMAGE",),}}
+        return {
+            "required": {
+                "image": ("IMAGE",),
+            }
+        }
 
     RETURN_TYPES = ("IMAGE", "MASK")
     FUNCTION = "remove_background"
@@ -76,10 +85,10 @@ class RemoveBackground:
     def remove_background(self, image):
         API_KEY = get_api_key()
         device = image.device
-        _, w, h, _ = image.shape
+        _, h, w, _ = image.shape
         assert (
             w <= 1536 and h <= 1536
-        ), f"width and height must be less than 1024, but got {w} and {h}"
+        ), f"width and height must be less than 1536, but got {w} and {h}"
 
         payload = {
             "is_compress": True,
