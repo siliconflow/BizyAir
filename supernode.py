@@ -76,10 +76,10 @@ class RemoveBackground:
     def remove_background(self, image):
         API_KEY = get_api_key()
         device = image.device
-        _, w, h, _ = image.shape
+        _, h, w, _ = image.shape
         assert (
             w <= 1536 and h <= 1536
-        ), f"width and height must be less than 1024, but got {w} and {h}"
+        ), f"width and height must be less than 1536, but got {w} and {h}"
 
         payload = {
             "is_compress": True,
