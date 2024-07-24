@@ -83,10 +83,24 @@ class FloatingButton {
         menu.root.classList.add("comfy-floating-menu");
     }
 
+    async get_workflow_graph(file) {
+        console.log("workflow file:", file);
+        const response = await api.fetchApi("/bizyair/workflow", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ file: file }),
+        });
+        const showcase_graph = await response.json()
+        app.graph.clear()
+        await app.loadGraphData(showcase_graph)
+    }
+
     async getMenuOptions() {
         return this.show_cases.map(item => ({
             title: item.title,
-            callback: () => alert(item.file),
+            callback: async () => await this.get_workflow_graph(item.file),
         }));
     }
 

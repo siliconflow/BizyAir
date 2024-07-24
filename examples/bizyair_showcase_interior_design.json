@@ -1,0 +1,396 @@
+{
+  "last_node_id": 73,
+  "last_link_id": 81,
+  "nodes": [
+    {
+      "id": 63,
+      "type": "BizyAirGenerateLightningImage",
+      "pos": [
+        423,
+        878
+      ],
+      "size": {
+        "0": 400,
+        "1": 220
+      },
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "prompt",
+          "type": "STRING",
+          "link": 72,
+          "widget": {
+            "name": "prompt"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            74,
+            75
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAirGenerateLightningImage"
+      },
+      "widgets_values": [
+        "a dog",
+        493871336398282,
+        "fixed",
+        1024,
+        1024,
+        1.5,
+        1
+      ]
+    },
+    {
+      "id": 66,
+      "type": "PreviewImage",
+      "pos": [
+        850,
+        1043
+      ],
+      "size": {
+        "0": 319.8609924316406,
+        "1": 342.8357849121094
+      },
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 74
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      }
+    },
+    {
+      "id": 67,
+      "type": "BizyAirCannyEdgePreprocessor",
+      "pos": [
+        840,
+        888
+      ],
+      "size": {
+        "0": 315,
+        "1": 106
+      },
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 75
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            77,
+            80
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAirCannyEdgePreprocessor"
+      },
+      "widgets_values": [
+        100,
+        200,
+        512
+      ]
+    },
+    {
+      "id": 69,
+      "type": "StableDiffusionXLControlNetUnionPipeline",
+      "pos": [
+        1248,
+        575
+      ],
+      "size": {
+        "0": 556.800048828125,
+        "1": 414.0000305175781
+      },
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "openpose_image",
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "depth_image",
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "hed_pidi_scribble_ted_image",
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "canny_lineart_anime_lineart_mlsd_image",
+          "type": "IMAGE",
+          "link": 77
+        },
+        {
+          "name": "normal_image",
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "segment_image",
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "prompt",
+          "type": "STRING",
+          "link": 78,
+          "widget": {
+            "name": "prompt"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            81
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "StableDiffusionXLControlNetUnionPipeline"
+      },
+      "widgets_values": [
+        1,
+        "fixed",
+        20,
+        1,
+        4.9,
+        "a car",
+        "watermark, text",
+        0,
+        1
+      ]
+    },
+    {
+      "id": 72,
+      "type": "PreviewImage",
+      "pos": [
+        1186,
+        1049
+      ],
+      "size": {
+        "0": 319.8609924316406,
+        "1": 342.8357849121094
+      },
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 80
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      }
+    },
+    {
+      "id": 73,
+      "type": "PreviewImage",
+      "pos": [
+        1521,
+        1050
+      ],
+      "size": {
+        "0": 319.8609924316406,
+        "1": 342.8357849121094
+      },
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 81
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      }
+    },
+    {
+      "id": 39,
+      "type": "BizyAirSiliconCloudLLMAPI",
+      "pos": [
+        418,
+        569
+      ],
+      "size": {
+        "0": 400,
+        "1": 248
+      },
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": [
+            72
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAirSiliconCloudLLMAPI"
+      },
+      "widgets_values": [
+        "(Free)GLM4 9B Chat",
+        "你是一个 stable diffusion prompt 专家，为我生成适用于 Stable Diffusion 模型的prompt。\n我给你相关的单词，你帮我扩写为适合 Stable Diffusion 文生图的 prompt。要求：\n1. 英文输出\n2. 除了 prompt 外，不要输出任何其它的信息\n",
+        "一间卧室，地中海风格",
+        510,
+        0.7000000000000001,
+        "\nA Mediterranean-themed bedroom, with a cozy and traditional ambiance, featuring white washed walls, blue and white tiles, wooden beams, and a plush four-poster bed adorned with intricate lace curtains."
+      ]
+    },
+    {
+      "id": 70,
+      "type": "BizyAirSiliconCloudLLMAPI",
+      "pos": [
+        836,
+        569
+      ],
+      "size": {
+        "0": 400,
+        "1": 248.00001525878906
+      },
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": [
+            78
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAirSiliconCloudLLMAPI"
+      },
+      "widgets_values": [
+        "(Free)GLM4 9B Chat",
+        "你是一个 stable diffusion prompt 专家，为我生成适用于 Stable Diffusion 模型的prompt。\n我给你相关的单词，你帮我扩写为适合 Stable Diffusion 文生图的 prompt。要求：\n1. 英文输出\n2. 除了 prompt 外，不要输出任何其它的信息\n",
+        "现代风格装修的卧室，黑白灰色调",
+        512,
+        0.7,
+        "\nA modernly decorated bedroom with a monochromatic black, white, and gray color scheme"
+      ]
+    }
+  ],
+  "links": [
+    [
+      72,
+      39,
+      0,
+      63,
+      0,
+      "STRING"
+    ],
+    [
+      74,
+      63,
+      0,
+      66,
+      0,
+      "IMAGE"
+    ],
+    [
+      75,
+      63,
+      0,
+      67,
+      0,
+      "IMAGE"
+    ],
+    [
+      77,
+      67,
+      0,
+      69,
+      3,
+      "IMAGE"
+    ],
+    [
+      78,
+      70,
+      0,
+      69,
+      6,
+      "STRING"
+    ],
+    [
+      80,
+      67,
+      0,
+      72,
+      0,
+      "IMAGE"
+    ],
+    [
+      81,
+      69,
+      0,
+      73,
+      0,
+      "IMAGE"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.9090909090909114,
+      "offset": {
+        "0": 170.09369110477863,
+        "1": -466.7256432925114
+      }
+    }
+  },
+  "version": 0.4
+}
