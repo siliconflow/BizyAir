@@ -140,7 +140,11 @@ async def get_api_key(request):
 class SetAPIKey:
     @classmethod
     def INPUT_TYPES(s):
-        return {"required": {"API_KEY": ("STRING", {"default": "YOUR_API_KEY"}),}}
+        return {
+            "required": {
+                "API_KEY": ("STRING", {"default": "YOUR_API_KEY"}),
+            }
+        }
 
     RETURN_TYPES = ()
     FUNCTION = "set_api_key"

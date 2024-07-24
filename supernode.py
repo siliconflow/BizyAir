@@ -20,7 +20,12 @@ class SuperResolution:
 
     @classmethod
     def INPUT_TYPES(s):
-        return {"required": {"image": ("IMAGE",), "scale": (["2x", "4x"],),}}
+        return {
+            "required": {
+                "image": ("IMAGE",),
+                "scale": (["2x", "4x"],),
+            }
+        }
 
     RETURN_TYPES = ("IMAGE",)
     FUNCTION = "super_resolution"
@@ -66,7 +71,11 @@ class RemoveBackground:
 
     @classmethod
     def INPUT_TYPES(s):
-        return {"required": {"image": ("IMAGE",),}}
+        return {
+            "required": {
+                "image": ("IMAGE",),
+            }
+        }
 
     RETURN_TYPES = ("IMAGE", "MASK")
     FUNCTION = "remove_background"
