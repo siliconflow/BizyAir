@@ -1,33 +1,16 @@
+import { api } from "../../../../scripts/api.js";
 import { app } from "../../../scripts/app.js";
 import { $el } from "../../../scripts/ui.js";
-
-const SHOW_CASES = [
-    {
-        "title": "生成照片风格的图片",
-        "summary": "这是一个生成照片风格图片的示例",
-        "file": "bizyair_generate_photorealistic_images_workflow.json",
-    },
-    {
-        "title": "Kolors 文生图",
-        "summary": "这是一个Kolors文生图的示例",
-        "file": "bizyair_generate_photorealistic_images_workflow.json",
-    },
-    {
-        "title": "抠除背景",
-        "summary": "这是一个抠除背景的示例",
-        "file": "bizyair_remove_background_workflow.json",
-    },
-];
 
 const style = `
 #comfy-floating-button {
     position: fixed;
-    top: 20px; /* 修改为屏幕中间偏上的位置 */
+    top: 20px;
     left: 50%;
     transform: translateX(-50%);
-    width: auto; /* 修改为自动宽度 */
+    width: auto;
     height: 50px;
-    border-radius: 10px; /* 修改为圆角矩形 */
+    border-radius: 10px;
     background-color: rgb(130, 88, 245);
     color: white;
     display: flex;
@@ -36,12 +19,12 @@ const style = `
     cursor: pointer;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25);
     user-select: none;
-    padding: 0 15px; /* 添加内边距以确保文本不会太靠近边缘 */
-    white-space: nowrap; /* 确保文本在一行显示 */
+    padding: 0 15px;
+    white-space: nowrap;
 }
 
 #comfy-floating-button:hover {
-    background-color: rgb(100, 68, 215); /* 修改为与新的背景色风格一致 */
+    background-color: rgb(100, 68, 215);
 }
 
 .comfy-floating-menu .context-menu-item {
@@ -68,7 +51,8 @@ const style = `
 `;
 
 class FloatingButton {
-    constructor() {
+    constructor(show_cases) {
+        this.show_cases = show_cases
         this.button = $el("div", {
             id: "comfy-floating-button",
             textContent: "☁️BizyAir Workflow Examples ➕",
@@ -82,14 +66,14 @@ class FloatingButton {
         document.addEventListener("mouseup", () => this.endDrag());
     }
 
-    showMenu(e) {
+    async showMenu(e) {
         if (this.dragging) return; // Prevent showing menu during drag
         e.preventDefault();
         e.stopPropagation();
 
         LiteGraph.closeAllContextMenus();
         const menu = new LiteGraph.ContextMenu(
-            this.getMenuOptions(),
+            await this.getMenuOptions(),
             {
                 event: e,
                 scale: 1.3,
@@ -99,29 +83,11 @@ class FloatingButton {
         menu.root.classList.add("comfy-floating-menu");
     }
 
-    getMenuOptions() {
-        return SHOW_CASES.map(item => ({
+    async getMenuOptions() {
+        return this.show_cases.map(item => ({
             title: item.title,
             callback: () => alert(item.file),
-            onmouseenter: (event) => this.showSummary(event, item.summary),
-            onmouseleave: (event) => this.hideSummary(event),
         }));
-    }
-
-    showSummary(event, summary) {
-        console.log("showSummary called"); // 调试信息
-        const summaryElement = document.createElement("div");
-        summaryElement.className = "summary";
-        summaryElement.textContent = summary;
-        event.target.appendChild(summaryElement);
-    }
-
-    hideSummary(event) {
-        console.log("hideSummary called"); // 调试信息
-        const summaryElement = event.target.querySelector(".summary");
-        if (summaryElement) {
-            summaryElement.remove();
-        }
     }
 
     startDrag(e) {
@@ -146,11 +112,18 @@ class FloatingButton {
 
 app.registerExtension({
     name: "comfy.FloatingButton",
-    init() {
+    async setup() {
         $el("style", {
             textContent: style,
             parent: document.head,
         });
-        new FloatingButton();
+        const response = await api.fetchApi("/bizyair/showcases",
+            { method: "GET" });
+        if (response.status === 200) {
+            const show_cases = await response.json()
+            new FloatingButton(show_cases);
+        } else {
+            console.log("error occurs when fetch the showcases:", await response.text())
+        }
     },
 });
