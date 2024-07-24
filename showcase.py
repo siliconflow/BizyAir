@@ -9,7 +9,7 @@ CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 SHOW_CASES = [
     {
-        "title": "生成一张照片风格的图片，并抠除背景",
+        "title": "抠除图片背景",
         "summary": "",
         "file": "bizyair_showcase_remove_background.json",
     },
@@ -19,7 +19,7 @@ SHOW_CASES = [
         "file": "bizyair_showcase_interior_design.json",
     },
     {
-        "title": "看图说话并重绘",
+        "title": "仿绘已有的图片",
         "summary": "",
         "file": "bizyair_showcase_caption_redraw.json",
     },
@@ -28,7 +28,14 @@ SHOW_CASES = [
         "summary": "",
         "file": "bizyair_showcase_shark_submarine.json",
     },
+    {
+        "title": "24种ControlNet预处理器",
+        "summary": "",
+        "file": "bizyair_controlnet_preprocessor_workflow.json",
+    },
 ]
+
+file_whitelist = [item["file"] for item in SHOW_CASES]
 
 
 @server.PromptServer.instance.routes.get("/bizyair/showcases")
@@ -53,6 +60,13 @@ async def get_file_content(request):
     if not filename:
         return web.Response(
             text=json.dumps({"error": "Missing file parameter"}),
+            status=400,
+            content_type="application/json",
+        )
+
+    if filename not in file_whitelist:
+        return web.Response(
+            text=json.dumps({"error": "Filename not allowed"}),
             status=400,
             content_type="application/json",
         )
