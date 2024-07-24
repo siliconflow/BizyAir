@@ -6,6 +6,14 @@ from aiohttp import web
 
 
 API_KEY = None
+current_directory = os.path.dirname(os.path.abspath(__file__))
+file_path = os.path.join(current_directory, "api_key.ini")
+if os.path.exists(file_path):
+    config = configparser.ConfigParser()
+    config.read(file_path)
+    API_KEY = config.get("auth", "api_key", fallback="").strip()
+
+
 set_api_key_html = """
 <!DOCTYPE html>
 <html lang="en">
