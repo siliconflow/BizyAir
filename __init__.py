@@ -1,4 +1,5 @@
 from . import auth
+from . import showcase
 
 
 NODE_CLASS_MAPPINGS = {
