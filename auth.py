@@ -1,11 +1,92 @@
 import uuid
-
+import os
+import configparser
 import server
 from aiohttp import web
 
-from .utils import validate_api_key
 
 API_KEY = None
+set_api_key_html = """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BizyAir - Set API Key</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            text-align: center;
+        }
+        input[type="password"] {
+            padding: 10px;
+            margin: 10px;
+            border: 2px solid rgb(130, 88, 245);
+            border-radius: 5px;
+            background-color: #1e1e1e;
+            color: #ffffff;
+            width: 200px;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: rgb(130, 88, 245);
+            color: #ffffff;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+    <script>
+        async function setApiKey() {
+            const apiKey = document.getElementById('apiKey').value;
+            const response = await fetch('/bizyair/set_api_key', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: `api_key=${encodeURIComponent(apiKey)}`
+            });
+            if (response.ok) {
+                alert('API Key set successfully!');
+                if (window.opener) {
+                    window.close();
+                }
+            } else {
+                alert('Failed to set API Key: ' + await response.text());
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Set API Key</h1>
+        <input type="password" id="apiKey" placeholder="Enter API Key">
+        <button onclick="setApiKey()">Set API Key</button>
+        <p>To get your key, visit <a href="https://cloud.siliconflow.cn" target="_blank">https://cloud.siliconflow.cn</a></p>
+    </div>
+</body>
+</html>
+    </div>
+</body>
+</html>
+"""
+
+
+@server.PromptServer.instance.routes.get("/bizyair/set-api-key")
+async def set_api_key_page(request):
+    return web.Response(text=set_api_key_html, content_type="text/html")
 
 
 @server.PromptServer.instance.routes.post("/bizyair/set_api_key")
@@ -21,7 +102,10 @@ async def set_api_key(request):
             API_KEY = api_key
             return response
         else:
-            return web.Response(text="No token provided", status=400)
+            return web.Response(
+                text="No token provided, please refer to cloud.siliconflow.cn to get the key",
+                status=400,
+            )
     except Exception as e:
         return web.Response(text=str(e), status=500)
 
@@ -29,13 +113,26 @@ async def set_api_key(request):
 @server.PromptServer.instance.routes.get("/bizyair/get_api_key")
 async def get_api_key(request):
     global API_KEY
-    api_key = request.cookies.get("api_key")
+    api_key = ""
+    current_directory = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(current_directory, "api_key.ini")
+    if os.path.exists(file_path):
+        config = configparser.ConfigParser()
+        config.read(file_path)
+        api_key = config.get("auth", "api_key", fallback="").strip()
+    if api_key == "":
+        api_key = request.cookies.get("api_key")
     try:
         if api_key:
             API_KEY = api_key
-            return web.Response(text="ok")
+            response = web.Response(text="ok")
+            response.set_cookie("api_key", api_key)
+            return response
         else:
-            return web.Response(text="No api key found in cookie", status=404)
+            return web.Response(
+                text="No api key found in cookie, please refer to cloud.siliconflow.cn to get the key",
+                status=404,
+            )
     except Exception as e:
         return web.Response(text="str(e)", status=500)
 
@@ -43,7 +140,11 @@ async def get_api_key(request):
 class SetAPIKey:
     @classmethod
     def INPUT_TYPES(s):
-        return {"required": {"API_KEY": ("STRING", {"default": "YOUR_API_KEY"}),}}
+        return {
+            "required": {
+                "API_KEY": ("STRING", {"default": "YOUR_API_KEY"}),
+            }
+        }
 
     RETURN_TYPES = ()
     FUNCTION = "set_api_key"
@@ -52,7 +153,6 @@ class SetAPIKey:
     OUTPUT_NODE = True
 
     def set_api_key(self, API_KEY="YOUR_API_KEY"):
-        validate_api_key(API_KEY)
         return {"ui": {"api_key": (API_KEY,)}, "result": ()}
 
     @classmethod
@@ -64,5 +164,5 @@ NODE_CLASS_MAPPINGS = {
     "BizyAirSetAPIKey": SetAPIKey,
 }
 NODE_DISPLAY_NAME_MAPPINGS = {
-    "BizyAirSetAPIKey": "☁️Set SiliconCloud API Key",
+    "BizyAirSetAPIKey": "☁️Set SiliconCloud API Key(deprecated)",
 }
