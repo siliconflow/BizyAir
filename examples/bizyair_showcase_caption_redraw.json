@@ -1,5 +1,5 @@
 {
-  "last_node_id": 9,
+  "last_node_id": 10,
   "last_link_id": 9,
   "nodes": [
     {
@@ -9,12 +9,12 @@
         1119,
         199
       ],
-      "size": [
-        345.0703125,
-        375.06640625
-      ],
+      "size": {
+        "0": 345.0703125,
+        "1": 375.06640625
+      },
       "flags": {},
-      "order": 1,
+      "order": 2,
       "mode": 0,
       "inputs": [
         {
@@ -39,7 +39,7 @@
         "1": 375.06640625
       },
       "flags": {},
-      "order": 6,
+      "order": 7,
       "mode": 0,
       "inputs": [
         {
@@ -59,12 +59,12 @@
         711,
         645
       ],
-      "size": [
-        387,
-        152.03125
-      ],
+      "size": {
+        "0": 387,
+        "1": 152.03125
+      },
       "flags": {},
-      "order": 3,
+      "order": 4,
       "mode": 0,
       "inputs": [
         {
@@ -103,12 +103,12 @@
         717,
         841
       ],
-      "size": [
-        371.328125,
-        26
-      ],
+      "size": {
+        "0": 371.328125,
+        "1": 26
+      },
       "flags": {},
-      "order": 5,
+      "order": 6,
       "mode": 0,
       "inputs": [
         {
@@ -139,12 +139,12 @@
         705,
         456
       ],
-      "size": [
-        398.69140625,
-        137.3203125
-      ],
+      "size": {
+        "0": 398.69140625,
+        "1": 137.3203125
+      },
       "flags": {},
-      "order": 2,
+      "order": 3,
       "mode": 0,
       "inputs": [
         {
@@ -169,8 +169,7 @@
       },
       "widgets_values": [
         1024,
-        1,
-        "a beautiful flower is in the photo. The flower has two layers of pink petals. In the middle of the flower is a yellow center. On the left side is a bud that is pink in color. The leaves surrounding the flower are green."
+        1
       ]
     },
     {
@@ -219,12 +218,12 @@
         1121,
         621
       ],
-      "size": {
-        "0": 315,
-        "1": 246
-      },
+      "size": [
+        335.06640625,
+        246
+      ],
       "flags": {},
-      "order": 4,
+      "order": 5,
       "mode": 0,
       "inputs": [
         {
@@ -262,6 +261,29 @@
         "EulerDiscreteScheduler",
         1
       ]
+    },
+    {
+      "id": 10,
+      "type": "Note",
+      "pos": [
+        1488,
+        631
+      ],
+      "size": [
+        336.19921875,
+        236.52734375
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "properties": {
+        "text": ""
+      },
+      "widgets_values": [
+        "BizyAir 的 \"Image Caption\" 节点，可以描述图片的内容。\n在这个工作流中，先用 BizyAir Generate Photorealistic Images 节点生成了一张花的照片。\n\n再用 Image Caption 节点描述这张图片。\n\n然后将得到的描述词输入给 Kolors 采样器重新绘制。"
+      ],
+      "color": "#432",
+      "bgcolor": "#653"
     }
   ],
   "links": [
@@ -320,8 +342,8 @@
     "ds": {
       "scale": 1,
       "offset": [
-        -2.97265625,
-        -7.26171875
+        -22.078125,
+        19.015625
       ]
     }
   },

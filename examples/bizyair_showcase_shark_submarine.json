@@ -1,20 +1,144 @@
 {
-  "last_node_id": 74,
+  "last_node_id": 75,
   "last_link_id": 85,
   "nodes": [
+    {
+      "id": 39,
+      "type": "BizyAirSiliconCloudLLMAPI",
+      "pos": [
+        418,
+        569
+      ],
+      "size": {
+        "0": 400,
+        "1": 248
+      },
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": [
+            72
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAirSiliconCloudLLMAPI"
+      },
+      "widgets_values": [
+        "(Free)GLM4 9B Chat",
+        "你是一个 stable diffusion prompt 专家，为我生成适用于 Stable Diffusion 模型的prompt。\n我给你相关的单词，你帮我扩写为适合 Stable Diffusion 文生图的 prompt。要求：\n1. 英文输出\n2. 除了 prompt 外，不要输出任何其它的信息\n",
+        "一只大白鲨",
+        510,
+        0.7000000000000001,
+        "\nA majestic great white shark swimming gracefully through a crystal-clear ocean, showcasing its sleek and powerful body, surrounded by vibrant marine life, with a focus on the intricate textures of its skin and the dynamic play of light on the water's surface."
+      ]
+    },
+    {
+      "id": 70,
+      "type": "BizyAirSiliconCloudLLMAPI",
+      "pos": [
+        836,
+        569
+      ],
+      "size": {
+        "0": 400,
+        "1": 248.00001525878906
+      },
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": [
+            78
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAirSiliconCloudLLMAPI"
+      },
+      "widgets_values": [
+        "(Free)GLM4 9B Chat",
+        "你是一个 stable diffusion prompt 专家，为我生成适用于 Stable Diffusion 模型的prompt。\n我给你相关的单词，你帮我扩写为适合 Stable Diffusion 文生图的 prompt。要求：\n1. 英文输出\n2. 除了 prompt 外，不要输出任何其它的信息\n",
+        "一艘潜水艇，赛博朋克风格，科幻风格",
+        512,
+        0.1,
+        "\nA submarine in cyberpunk style, with a futuristic and sci-fi aesthetic"
+      ]
+    },
+    {
+      "id": 63,
+      "type": "BizyAirGenerateLightningImage",
+      "pos": [
+        422,
+        861
+      ],
+      "size": {
+        "0": 399.5649108886719,
+        "1": 178
+      },
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "prompt",
+          "type": "STRING",
+          "link": 72,
+          "widget": {
+            "name": "prompt"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            74,
+            82,
+            83
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAirGenerateLightningImage"
+      },
+      "widgets_values": [
+        "a dog",
+        493871336398282,
+        "fixed",
+        1024,
+        1024,
+        1.5,
+        1
+      ]
+    },
     {
       "id": 66,
       "type": "PreviewImage",
       "pos": [
-        850,
-        1043
+        846,
+        1082
       ],
       "size": {
         "0": 319.8609924316406,
         "1": 342.8357849121094
       },
       "flags": {},
-      "order": 3,
+      "order": 4,
       "mode": 0,
       "inputs": [
         {
@@ -28,6 +152,120 @@
       }
     },
     {
+      "id": 74,
+      "type": "BizyAirDepthAnythingV2Preprocessor",
+      "pos": [
+        843,
+        872
+      ],
+      "size": {
+        "0": 392.11334228515625,
+        "1": 157.2982940673828
+      },
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 83
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            84,
+            85
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAirDepthAnythingV2Preprocessor"
+      },
+      "widgets_values": [
+        "depth_anything_v2_vitl.pth",
+        512
+      ]
+    },
+    {
+      "id": 72,
+      "type": "PreviewImage",
+      "pos": [
+        1184,
+        1084
+      ],
+      "size": {
+        "0": 319.8609924316406,
+        "1": 342.8357849121094
+      },
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 84
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      }
+    },
+    {
+      "id": 73,
+      "type": "PreviewImage",
+      "pos": [
+        1525,
+        1090
+      ],
+      "size": {
+        "0": 319.8609924316406,
+        "1": 342.8357849121094
+      },
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 81
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      }
+    },
+    {
+      "id": 75,
+      "type": "Note",
+      "pos": [
+        433,
+        1095
+      ],
+      "size": {
+        "0": 382.9918518066406,
+        "1": 311.6756286621094
+      },
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "properties": {
+        "text": ""
+      },
+      "widgets_values": [
+        "这个工作流中：\n\n1. 使用 BizyAir 的 Generate Photorealistic Images 节点，生成一张大白鲨的图片。\n\n2. 使用 BizyAir Controlnet 预处理节点，将大白鲨的图片转为深度图。\n\n3. 使用深度图做 image prompt，结合 text prompt，用 BizyAir Controlnet Union 节点，将深度图重绘为潜水艇。"
+      ],
+      "color": "#432",
+      "bgcolor": "#653"
+    },
+    {
       "id": 69,
       "type": "StableDiffusionXLControlNetUnionPipeline",
       "pos": [
@@ -35,11 +273,11 @@
         575
       ],
       "size": {
-        "0": 556.800048828125,
-        "1": 414.0000305175781
+        "0": 598.6016235351562,
+        "1": 454.2467346191406
       },
       "flags": {},
-      "order": 6,
+      "order": 7,
       "mode": 0,
       "inputs": [
         {
@@ -104,222 +342,7 @@
         "a car",
         "watermark, text",
         0,
-        1
-      ]
-    },
-    {
-      "id": 72,
-      "type": "PreviewImage",
-      "pos": [
-        1186,
-        1049
-      ],
-      "size": {
-        "0": 319.8609924316406,
-        "1": 342.8357849121094
-      },
-      "flags": {},
-      "order": 5,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "images",
-          "type": "IMAGE",
-          "link": 84
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "PreviewImage"
-      }
-    },
-    {
-      "id": 73,
-      "type": "PreviewImage",
-      "pos": [
-        1521,
-        1050
-      ],
-      "size": {
-        "0": 319.8609924316406,
-        "1": 342.8357849121094
-      },
-      "flags": {},
-      "order": 7,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "images",
-          "type": "IMAGE",
-          "link": 81
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "PreviewImage"
-      }
-    },
-    {
-      "id": 39,
-      "type": "BizyAirSiliconCloudLLMAPI",
-      "pos": [
-        418,
-        569
-      ],
-      "size": {
-        "0": 400,
-        "1": 248
-      },
-      "flags": {},
-      "order": 0,
-      "mode": 0,
-      "outputs": [
-        {
-          "name": "STRING",
-          "type": "STRING",
-          "links": [
-            72
-          ],
-          "shape": 3,
-          "slot_index": 0
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "BizyAirSiliconCloudLLMAPI"
-      },
-      "widgets_values": [
-        "(Free)GLM4 9B Chat",
-        "你是一个 stable diffusion prompt 专家，为我生成适用于 Stable Diffusion 模型的prompt。\n我给你相关的单词，你帮我扩写为适合 Stable Diffusion 文生图的 prompt。要求：\n1. 英文输出\n2. 除了 prompt 外，不要输出任何其它的信息\n",
-        "一只大白鲨",
-        510,
-        0.7000000000000001,
-        "\nA majestic great white shark swimming gracefully through a clear, blue ocean, showcasing its sleek and powerful body with a hint of sunlight reflecting off its scales."
-      ]
-    },
-    {
-      "id": 63,
-      "type": "BizyAirGenerateLightningImage",
-      "pos": [
-        423,
-        878
-      ],
-      "size": {
-        "0": 400,
-        "1": 220
-      },
-      "flags": {},
-      "order": 2,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "prompt",
-          "type": "STRING",
-          "link": 72,
-          "widget": {
-            "name": "prompt"
-          }
-        }
-      ],
-      "outputs": [
-        {
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
-            74,
-            82,
-            83
-          ],
-          "shape": 3,
-          "slot_index": 0
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "BizyAirGenerateLightningImage"
-      },
-      "widgets_values": [
-        "a dog",
-        493871336398282,
-        "fixed",
-        1024,
-        1024,
-        1.5,
-        1
-      ]
-    },
-    {
-      "id": 74,
-      "type": "BizyAirDepthAnythingV2Preprocessor",
-      "pos": [
-        876,
-        893
-      ],
-      "size": {
-        "0": 315,
-        "1": 82
-      },
-      "flags": {},
-      "order": 4,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "image",
-          "type": "IMAGE",
-          "link": 83
-        }
-      ],
-      "outputs": [
-        {
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
-            84,
-            85
-          ],
-          "shape": 3,
-          "slot_index": 0
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "BizyAirDepthAnythingV2Preprocessor"
-      },
-      "widgets_values": [
-        "depth_anything_v2_vitl.pth",
-        512
-      ]
-    },
-    {
-      "id": 70,
-      "type": "BizyAirSiliconCloudLLMAPI",
-      "pos": [
-        836,
-        569
-      ],
-      "size": {
-        "0": 400,
-        "1": 248.00001525878906
-      },
-      "flags": {},
-      "order": 1,
-      "mode": 0,
-      "outputs": [
-        {
-          "name": "STRING",
-          "type": "STRING",
-          "links": [
-            78
-          ],
-          "shape": 3,
-          "slot_index": 0
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "BizyAirSiliconCloudLLMAPI"
-      },
-      "widgets_values": [
-        "(Free)GLM4 9B Chat",
-        "你是一个 stable diffusion prompt 专家，为我生成适用于 Stable Diffusion 模型的prompt。\n我给你相关的单词，你帮我扩写为适合 Stable Diffusion 文生图的 prompt。要求：\n1. 英文输出\n2. 除了 prompt 外，不要输出任何其它的信息\n",
-        "一艘潜水艇，赛博朋克风格，科幻风格",
-        512,
-        0.1,
-        "\nA submarine in cyberpunk style, with a futuristic and sci-fi aesthetic"
+        0.5
       ]
     }
   ],
@@ -395,8 +418,8 @@
     "ds": {
       "scale": 0.9090909090909114,
       "offset": {
-        "0": 170.09369110477863,
-        "1": -466.7256432925114
+        "0": 233.66165985477858,
+        "1": -343.6244714175116
       }
     }
   },

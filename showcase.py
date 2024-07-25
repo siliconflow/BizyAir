@@ -9,29 +9,28 @@ CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 SHOW_CASES = [
     {
-        "title": "抠除图片背景",
-        "summary": "",
+        "title": "Remove the background from the image",
         "file": "bizyair_showcase_remove_background.json",
     },
     {
-        "title": "室内装修由线稿生成效果图",
-        "summary": "",
+        "title": "Generate an image from a line drawing",
         "file": "bizyair_showcase_interior_design.json",
     },
     {
-        "title": "仿绘已有的图片",
-        "summary": "",
+        "title": "Recreate an existing image",
         "file": "bizyair_showcase_caption_redraw.json",
     },
     {
-        "title": "绘制大白鲨风格的潜艇",
-        "summary": "",
+        "title": "Design a submarine like a great white shark",
         "file": "bizyair_showcase_shark_submarine.json",
     },
     {
-        "title": "24种ControlNet预处理器",
-        "summary": "",
+        "title": "All types of ControlNet preprocessors",
         "file": "bizyair_controlnet_preprocessor_workflow.json",
+    },
+    {
+        "title": "Run BizyAir nodes with local nodes",
+        "file": "bizyair_showcase_run_with_local_nodes.json",
     },
 ]
 

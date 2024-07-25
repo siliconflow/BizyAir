@@ -1,5 +1,5 @@
 {
-  "last_node_id": 40,
+  "last_node_id": 41,
   "last_link_id": 53,
   "nodes": [
     {
@@ -9,10 +9,10 @@
         821,
         197
       ],
-      "size": [
-        398.97265625,
-        220
-      ],
+      "size": {
+        "0": 398.97265625,
+        "1": 220
+      },
       "flags": {},
       "order": 0,
       "mode": 0,
@@ -48,12 +48,12 @@
         1233,
         195
       ],
-      "size": [
-        212.87109375,
-        310.46612548828125
-      ],
+      "size": {
+        "0": 212.87109375,
+        "1": 310.46612548828125
+      },
       "flags": {},
-      "order": 2,
+      "order": 3,
       "mode": 0,
       "inputs": [
         {
@@ -78,7 +78,7 @@
         "1": 310.46612548828125
       },
       "flags": {},
-      "order": 3,
+      "order": 4,
       "mode": 0,
       "inputs": [
         {
@@ -96,15 +96,15 @@
       "id": 36,
       "type": "BizyAirRemoveBackground",
       "pos": [
-        933,
-        458
+        830,
+        460
       ],
-      "size": {
-        "0": 277.20001220703125,
-        "1": 46
-      },
+      "size": [
+        384.16796875,
+        46
+      ],
       "flags": {},
-      "order": 1,
+      "order": 2,
       "mode": 0,
       "inputs": [
         {
@@ -133,6 +133,29 @@
       "properties": {
         "Node name for S&R": "BizyAirRemoveBackground"
       }
+    },
+    {
+      "id": 41,
+      "type": "Note",
+      "pos": [
+        566,
+        200
+      ],
+      "size": [
+        241.35546875,
+        302.44268798828125
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "properties": {
+        "text": ""
+      },
+      "widgets_values": [
+        "这个例子中，先使用 BizyAir Generate Photorealistic Image 节点生成了一张图片，然后使用 BizyAir Remove Image Background 节点将该图片的背景抠除掉。\n\n你可以对比地看到抠除背景前后的两张图片。 "
+      ],
+      "color": "#432",
+      "bgcolor": "#653"
     }
   ],
   "links": [
