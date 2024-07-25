@@ -4,7 +4,7 @@ This node helps you enhance the resolution of your input cartoon images. You can
 
 ## ☁️BizyAir Remove Image Background
 
-This node helps you remove the background, resulting in a transparent-background image.
+This node helps you remove the background, resulting in a transparent-background image. The maximum accepted image size is 1536x1536.
 
 ![](./imgs/remove-background.png)
 

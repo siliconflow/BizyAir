@@ -5,12 +5,9 @@
 !!! note
     You can get your API KEY from [SiliconCloud](https://cloud.siliconflow.cn/) for free.
 
-For the first use, you need to set your API key using "Set SiliconCloud API Key". Add the "Set SiliconCloud API Key" node and run it(click "Queue Prompt" button). The key changes to "**********", indicating successful operation.
+For the first use, you need to set your API key. Click the "BizyAir Key" button to launch the key setting page and set the key.
 
 ![](./imgs/how-to-set-key.gif)
-
-!!! note
-    You **should** remove this node after you set the key.
 
 !!! note
     You don't need to set the key every time you start the program. The key is cached in your local browser, and as long as you don't get a pop-up prompt asking you to enter the key, you can continue to use BizyAir Nodes.

@@ -47,7 +47,11 @@ class SiliconCloudLLMAPI:
                 ),
                 "user_prompt": (
                     "STRING",
-                    {"default": "小猫，梵高风格", "multiline": True, "dynamicPrompts": True,},
+                    {
+                        "default": "小猫，梵高风格",
+                        "multiline": True,
+                        "dynamicPrompts": True,
+                    },
                 ),
                 "max_tokens": ("INT", {"default": 512, "min": 100, "max": 1e5}),
                 "temperature": (
@@ -100,7 +104,10 @@ class BizyAirImageCaption:
     CATEGORY = "☁️BizyAir/AI Assistants"
 
     def detailed_caption(
-        self, image, num_beams, max_new_tokens,
+        self,
+        image,
+        num_beams,
+        max_new_tokens,
     ):
         API_KEY = get_api_key()
 
