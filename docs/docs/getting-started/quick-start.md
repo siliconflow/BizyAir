@@ -12,14 +12,12 @@ For the first use, you need to set your API key. Click the "BizyAir Key" button 
 !!! note
     You don't need to set the key every time you start the program. The key is cached in your local browser, and as long as you don't get a pop-up prompt asking you to enter the key, you can continue to use BizyAir Nodes.
 
-## 2. Using BizyAir Nodes
+## 2. Run BizyAir Examples
 
-All BizyAir nodes are under the "☁️BizyAir" category.
+Click the "☁️BizyAir Workflow Examples" button, select the desired workflow to load, and then click the "Queue Prompt" button to run it.
 
-Here is a simple example of using the Kolors nodes.
+![](./imgs/run-bizyair-examples.gif)
 
-![](./imgs/text2img.gif)
+## 3. More BizyAir Nodes
 
-or you can use LLM to refine your prompt.
-
-![](./imgs/llmnode.gif)
+All BizyAir nodes are categorized under the "☁️BizyAir" section. You can use them with the documentation on this site.
