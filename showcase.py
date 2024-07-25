@@ -29,6 +29,22 @@ SHOW_CASES = [
         "file": "bizyair_controlnet_preprocessor_workflow.json",
     },
     {
+        "title": "Text to Image by BizyAir KSampler",
+        "file": "bizyair_showcase_ksampler_txt2img.json",
+    },
+    {
+        "title": "Image to Image by BizyAir KSampler",
+        "file": "bizyair_showcase_ksampler_img2img.json",
+    },
+    {
+        "title": "LoRA workflow by BizyAir KSampler",
+        "file": "bizyair_showcase_ksampler_lora.json",
+    },
+    {
+        "title": "ControlNet workflow by BizyAir KSampler",
+        "file": "bizyair_showcase_ksampler_lora.json",
+    },
+    {
         "title": "Run BizyAir nodes with local nodes",
         "file": "bizyair_showcase_run_with_local_nodes.json",
     },
