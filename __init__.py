@@ -15,10 +15,6 @@ from . import supernode
 NODE_CLASS_MAPPINGS.update(**supernode.NODE_CLASS_MAPPINGS)
 NODE_DISPLAY_NAME_MAPPINGS.update(**supernode.NODE_DISPLAY_NAME_MAPPINGS)
 
-from . import cuteyou
-
-NODE_CLASS_MAPPINGS.update(**cuteyou.NODE_CLASS_MAPPINGS)
-NODE_DISPLAY_NAME_MAPPINGS.update(**cuteyou.NODE_DISPLAY_NAME_MAPPINGS)
 
 from . import llm
 
@@ -42,3 +38,9 @@ NODE_CLASS_MAPPINGS.update(**nodes_controlnet_union_sdxl.NODE_CLASS_MAPPINGS)
 NODE_DISPLAY_NAME_MAPPINGS.update(
     **nodes_controlnet_union_sdxl.NODE_DISPLAY_NAME_MAPPINGS
 )
+
+
+from . import cuteyou
+
+NODE_CLASS_MAPPINGS.update(**cuteyou.NODE_CLASS_MAPPINGS)
+NODE_DISPLAY_NAME_MAPPINGS.update(**cuteyou.NODE_DISPLAY_NAME_MAPPINGS)
