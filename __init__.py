@@ -1,6 +1,7 @@
 from . import register
 from . import nodes
 from . import bizyair_extras
+from . import showcase
 
 WEB_DIRECTORY = "./js"
 NODE_CLASS_MAPPINGS: dict = register.NODE_CLASS_MAPPINGS
