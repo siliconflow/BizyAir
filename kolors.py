@@ -25,8 +25,20 @@ class BizyAirKolorsTextEncode:
     def INPUT_TYPES(s):
         return {
             "required": {
-                "prompt": ("STRING", {"multiline": True, "default": "",}),
-                "negative_prompt": ("STRING", {"multiline": True, "default": "",}),
+                "prompt": (
+                    "STRING",
+                    {
+                        "multiline": True,
+                        "default": "",
+                    },
+                ),
+                "negative_prompt": (
+                    "STRING",
+                    {
+                        "multiline": True,
+                        "default": "",
+                    },
+                ),
                 "num_images_per_prompt": (
                     "INT",
                     {"default": 1, "min": 1, "max": 4, "step": 1},
@@ -73,7 +85,11 @@ class BizyAirKolorsVAEEncode:
 
     @classmethod
     def INPUT_TYPES(s):
-        return {"required": {"pixels": ("IMAGE",),}}
+        return {
+            "required": {
+                "pixels": ("IMAGE",),
+            }
+        }
 
     RETURN_TYPES = ("LATENT",)
     FUNCTION = "encode"
@@ -114,7 +130,11 @@ class BizyAirKolorsVAEDecode:
 
     @classmethod
     def INPUT_TYPES(s):
-        return {"required": {"samples": ("LATENT",),}}
+        return {
+            "required": {
+                "samples": ("LATENT",),
+            }
+        }
 
     RETURN_TYPES = ("IMAGE",)
     FUNCTION = "decode"
