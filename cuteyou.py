@@ -15,10 +15,6 @@ BIZYAIR_SERVER_ADDRESS = os.getenv(
     "BIZYAIR_SERVER_ADDRESS", "https://api.siliconflow.cn"
 )
 
-# 本地调试
-BIZYAIR_SERVER_ADDRESS = "http://127.0.0.1:8000"
-
-
 MAX_RESOLUTION = 1536
 
 
