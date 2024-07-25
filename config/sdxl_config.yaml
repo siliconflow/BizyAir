@@ -5,13 +5,15 @@ class_types:
   CheckpointLoaderSimple:
     max_instances: 1
     node_ids: [0]
-    ckpt_name: 
-      - Juggernaut-XL_v9_RunDiffusionPhoto_v2.safetensors
+    inputs:
+      ckpt_name:
+        - sdxl/Juggernaut-XL_v9_RunDiffusionPhoto_v2.safetensors
   ControlNetLoader:
     max_instances: 1
     node_ids: [1]
-    control_net_name:
-      - diffusion_pytorch_model_promax.safetensors
+    inputs:
+      control_net_name:
+        - sdxl/diffusion_pytorch_model_promax.safetensors
   ControlNetApply:
     max_instances: 1
     node_ids: [2]
@@ -29,17 +31,20 @@ class_types:
     node_ids: [7]
   LoraLoader:
     max_instances: 2
-    node_ids: [8, 9]
-    lora_name:
-      - watercolor_v1_sdxl_lora.safetensors
+    node_ids: [8,9]
+    inputs:
+      lora_name:
+        - sdxl/watercolor_v1_sdxl_lora.safetensors
   KSampler:
     max_instances: 1
     node_ids: [10]
+    steps: [1, 30]
   IPAdapterUnifiedLoader:
     max_instances: 1
     node_ids: [11]
-    preset:
-      - "PLUS (high strength)"
+    inputs:
+      preset:
+        - "PLUS (high strength)"
   IPAdapter:
     max_instances: 1
     node_ids: [12]
@@ -52,3 +57,8 @@ class_types:
   IPAdapterStyleComposition:
     max_instances: 1
     node_ids: [15]
+  ComfyAirLoadData:
+    max_instances: 10
+    inputs:
+      max_height: 1536
+      max_width: 1536

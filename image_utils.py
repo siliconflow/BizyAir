@@ -1,6 +1,7 @@
 import base64
 from collections import deque
 import io
+import json
 import os
 import pickle
 from functools import singledispatch
@@ -158,7 +159,9 @@ class BizyAirNodeIO:
         self, class_type: str, inputs: Dict[str, Any], outputs: Dict[str, Any]
     ):
         node_data = create_node_data(
-            class_type=class_type, inputs=inputs, outputs=outputs,
+            class_type=class_type,
+            inputs=inputs,
+            outputs=outputs,
         )
 
         encoded_node_data = encode_data(node_data)
@@ -177,16 +180,37 @@ class BizyAirNodeIO:
             if isinstance(other, BizyAirNodeIO):
                 self.nodes.update(other.nodes)
 
-    def send_request(self, url, headers) -> any:
+    @staticmethod
+    def get_headers():
+        from .auth import API_KEY
+
+        return {
+            "accept": "application/json",
+            "content-type": "application/json",
+            "authorization": f"Bearer {API_KEY}",
+        }
+
+    def send_request(self, url, headers=None) -> any:
         #  self._short_repr(self.nodes, max_length=100)
         #  self._short_repr(self.workflow_api, max_length=100)
-        response = requests.post(url, headers=headers, json=self.workflow_api)
+        response = requests.post(
+            url, headers=self.get_headers(), json=self.workflow_api
+        )
 
+        result = response.json()
         if response.status_code != 200:
-            raise Exception(f"Request failed with status code {response.status_code}")
+            raise Exception(
+                f"Request failed with status code {response.status_code} {result}"
+            )
 
-        # local
-        out = response.json()["data"]["payload"]
+        if "result" in result:  # cloud
+            msg = json.loads(result["result"])
+            if "error" in msg:
+                raise RuntimeError(f"{msg['error']}")
+            out = msg["data"]["payload"]
+        else:  # local
+            out = result["data"]["payload"]
+
         real_out = decode_data(out)
         return real_out[0]
 

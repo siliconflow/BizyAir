@@ -13,7 +13,11 @@ LOGO = "☁️"
 PREFIX = f"{LOGO}BizyAir"
 take_off_emojis = "🛫"
 landing_emojis = "🛬"
-url = "http://0.0.0.0:8000/supernode/diffusers-v1-comfy-server-demo"
+
+BIZYAIR_SERVER_ADDRESS = os.getenv(
+    "BIZYAIR_SERVER_ADDRESS", "https://api.siliconflow.cn"
+)
+url = f"{BIZYAIR_SERVER_ADDRESS}/supernode/diffusers-v1-comfy-server-demo"
 headers = {"Content-Type": "application/json"}
 
 
@@ -91,7 +95,7 @@ class BizyAir_CheckpointLoaderSimple(BizyAirBaseNode):
     def INPUT_TYPES(s):
         return {
             "required": {
-                "ckpt_name": (["Juggernaut-XL_v9_RunDiffusionPhoto_v2.safetensors",],),
+                "ckpt_name": (["sdxl/Juggernaut-XL_v9_RunDiffusionPhoto_v2.safetensors",],),
             }
         }
 
@@ -183,7 +187,7 @@ class BizyAir_LoraLoader(BizyAirBaseNode):
             "required": {
                 "model": (data_types.MODEL,),
                 "clip": (data_types.CLIP,),
-                "lora_name": (folder_paths.get_filename_list("loras"),),
+                "lora_name": (["sdxl/watercolor_v1_sdxl_lora.safetensors"],),
                 "strength_model": (
                     "FLOAT",
                     {"default": 1.0, "min": -100.0, "max": 100.0, "step": 0.01},
@@ -282,7 +286,7 @@ class BizyAir_ControlNetLoader(BizyAirBaseNode):
     def INPUT_TYPES(s):
         return {
             "required": {
-                "control_net_name": (["diffusion_pytorch_model_promax.safetensors"],)
+                "control_net_name": (["sdxl/diffusion_pytorch_model_promax.safetensors"],)
             }
         }
 
