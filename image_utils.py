@@ -84,9 +84,7 @@ def decode_comfy_image(img_data: Union[List, str], image_format="png") -> torch.
 
     out = decode_base64_to_np(img_data, format=image_format)
     out = np.array(out).astype(np.float32) / 255.0
-    output = torch.from_numpy(out)[
-        None,
-    ]
+    output = torch.from_numpy(out)[None,]
     return output
 
 
