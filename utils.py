@@ -31,7 +31,15 @@ def send_post_request(api_url, payload, headers):
             response_data = response.read().decode("utf-8")
         return response_data
     except urllib.error.URLError as e:
-        raise Exception(f"Failed to connect to the server: {e}")
+        if "Unauthorized" in str(e):
+            raise Exception(
+                "Key is invalid, please refer to https://cloud.siliconflow.cn to get the API key.\n"
+                "If you have the key, please click the 'BizyAir Key' button at the bottom right to set the key."
+            )
+        else:
+            raise Exception(
+                f"Failed to connect to the server: {e}, if you have no key, "
+            )
 
 
 def serialize_and_encode(obj: Union[np.ndarray], compress=True) -> Tuple[str, bool]:
@@ -114,19 +122,9 @@ def format_bytes(num_bytes: int) -> str:
         return f"{num_bytes / (1024 * 1024):.2f} MB"
 
 
-def validate_api_key(key: str):
-    assert isinstance(
-        key, str
-    ), f"API_KEY must be a string, got {type(key)}. Please refer to https://cloud.siliconflow.cn to get your API_KEY"
-    assert key.startswith(
-        "sk"
-    ), f"invalid key, please refer to https://cloud.siliconflow.cn to get your API_KEY, got {key}"
-
-
 def get_api_key():
     from .auth import API_KEY
 
-    validate_api_key(API_KEY)
     return API_KEY
 
 
@@ -139,7 +137,6 @@ def get_llm_response(
 ):
     api_url = "https://api.siliconflow.cn/v1/chat/completions"
     API_KEY = get_api_key()
-    validate_api_key(API_KEY)
     headers = {
         "accept": "application/json",
         "content-type": "application/json",
