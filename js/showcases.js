@@ -48,6 +48,15 @@ const style = `
 .comfy-floating-menu .context-menu-item:hover .summary {
     display: block;
 }
+
+#comfy-hide-button {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    cursor: pointer;
+    color: white;
+    font-size: 12px;
+}
 `;
 
 class FloatingButton {
@@ -59,8 +68,15 @@ class FloatingButton {
             onmousedown: (e) => this.startDrag(e),
             onclick: (e) => this.showMenu(e),
         });
+        this.hideButton = $el("div", {
+            id: "comfy-hide-button",
+            textContent: "✕",
+            onclick: (e) => this.toggleVisibility(e),
+        });
+        this.button.appendChild(this.hideButton);
         document.body.appendChild(this.button);
         this.dragging = false;
+        this.visible = true;
 
         document.addEventListener("mousemove", (e) => this.doDrag(e));
         document.addEventListener("mouseup", () => this.endDrag());
@@ -121,6 +137,16 @@ class FloatingButton {
             this.button.style.bottom = 'auto';
             this.button.style.right = 'auto';
         }
+    }
+
+    toggleVisibility(e) {
+        e.stopPropagation();
+        if (this.visible) {
+            this.button.style.display = "none";
+        } else {
+            this.button.style.display = "flex";
+        }
+        this.visible = !this.visible;
     }
 }
 
