@@ -42,7 +42,7 @@ SHOW_CASES = [
     },
     {
         "title": "ControlNet workflow by BizyAir KSampler",
-        "file": "bizyair_showcase_ksampler_lora.json",
+        "file": "bizyair_showcase_ksampler_controlnet.json",
     },
     {
         "title": "Run BizyAir nodes with local nodes",
