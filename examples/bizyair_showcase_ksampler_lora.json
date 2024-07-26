@@ -154,7 +154,7 @@
       "mode": 0,
       "outputs": [
         {
-          "name": "model🛫",
+          "name": "model",
           "type": "BIZYAIR_MODEL",
           "links": [
             66
@@ -162,7 +162,7 @@
           "shape": 3
         },
         {
-          "name": "clip🛫",
+          "name": "clip",
           "type": "BIZYAIR_CLIP",
           "links": [
             67
@@ -170,7 +170,7 @@
           "shape": 3
         },
         {
-          "name": "vae🛫",
+          "name": "vae",
           "type": "BIZYAIR_VAE",
           "links": [
             44

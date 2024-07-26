@@ -156,12 +156,12 @@ class IPAdapterUnifiedLoaderCommunity(IPAdapterUnifiedLoader):
     CATEGORY = "ipadapter/loaders"
 
 
-class IPAdapterModelLoader:
+class IPAdapterModelLoader(BizyAirBaseNode):
     @classmethod
     def INPUT_TYPES(s):
         return {
             "required": {
-                "ipadapter_file": (folder_paths.get_filename_list("ipadapter"),)
+                "ipadapter_file": (["kolors/ip_adapter_plus_general.bin"],)
             }
         }
 

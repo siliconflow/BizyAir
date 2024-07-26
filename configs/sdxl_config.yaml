@@ -1,6 +1,12 @@
+
+service_config:
+  service_address: https://api.siliconflow.cn
+  route: /supernode/bizyair-sdxl-comfy-ksampler
+  service_route: "{{ service_config.service_address }}{{ service_config.route }}"
+
 server_format:
   BizyAir_KSampler: KSampler
-
+  
 class_types:
   CheckpointLoaderSimple:
     max_instances: 1

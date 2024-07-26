@@ -190,9 +190,16 @@ class BizyAirNodeIO:
             "authorization": f"Bearer {API_KEY}",
         }
 
-    def send_request(self, url, headers=None) -> any:
+    def service_route(self):
+        service_config = self.configs["service_config"]
+        real_service_route = service_config["service_address"] + service_config["route"]
+        return real_service_route
+
+    def send_request(self, url=None, headers=None) -> any:
         #  self._short_repr(self.nodes, max_length=100)
         #  self._short_repr(self.workflow_api, max_length=100)
+        url = self.service_route()
+        # print(f'requests {url}')
         response = requests.post(
             url, headers=self.get_headers(), json=self.workflow_api
         )

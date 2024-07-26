@@ -1,7 +1,7 @@
 import os
 from typing import List
 import comfy
-import folder_paths
+from . import path_utils as folder_paths
 from .register import BizyAirBaseNode
 from .image_utils import (
     create_node_data,
@@ -97,11 +97,7 @@ class BizyAir_CheckpointLoaderSimple(BizyAirBaseNode):
     def INPUT_TYPES(s):
         return {
             "required": {
-                "ckpt_name": (
-                    [
-                        "sdxl/Juggernaut-XL_v9_RunDiffusionPhoto_v2.safetensors",
-                    ],
-                ),
+                "ckpt_name": (folder_paths.get_filename_list("checkpoints"),),
             }
         }
 
@@ -123,8 +119,7 @@ class BizyAir_CheckpointLoaderSimple(BizyAirBaseNode):
             )
             for slot_index in range(3)
         ]
-        current_directory = os.path.dirname(__file__)
-        config_file = os.path.join(current_directory, "config", "sdxl_config.yaml")
+        config_file = folder_paths.guess_config(ckpt_name=ckpt_name)
         assigned_id = self.assigned_id
         outs = [
             BizyAirNodeIO(
@@ -206,12 +201,7 @@ class BizyAir_LoraLoader(BizyAirBaseNode):
             "required": {
                 "model": (data_types.MODEL,),
                 "clip": (data_types.CLIP,),
-                "lora_name": (
-                    [
-                        "sdxl/watercolor_v1_sdxl_lora.safetensors",
-                        "sdxl/Cute_Animals.safetensors",
-                    ],
-                ),
+                "lora_name": (folder_paths.get_filename_list("loras"),),
                 "strength_model": (
                     "FLOAT",
                     {"default": 1.0, "min": -100.0, "max": 100.0, "step": 0.01},
@@ -313,9 +303,7 @@ class BizyAir_ControlNetLoader(BizyAirBaseNode):
     def INPUT_TYPES(s):
         return {
             "required": {
-                "control_net_name": (
-                    ["sdxl/diffusion_pytorch_model_promax.safetensors"],
-                )
+                "control_net_name": (folder_paths.get_filename_list("controlnet"),)
             }
         }
 
@@ -399,3 +387,28 @@ class BizyAir_CLIPVisionLoader(BizyAirBaseNode):
         )
         clip_vision = BizyAirNodeIO(self.assigned_id, {self.assigned_id: node_data})
         return (clip_vision,)
+
+
+class VAELoader(BizyAirBaseNode):
+    @classmethod
+    def INPUT_TYPES(s):
+        return {"required": {"vae_name": (folder_paths.get_filename_list("vae"),)}}
+
+    RETURN_TYPES = (data_types.VAE,)
+    RETURN_NAMES = ("vae",)
+    FUNCTION = "load_vae"
+
+    CATEGORY = "loaders"
+
+    def load_vae(self, vae_name):
+        node_data = create_node_data(
+            class_type="VAELoader",
+            inputs={"vae_name": vae_name},
+            outputs={"slot_index": 0},
+        )
+        vae = BizyAirNodeIO(
+            self.assigned_id,
+            {self.assigned_id: node_data},
+            config_file=folder_paths.guess_config(vae_name=vae_name),
+        )
+        return (vae,)
