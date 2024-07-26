@@ -1,15 +1,18 @@
-from . import auth
+from . import register
+from . import nodes
+from . import bizyair_extras
 from . import showcase
 
-
-NODE_CLASS_MAPPINGS = {
-    **auth.NODE_CLASS_MAPPINGS,
-}
-NODE_DISPLAY_NAME_MAPPINGS = {
-    **auth.NODE_DISPLAY_NAME_MAPPINGS,
-}
-
 WEB_DIRECTORY = "./js"
+NODE_CLASS_MAPPINGS: dict = register.NODE_CLASS_MAPPINGS
+NODE_DISPLAY_NAME_MAPPINGS: dict = register.NODE_DISPLAY_NAME_MAPPINGS
+
+
+from . import auth
+
+NODE_CLASS_MAPPINGS.update(**auth.NODE_CLASS_MAPPINGS)
+NODE_DISPLAY_NAME_MAPPINGS.update(**auth.NODE_DISPLAY_NAME_MAPPINGS)
+
 
 from . import supernode
 
