@@ -11,10 +11,14 @@ NODE_DISPLAY_NAME_MAPPINGS: dict = register.NODE_DISPLAY_NAME_MAPPINGS
 from . import auth
 
 NODE_CLASS_MAPPINGS.update(
-    {**auth.NODE_CLASS_MAPPINGS,}
+    {
+        **auth.NODE_CLASS_MAPPINGS,
+    }
 )
 NODE_DISPLAY_NAME_MAPPINGS.update(
-    {**auth.NODE_DISPLAY_NAME_MAPPINGS,}
+    {
+        **auth.NODE_DISPLAY_NAME_MAPPINGS,
+    }
 )
 
 

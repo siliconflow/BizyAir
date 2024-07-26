@@ -67,7 +67,9 @@ class IPAdapterUnifiedLoader(BizyAirBaseNode):
                     ],
                 ),
             },
-            "optional": {"ipadapter": ("IPADAPTER",),},
+            "optional": {
+                "ipadapter": ("IPADAPTER",),
+            },
         }
 
     NODE_DISPLAY_NAME = "IPAdapter Unified Loader"
@@ -126,7 +128,9 @@ class IPAdapterUnifiedLoaderFaceID(IPAdapterUnifiedLoader):
                     ["CPU", "CUDA", "ROCM", "DirectML", "OpenVINO", "CoreML"],
                 ),
             },
-            "optional": {"ipadapter": ("IPADAPTER",),},
+            "optional": {
+                "ipadapter": ("IPADAPTER",),
+            },
         }
 
     RETURN_NAMES = (
@@ -140,8 +144,13 @@ class IPAdapterUnifiedLoaderCommunity(IPAdapterUnifiedLoader):
     @classmethod
     def INPUT_TYPES(s):
         return {
-            "required": {"model": ("MODEL",), "preset": (["Composition", "Kolors"],),},
-            "optional": {"ipadapter": ("IPADAPTER",),},
+            "required": {
+                "model": ("MODEL",),
+                "preset": (["Composition", "Kolors"],),
+            },
+            "optional": {
+                "ipadapter": ("IPADAPTER",),
+            },
         }
 
     CATEGORY = "ipadapter/loaders"
@@ -165,7 +174,9 @@ class IPAdapterInsightFaceLoader:
     @classmethod
     def INPUT_TYPES(s):
         return {
-            "required": {"provider": (["CPU", "CUDA", "ROCM"],),},
+            "required": {
+                "provider": (["CPU", "CUDA", "ROCM"],),
+            },
         }
 
     RETURN_TYPES = ("INSIGHTFACE",)
@@ -204,7 +215,9 @@ class IPAdapterSimple(BizyAirBaseNode):
                     ["standard", "prompt is more important", "style transfer"],
                 ),
             },
-            "optional": {"attn_mask": ("MASK",),},
+            "optional": {
+                "attn_mask": ("MASK",),
+            },
         }
 
     NODE_DISPLAY_NAME = "IPAdapter"
@@ -216,7 +229,9 @@ class IPAdapterSimple(BizyAirBaseNode):
     def apply_ipadapter(self, **kwargs):
         new_model: BizyAirNodeIO = kwargs["model"].copy(self.assigned_id)
         new_model.add_node_data(
-            class_type="IPAdapter", inputs=kwargs, outputs={"slot_index": 0},
+            class_type="IPAdapter",
+            inputs=kwargs,
+            outputs={"slot_index": 0},
         )
         return (new_model,)
 
@@ -1026,7 +1041,10 @@ class IPAdapterEncoder:
                     {"default": 1.0, "min": -1.0, "max": 3.0, "step": 0.01},
                 ),
             },
-            "optional": {"mask": ("MASK",), "clip_vision": ("CLIP_VISION",),},
+            "optional": {
+                "mask": ("MASK",),
+                "clip_vision": ("CLIP_VISION",),
+            },
         }
 
     RETURN_TYPES = (
@@ -1116,7 +1134,9 @@ class IPAdapterNoise:
                 ),
                 "blur": ("INT", {"default": 0, "min": 0, "max": 32, "step": 1}),
             },
-            "optional": {"image_optional": ("IMAGE",),},
+            "optional": {
+                "image_optional": ("IMAGE",),
+            },
         }
 
     RETURN_TYPES = ("IMAGE",)
@@ -1297,7 +1317,11 @@ class IPAdapterLoadEmbeds:
             if file.endswith(".ipadpt")
         ]
         return {
-            "required": {"embeds": [sorted(files),]},
+            "required": {
+                "embeds": [
+                    sorted(files),
+                ]
+            },
         }
 
     RETURN_TYPES = ("EMBEDS",)
@@ -1348,7 +1372,9 @@ class IPAdapterWeights:
                     {"default": "full batch"},
                 ),
             },
-            "optional": {"image": ("IMAGE",),},
+            "optional": {
+                "image": ("IMAGE",),
+            },
         }
 
     RETURN_TYPES = ("FLOAT", "FLOAT", "INT", "IMAGE", "IMAGE", "WEIGHTS_STRATEGY")
@@ -1368,8 +1394,12 @@ class IPAdapterWeightsFromStrategy(IPAdapterWeights):
     @classmethod
     def INPUT_TYPES(s):
         return {
-            "required": {"weights_strategy": ("WEIGHTS_STRATEGY",),},
-            "optional": {"image": ("IMAGE",),},
+            "required": {
+                "weights_strategy": ("WEIGHTS_STRATEGY",),
+            },
+            "optional": {
+                "image": ("IMAGE",),
+            },
         }
 
 
