@@ -160,9 +160,7 @@ class IPAdapterModelLoader(BizyAirBaseNode):
     @classmethod
     def INPUT_TYPES(s):
         return {
-            "required": {
-                "ipadapter_file": (["kolors/ip_adapter_plus_general.bin"],)
-            }
+            "required": {"ipadapter_file": (["kolors/ip_adapter_plus_general.bin"],)}
         }
 
     RETURN_TYPES = ("IPADAPTER",)
