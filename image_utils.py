@@ -1,5 +1,4 @@
 import base64
-from collections import deque
 import io
 import json
 import os
@@ -8,10 +7,11 @@ from functools import singledispatch
 from typing import Any, List, Union
 import zlib
 import numpy as np
-import requests
 import torch
 from PIL import Image
 import yaml
+import urllib.request
+import urllib.parse
 
 # Marker to identify base64-encoded tensors
 TENSOR_MARKER = "TENSOR:"
@@ -198,18 +198,26 @@ class BizyAirNodeIO:
     def send_request(self, url=None, headers=None) -> any:
         #  self._short_repr(self.nodes, max_length=100)
         #  self._short_repr(self.workflow_api, max_length=100)
-        url = self.service_route()
-        # print(f'requests {url}')
-        response = requests.post(
-            url, headers=self.get_headers(), json=self.workflow_api
-        )
-
-        result = response.json()
-        if response.status_code != 200:
-            raise Exception(
-                f"Request failed with status code {response.status_code} {result}"
+        api_url = self.service_route()
+        try:
+            data = json.dumps(self.workflow_api).encode("utf-8")
+            req = urllib.request.Request(
+                api_url, data=data, headers=self.get_headers(), method="POST"
             )
+            with urllib.request.urlopen(req) as response:
+                response_data = response.read().decode("utf-8")
+        except urllib.error.URLError as e:
+            if "Unauthorized" in str(e):
+                raise Exception(
+                    "Key is invalid, please refer to https://cloud.siliconflow.cn to get the API key.\n"
+                    "If you have the key, please click the 'BizyAir Key' button at the bottom right to set the key."
+                )
+            else:
+                raise Exception(
+                    f"Failed to connect to the server: {e}, if you have no key, "
+                )
 
+        result = json.loads(response_data)
         if "result" in result:  # cloud
             msg = json.loads(result["result"])
             if "error" in msg:

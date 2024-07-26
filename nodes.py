@@ -13,13 +13,6 @@ LOGO = "☁️"
 PREFIX = f"{LOGO}BizyAir"
 
 
-BIZYAIR_SERVER_ADDRESS = os.getenv(
-    "BIZYAIR_SERVER_ADDRESS", "https://api.siliconflow.cn"
-)
-url = f"{BIZYAIR_SERVER_ADDRESS}/supernode/diffusers-v1-comfy-server-demo"
-headers = {"Content-Type": "application/json"}
-
-
 class BizyAir_KSampler(BizyAirBaseNode):
     @classmethod
     def INPUT_TYPES(s):
@@ -89,7 +82,7 @@ class BizyAir_KSampler(BizyAirBaseNode):
             outputs={"slot_index": 0},
         )
 
-        return new_model.send_request(url=url, headers=headers)
+        return new_model.send_request()
 
 
 class BizyAir_CheckpointLoaderSimple(BizyAirBaseNode):
@@ -191,7 +184,7 @@ class BizyAir_VAEDecode(BizyAirBaseNode):
             },
             outputs={"slot_index": 0},
         )
-        return new_vae.send_request(url=url, headers=headers)
+        return new_vae.send_request()
 
 
 class BizyAir_LoraLoader(BizyAirBaseNode):
@@ -263,7 +256,7 @@ class BizyAir_VAEEncode(BizyAirBaseNode):
             },
             outputs={"slot_index": 0},
         )
-        return new_vae.send_request(url=url, headers=headers)
+        return new_vae.send_request()
 
 
 class BizyAir_VAEEncodeForInpaint(BizyAirBaseNode):
@@ -295,7 +288,7 @@ class BizyAir_VAEEncodeForInpaint(BizyAirBaseNode):
             },
             outputs={"slot_index": 0},
         )
-        return new_vae.send_request(url, headers)
+        return new_vae.send_request()
 
 
 class BizyAir_ControlNetLoader(BizyAirBaseNode):
