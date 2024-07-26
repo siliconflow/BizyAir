@@ -45,6 +45,10 @@ SHOW_CASES = [
         "file": "bizyair_showcase_ksampler_controlnet.json",
     },
     {
+        "title": "IP Adapter workflow by BizyAir KSampler",
+        "file": "bizyair_showcase_ksampler_ipadapter.json",
+    },
+    {
         "title": "Run BizyAir nodes with local nodes",
         "file": "bizyair_showcase_run_with_local_nodes.json",
     },
