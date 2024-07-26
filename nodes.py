@@ -11,8 +11,7 @@ from . import data_types
 
 LOGO = "☁️"
 PREFIX = f"{LOGO}BizyAir"
-take_off_emojis = "🛫"
-landing_emojis = "🛬"
+
 
 BIZYAIR_SERVER_ADDRESS = os.getenv(
     "BIZYAIR_SERVER_ADDRESS", "https://api.siliconflow.cn"
@@ -27,7 +26,10 @@ class BizyAir_KSampler(BizyAirBaseNode):
         return {
             "required": {
                 "model": (data_types.MODEL,),
-                "seed": ("INT", {"default": 0, "min": 0, "max": 0xFFFFFFFFFFFFFFFF},),
+                "seed": (
+                    "INT",
+                    {"default": 0, "min": 0, "max": 0xFFFFFFFFFFFFFFFF},
+                ),
                 "steps": ("INT", {"default": 20, "min": 1, "max": 50}),
                 "cfg": (
                     "FLOAT",
@@ -53,7 +55,7 @@ class BizyAir_KSampler(BizyAirBaseNode):
 
     RETURN_TYPES = ("LATENT",)
     FUNCTION = "sample"
-    RETURN_NAMES = (f"LATENT{landing_emojis}",)
+    RETURN_NAMES = (f"LATENT",)
     CATEGORY = f"{PREFIX}/sampling"
 
     def sample(
@@ -95,7 +97,11 @@ class BizyAir_CheckpointLoaderSimple(BizyAirBaseNode):
     def INPUT_TYPES(s):
         return {
             "required": {
-                "ckpt_name": (["sdxl/Juggernaut-XL_v9_RunDiffusionPhoto_v2.safetensors",],),
+                "ckpt_name": (
+                    [
+                        "sdxl/Juggernaut-XL_v9_RunDiffusionPhoto_v2.safetensors",
+                    ],
+                ),
             }
         }
 
@@ -103,9 +109,9 @@ class BizyAir_CheckpointLoaderSimple(BizyAirBaseNode):
     FUNCTION = "load_checkpoint"
     CATEGORY = f"{PREFIX}/loaders"
     RETURN_NAMES = (
-        f"model{take_off_emojis}",
-        f"clip{take_off_emojis}",
-        f"vae{take_off_emojis}",
+        f"model",
+        f"clip",
+        f"vae",
     )
 
     def load_checkpoint(self, ckpt_name):
@@ -121,7 +127,11 @@ class BizyAir_CheckpointLoaderSimple(BizyAirBaseNode):
         config_file = os.path.join(current_directory, "config", "sdxl_config.yaml")
         assigned_id = self.assigned_id
         outs = [
-            BizyAirNodeIO(assigned_id, {assigned_id: data}, config_file=config_file,)
+            BizyAirNodeIO(
+                assigned_id,
+                {assigned_id: data},
+                config_file=config_file,
+            )
             for data in node_datas
         ]
 
@@ -137,7 +147,10 @@ class BizyAir_CLIPTextEncode(BizyAirBaseNode):
     def INPUT_TYPES(s):
         return {
             "required": {
-                "text": ("STRING", {"multiline": True, "dynamicPrompts": True},),
+                "text": (
+                    "STRING",
+                    {"multiline": True, "dynamicPrompts": True},
+                ),
                 "clip": (data_types.CLIP,),
             }
         }
@@ -153,7 +166,10 @@ class BizyAir_CLIPTextEncode(BizyAirBaseNode):
 
         new_clip.add_node_data(
             class_type="CLIPTextEncode",
-            inputs={"text": text, "clip": clip,},
+            inputs={
+                "text": text,
+                "clip": clip,
+            },
             outputs={"slot_index": 0},
         )
         return (new_clip,)
@@ -165,7 +181,7 @@ class BizyAir_VAEDecode(BizyAirBaseNode):
         return {"required": {"samples": ("LATENT",), "vae": (data_types.VAE,)}}
 
     RETURN_TYPES = ("IMAGE",)
-    RETURN_NAMES = (f"IMAGE{landing_emojis}",)
+    RETURN_NAMES = (f"IMAGE",)
     FUNCTION = "decode"
 
     CATEGORY = f"{PREFIX}/latent"
@@ -174,7 +190,10 @@ class BizyAir_VAEDecode(BizyAirBaseNode):
         new_vae: BizyAirNodeIO = vae.copy(self.assigned_id)
         new_vae.add_node_data(
             class_type="VAEDecode",
-            inputs={"samples": samples, "vae": vae,},
+            inputs={
+                "samples": samples,
+                "vae": vae,
+            },
             outputs={"slot_index": 0},
         )
         return new_vae.send_request(url=url, headers=headers)
@@ -187,7 +206,12 @@ class BizyAir_LoraLoader(BizyAirBaseNode):
             "required": {
                 "model": (data_types.MODEL,),
                 "clip": (data_types.CLIP,),
-                "lora_name": (["sdxl/watercolor_v1_sdxl_lora.safetensors"],),
+                "lora_name": (
+                    [
+                        "sdxl/watercolor_v1_sdxl_lora.safetensors",
+                        "sdxl/Cute_Animals.safetensors",
+                    ],
+                ),
                 "strength_model": (
                     "FLOAT",
                     {"default": 1.0, "min": -100.0, "max": 100.0, "step": 0.01},
@@ -235,7 +259,7 @@ class BizyAir_VAEEncode(BizyAirBaseNode):
         return {"required": {"pixels": ("IMAGE",), "vae": (data_types.VAE,)}}
 
     RETURN_TYPES = ("LATENT",)
-    RETURN_NAMES = (f"LATENT{landing_emojis}",)
+    RETURN_NAMES = (f"LATENT",)
     FUNCTION = "encode"
     CATEGORY = f"{PREFIX}/latent"
 
@@ -243,7 +267,10 @@ class BizyAir_VAEEncode(BizyAirBaseNode):
         new_vae: BizyAirNodeIO = vae.copy(self.assigned_id)
         new_vae.add_node_data(
             class_type="VAEEncode",
-            inputs={"vae": vae, "pixels": pixels,},
+            inputs={
+                "vae": vae,
+                "pixels": pixels,
+            },
             outputs={"slot_index": 0},
         )
         return new_vae.send_request(url=url, headers=headers)
@@ -262,7 +289,7 @@ class BizyAir_VAEEncodeForInpaint(BizyAirBaseNode):
         }
 
     RETURN_TYPES = (f"LATENT",)
-    RETURN_NAMES = (f"LATENT{landing_emojis}",)
+    RETURN_NAMES = (f"LATENT",)
     FUNCTION = "encode"
     CATEGORY = f"{PREFIX}/latent/inpaint"
 
@@ -286,7 +313,9 @@ class BizyAir_ControlNetLoader(BizyAirBaseNode):
     def INPUT_TYPES(s):
         return {
             "required": {
-                "control_net_name": (["sdxl/diffusion_pytorch_model_promax.safetensors"],)
+                "control_net_name": (
+                    ["sdxl/diffusion_pytorch_model_promax.safetensors"],
+                )
             }
         }
 
@@ -300,7 +329,9 @@ class BizyAir_ControlNetLoader(BizyAirBaseNode):
 
         node_data = create_node_data(
             class_type="ControlNetLoader",
-            inputs={"control_net_name": control_net_name,},
+            inputs={
+                "control_net_name": control_net_name,
+            },
             outputs={"slot_index": 0},
         )
         assigned_id = self.assigned_id
@@ -350,7 +381,9 @@ class BizyAir_CLIPVisionLoader(BizyAirBaseNode):
     @classmethod
     def INPUT_TYPES(s):
         return {
-            "required": {"clip_name": (folder_paths.get_filename_list("clip_vision"),),}
+            "required": {
+                "clip_name": (folder_paths.get_filename_list("clip_vision"),),
+            }
         }
 
     RETURN_TYPES = ("CLIP_VISION",)
