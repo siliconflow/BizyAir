@@ -9,7 +9,8 @@ from selenium.webdriver.chrome.options import Options
 COMFY_HOST = os.getenv("COMFY_HOST", "127.0.0.1")
 COMFY_PORT = os.getenv("COMFY_PORT", "8188")
 BIZYAIR_KEY = os.getenv("BIZYAIR_KEY", "")
-    
+
+
 def test_comfyui():
     chrome_options = Options()
     chrome_options.add_argument("--headless")
