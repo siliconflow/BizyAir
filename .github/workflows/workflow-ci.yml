@@ -40,6 +40,7 @@ jobs:
     - name: Run ComfyUI
       run: |
         cd ComfyUI
+        export PYTHONPATH="$PWD/ComfyUI:$PYTHONPATH"
         nohup python main.py --cpu --port 8188 &
 
     - name: Run tests
