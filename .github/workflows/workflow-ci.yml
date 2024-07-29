@@ -44,5 +44,4 @@ jobs:
 
     - name: Run tests
       run: |
-        cd ..
         pytest -s --timeout=1800 tests/test_examples.py
