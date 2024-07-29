@@ -15,6 +15,8 @@ BIZYAIR_SERVER_ADDRESS = os.getenv(
     "BIZYAIR_SERVER_ADDRESS", "https://api.siliconflow.cn"
 )
 
+#本地调试
+BIZYAIR_SERVER_ADDRESS = "http://127.0.0.1:8000"
 MAX_RESOLUTION = 1536
 
 
@@ -41,6 +43,8 @@ class CuteYou:
                 ),
                 "steps": ("INT", {"default": 20, "min": 1, "max": 35}),
                 "cfg": ("FLOAT", {"default": 4.0, "min": 0.0, "max": 100.0}),
+                "text_positive": ("STRING", {"default": "chibi:2,cute,Kawaii,(full body:2),Standing:2,shoe:2,(blue clean background),(Highly saturated background),PVC material, silicone material，standing character, soft smooth lighting, soft pastel colors, skottie young, 3d blender render, polycount, modular constructivism, pop surrealism, physically based rendering, square image, a girl with a white shirt", "multiline": True}),
+                "text_negative": ("STRING", {"default": "Glow, Wrinkles, Aging, Cock-eye,realist photo, Real Material", "multiline": True}),
             }
         }
 
@@ -49,7 +53,7 @@ class CuteYou:
 
     CATEGORY = "☁️BizyAir"
 
-    def generate_image(self, image, seed, denoise, width, height, steps, cfg):
+    def generate_image(self, image, seed, denoise, width, height, steps, cfg, text_positive, text_negative):
         API_KEY = get_api_key()
         input_image, compress = serialize_and_encode(image, compress=True)
 
@@ -61,6 +65,8 @@ class CuteYou:
             "steps": steps,
             "seed": seed,
             "cfg": cfg,
+            "text_positive": text_positive,
+            "text_negative": text_negative,
         }
         auth = f"Bearer {API_KEY}"
         headers = {
