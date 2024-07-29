@@ -1,16 +1,21 @@
 import os
 from typing import List
 import comfy
-from . import path_utils as folder_paths
-from .register import BizyAirBaseNode
-from .image_utils import (
-    create_node_data,
-    BizyAirNodeIO,
-)
-from . import data_types
+from bizyair import path_utils as folder_paths
+from bizyair import create_node_data, BizyAirBaseNode
+from bizyair import data_types, BizyAirNodeIO
 
 LOGO = "☁️"
 PREFIX = f"{LOGO}BizyAir"
+
+
+class ProgressCallback:
+    def __init__(self, total=None) -> None:
+        comfy.model_management.throw_exception_if_processing_interrupted()
+        self.pbar = comfy.utils.ProgressBar(None)
+
+    def __call__(self, value, total=None, preview=None):
+        self.pbar.update_absolute(value, total, preview)
 
 
 class BizyAir_KSampler(BizyAirBaseNode):
@@ -81,8 +86,8 @@ class BizyAir_KSampler(BizyAirBaseNode):
             },
             outputs={"slot_index": 0},
         )
-
-        return new_model.send_request()
+        progress_callback = ProgressCallback()
+        return new_model.send_request(progress_callback=progress_callback)
 
 
 class BizyAir_CheckpointLoaderSimple(BizyAirBaseNode):

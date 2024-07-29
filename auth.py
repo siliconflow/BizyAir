@@ -3,6 +3,7 @@ import os
 import configparser
 import server
 from aiohttp import web
+import bizyair
 
 
 API_KEY = None
@@ -94,12 +95,12 @@ async def set_api_key(request):
     global API_KEY
     data = await request.post()
     api_key = data.get("api_key")
-
     try:
         if api_key:
             response = web.Response(text="ok")
             response.set_cookie("api_key", api_key)
             API_KEY = api_key
+            bizyair.set_api_key(API_KEY)
             return response
         else:
             return web.Response(
@@ -127,6 +128,7 @@ async def get_api_key(request):
             API_KEY = api_key
             response = web.Response(text="ok")
             response.set_cookie("api_key", api_key)
+            bizyair.set_api_key(API_KEY)
             return response
         else:
             return web.Response(

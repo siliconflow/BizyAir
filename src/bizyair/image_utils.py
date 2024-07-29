@@ -1,4 +1,5 @@
 import base64
+from enum import Enum
 import io
 import json
 import os
@@ -10,13 +11,18 @@ import numpy as np
 import torch
 from PIL import Image
 import yaml
-import urllib.request
-import urllib.parse
+from .client import BizyAirStreamClient
 
 # Marker to identify base64-encoded tensors
 TENSOR_MARKER = "TENSOR:"
 BIZYAIR_DEBUG = os.getenv("BIZYAIR_DEBUG", False)
 from typing import Dict
+
+
+class TaskStatus(Enum):
+    PENDING = "pending"
+    PROCESSING = "processing"
+    COMPLETED = "completed"
 
 
 def create_node_data(class_type: str, inputs: dict, outputs: dict):
@@ -35,18 +41,26 @@ def create_node_data(class_type: str, inputs: dict, outputs: dict):
     return out
 
 
+def set_api_key(self, API_KEY="YOUR_API_KEY"):
+    BizyAirNodeIO.API_KEY = API_KEY
+
+
 class BizyAirNodeIO:
+    API_KEY = None
+
     def __init__(
         self,
         node_id: int = "0",
         nodes: Dict[str, Dict[str, any]] = {},
         config_file=None,
         configs: dict = None,
+        debug: bool = os.getenv("BIZYAIR_DEBUG", False),
     ):
         self._validate_node_id(node_id=node_id)
 
         self.node_id = node_id
         self.nodes = nodes
+        self.debug = debug
 
         if config_file:
             if not os.path.exists(config_file):
@@ -180,14 +194,14 @@ class BizyAirNodeIO:
             if isinstance(other, BizyAirNodeIO):
                 self.nodes.update(other.nodes)
 
-    @staticmethod
-    def get_headers():
-        from .auth import API_KEY
+    def get_headers(self):
+        if self.API_KEY is None:
+            raise ValueError("API key is not set. Please provide a valid API key.")
 
         return {
             "accept": "application/json",
             "content-type": "application/json",
-            "authorization": f"Bearer {API_KEY}",
+            "authorization": f"Bearer {self.API_KEY}",
         }
 
     def service_route(self):
@@ -195,29 +209,51 @@ class BizyAirNodeIO:
         real_service_route = service_config["service_address"] + service_config["route"]
         return real_service_route
 
-    def send_request(self, url=None, headers=None) -> any:
-        #  self._short_repr(self.nodes, max_length=100)
-        #  self._short_repr(self.workflow_api, max_length=100)
+    def send_request(self, url=None, headers=None, *, progress_callback=None) -> any:
+        # self._short_repr(self.nodes, max_length=100)
+        # self._short_repr(self.workflow_api['prompt'], max_length=100)
         api_url = self.service_route()
-        try:
-            data = json.dumps(self.workflow_api).encode("utf-8")
-            req = urllib.request.Request(
-                api_url, data=data, headers=self.get_headers(), method="POST"
-            )
-            with urllib.request.urlopen(req) as response:
-                response_data = response.read().decode("utf-8")
-        except urllib.error.URLError as e:
-            if "Unauthorized" in str(e):
-                raise Exception(
-                    "Key is invalid, please refer to https://cloud.siliconflow.cn to get the API key.\n"
-                    "If you have the key, please click the 'BizyAir Key' button at the bottom right to set the key."
-                )
-            else:
-                raise Exception(
-                    f"Failed to connect to the server: {e}, if you have no key, "
-                )
 
-        result = json.loads(response_data)
+        # client = BizyAirRequestClient(api_url, self.workflow_api, self.API_KEY)
+        # response_data = client.send_request()
+        def process_events(api_url, workflow_api, api_key):
+            total_steps = None
+            with BizyAirStreamClient(api_url, workflow_api, api_key) as stream_client:
+                for event_data in stream_client.events():
+                    try:
+                        event_data = json.loads(event_data)["data"]
+                    except json.JSONDecodeError as e:
+                        print(f"Error decoding JSON: {e}")
+                        print(f"Received data: {event_data}")
+                        raise e
+
+                    if self.debug:
+                        print(f"Debug Event Data: {self._short_repr(event_data, 100)}")
+
+                    status = event_data["status"]
+                    data = event_data["data"]
+                    pending_count = event_data.get("pending_tasks_count", None)
+                    if status == TaskStatus.PENDING.value:
+                        print(
+                            f"Task is pending, current pending tasks count: {pending_count}"
+                        )
+                    elif status == TaskStatus.PROCESSING.value:
+                        if isinstance(event_data["data"], list):
+                            step, total_steps = event_data["data"][:2]
+                            progress_callback(step, total_steps, preview=None)
+                        else:
+                            print(f"Processing: {data}")
+
+                    elif status == TaskStatus.COMPLETED.value:
+                        result = event_data
+                        if total_steps:
+                            progress_callback(total_steps, total_steps, preview=None)
+                        break
+
+            return result
+
+        result = process_events(api_url, self.workflow_api, self.API_KEY)
+        # result = json.loads(response_data)
         if "result" in result:  # cloud
             msg = json.loads(result["result"])
             if "error" in msg:

@@ -1,7 +1,7 @@
 import os
-from ...register import BizyAirBaseNode
-from ...data_types import MODEL, CLIP, CONDITIONING
-from ...image_utils import BizyAirNodeIO, create_node_data
+from bizyair import BizyAirBaseNode
+from bizyair.data_types import MODEL, CLIP, CONDITIONING
+from bizyair.image_utils import BizyAirNodeIO, create_node_data
 
 AUTHOR_NAME = "MinusZone"
 CATEGORY_NAME = f"{AUTHOR_NAME} - Kolors"

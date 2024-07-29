@@ -1,6 +1,6 @@
-from ...register import BizyAirBaseNode
-from ...data_types import MODEL, CLIP, CONDITIONING
-from ...image_utils import BizyAirNodeIO
+from bizyair import BizyAirBaseNode
+from bizyair.data_types import MODEL, CLIP, CONDITIONING
+from bizyair.image_utils import BizyAirNodeIO
 import torch
 import os
 import math
