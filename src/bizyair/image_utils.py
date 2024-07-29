@@ -238,11 +238,12 @@ class BizyAirNodeIO:
                             f"Task is pending, current pending tasks count: {pending_count}"
                         )
                     elif status == TaskStatus.PROCESSING.value:
-                        if isinstance(event_data["data"], list):
-                            step, total_steps = event_data["data"][:2]
+                        if "progress" in data and isinstance(data["progress"], dict):
+                            step, total_steps = (
+                                data["progress"]["value"],
+                                data["progress"]["total"],
+                            )
                             progress_callback(step, total_steps, preview=None)
-                        else:
-                            print(f"Processing: {data}")
 
                     elif status == TaskStatus.COMPLETED.value:
                         result = event_data
@@ -253,7 +254,6 @@ class BizyAirNodeIO:
             return result
 
         result = process_events(api_url, self.workflow_api, self.API_KEY)
-        # result = json.loads(response_data)
         if "result" in result:  # cloud
             msg = json.loads(result["result"])
             if "error" in msg:
