@@ -54,7 +54,7 @@ app.registerExtension({
         if (response.status === 200) {
             console.log("get SiliconCloud api key successfuly")
         } else {
-            alert(`Use node 'Set SiliconCloud API Key' first,
+            alert(`Please click "BizyAir Key" button to set API key first,
 you can get your key from cloud.siliconflow.cn,
 or you can only use nodes locally.`);
             const text = await response.text();
@@ -80,8 +80,10 @@ or you can only use nodes locally.`);
                 if (response.status === 200) {
                     console.log("set SiliconCloud api key successfuly")
                 } else {
-                    alert("Use node 'Set SiliconCloud API Key' first, you can get your key from cloud.siliconflow.cn")
                     const text = await response.text();
+                    alert(`Please click "BizyAir Key" button to set API key first,
+                        you can get your key from cloud.siliconflow.cn,
+                        or you can only use nodes locally.`);
                 }
 
                 this.widgets[0].value = "sk-****************";
@@ -93,4 +95,10 @@ or you can only use nodes locally.`);
             };
         }
     },
+
+    async nodeCreated(node) {
+        if (node.widgets[0].name === 'API_KEY' && node.widgets[0].value === 'YOUR_API_KEY') {
+            alert(`The Set API Key node will be deprecated, available until 2024/08/15. Please click "BizyAir Key" button to set API key instead.`);
+        }
+    }
 });
