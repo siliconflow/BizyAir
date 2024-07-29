@@ -6,7 +6,7 @@ on:
       - master
 
 jobs:
-  build-and-test:
+  run-examples-workflows:
     runs-on: ubuntu-latest
 
     steps:
@@ -39,8 +39,8 @@ jobs:
 
     - name: Run ComfyUI
       run: |
-        cd ComfyUI
-        export PYTHONPATH="$PWD/ComfyUI:$PYTHONPATH"
+        cd ComfyUI && ls -lh
+        export PYTHONPATH="$PWD:$PYTHONPATH"
         nohup python main.py --cpu --port 8188 &
 
     - name: Run tests
