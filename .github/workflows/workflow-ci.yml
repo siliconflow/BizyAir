@@ -40,8 +40,9 @@ jobs:
     - name: Run ComfyUI
       run: |
         cd ComfyUI && ls -lh
-        export PYTHONPATH=`pwd`:$PYTHONPATH
         nohup python main.py --cpu --port 8188 &
+      env:
+        PYTHONPATH: ${{ github.workspace }}/ComfyUI
 
     - name: Run tests
       run: |
