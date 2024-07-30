@@ -12,13 +12,19 @@ def load_yaml_config(file_path):
     return config
 
 
-def guess_config(*, ckpt_name: str = None, vae_name: str = None) -> str:
+def guess_config(
+    *, ckpt_name: str = None, unet_name: str = None, vae_name: str = None
+) -> str:
     base_path = os.path.dirname(os.path.abspath(__file__))
     if ckpt_name is not None:
         if ckpt_name == "sdxl/Juggernaut-XL_v9_RunDiffusionPhoto_v2.safetensors":
             return os.path.join(base_path, "configs", "sdxl_config.yaml")
     if vae_name is not None:
         if vae_name == "sdxl/sdxl_vae.safetensors":
+            return os.path.join(base_path, "configs", "kolors_config.yaml")
+
+    if unet_name is not None:
+        if unet_name.startswith("kolors"):
             return os.path.join(base_path, "configs", "kolors_config.yaml")
 
 
@@ -42,6 +48,8 @@ def get_filename_list(folder_name):
 
 
 def init_config():
+    global folder_names_and_paths
+
     class_type_key_mapping = {
         "CheckpointLoaderSimple": ["ckpt_name", "checkpoints"],
         "ControlNetLoader": ["control_net_name", "controlnet"],
@@ -55,12 +63,27 @@ def init_config():
             inputs = config["class_types"][class_type].get("inputs", {})
             if class_type in class_type_key_mapping:
                 key, folder_key = class_type_key_mapping[class_type]
-                if key not in folder_names_and_paths:
+                if folder_key not in folder_names_and_paths:
                     folder_names_and_paths[folder_key] = []
                 if key not in inputs:
                     print(f"Warning: no find limit for {class_type=} {key=}")
                 else:
                     folder_names_and_paths[folder_key].extend(inputs[key])
+
+    if "unet" not in folder_names_and_paths:
+        folder_names_and_paths["unet"] = []
+    folder_names_and_paths["unet"].extend(
+        ["kolors/kolors-unet.safetensors", "Kolors-Inpainting.safetensors"]
+    )
+
+    if "controlnet" not in folder_names_and_paths:
+        folder_names_and_paths["controlnet"] = []
+    folder_names_and_paths["controlnet"].extend(
+        [
+            "kolors/Kolors-ControlNet-Canny.safetensors",
+            "diffusion_pytorch_model_promax.safetensors",
+        ]
+    )
 
 
 init_config()
@@ -68,7 +91,4 @@ init_config()
 if __name__ == "__main__":
     print(f"Loaded config from {get_config_file_list()}")
     configs = [load_yaml_config(x) for x in get_config_file_list()]
-    # print(f'{configs}')
-    import pdb
-
-    pdb.set_trace()
+    print(get_filename_list("clip_vision"))

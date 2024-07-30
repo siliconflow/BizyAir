@@ -325,6 +325,52 @@ class BizyAir_ControlNetLoader(BizyAirBaseNode):
         return (node,)
 
 
+class BizyAir_ControlNetApplyAdvanced(BizyAirBaseNode):
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "positive": (data_types.CONDITIONING,),
+                "negative": (data_types.CONDITIONING,),
+                "control_net": (data_types.CONTROL_NET,),
+                "image": ("IMAGE",),
+                "strength": (
+                    "FLOAT",
+                    {"default": 1.0, "min": 0.0, "max": 10.0, "step": 0.01},
+                ),
+                "start_percent": (
+                    "FLOAT",
+                    {"default": 0.0, "min": 0.0, "max": 1.0, "step": 0.001},
+                ),
+                "end_percent": (
+                    "FLOAT",
+                    {"default": 1.0, "min": 0.0, "max": 1.0, "step": 0.001},
+                ),
+            }
+        }
+
+    RETURN_TYPES = (data_types.CONDITIONING, data_types.CONDITIONING)
+    RETURN_NAMES = ("positive", "negative")
+    FUNCTION = "apply_controlnet"
+
+    CATEGORY = "conditioning"
+
+    def apply_controlnet(self, **kwargs):
+        new_positive = kwargs["positive"].copy(self.assigned_id)
+        new_negative = kwargs["negative"].copy(self.assigned_id)
+        outs = [
+            new_positive,
+            new_negative,
+        ]
+        for slot_index, out in zip(range(0, 2), outs):
+            out.add_node_data(
+                class_type="ControlNetApplyAdvanced",
+                inputs=kwargs,
+                outputs={"slot_index": slot_index},
+            )
+        return outs
+
+
 class BizyAir_ControlNetApply(BizyAirBaseNode):
     @classmethod
     def INPUT_TYPES(s):

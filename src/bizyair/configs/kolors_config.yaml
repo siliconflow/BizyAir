@@ -1,6 +1,11 @@
 server_format:
   BizyAir_KSampler: KSampler
-  
+
+service_config:
+  service_address: http://0.0.0.0:9911
+  route: /supernode/bizyair-sdxl-comfy-ksampler
+  service_route: "{{ service_config.service_address }}{{ service_config.route }}"
+
 service_route: http://your-service-route-address
 
 class_types:

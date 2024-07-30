@@ -1,7 +1,8 @@
 import os
 from bizyair import BizyAirBaseNode
-from bizyair.data_types import MODEL, CLIP, CONDITIONING
+from bizyair.data_types import MODEL, CLIP, CONDITIONING, CONTROL_NET
 from bizyair.image_utils import BizyAirNodeIO, create_node_data
+from bizyair import path_utils as folder_paths
 
 AUTHOR_NAME = "MinusZone"
 CATEGORY_NAME = f"{AUTHOR_NAME} - Kolors"
@@ -12,7 +13,7 @@ class MZ_KolorsUNETLoaderV2(BizyAirBaseNode):
     def INPUT_TYPES(s):
         return {
             "required": {
-                "unet_name": (["kolors/kolors-unet.safetensors"],),
+                "unet_name": (folder_paths.get_filename_list("unet"),),
             }
         }
 
@@ -25,37 +26,16 @@ class MZ_KolorsUNETLoaderV2(BizyAirBaseNode):
     NODE_DISPLAY_NAME = f"{AUTHOR_NAME} - KolorsUNETLoaderV2"
 
     def load_unet(self, **kwargs):
-        current_directory = os.path.dirname(__file__)
-        config_file = os.path.join(current_directory, "config", "kolors_config.yaml")
 
         node_data = create_node_data(
             class_type="MZ_KolorsUNETLoaderV2",
             inputs=kwargs,
             outputs={"slot_index": 0},
         )
-        out = BizyAirNodeIO(self.assigned_id, {self.assigned_id: node_data})
-        return (out,)
-
-
-class MZ_IPAdapterModelLoaderKolors(BizyAirBaseNode):
-    @classmethod
-    def INPUT_TYPES(s):
-        return {
-            "required": {"ipadapter_file": (["kolors/ip_adapter_plus_general.bin"],)}
-        }
-
-    RETURN_TYPES = ("IPADAPTER",)
-    FUNCTION = "load_ipadapter_model"
-    CATEGORY = "ipadapter/loaders"
-    NODE_DISPLAY_NAME = f"IPAdapterModelLoader(kolors) - Legacy"
-
-    def load_ipadapter_model(self, **kwargs):
-        node_data = create_node_data(
-            class_type="MZ_IPAdapterModelLoaderKolors",
-            inputs=kwargs,
-            outputs={"slot_index": 0},
+        config_file = folder_paths.guess_config(unet_name=kwargs["unet_name"])
+        out = BizyAirNodeIO(
+            self.assigned_id, {self.assigned_id: node_data}, config_file=config_file
         )
-        out = BizyAirNodeIO(self.assigned_id, {self.assigned_id: node_data})
         return (out,)
 
 
@@ -78,56 +58,28 @@ WEIGHT_TYPES = [
 ]
 
 
-class MZ_IPAdapterAdvancedKolors(BizyAirBaseNode):
-    def __init__(self):
-        super().__init__()
-        self.unfold_batch = False
-
+class MZ_KolorsControlNetLoader(BizyAirBaseNode):
     @classmethod
     def INPUT_TYPES(s):
         return {
             "required": {
-                "model": (MODEL,),
-                "ipadapter": ("IPADAPTER",),
-                "image": ("IMAGE",),
-                "weight": (
-                    "FLOAT",
-                    {"default": 1.0, "min": -1, "max": 5, "step": 0.05},
-                ),
-                "weight_type": (WEIGHT_TYPES,),
-                "combine_embeds": (
-                    ["concat", "add", "subtract", "average", "norm average"],
-                ),
-                "start_at": (
-                    "FLOAT",
-                    {"default": 0.0, "min": 0.0, "max": 1.0, "step": 0.001},
-                ),
-                "end_at": (
-                    "FLOAT",
-                    {"default": 1.0, "min": 0.0, "max": 1.0, "step": 0.001},
-                ),
-                "embeds_scaling": (
-                    ["V only", "K+V", "K+V w/ C penalty", "K+mean(V) w/ C penalty"],
-                ),
-            },
-            "optional": {
-                "image_negative": ("IMAGE",),
-                "attn_mask": ("MASK",),
-                "clip_vision": ("CLIP_VISION",),
-            },
+                "control_net_name": (folder_paths.get_filename_list("controlnet"),),
+                # "seed": ("INT", {"default": 0, "min": 0, "max": 1000000}),
+            }
         }
 
-    RETURN_TYPES = (MODEL,)
-    RETURN_NAMES = ("model",)
-    FUNCTION = "apply_ipadapter"
-    CATEGORY = f"ipadapter"
-    NODE_DISPLAY_NAME = f"IPAdapterAdvanced(kolors) - Legacy"
+    RETURN_TYPES = (CONTROL_NET,)
+    RETURN_NAMES = ("ControlNet",)
+    FUNCTION = "load_controlnet"
 
-    def apply_ipadapter(self, **kwargs):
+    CATEGORY = CATEGORY_NAME
+
+    def load_controlnet(self, **kwargs):
         node_data = create_node_data(
-            class_type="MZ_IPAdapterAdvancedKolors",
+            class_type="MZ_KolorsControlNetLoader",
             inputs=kwargs,
             outputs={"slot_index": 0},
         )
-        out = BizyAirNodeIO(self.assigned_id, {self.assigned_id: node_data})
-        return (out,)
+        assigned_id = self.assigned_id
+        node = BizyAirNodeIO(assigned_id, {assigned_id: node_data})
+        return (node,)

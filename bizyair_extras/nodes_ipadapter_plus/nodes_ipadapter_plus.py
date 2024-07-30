@@ -1,6 +1,6 @@
 from bizyair import BizyAirBaseNode
 from bizyair.data_types import MODEL, CLIP, CONDITIONING
-from bizyair.image_utils import BizyAirNodeIO
+from bizyair.image_utils import BizyAirNodeIO, create_node_data
 import torch
 import os
 import math
@@ -166,6 +166,14 @@ class IPAdapterModelLoader(BizyAirBaseNode):
     RETURN_TYPES = ("IPADAPTER",)
     FUNCTION = "load_ipadapter_model"
     CATEGORY = "ipadapter/loaders"
+
+    def load_ipadapter_model(self, **kwargs):
+        node_data = create_node_data(
+            class_type="IPAdapterModelLoader",
+            inputs=kwargs,
+            outputs={"slot_index": 0},
+        )
+        return (BizyAirNodeIO(self.assigned_id, nodes={self.assigned_id: node_data}),)
 
 
 class IPAdapterInsightFaceLoader:

@@ -1,8 +1,9 @@
 import os
 import uuid
-
 import torch
-
+from bizyair.data_types import CONDITIONING
+from bizyair import create_node_data, BizyAirNodeIO, BizyAirBaseNode
+from bizyair.image_utils import encode_data
 from .utils import (
     decode_and_deserialize,
     send_post_request,
@@ -65,9 +66,44 @@ class BizyAirMZChatGLM3TextEncode:
         return (ret_conditioning,)
 
 
+class BizyAir_MinusZoneChatGLM3TextEncode(BizyAirMZChatGLM3TextEncode, BizyAirBaseNode):
+    RETURN_TYPES = (CONDITIONING,)
+
+    FUNCTION = "mz_encode"
+
+    def mz_encode(self, text):
+        out = self.encode(text)[0]
+        node_data = create_node_data(
+            class_type="ComfyAirLoadData",
+            inputs={"conditioning": {"relay": out}},
+            outputs={"slot_index": 3},
+        )
+        node_data["is_changed"] = uuid.uuid4().hex
+        return (
+            BizyAirNodeIO(
+                self.assigned_id, nodes={self.assigned_id: encode_data(node_data)}
+            ),
+        )
+
+
+class Debug_CONDITIONING:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {"required": {}, "optional": {"anything": ("*", {})}}
+
+    RETURN_TYPES = (CONDITIONING,)
+    FUNCTION = "call"
+
+    def call(self, anything):
+        return (anything,)
+
+
 NODE_CLASS_MAPPINGS = {
     "BizyAirMZChatGLM3TextEncode": BizyAirMZChatGLM3TextEncode,
+    "BizyAir_MinusZoneChatGLM3TextEncode": BizyAir_MinusZoneChatGLM3TextEncode,
+    "Debug_CONDITIONING": Debug_CONDITIONING,
 }
 NODE_DISPLAY_NAME_MAPPINGS = {
     "BizyAirMZChatGLM3TextEncode": "☁️BizyAir ChatGLM3 Text Encode",
+    "BizyAir_MinusZoneChatGLM3TextEncode": "☁️BizyAir MinusZone ChatGLM3 Text Encode",
 }

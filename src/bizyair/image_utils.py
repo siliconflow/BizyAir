@@ -115,6 +115,9 @@ class BizyAirNodeIO:
 
     @property
     def workflow_api(self):
+        # TODO (refine)
+        return {"prompt": self.nodes, "last_node_id": self.node_id}
+
         class_configs = self.configs.get("class_types", {})
         class_usage_count = {}
         for _, instance_info in self.nodes.items():
