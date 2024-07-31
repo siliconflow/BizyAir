@@ -41,10 +41,8 @@ def create_node_data(class_type: str, inputs: dict, outputs: dict):
     return out
 
 
-def set_api_key(self, API_KEY="YOUR_API_KEY"):
-    # TODO
-    # BizyAirNodeIO.API_KEY = API_KEY
-    pass
+def set_api_key(API_KEY="YOUR_API_KEY"):
+    BizyAirNodeIO.API_KEY = API_KEY
 
 
 class BizyAirNodeIO:
@@ -200,8 +198,10 @@ class BizyAirNodeIO:
                 self.nodes.update(other.nodes)
 
     def get_headers(self):
-        if self.API_KEY is None:
-            raise ValueError("API key is not set. Please provide a valid API key.")
+        if self.API_KEY is None or not self.API_KEY.startswith("sk-"):
+            raise ValueError(
+                f"API key is not set. Please provide a valid API key, {self.API_KEY=}"
+            )
 
         return {
             "accept": "application/json",
@@ -259,7 +259,9 @@ class BizyAirNodeIO:
 
             # result = process_events(api_url, self.workflow_api, self.API_KEY)
         else:
-            client = BizyAirRequestClient(api_url, self.workflow_api, self.API_KEY)
+            client = BizyAirRequestClient(
+                api_url, self.workflow_api, BizyAirNodeIO.API_KEY
+            )
             response_data = client.send_request()
             result = json.loads(response_data)
         if result is None:

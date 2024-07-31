@@ -6,13 +6,15 @@ __all__ = ["BizyAirRequestClient"]
 
 
 class BaseClient:
-    def __init__(self, api_url, api_key=None):
+    def __init__(self, api_url, api_key: str = None):
         self.api_url = api_url
-        self.API_KEY = api_key
+        self.API_KEY: str = api_key
 
     def get_headers(self, sse=False):
-        if self.API_KEY is None:
-            raise ValueError("API key is not set. Please provide a valid API key.")
+        if self.API_KEY is None or not self.API_KEY.startswith("sk-"):
+            raise ValueError(
+                f"API key is not set. Please provide a valid API key, {self.API_KEY=}"
+            )
 
         headers = {
             "accept": "application/json",
