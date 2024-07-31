@@ -11,7 +11,7 @@ import numpy as np
 import torch
 from PIL import Image
 import yaml
-from .client import BizyAirStreamClient
+from .client import BizyAirStreamClient, BizyAirRequestClient
 
 # Marker to identify base64-encoded tensors
 TENSOR_MARKER = "TENSOR:"
@@ -42,11 +42,13 @@ def create_node_data(class_type: str, inputs: dict, outputs: dict):
 
 
 def set_api_key(self, API_KEY="YOUR_API_KEY"):
-    BizyAirNodeIO.API_KEY = API_KEY
+    # TODO
+    # BizyAirNodeIO.API_KEY = API_KEY
+    pass
 
 
 class BizyAirNodeIO:
-    API_KEY = None
+    API_KEY = os.getenv("BIZYAIR_API_KEY", "YOUR_API_KEY")
 
     def __init__(
         self,
@@ -212,51 +214,56 @@ class BizyAirNodeIO:
         real_service_route = service_config["service_address"] + service_config["route"]
         return real_service_route
 
-    def send_request(self, url=None, headers=None, *, progress_callback=None) -> any:
+    def send_request(
+        self, url=None, headers=None, *, progress_callback=None, stream=False
+    ) -> any:
         # self._short_repr(self.nodes, max_length=100)
         # self._short_repr(self.workflow_api['prompt'], max_length=100)
         api_url = self.service_route()
+        if stream:
+            result = None
+            pass  # TODO(fix)
+            # def process_events(api_url, workflow_api, api_key):
+            #     total_steps = None
+            #     with BizyAirStreamClient(api_url, workflow_api, api_key) as stream_client:
+            #         for event_data in stream_client.events():
+            #             try:
+            #                 event_data = json.loads(event_data)["data"]
+            #             except json.JSONDecodeError as e:
+            #                 print(f"rror decoding JSON: {e}")
+            #                 print(f"Received data: {event_data}")
+            #                 raise e
 
-        # client = BizyAirRequestClient(api_url, self.workflow_api, self.API_KEY)
-        # response_data = client.send_request()
-        def process_events(api_url, workflow_api, api_key):
-            total_steps = None
-            with BizyAirStreamClient(api_url, workflow_api, api_key) as stream_client:
-                for event_data in stream_client.events():
-                    try:
-                        event_data = json.loads(event_data)["data"]
-                    except json.JSONDecodeError as e:
-                        print(f"Error decoding JSON: {e}")
-                        print(f"Received data: {event_data}")
-                        raise e
+            #             # if self.debug:
+            #             print(f"Debug Event Data: {self._short_repr(event_data, 100)}")
 
-                    if self.debug:
-                        print(f"Debug Event Data: {self._short_repr(event_data, 100)}")
+            #             status = event_data["status"]
+            #             data = event_data["data"]
+            #             pending_count = event_data.get("pending_tasks_count", None)
+            #             if status == TaskStatus.PENDING.value:
+            #                 print(
+            #                     f"Task is pending, current pending tasks count: {pending_count}"
+            #                 )
+            #             elif status == TaskStatus.PROCESSING.value:
+            #                 if "progress" in data and isinstance(data["progress"], dict):
+            #                     step, total_steps = (
+            #                         data["progress"]["value"],
+            #                         data["progress"]["total"],
+            #                     )
+            #                     progress_callback(step, total_steps, preview=None)
 
-                    status = event_data["status"]
-                    data = event_data["data"]
-                    pending_count = event_data.get("pending_tasks_count", None)
-                    if status == TaskStatus.PENDING.value:
-                        print(
-                            f"Task is pending, current pending tasks count: {pending_count}"
-                        )
-                    elif status == TaskStatus.PROCESSING.value:
-                        if "progress" in data and isinstance(data["progress"], dict):
-                            step, total_steps = (
-                                data["progress"]["value"],
-                                data["progress"]["total"],
-                            )
-                            progress_callback(step, total_steps, preview=None)
+            #             elif status == TaskStatus.COMPLETED.value:
+            #                 if total_steps:
+            #                     progress_callback(total_steps, total_steps, preview=None)
+            #                 return event_data
 
-                    elif status == TaskStatus.COMPLETED.value:
-                        result = event_data
-                        if total_steps:
-                            progress_callback(total_steps, total_steps, preview=None)
-                        break
-
-            return result
-
-        result = process_events(api_url, self.workflow_api, self.API_KEY)
+            # result = process_events(api_url, self.workflow_api, self.API_KEY)
+        else:
+            client = BizyAirRequestClient(api_url, self.workflow_api, self.API_KEY)
+            response_data = client.send_request()
+            result = json.loads(response_data)
+        if result is None:
+            raise RuntimeError("result is None")
         if "result" in result:  # cloud
             msg = json.loads(result["result"])
             if "error" in msg:
