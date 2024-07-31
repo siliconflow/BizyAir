@@ -224,8 +224,11 @@ class AuraSR:
         ret: str = send_post_request(self.API_URL, payload=payload, headers=headers)
         ret = json.loads(ret)
 
-        if "result" in ret:
-            ret = json.loads(ret["result"])
+        try:
+            if "result" in ret:
+                ret = json.loads(ret["result"])
+        except Exception as e:
+            raise Exception(f"Unexpected response: {ret}")
 
         if ret["status"] == "error":
             raise Exception(ret["message"])
