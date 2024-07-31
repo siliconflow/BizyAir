@@ -53,7 +53,7 @@ SHOW_CASES = [
         "file": "bizyair_showcase_run_with_local_nodes.json",
     },
     {
-        "title": "Kolors ControlNet Canny",
+        "title": "Kolors ControlNet Depth",
         "file": "bizyair_kolors_controlnet.json",
     },
     {"title": "Kolors Inpainting", "file": "bizyair_kolors_inpainting.json"},
