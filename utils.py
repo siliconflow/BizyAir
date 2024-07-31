@@ -92,6 +92,11 @@ def decode_and_deserialize(response_text) -> np.ndarray:
         # TODO: change both server and client "comfyair" to "bizyair"
         raise Exception(f"Unexpected response type: {msg}")
 
+    if "result" in ret:
+        msg = json.loads(ret["result"])
+    else:
+        msg = ret
+
     data = msg["data"]
 
     tensor_bytes = base64.b64decode(data["payload"])

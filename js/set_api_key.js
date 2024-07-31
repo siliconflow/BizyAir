@@ -95,10 +95,4 @@ or you can only use nodes locally.`);
             };
         }
     },
-
-    async nodeCreated(node) {
-        if (node.widgets[0].name === 'API_KEY' && node.widgets[0].value === 'YOUR_API_KEY') {
-            alert(`The Set API Key node will be deprecated, available until 2024/08/15. Please click "BizyAir Key" button to set API key instead.`);
-        }
-    }
 });
