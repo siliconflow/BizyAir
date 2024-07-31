@@ -98,7 +98,7 @@ async def set_api_key(request):
     try:
         if api_key:
             response = web.Response(text="ok")
-            response.set_cookie("api_key", api_key)
+            response.set_cookie("api_key", api_key, max_age=30 * 24 * 60 * 60)
             API_KEY = api_key
             bizyair.set_api_key(API_KEY)
             return response
@@ -127,8 +127,7 @@ async def get_api_key(request):
         if api_key:
             API_KEY = api_key
             response = web.Response(text="ok")
-            response.set_cookie("api_key", api_key)
-            bizyair.set_api_key(API_KEY)
+
             return response
         else:
             return web.Response(
