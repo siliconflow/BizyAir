@@ -267,11 +267,16 @@ class BizyAirNodeIO:
 
         if result is None:
             raise RuntimeError("result is None")
+
         if "result" in result:  # cloud
             msg = json.loads(result["result"])
-            if "error" in msg:
-                raise RuntimeError(f"{msg['error']}")
-            out = msg["data"]["payload"]
+            try:
+                out = msg["data"]["payload"]
+            except Exception as e:
+                raise RuntimeError(
+                    f'Unexpected error accessing result["data"]["payload"]. Result: {msg}'
+                ) from e
+
         else:  # local
             try:
                 out = result["data"]["payload"]

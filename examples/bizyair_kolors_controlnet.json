@@ -1,0 +1,626 @@
+{
+  "last_node_id": 88,
+  "last_link_id": 148,
+  "nodes": [
+    {
+      "id": 81,
+      "type": "BizyAir_MinusZoneChatGLM3TextEncode",
+      "pos": [
+        997,
+        1526
+      ],
+      "size": {
+        "0": 408.05731201171875,
+        "1": 76.00006103515625
+      },
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "BIZYAIR_CONDITIONING",
+          "type": "BIZYAIR_CONDITIONING",
+          "links": [
+            133
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_MinusZoneChatGLM3TextEncode"
+      },
+      "widgets_values": [
+        "nsfw，脸部阴影，低分辨率，jpeg伪影、模糊、糟糕，黑脸，霓虹灯"
+      ]
+    },
+    {
+      "id": 71,
+      "type": "BizyAir_ControlNetApplyAdvanced",
+      "pos": [
+        1481,
+        1267
+      ],
+      "size": {
+        "0": 386.8606872558594,
+        "1": 174.17922973632812
+      },
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "positive",
+          "type": "BIZYAIR_CONDITIONING",
+          "link": 132,
+          "slot_index": 0
+        },
+        {
+          "name": "negative",
+          "type": "BIZYAIR_CONDITIONING",
+          "link": 133
+        },
+        {
+          "name": "control_net",
+          "type": "BIZYAIR_CONTROL_NET",
+          "link": 141,
+          "slot_index": 2
+        },
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 147,
+          "slot_index": 3
+        }
+      ],
+      "outputs": [
+        {
+          "name": "positive",
+          "type": "BIZYAIR_CONDITIONING",
+          "links": [
+            142
+          ],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "negative",
+          "type": "BIZYAIR_CONDITIONING",
+          "links": [
+            143
+          ],
+          "shape": 3,
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_ControlNetApplyAdvanced"
+      },
+      "widgets_values": [
+        0.7000000000000001,
+        0,
+        1
+      ]
+    },
+    {
+      "id": 73,
+      "type": "BizyAir_KSampler",
+      "pos": [
+        1925,
+        1274
+      ],
+      "size": {
+        "0": 315,
+        "1": 262
+      },
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "BIZYAIR_MODEL",
+          "link": 125
+        },
+        {
+          "name": "positive",
+          "type": "BIZYAIR_CONDITIONING",
+          "link": 142
+        },
+        {
+          "name": "negative",
+          "type": "BIZYAIR_CONDITIONING",
+          "link": 143
+        },
+        {
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 144,
+          "slot_index": 3
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            130
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_KSampler"
+      },
+      "widgets_values": [
+        1,
+        "fixed",
+        20,
+        4.5,
+        "euler",
+        "ddim_uniform",
+        1
+      ]
+    },
+    {
+      "id": 75,
+      "type": "BizyAir_VAELoader",
+      "pos": [
+        999,
+        1650
+      ],
+      "size": {
+        "0": 403.3641662597656,
+        "1": 58
+      },
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "vae",
+          "type": "BIZYAIR_VAE",
+          "links": [
+            129
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_VAELoader"
+      },
+      "widgets_values": [
+        "sdxl/sdxl_vae.safetensors"
+      ]
+    },
+    {
+      "id": 80,
+      "type": "BizyAir_MinusZoneChatGLM3TextEncode",
+      "pos": [
+        999,
+        1386
+      ],
+      "size": {
+        "0": 397.9794006347656,
+        "1": 84.60899353027344
+      },
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "BIZYAIR_CONDITIONING",
+          "type": "BIZYAIR_CONDITIONING",
+          "links": [
+            132
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_MinusZoneChatGLM3TextEncode"
+      },
+      "widgets_values": [
+        "新海诚风格，丰富的色彩，穿着绿色衬衫的女人站在田野里，唯美风景，清新明亮，斑驳的光影，最好的质量，超细节，8K画质。"
+      ]
+    },
+    {
+      "id": 70,
+      "type": "BizyAir_MZ_KolorsUNETLoaderV2",
+      "pos": [
+        1000,
+        1262
+      ],
+      "size": {
+        "0": 398.9453430175781,
+        "1": 58
+      },
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "model",
+          "type": "BIZYAIR_MODEL",
+          "links": [
+            125
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_MZ_KolorsUNETLoaderV2"
+      },
+      "widgets_values": [
+        "kolors/Kolors.safetensors"
+      ]
+    },
+    {
+      "id": 87,
+      "type": "BizyAirCannyEdgePreprocessor",
+      "pos": [
+        1479,
+        1495
+      ],
+      "size": [
+        388.2254638671875,
+        106
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 146
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            147,
+            148
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAirCannyEdgePreprocessor"
+      },
+      "widgets_values": [
+        100,
+        200,
+        512
+      ]
+    },
+    {
+      "id": 85,
+      "type": "EmptyLatentImage",
+      "pos": [
+        1912,
+        1589
+      ],
+      "size": {
+        "0": 315,
+        "1": 106
+      },
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            144
+          ],
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "EmptyLatentImage"
+      },
+      "widgets_values": [
+        512,
+        512,
+        1
+      ]
+    },
+    {
+      "id": 86,
+      "type": "PreviewImage",
+      "pos": [
+        2249,
+        1409
+      ],
+      "size": [
+        520.6081220138167,
+        565.2921889123836
+      ],
+      "flags": {},
+      "order": 12,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 145
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      }
+    },
+    {
+      "id": 76,
+      "type": "BizyAir_VAEDecode",
+      "pos": [
+        2277,
+        1288
+      ],
+      "size": [
+        479.59502319335934,
+        46
+      ],
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 130
+        },
+        {
+          "name": "vae",
+          "type": "BIZYAIR_VAE",
+          "link": 129
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            145
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_VAEDecode"
+      }
+    },
+    {
+      "id": 88,
+      "type": "PreviewImage",
+      "pos": [
+        1932,
+        1739
+      ],
+      "size": [
+        288.78471246337904,
+        216.74874255371083
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 148
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      }
+    },
+    {
+      "id": 64,
+      "type": "LoadImage",
+      "pos": [
+        1483,
+        1650
+      ],
+      "size": [
+        378.1456521807861,
+        300.88449047607423
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            146
+          ],
+          "shape": 3,
+          "label": "图像",
+          "slot_index": 0
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null,
+          "shape": 3,
+          "label": "遮罩"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "example.png",
+        "image"
+      ]
+    },
+    {
+      "id": 84,
+      "type": "BizyAir_MZ_KolorsControlNetLoader",
+      "pos": [
+        1014,
+        1774
+      ],
+      "size": {
+        "0": 383.1509094238281,
+        "1": 58
+      },
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "ControlNet",
+          "type": "BIZYAIR_CONTROL_NET",
+          "links": [
+            141
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_MZ_KolorsControlNetLoader"
+      },
+      "widgets_values": [
+        "kolors/Kolors-ControlNet-Canny.safetensors"
+      ]
+    }
+  ],
+  "links": [
+    [
+      125,
+      70,
+      0,
+      73,
+      0,
+      "BIZYAIR_MODEL"
+    ],
+    [
+      129,
+      75,
+      0,
+      76,
+      1,
+      "BIZYAIR_VAE"
+    ],
+    [
+      130,
+      73,
+      0,
+      76,
+      0,
+      "LATENT"
+    ],
+    [
+      132,
+      80,
+      0,
+      71,
+      0,
+      "BIZYAIR_CONDITIONING"
+    ],
+    [
+      133,
+      81,
+      0,
+      71,
+      1,
+      "BIZYAIR_CONDITIONING"
+    ],
+    [
+      141,
+      84,
+      0,
+      71,
+      2,
+      "BIZYAIR_CONTROL_NET"
+    ],
+    [
+      142,
+      71,
+      0,
+      73,
+      1,
+      "BIZYAIR_CONDITIONING"
+    ],
+    [
+      143,
+      71,
+      1,
+      73,
+      2,
+      "BIZYAIR_CONDITIONING"
+    ],
+    [
+      144,
+      85,
+      0,
+      73,
+      3,
+      "LATENT"
+    ],
+    [
+      145,
+      76,
+      0,
+      86,
+      0,
+      "IMAGE"
+    ],
+    [
+      146,
+      64,
+      0,
+      87,
+      0,
+      "IMAGE"
+    ],
+    [
+      147,
+      87,
+      0,
+      71,
+      3,
+      "IMAGE"
+    ],
+    [
+      148,
+      87,
+      0,
+      88,
+      0,
+      "IMAGE"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.6830134553650711,
+      "offset": {
+        "0": -973.8326416015625,
+        "1": -1183.8857421875
+      }
+    },
+    "workspace_info": {
+      "id": "ckS1tBu-IMHBxD8SZ6K-k",
+      "saveLock": false,
+      "cloudID": null,
+      "coverMediaPath": null
+    }
+  },
+  "version": 0.4
+}

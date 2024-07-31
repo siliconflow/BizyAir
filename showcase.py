@@ -52,6 +52,15 @@ SHOW_CASES = [
         "title": "Run BizyAir nodes with local nodes",
         "file": "bizyair_showcase_run_with_local_nodes.json",
     },
+    {
+        "title": "Kolors ControlNet Canny",
+        "file": "bizyair_kolors_controlnet.json",
+    },
+    {"title": "Kolors Inpainting", "file": "bizyair_kolors_inpainting.json"},
+    {
+        "title": "Kolors IP-Adapter",
+        "file": "bizyair_kolors_ipa.json",
+    },
 ]
 
 file_whitelist = [item["file"] for item in SHOW_CASES]

@@ -1,0 +1,452 @@
+{
+  "last_node_id": 35,
+  "last_link_id": 45,
+  "nodes": [
+    {
+      "id": 28,
+      "type": "BizyAir_KSampler",
+      "pos": [
+        1021,
+        927
+      ],
+      "size": [
+        350.9411471142612,
+        267.58579465664025
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "BIZYAIR_MODEL",
+          "link": 31
+        },
+        {
+          "name": "positive",
+          "type": "BIZYAIR_CONDITIONING",
+          "link": 43
+        },
+        {
+          "name": "negative",
+          "type": "BIZYAIR_CONDITIONING",
+          "link": 44
+        },
+        {
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 45
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            35
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_KSampler"
+      },
+      "widgets_values": [
+        2,
+        "fixed",
+        20,
+        5,
+        "euler",
+        "ddim_uniform",
+        1
+      ]
+    },
+    {
+      "id": 25,
+      "type": "BizyAir_MZ_KolorsUNETLoaderV2",
+      "pos": [
+        1025,
+        816
+      ],
+      "size": [
+        342.2160813742162,
+        58
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "model",
+          "type": "BIZYAIR_MODEL",
+          "links": [
+            31
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_MZ_KolorsUNETLoaderV2"
+      },
+      "widgets_values": [
+        "kolors/Kolors-Inpainting.safetensors"
+      ]
+    },
+    {
+      "id": 27,
+      "type": "BizyAir_VAELoader",
+      "pos": [
+        594,
+        822
+      ],
+      "size": [
+        407.9100602491736,
+        63.83865895260544
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "vae",
+          "type": "BIZYAIR_VAE",
+          "links": [
+            30,
+            36
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_VAELoader"
+      },
+      "widgets_values": [
+        "sdxl/sdxl_vae.safetensors"
+      ]
+    },
+    {
+      "id": 26,
+      "type": "BizyAir_VAEEncodeForInpaint",
+      "pos": [
+        1026,
+        1240
+      ],
+      "size": [
+        347.9520019531251,
+        98
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "pixels",
+          "type": "IMAGE",
+          "link": 28
+        },
+        {
+          "name": "vae",
+          "type": "BIZYAIR_VAE",
+          "link": 30
+        },
+        {
+          "name": "mask",
+          "type": "MASK",
+          "link": 29
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            45
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_VAEEncodeForInpaint"
+      },
+      "widgets_values": [
+        0
+      ]
+    },
+    {
+      "id": 29,
+      "type": "BizyAir_MinusZoneChatGLM3TextEncode",
+      "pos": [
+        587,
+        942
+      ],
+      "size": [
+        407.52370605468764,
+        126.94926452636719
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "BIZYAIR_CONDITIONING",
+          "type": "BIZYAIR_CONDITIONING",
+          "links": [
+            43
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_MinusZoneChatGLM3TextEncode"
+      },
+      "widgets_values": [
+        "穿着美少女战士的衣服，一件类似于水手服风格的衣服，包括一个白色紧身上衣，前胸搭配一个大大的红色蝴蝶结。衣服的领子部分呈蓝色，并且有白色条纹。她还穿着一条蓝色百褶裙，超高清，辛烷渲染，高级质感，32k，高分辨率，最好的质量，超级细节，景深"
+      ]
+    },
+    {
+      "id": 30,
+      "type": "BizyAir_MinusZoneChatGLM3TextEncode",
+      "pos": [
+        595,
+        1117
+      ],
+      "size": [
+        406.75458984374995,
+        76
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "BIZYAIR_CONDITIONING",
+          "type": "BIZYAIR_CONDITIONING",
+          "links": [
+            44
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_MinusZoneChatGLM3TextEncode"
+      },
+      "widgets_values": [
+        "nsfw，脸部阴影，低分辨率，jpeg伪影、模糊、糟糕，黑脸，霓虹灯"
+      ]
+    },
+    {
+      "id": 33,
+      "type": "PreviewImage",
+      "pos": [
+        1415,
+        905
+      ],
+      "size": [
+        392.5175018310547,
+        440.3509521484375
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 37
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      }
+    },
+    {
+      "id": 32,
+      "type": "BizyAir_VAEDecode",
+      "pos": [
+        1415,
+        813
+      ],
+      "size": [
+        371.14935376104927,
+        46
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 35
+        },
+        {
+          "name": "vae",
+          "type": "BIZYAIR_VAE",
+          "link": 36,
+          "slot_index": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            37
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_VAEDecode"
+      }
+    },
+    {
+      "id": 21,
+      "type": "LoadImage",
+      "pos": [
+        275,
+        825
+      ],
+      "size": [
+        298.87584164373663,
+        385.88618378671435
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            28
+          ],
+          "shape": 3,
+          "label": "图像",
+          "slot_index": 0
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": [
+            29
+          ],
+          "shape": 3,
+          "label": "遮罩",
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "clipspace/clipspace-mask-49994.90000009537.png [input]",
+        "image"
+      ]
+    }
+  ],
+  "links": [
+    [
+      28,
+      21,
+      0,
+      26,
+      0,
+      "IMAGE"
+    ],
+    [
+      29,
+      21,
+      1,
+      26,
+      2,
+      "MASK"
+    ],
+    [
+      30,
+      27,
+      0,
+      26,
+      1,
+      "BIZYAIR_VAE"
+    ],
+    [
+      31,
+      25,
+      0,
+      28,
+      0,
+      "BIZYAIR_MODEL"
+    ],
+    [
+      35,
+      28,
+      0,
+      32,
+      0,
+      "LATENT"
+    ],
+    [
+      36,
+      27,
+      0,
+      32,
+      1,
+      "BIZYAIR_VAE"
+    ],
+    [
+      37,
+      32,
+      0,
+      33,
+      0,
+      "IMAGE"
+    ],
+    [
+      43,
+      29,
+      0,
+      28,
+      1,
+      "BIZYAIR_CONDITIONING"
+    ],
+    [
+      44,
+      30,
+      0,
+      28,
+      2,
+      "BIZYAIR_CONDITIONING"
+    ],
+    [
+      45,
+      26,
+      0,
+      28,
+      3,
+      "LATENT"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "workspace_info": {
+      "id": "TKSZ5XMzonRsm7MzObd2l"
+    },
+    "ds": {
+      "scale": 0.8264462809917354,
+      "offset": {
+        "0": -3.2640974521636963,
+        "1": -469.42144775390625
+      }
+    }
+  },
+  "version": 0.4
+}
