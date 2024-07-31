@@ -127,7 +127,7 @@ async def get_api_key(request):
         if api_key:
             API_KEY = api_key
             response = web.Response(text="ok")
-
+            bizyair.set_api_key(API_KEY)
             return response
         else:
             return web.Response(
