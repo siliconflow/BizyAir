@@ -307,21 +307,22 @@ def decode_comfy_image(img_data: Union[List, str], image_format="png") -> torch.
     return output
 
 
-def tensor_to_base64(tensor: torch.Tensor) -> str:
+def tensor_to_base64(tensor: torch.Tensor, compress=True) -> str:
     tensor_np = tensor.cpu().detach().numpy()
 
     tensor_bytes = pickle.dumps(tensor_np)
-
-    tensor_bytes = zlib.compress(tensor_bytes)
+    if compress:
+        tensor_bytes = zlib.compress(tensor_bytes)
 
     tensor_b64 = base64.b64encode(tensor_bytes).decode("utf-8")
     return tensor_b64
 
 
-def base64_to_tensor(tensor_b64: str) -> torch.Tensor:
+def base64_to_tensor(tensor_b64: str, compress=True) -> torch.Tensor:
     tensor_bytes = base64.b64decode(tensor_b64)
 
-    tensor_bytes = zlib.decompress(tensor_bytes)
+    if compress:
+        tensor_bytes = zlib.decompress(tensor_bytes)
 
     tensor_np = pickle.loads(tensor_bytes)
 
