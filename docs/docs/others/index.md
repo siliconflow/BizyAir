@@ -1,3 +1,7 @@
+## ☁️BizyAir Photorealistic Image Super Resolution
+
+This node helps you enlarge the image 4 times, suitable for non-cartoon images.
+
 ## ☁️BizyAir Anime Image Super Resolution
 
 This node helps you enhance the resolution of your input cartoon images. You can choose to upscale them by 2x or 4x.

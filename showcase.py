@@ -9,6 +9,10 @@ CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 SHOW_CASES = [
     {
+        "title": "Super Resolution",
+        "file": "bizyair_showcase_realistic_superresolution.json",  
+    },
+    {
         "title": "Remove the background from the image",
         "file": "bizyair_showcase_remove_background.json",
     },
