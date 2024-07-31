@@ -104,6 +104,6 @@ NODE_CLASS_MAPPINGS = {
     "Debug_CONDITIONING": Debug_CONDITIONING,
 }
 NODE_DISPLAY_NAME_MAPPINGS = {
-    "BizyAirMZChatGLM3TextEncode": "☁️BizyAir ChatGLM3 Text Encode",
+    "BizyAirMZChatGLM3TextEncode": "☁️BizyAir ChatGLM3 Text Encode(deprecated)",
     "BizyAir_MinusZoneChatGLM3TextEncode": "☁️BizyAir MinusZone ChatGLM3 Text Encode",
 }
