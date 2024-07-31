@@ -103,21 +103,6 @@ def init_config():
                 else:
                     folder_names_and_paths[folder_key].extend(inputs[key])
 
-    if "unet" not in folder_names_and_paths:
-        folder_names_and_paths["unet"] = []
-    folder_names_and_paths["unet"].extend(
-        ["kolors/kolors-unet.safetensors", "Kolors-Inpainting.safetensors"]
-    )
-
-    if "controlnet" not in folder_names_and_paths:
-        folder_names_and_paths["controlnet"] = []
-    folder_names_and_paths["controlnet"].extend(
-        [
-            "kolors/Kolors-ControlNet-Canny.safetensors",
-            "diffusion_pytorch_model_promax.safetensors",
-        ]
-    )
-
     models_file = os.path.join(base_path, "configs", "models.json")
     models_data = load_json(models_file)
     for k, v in models_data.items():
