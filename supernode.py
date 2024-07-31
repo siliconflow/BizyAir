@@ -1,3 +1,4 @@
+import json
 import os
 import uuid
 
@@ -9,6 +10,8 @@ from .utils import (
     serialize_and_encode,
     get_api_key,
 )
+
+from .image_utils import encode_data, decode_data
 
 BIZYAIR_SERVER_ADDRESS = os.getenv(
     "BIZYAIR_SERVER_ADDRESS", "https://api.siliconflow.cn"
@@ -30,7 +33,7 @@ class SuperResolution:
     RETURN_TYPES = ("IMAGE",)
     FUNCTION = "super_resolution"
 
-    CATEGORY = "☁️BizyAir"
+    CATEGORY = "☁️BizyAir/Super Resolution"
 
     def super_resolution(self, image, scale="2x"):
         API_KEY = get_api_key()
@@ -176,12 +179,82 @@ class GenerateLightningImage:
         return (tensors,)
 
 
+class AuraSR:
+    API_URL = f"{BIZYAIR_SERVER_ADDRESS}/supernode/aurasr"
+
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "image": ("IMAGE",),
+            }
+        }
+
+    RETURN_TYPES = ("IMAGE",)
+    FUNCTION = "super_resolution"
+
+    CATEGORY = "☁️BizyAir/Super Resolution"
+
+    def super_resolution(self, image):
+        API_KEY = get_api_key()
+        SIZE_LIMIT = 1536
+        device = image.device
+        _, w, h, c = image.shape
+        assert (
+            w <= SIZE_LIMIT and h <= SIZE_LIMIT
+        ), f"width and height must be less than {SIZE_LIMIT}x{SIZE_LIMIT}, but got {w} and {h}"
+
+        # support RGB mode only now
+        image = image[:, :, :, :3]
+
+        payload = {
+            "is_compress": True,
+            "image": None,
+        }
+        auth = f"Bearer {API_KEY}"
+        headers = {
+            "accept": "application/json",
+            "content-type": "application/json",
+            "authorization": auth,
+        }
+        input_image = encode_data(image)
+        payload["image"] = input_image
+        payload["is_compress"] = True
+
+        ret: str = send_post_request(self.API_URL, payload=payload, headers=headers)
+        ret = json.loads(ret)
+
+        try:
+            if "result" in ret:
+                ret = json.loads(ret["result"])
+        except Exception as e:
+            raise Exception(f"Unexpected response: {ret}")
+
+        if ret["status"] == "error":
+            raise Exception(ret["message"])
+
+        msg = ret["data"]
+        if msg["type"] not in (
+            "comfyair",
+            "bizyair",
+        ):
+            raise Exception(f"Unexpected response type: {msg}")
+
+        image_b64 = msg["data"]["payload"]
+
+        image = decode_data(image_b64)
+        image = image.to(device)
+        return (image,)
+
+
 NODE_CLASS_MAPPINGS = {
     "BizyAirSuperResolution": SuperResolution,
     "BizyAirRemoveBackground": RemoveBackground,
     "BizyAirGenerateLightningImage": GenerateLightningImage,
+    "BizyAirAuraSR": AuraSR,
 }
 NODE_DISPLAY_NAME_MAPPINGS = {
+    "BizyAirAuraSR": "☁️BizyAir Photorealistic Image Super Resolution",
     "BizyAirSuperResolution": "☁️BizyAir Anime Image Super Resolution",
     "BizyAirRemoveBackground": "☁️BizyAir Remove Image Background",
     "BizyAirGenerateLightningImage": "☁️BizyAir Generate Photorealistic Images",
