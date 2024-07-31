@@ -264,6 +264,7 @@ class BizyAirNodeIO:
             )
             response_data = client.send_request()
             result = json.loads(response_data)
+
         if result is None:
             raise RuntimeError("result is None")
         if "result" in result:  # cloud
@@ -272,7 +273,12 @@ class BizyAirNodeIO:
                 raise RuntimeError(f"{msg['error']}")
             out = msg["data"]["payload"]
         else:  # local
-            out = result["data"]["payload"]
+            try:
+                out = result["data"]["payload"]
+            except Exception as e:
+                raise RuntimeError(
+                    f'Unexpected error accessing result["data"]["payload"]. Result: {result}'
+                ) from e
 
         real_out = decode_data(out)
         return real_out[0]
