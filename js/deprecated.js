@@ -7,6 +7,7 @@ app.registerExtension({
     async beforeRegisterNodeDef(nodeType, nodeData, app) {
         const warning_msg = {
             "BizyAirSetAPIKey": "It will be available until 2024/08/15. Please click \"BizyAir Key\" button to set API key instead.",
+            "BizyAirMZChatGLM3TextEncode": "It will be available until 2024/08/15. Please use \"☁️BizyAir MinusZone ChatGLM3 Text Encode\" node instead."
             //"BizyAirSuperResolution": "It will be available until 2024/08/31. Please use \"☁️BizyAir Image Super Resolution\" node instead.",
         }
         if (Object.keys(warning_msg).includes(nodeData.name)) {
