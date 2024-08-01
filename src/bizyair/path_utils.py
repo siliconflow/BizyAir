@@ -82,27 +82,6 @@ def load_json(file_path: str) -> dict:
 
 def init_config():
     global folder_names_and_paths
-
-    class_type_key_mapping = {
-        "CheckpointLoaderSimple": ["ckpt_name", "checkpoints"],
-        "ControlNetLoader": ["control_net_name", "controlnet"],
-        "LoraLoader": ["lora_name", "loras"],
-        "CLIPVisionLoader": ["clip_name", "clip_vision"],
-        "VAELoader": ["vae_name", "vae"],
-    }
-    for path in get_config_file_list():
-        config = load_yaml_config(path)
-        for class_type in config["class_types"]:
-            inputs = config["class_types"][class_type].get("inputs", {})
-            if class_type in class_type_key_mapping:
-                key, folder_key = class_type_key_mapping[class_type]
-                if folder_key not in folder_names_and_paths:
-                    folder_names_and_paths[folder_key] = []
-                if key not in inputs:
-                    print(f"Warning: no find limit for {class_type=} {key=}")
-                else:
-                    folder_names_and_paths[folder_key].extend(inputs[key])
-
     models_file = os.path.join(base_path, "configs", "models.json")
     models_data = load_json(models_file)
     for k, v in models_data.items():

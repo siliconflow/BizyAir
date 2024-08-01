@@ -86,22 +86,10 @@ class BizyAir_MinusZoneChatGLM3TextEncode(BizyAirMZChatGLM3TextEncode, BizyAirBa
         )
 
 
-class Debug_CONDITIONING:
-    @classmethod
-    def INPUT_TYPES(s):
-        return {"required": {}, "optional": {"anything": ("*", {})}}
-
-    RETURN_TYPES = (CONDITIONING,)
-    FUNCTION = "call"
-
-    def call(self, anything):
-        return (anything,)
-
 
 NODE_CLASS_MAPPINGS = {
     "BizyAirMZChatGLM3TextEncode": BizyAirMZChatGLM3TextEncode,
     "BizyAir_MinusZoneChatGLM3TextEncode": BizyAir_MinusZoneChatGLM3TextEncode,
-    "Debug_CONDITIONING": Debug_CONDITIONING,
 }
 NODE_DISPLAY_NAME_MAPPINGS = {
     "BizyAirMZChatGLM3TextEncode": "☁️BizyAir ChatGLM3 Text Encode(deprecated)",

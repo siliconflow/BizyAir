@@ -85,6 +85,25 @@ set_api_key_html = """
 """
 
 
+def load_api_key():
+    current_directory = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(current_directory, "api_key.ini")
+
+    if os.path.exists(file_path):
+        config = configparser.ConfigParser()
+        config.read(file_path)
+        api_key: str = config.get("auth", "api_key", fallback="").strip().strip("'\"")
+        has_key = api_key.startswith("sk-")
+        return has_key, api_key
+    else:
+        return False, ""
+
+
+has_key, api_key = load_api_key()
+if has_key:
+    API_KEY = api_key
+
+
 @server.PromptServer.instance.routes.get("/bizyair/set-api-key")
 async def set_api_key_page(request):
     return web.Response(text=set_api_key_html, content_type="text/html")
@@ -93,6 +112,11 @@ async def set_api_key_page(request):
 @server.PromptServer.instance.routes.post("/bizyair/set_api_key")
 async def set_api_key(request):
     global API_KEY
+    has_key, api_key = load_api_key()
+    if has_key:
+        API_KEY = api_key
+        bizyair.set_api_key(API_KEY)
+        return web.Response(text="Key has been loaded from the api_key.ini file")
     data = await request.post()
     api_key = data.get("api_key")
     try:
@@ -114,13 +138,12 @@ async def set_api_key(request):
 @server.PromptServer.instance.routes.get("/bizyair/get_api_key")
 async def get_api_key(request):
     global API_KEY
-    api_key = ""
-    current_directory = os.path.dirname(os.path.abspath(__file__))
-    file_path = os.path.join(current_directory, "api_key.ini")
-    if os.path.exists(file_path):
-        config = configparser.ConfigParser()
-        config.read(file_path)
-        api_key = config.get("auth", "api_key", fallback="").strip()
+    has_key, api_key = load_api_key()
+    if has_key:
+        API_KEY = api_key
+        bizyair.set_api_key(API_KEY)
+        return web.Response(text="Key has been loaded from the api_key.ini file")
+
     if api_key == "":
         api_key = request.cookies.get("api_key")
     try:

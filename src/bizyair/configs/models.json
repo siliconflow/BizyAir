@@ -1,17 +1,7 @@
 {
     "checkpoints": {
       "sdxl": [
-        "counterfeitxl_v25.safetensors",
-        "dreamshaperXL_lightningDPMSDE.safetensors",
-        "dreamshaperXL_v21TurboDPMSDE.safetensors",
-        "HelloWorldXL_v70.safetensors",
-        "juggernautXL_v9Rdphoto2Lightning.safetensors",
-        "Juggernaut-XL_v9_RunDiffusionPhoto_v2.safetensors",
-        "Juggernaut_X_RunDiffusion_Hyper.safetensors",
-        "Juggernaut-X-RunDiffusion-NSFW.safetensors",
-        "mannEDreams_v004.safetensors",
-        "realisticStockPhoto_v20.safetensors",
-        "samaritan3dCartoon_v40SDXL.safetensors"
+        "Juggernaut-XL_v9_RunDiffusionPhoto_v2.safetensors"
       ]
     },
     "clip_vision": {
@@ -31,19 +21,7 @@
         "diffusion_pytorch_model_promax.safetensors"
       ]
     },
-    "instantid": [
-      "ip-adapter.bin"
-    ],
     "ipadapter": {
-      "models": [
-        "ip-adapter-faceid-plusv2_sdxl.bin",
-        "ip-adapter-faceid-portrait_sdxl.bin",
-        "ip-adapter-faceid-portrait_sdxl_unnorm.bin",
-        "ip-adapter-faceid_sdxl.bin",
-        "ip-adapter-plus-face_sdxl_vit-h.safetensors",
-        "ip-adapter-plus_sd15.safetensors",
-        "ip-adapter-plus_sdxl_vit-h.safetensors"
-      ],
       "kolors": [
         "ip_adapter_plus_general.bin"
       ]
@@ -51,8 +29,6 @@
     "loras": {
       "sdxl": [
         "Cute_Animals.safetensors",
-        "ip-adapter-faceid-plusv2_sdxl_lora.safetensors",
-        "ip-adapter-faceid_sdxl_lora.safetensors",
         "watercolor_v1_sdxl_lora.safetensors"
       ]
     },
