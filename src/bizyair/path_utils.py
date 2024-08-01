@@ -4,9 +4,8 @@ import json
 from pathlib import Path
 from typing import Any, List
 
-SupportedFileExtensionsType = set[str]
 ScanPathType = list[str]
-folder_names_and_paths: dict[str, tuple[ScanPathType, SupportedFileExtensionsType]] = {}
+folder_names_and_paths: dict[str, ScanPathType] = {}
 base_path = os.path.dirname(os.path.abspath(__file__))
 
 
@@ -87,7 +86,6 @@ def init_config():
     for k, v in models_data.items():
         if k not in folder_names_and_paths:
             folder_names_and_paths[k] = []
-        print(f"{k=} {recursive_extract_models(v)}")
         folder_names_and_paths[k].extend(recursive_extract_models(v))
 
 
