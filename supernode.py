@@ -11,7 +11,7 @@ from .utils import (
     get_api_key,
 )
 
-from .image_utils import encode_data, decode_data
+from bizyair.image_utils import encode_data, decode_data
 
 BIZYAIR_SERVER_ADDRESS = os.getenv(
     "BIZYAIR_SERVER_ADDRESS", "https://api.siliconflow.cn"
