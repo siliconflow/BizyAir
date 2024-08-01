@@ -1,7 +1,6 @@
 import os
 import yaml
 import json
-from pathlib import Path
 from typing import Any, List
 
 ScanPathType = list[str]
@@ -49,17 +48,24 @@ def get_filename_list(folder_name):
     return folder_names_and_paths[folder_name]
 
 
-def recursive_extract_models(data: Any, prefix_path: Path = Path(".")) -> List[str]:
-    def extract_from_dict(d: dict, path: Path) -> List[str]:
+def recursive_extract_models(data: Any, prefix_path: str = "") -> List[str]:
+
+    def merge_paths(base_path: str, new_path: str) -> str:
+        if base_path == "":
+            return new_path
+        else:
+            return f"{base_path}/{new_path}"
+
+    def extract_from_dict(d: dict, path: str) -> List[str]:
         results: List[str] = []
         for key, value in d.items():
-            results.extend(recursive_extract_models(value, path / key))
+            results.extend(recursive_extract_models(value, merge_paths(path, key)))
         return results
 
-    def extract_from_list(l: list, path: Path) -> List[str]:
+    def extract_from_list(l: list, path: str) -> List[str]:
         results: List[str] = []
         for item in l:
-            results.extend(recursive_extract_models(item, path / str(item)))
+            results.extend(recursive_extract_models(item, merge_paths(path, str(item))))
         return results
 
     if isinstance(data, dict):
@@ -67,7 +73,7 @@ def recursive_extract_models(data: Any, prefix_path: Path = Path(".")) -> List[s
     elif isinstance(data, list):
         return extract_from_list(data, prefix_path)
 
-    if str(prefix_path) == ".":
+    if str(prefix_path) == "":
         return []
     else:
         return [str(prefix_path)]
@@ -86,6 +92,7 @@ def init_config():
     for k, v in models_data.items():
         if k not in folder_names_and_paths:
             folder_names_and_paths[k] = []
+
         folder_names_and_paths[k].extend(recursive_extract_models(v))
 
 
