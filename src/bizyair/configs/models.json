@@ -1,46 +1,56 @@
 {
-    "checkpoints": {
-      "sdxl": [
-        "Juggernaut-XL_v9_RunDiffusionPhoto_v2.safetensors"
-      ]
-    },
-    "clip_vision": {
-      "models": [
-        "CLIP-ViT-H-14-laion2B-s32B-b79K.safetensors"
-      ],
-      "kolors": [
-        "pytorch_model.bin"
-      ]
-    },
-    "controlnet": {
-      "kolors": [
-        "Kolors-ControlNet-Canny.safetensors",
-        "Kolors-ControlNet-Depth.safetensors"
-      ],
-      "sdxl": [
-        "diffusion_pytorch_model_promax.safetensors"
-      ]
-    },
-    "ipadapter": {
-      "kolors": [
-        "ip_adapter_plus_general.bin"
-      ]
-    },
-    "loras": {
-      "sdxl": [
-        "Cute_Animals.safetensors",
-        "watercolor_v1_sdxl_lora.safetensors"
-      ]
-    },
-    "unet": {
-      "kolors": [
-        "Kolors-Inpainting.safetensors",
-        "Kolors.safetensors"
-      ]
-    },
-    "vae": {
-      "sdxl": [
-        "sdxl_vae.safetensors"
-      ]
-    }
+  "checkpoints": {
+    "sdxl": [
+      "counterfeitxl_v25.safetensors",
+      "dreamshaperXL_lightningDPMSDE.safetensors",
+      "dreamshaperXL_v21TurboDPMSDE.safetensors",
+      "HelloWorldXL_v70.safetensors",
+      "juggernautXL_v9Rdphoto2Lightning.safetensors",
+      "Juggernaut-XL_v9_RunDiffusionPhoto_v2.safetensors",
+      "Juggernaut_X_RunDiffusion_Hyper.safetensors",
+      "Juggernaut-X-RunDiffusion-NSFW.safetensors",
+      "mannEDreams_v004.safetensors",
+      "realisticStockPhoto_v20.safetensors",
+      "samaritan3dCartoon_v40SDXL.safetensors"
+    ]
+  },
+  "clip_vision": {
+    "models": [
+      "CLIP-ViT-H-14-laion2B-s32B-b79K.safetensors"
+    ],
+    "kolors": [
+      "pytorch_model.bin"
+    ]
+  },
+  "controlnet": {
+    "kolors": [
+      "Kolors-ControlNet-Canny.safetensors",
+      "Kolors-ControlNet-Depth.safetensors"
+    ],
+    "sdxl": [
+      "diffusion_pytorch_model_promax.safetensors"
+    ]
+  },
+  "ipadapter": {
+    "kolors": [
+      "ip_adapter_plus_general.bin"
+    ]
+  },
+  "loras": {
+    "sdxl": [
+      "Cute_Animals.safetensors",
+      "watercolor_v1_sdxl_lora.safetensors"
+    ]
+  },
+  "unet": {
+    "kolors": [
+      "Kolors-Inpainting.safetensors",
+      "Kolors.safetensors"
+    ]
+  },
+  "vae": {
+    "sdxl": [
+      "sdxl_vae.safetensors"
+    ]
   }
+}
