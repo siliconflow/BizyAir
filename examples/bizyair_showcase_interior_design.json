@@ -3,42 +3,6 @@
   "last_link_id": 81,
   "nodes": [
     {
-      "id": 39,
-      "type": "BizyAirSiliconCloudLLMAPI",
-      "pos": [
-        418,
-        569
-      ],
-      "size": {
-        "0": 400,
-        "1": 248
-      },
-      "flags": {},
-      "order": 0,
-      "mode": 0,
-      "outputs": [
-        {
-          "name": "STRING",
-          "type": "STRING",
-          "links": [
-            72
-          ],
-          "shape": 3,
-          "slot_index": 0
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "BizyAirSiliconCloudLLMAPI"
-      },
-      "widgets_values": [
-        "(Free)GLM4 9B Chat",
-        "你是一个 stable diffusion prompt 专家，为我生成适用于 Stable Diffusion 模型的prompt。\n我给你相关的单词，你帮我扩写为适合 Stable Diffusion 文生图的 prompt。要求：\n1. 英文输出\n2. 除了 prompt 外，不要输出任何其它的信息\n",
-        "一间卧室，地中海风格",
-        510,
-        0.7000000000000001
-      ]
-    },
-    {
       "id": 70,
       "type": "BizyAirSiliconCloudLLMAPI",
       "pos": [
@@ -50,7 +14,7 @@
         "1": 248.00001525878906
       },
       "flags": {},
-      "order": 1,
+      "order": 0,
       "mode": 0,
       "outputs": [
         {
@@ -71,7 +35,8 @@
         "你是一个 stable diffusion prompt 专家，为我生成适用于 Stable Diffusion 模型的prompt。\n我给你相关的单词，你帮我扩写为适合 Stable Diffusion 文生图的 prompt。要求：\n1. 英文输出\n2. 除了 prompt 外，不要输出任何其它的信息\n",
         "现代风格装修的卧室，黑白灰色调",
         512,
-        0.7
+        0.7,
+        "\nA modernly decorated bedroom with a monochrome palette of black, white, and gray"
       ]
     },
     {
@@ -252,7 +217,7 @@
         "1": 264.20611572265625
       },
       "flags": {},
-      "order": 2,
+      "order": 1,
       "mode": 0,
       "properties": {
         "text": ""
@@ -342,6 +307,43 @@
         0,
         0.5
       ]
+    },
+    {
+      "id": 39,
+      "type": "BizyAirSiliconCloudLLMAPI",
+      "pos": [
+        418,
+        569
+      ],
+      "size": {
+        "0": 400,
+        "1": 248
+      },
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": [
+            72
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAirSiliconCloudLLMAPI"
+      },
+      "widgets_values": [
+        "No LLM Enhancement",
+        "你是一个 stable diffusion prompt 专家，为我生成适用于 Stable Diffusion 模型的prompt。\n我给你相关的单词，你帮我扩写为适合 Stable Diffusion 文生图的 prompt。要求：\n1. 英文输出\n2. 除了 prompt 外，不要输出任何其它的信息\n",
+        "a bed room",
+        510,
+        0.7000000000000001,
+        "a bed room"
+      ]
     }
   ],
   "links": [
@@ -408,8 +410,8 @@
     "ds": {
       "scale": 0.9090909090909114,
       "offset": {
-        "0": 105.46869110477861,
-        "1": -453.28072141751124
+        "0": 157.53540253055974,
+        "1": -329.3473992739569
       }
     }
   },

@@ -63,7 +63,7 @@ class SiliconCloudLLMAPI:
 
     RETURN_TYPES = ("STRING",)
     FUNCTION = "get_llm_model_response"
-    OUTPUT_NODE = True
+    OUTPUT_NODE = False
 
     CATEGORY = "☁️BizyAir/AI Assistants"
 

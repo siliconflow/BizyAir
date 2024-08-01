@@ -8,7 +8,7 @@ import os
 import numpy as np
 import requests
 from .utils import get_api_key
-from .image_utils import encode_comfy_image, decode_comfy_image
+from bizyair.image_utils import encode_comfy_image, decode_comfy_image
 
 BIZYAIR_SERVER_ADDRESS = os.getenv(
     "BIZYAIR_SERVER_ADDRESS", "https://api.siliconflow.cn"
