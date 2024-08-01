@@ -1,0 +1,645 @@
+{
+  "last_node_id": 91,
+  "last_link_id": 151,
+  "nodes": [
+    {
+      "id": 73,
+      "type": "BizyAir_KSampler",
+      "pos": [
+        1925,
+        1274
+      ],
+      "size": {
+        "0": 315,
+        "1": 262
+      },
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "BIZYAIR_MODEL",
+          "link": 125
+        },
+        {
+          "name": "positive",
+          "type": "BIZYAIR_CONDITIONING",
+          "link": 142
+        },
+        {
+          "name": "negative",
+          "type": "BIZYAIR_CONDITIONING",
+          "link": 143
+        },
+        {
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 144,
+          "slot_index": 3
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            130
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_KSampler"
+      },
+      "widgets_values": [
+        1,
+        "fixed",
+        20,
+        4.5,
+        "euler",
+        "ddim_uniform",
+        1
+      ]
+    },
+    {
+      "id": 76,
+      "type": "BizyAir_VAEDecode",
+      "pos": [
+        2256,
+        1282
+      ],
+      "size": [
+        503.94573135312385,
+        46
+      ],
+      "flags": {},
+      "order": 12,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 130
+        },
+        {
+          "name": "vae",
+          "type": "BIZYAIR_VAE",
+          "link": 129
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            145
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_VAEDecode"
+      }
+    },
+    {
+      "id": 85,
+      "type": "EmptyLatentImage",
+      "pos": [
+        1922,
+        1585
+      ],
+      "size": {
+        "0": 315,
+        "1": 106
+      },
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            144
+          ],
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "EmptyLatentImage"
+      },
+      "widgets_values": [
+        1024,
+        1024,
+        1
+      ]
+    },
+    {
+      "id": 88,
+      "type": "PreviewImage",
+      "pos": [
+        1928,
+        1735
+      ],
+      "size": [
+        315.96198171874903,
+        263.6386796683562
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 150
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      }
+    },
+    {
+      "id": 89,
+      "type": "BizyAirDepthAnythingV2Preprocessor",
+      "pos": [
+        1513,
+        1497
+      ],
+      "size": [
+        361.25380940312425,
+        82
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 149
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            150,
+            151
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAirDepthAnythingV2Preprocessor"
+      },
+      "widgets_values": [
+        "depth_anything_v2_vitl.pth",
+        1024
+      ]
+    },
+    {
+      "id": 90,
+      "type": "BizyAirGenerateLightningImage",
+      "pos": [
+        1524,
+        1627
+      ],
+      "size": [
+        336,
+        219.9999542236328
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            149
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAirGenerateLightningImage"
+      },
+      "widgets_values": [
+        "a hawk",
+        1,
+        "fixed",
+        1024,
+        1024,
+        1.5,
+        1
+      ]
+    },
+    {
+      "id": 71,
+      "type": "BizyAir_ControlNetApplyAdvanced",
+      "pos": [
+        1500,
+        1269
+      ],
+      "size": {
+        "0": 386.8606872558594,
+        "1": 174.17922973632812
+      },
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "positive",
+          "type": "BIZYAIR_CONDITIONING",
+          "link": 132,
+          "slot_index": 0
+        },
+        {
+          "name": "negative",
+          "type": "BIZYAIR_CONDITIONING",
+          "link": 133
+        },
+        {
+          "name": "control_net",
+          "type": "BIZYAIR_CONTROL_NET",
+          "link": 141,
+          "slot_index": 2
+        },
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 151,
+          "slot_index": 3
+        }
+      ],
+      "outputs": [
+        {
+          "name": "positive",
+          "type": "BIZYAIR_CONDITIONING",
+          "links": [
+            142
+          ],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "negative",
+          "type": "BIZYAIR_CONDITIONING",
+          "links": [
+            143
+          ],
+          "shape": 3,
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_ControlNetApplyAdvanced"
+      },
+      "widgets_values": [
+        0.8,
+        0,
+        1
+      ]
+    },
+    {
+      "id": 80,
+      "type": "BizyAir_MinusZoneChatGLM3TextEncode",
+      "pos": [
+        1081,
+        1377
+      ],
+      "size": [
+        389.3432087656254,
+        76
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "BIZYAIR_CONDITIONING",
+          "type": "BIZYAIR_CONDITIONING",
+          "links": [
+            132
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_MinusZoneChatGLM3TextEncode"
+      },
+      "widgets_values": [
+        "宇宙飞船在烈火中飞向太空"
+      ]
+    },
+    {
+      "id": 81,
+      "type": "BizyAir_MinusZoneChatGLM3TextEncode",
+      "pos": [
+        1083,
+        1504
+      ],
+      "size": [
+        379.91404509375025,
+        76
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "BIZYAIR_CONDITIONING",
+          "type": "BIZYAIR_CONDITIONING",
+          "links": [
+            133
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_MinusZoneChatGLM3TextEncode"
+      },
+      "widgets_values": [
+        "nsfw，脸部阴影，低分辨率，jpeg伪影、模糊、糟糕，黑脸，霓虹灯"
+      ]
+    },
+    {
+      "id": 75,
+      "type": "BizyAir_VAELoader",
+      "pos": [
+        1084,
+        1628
+      ],
+      "size": [
+        374.6246896250004,
+        58
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "vae",
+          "type": "BIZYAIR_VAE",
+          "links": [
+            129
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_VAELoader"
+      },
+      "widgets_values": [
+        "sdxl/sdxl_vae.safetensors"
+      ]
+    },
+    {
+      "id": 86,
+      "type": "PreviewImage",
+      "pos": [
+        2267,
+        1378
+      ],
+      "size": [
+        494.58218337499875,
+        545.8929832179654
+      ],
+      "flags": {},
+      "order": 13,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 145
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      }
+    },
+    {
+      "id": 70,
+      "type": "BizyAir_MZ_KolorsUNETLoaderV2",
+      "pos": [
+        1073,
+        1272
+      ],
+      "size": {
+        "0": 398.9453430175781,
+        "1": 58
+      },
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "model",
+          "type": "BIZYAIR_MODEL",
+          "links": [
+            125
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_MZ_KolorsUNETLoaderV2"
+      },
+      "widgets_values": [
+        "kolors/Kolors.safetensors"
+      ]
+    },
+    {
+      "id": 84,
+      "type": "BizyAir_MZ_KolorsControlNetLoader",
+      "pos": [
+        1089,
+        1742
+      ],
+      "size": [
+        366.3647794687504,
+        58
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "ControlNet",
+          "type": "BIZYAIR_CONTROL_NET",
+          "links": [
+            141
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_MZ_KolorsControlNetLoader"
+      },
+      "widgets_values": [
+        "kolors/Kolors-ControlNet-Depth.safetensors"
+      ]
+    },
+    {
+      "id": 91,
+      "type": "Note",
+      "pos": [
+        1073,
+        1146
+      ],
+      "size": [
+        485.88076725000064,
+        65.17527988984284
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "properties": {
+        "text": ""
+      },
+      "widgets_values": [
+        "ControlNet 可以更精确地控制构图。本例展示了 Kolors Depth ControlNet。\n除了 Depth Controlnet 外，你还可以在下拉菜单中，选择其它的 ControlNet。\nSDXL 的 ControlNet，也可以应用于 Kolors 模型。"
+      ],
+      "color": "#432",
+      "bgcolor": "#653"
+    }
+  ],
+  "links": [
+    [
+      125,
+      70,
+      0,
+      73,
+      0,
+      "BIZYAIR_MODEL"
+    ],
+    [
+      129,
+      75,
+      0,
+      76,
+      1,
+      "BIZYAIR_VAE"
+    ],
+    [
+      130,
+      73,
+      0,
+      76,
+      0,
+      "LATENT"
+    ],
+    [
+      132,
+      80,
+      0,
+      71,
+      0,
+      "BIZYAIR_CONDITIONING"
+    ],
+    [
+      133,
+      81,
+      0,
+      71,
+      1,
+      "BIZYAIR_CONDITIONING"
+    ],
+    [
+      141,
+      84,
+      0,
+      71,
+      2,
+      "BIZYAIR_CONTROL_NET"
+    ],
+    [
+      142,
+      71,
+      0,
+      73,
+      1,
+      "BIZYAIR_CONDITIONING"
+    ],
+    [
+      143,
+      71,
+      1,
+      73,
+      2,
+      "BIZYAIR_CONDITIONING"
+    ],
+    [
+      144,
+      85,
+      0,
+      73,
+      3,
+      "LATENT"
+    ],
+    [
+      145,
+      76,
+      0,
+      86,
+      0,
+      "IMAGE"
+    ],
+    [
+      149,
+      90,
+      0,
+      89,
+      0,
+      "IMAGE"
+    ],
+    [
+      150,
+      89,
+      0,
+      88,
+      0,
+      "IMAGE"
+    ],
+    [
+      151,
+      89,
+      0,
+      71,
+      3,
+      "IMAGE"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.5644739300537776,
+      "offset": {
+        "0": -660.5678572070321,
+        "1": -897.6366635304679
+      }
+    },
+    "workspace_info": {
+      "id": "ckS1tBu-IMHBxD8SZ6K-k",
+      "saveLock": false,
+      "cloudID": null,
+      "coverMediaPath": null
+    }
+  },
+  "version": 0.4
+}
