@@ -1,5 +1,6 @@
 # BizyAir
 
+- [2024/07/31] 🌩️ The super-resolution node has been released, capable of enlarging images four times their original size. [BizyAir Photorealistic Image Super Resolution](https://siliconflow.github.io/BizyAir/others/index.html#bizyair-photorealistic-image-super-resolution)
 - [2024/07/25] 🌩️ Users can load BizyAir workflow examples directly by clicking the "☁️BizyAir Workflow Examples" button. [Example GIF](./docs/docs/getting-started/imgs/run-bizyair-examples.gif)
 - [2024/07/23] 🌩️ [BizyAir ChatGLM3 Text Encode](./examples/bizyair_showcase_run_with_local_nodes.json) node is released.
 - [2024/07/16] 🌩️ [BizyAir Controlnet Union SDXL 1.0](https://siliconflow.github.io/BizyAir/controlnet-union/introduce.html) node is released.
