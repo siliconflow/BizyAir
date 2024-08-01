@@ -39,6 +39,12 @@ In the category "☁️BizyAir/loaders", you can see the loaders matching "☁�
 
 In the category "☁️BizyAir/conditioning", you can see the nodes controling the output image conditions. There are 1 node for text encoding and two nodes for applying controlnet.
 
+## IPAdapter
+
+In the category "☁️BizyAir/ipadapter", you can see the nodes about IPAdapter. Its usage is consistent with [cubiq/ComfyUI_IPAdapter_plus](https://github.com/cubiq/ComfyUI_IPAdapter_plus).
+
+![](./imgs/bizyair-ipadapter.jpg)
+
 ## Latent Encode and Decode
 
 ![](./imgs/bizyair-latent.png)
