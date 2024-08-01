@@ -53,8 +53,8 @@ SHOW_CASES = [
         "file": "bizyair_showcase_ksampler_ipadapter.json",
     },
     {
-        "title": "Run BizyAir nodes with local nodes",
-        "file": "bizyair_showcase_run_with_local_nodes.json",
+        "title": "Kolors Text to Image",
+        "file": "bizyair_kolors_txt2img.json",
     },
     {
         "title": "Kolors ControlNet Depth",

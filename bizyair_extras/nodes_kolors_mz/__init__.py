@@ -5,7 +5,7 @@ from bizyair.image_utils import BizyAirNodeIO, create_node_data
 from bizyair import path_utils as folder_paths
 
 AUTHOR_NAME = "MinusZone"
-CATEGORY_NAME = f"{AUTHOR_NAME} - Kolors"
+CATEGORY_NAME = f"Kolors"
 
 
 class MZ_KolorsUNETLoaderV2(BizyAirBaseNode):
@@ -73,6 +73,7 @@ class MZ_KolorsControlNetLoader(BizyAirBaseNode):
     FUNCTION = "load_controlnet"
 
     CATEGORY = CATEGORY_NAME
+    NODE_DISPLAY_NAME = f"{AUTHOR_NAME} - KolorsControlNetLoader"
 
     def load_controlnet(self, **kwargs):
         node_data = create_node_data(

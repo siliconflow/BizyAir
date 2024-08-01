@@ -1,6 +1,6 @@
 {
-  "last_node_id": 42,
-  "last_link_id": 53,
+  "last_node_id": 43,
+  "last_link_id": 55,
   "nodes": [
     {
       "id": 28,
@@ -14,7 +14,7 @@
         "1": 267.5857849121094
       },
       "flags": {},
-      "order": 10,
+      "order": 11,
       "mode": 0,
       "inputs": [
         {
@@ -95,55 +95,6 @@
       ]
     },
     {
-      "id": 26,
-      "type": "BizyAir_VAEEncodeForInpaint",
-      "pos": [
-        1026,
-        1240
-      ],
-      "size": {
-        "0": 347.9519958496094,
-        "1": 98
-      },
-      "flags": {},
-      "order": 9,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "pixels",
-          "type": "IMAGE",
-          "link": 50
-        },
-        {
-          "name": "vae",
-          "type": "BIZYAIR_VAE",
-          "link": 30
-        },
-        {
-          "name": "mask",
-          "type": "MASK",
-          "link": 47
-        }
-      ],
-      "outputs": [
-        {
-          "name": "LATENT",
-          "type": "LATENT",
-          "links": [
-            45
-          ],
-          "shape": 3,
-          "slot_index": 0
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "BizyAir_VAEEncodeForInpaint"
-      },
-      "widgets_values": [
-        0
-      ]
-    },
-    {
       "id": 32,
       "type": "BizyAir_VAEDecode",
       "pos": [
@@ -155,7 +106,7 @@
         "1": 46
       },
       "flags": {},
-      "order": 11,
+      "order": 12,
       "mode": 0,
       "inputs": [
         {
@@ -183,100 +134,6 @@
       ],
       "properties": {
         "Node name for S&R": "BizyAir_VAEDecode"
-      }
-    },
-    {
-      "id": 37,
-      "type": "BizyAirGenerateLightningImage",
-      "pos": [
-        175,
-        1085
-      ],
-      "size": {
-        "0": 400,
-        "1": 220.00001525878906
-      },
-      "flags": {},
-      "order": 6,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "prompt",
-          "type": "STRING",
-          "link": 49,
-          "widget": {
-            "name": "prompt"
-          },
-          "slot_index": 0
-        }
-      ],
-      "outputs": [
-        {
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
-            48,
-            50,
-            51
-          ],
-          "shape": 3,
-          "slot_index": 0
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "BizyAirGenerateLightningImage"
-      },
-      "widgets_values": [
-        "a dog",
-        764726572873638,
-        "randomize",
-        1024,
-        1024,
-        1.5,
-        1
-      ]
-    },
-    {
-      "id": 36,
-      "type": "BizyAirRemoveBackground",
-      "pos": [
-        611,
-        1241
-      ],
-      "size": {
-        "0": 359.3028869628906,
-        "1": 46.24819564819336
-      },
-      "flags": {},
-      "order": 7,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "image",
-          "type": "IMAGE",
-          "link": 48
-        }
-      ],
-      "outputs": [
-        {
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [],
-          "shape": 3,
-          "slot_index": 0
-        },
-        {
-          "name": "MASK",
-          "type": "MASK",
-          "links": [
-            47
-          ],
-          "shape": 3,
-          "slot_index": 1
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "BizyAirRemoveBackground"
       }
     },
     {
@@ -313,38 +170,6 @@
       ]
     },
     {
-      "id": 29,
-      "type": "BizyAir_MinusZoneChatGLM3TextEncode",
-      "pos": [
-        595,
-        927
-      ],
-      "size": {
-        "0": 407.5237121582031,
-        "1": 126.94926452636719
-      },
-      "flags": {},
-      "order": 2,
-      "mode": 0,
-      "outputs": [
-        {
-          "name": "BIZYAIR_CONDITIONING",
-          "type": "BIZYAIR_CONDITIONING",
-          "links": [
-            43
-          ],
-          "shape": 3,
-          "slot_index": 0
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "BizyAir_MinusZoneChatGLM3TextEncode"
-      },
-      "widgets_values": [
-        "穿着美少女战士的衣服，一件类似于水手服风格的衣服，包括一个白色紧身上衣，前胸搭配一个大大的红色蝴蝶结。衣服的领子部分呈蓝色，并且有白色条纹。她还穿着一条蓝色百褶裙，超高清，辛烷渲染，高级质感，32k，高分辨率，最好的质量，超级细节，景深"
-      ]
-    },
-    {
       "id": 30,
       "type": "BizyAir_MinusZoneChatGLM3TextEncode",
       "pos": [
@@ -356,7 +181,7 @@
         "1": 76
       },
       "flags": {},
-      "order": 3,
+      "order": 2,
       "mode": 0,
       "outputs": [
         {
@@ -413,7 +238,7 @@
         "1": 420.3405456542969
       },
       "flags": {},
-      "order": 12,
+      "order": 13,
       "mode": 0,
       "inputs": [
         {
@@ -426,6 +251,29 @@
       "properties": {
         "Node name for S&R": "PreviewImage"
       }
+    },
+    {
+      "id": 42,
+      "type": "Note",
+      "pos": [
+        176,
+        661
+      ],
+      "size": {
+        "0": 609.0453491210938,
+        "1": 64.54571533203125
+      },
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "properties": {
+        "text": ""
+      },
+      "widgets_values": [
+        "Kolors-Inpainting 模型可以做局部重绘。\n本例子中，使用 BizyAir 的节点生成了一张原始图片，然后使用 BizyAir 的抠图节点得到其人物的 mask。\n然后利用 Kolors Inpainting 模型将其重绘为美少女战士。"
+      ],
+      "color": "#432",
+      "bgcolor": "#653"
     },
     {
       "id": 38,
@@ -455,36 +303,224 @@
         "Node name for S&R": "BizyAirSiliconCloudLLMAPI"
       },
       "widgets_values": [
-        "(Free)GLM4 9B Chat",
+        "No LLM Enhancement",
         "你是一个 stable diffusion prompt 专家，为我生成适用于 Stable Diffusion 模型的prompt。\n我给你相关的单词，你帮我扩写为适合 Stable Diffusion 文生图的 prompt。要求：\n1. 英文输出\n2. 除了 prompt 外，不要输出任何其它的信息\n",
-        "一个开朗的女孩",
+        "\nA cheerful girl, with a bright smile, surrounded by a colorful garden, in a sunny day, wearing casual clothes, holding a flower, with a playful and joyful expression, in a high-resolution, vibrant and detailed illustration style.",
         512,
         0,
         "\nA cheerful girl, with a bright smile, surrounded by a colorful garden, in a sunny day, wearing casual clothes, holding a flower, with a playful and joyful expression, in a high-resolution, vibrant and detailed illustration style."
       ]
     },
     {
-      "id": 42,
-      "type": "Note",
+      "id": 29,
+      "type": "BizyAir_MinusZoneChatGLM3TextEncode",
       "pos": [
-        176,
-        661
+        595,
+        927
       ],
-      "size": [
-        609.0453628486487,
-        64.54571526875202
-      ],
+      "size": {
+        "0": 407.5237121582031,
+        "1": 126.94926452636719
+      },
       "flags": {},
       "order": 5,
       "mode": 0,
+      "outputs": [
+        {
+          "name": "BIZYAIR_CONDITIONING",
+          "type": "BIZYAIR_CONDITIONING",
+          "links": [
+            43
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
       "properties": {
-        "text": ""
+        "Node name for S&R": "BizyAir_MinusZoneChatGLM3TextEncode"
       },
       "widgets_values": [
-        "Kolors-Inpainting 模型可以做局部重绘。\n本例子中，使用 BizyAir 的节点生成了一张原始图片，然后使用 BizyAir 的抠图节点得到其人物的 mask。\n然后利用 Kolors Inpainting 模型将其重绘为美少女战士。"
+        "一个开朗的女孩，在埃及金字塔旁边"
+      ]
+    },
+    {
+      "id": 36,
+      "type": "BizyAirRemoveBackground",
+      "pos": [
+        597,
+        1222
       ],
-      "color": "#432",
-      "bgcolor": "#653"
+      "size": {
+        "0": 359.3028869628906,
+        "1": 46.24819564819336
+      },
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 48
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": [
+            54
+          ],
+          "shape": 3,
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAirRemoveBackground"
+      }
+    },
+    {
+      "id": 43,
+      "type": "InvertMask",
+      "pos": [
+        599,
+        1312
+      ],
+      "size": [
+        356.1949943170332,
+        26
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "mask",
+          "type": "MASK",
+          "link": 54
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": [
+            55
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "InvertMask"
+      }
+    },
+    {
+      "id": 26,
+      "type": "BizyAir_VAEEncodeForInpaint",
+      "pos": [
+        1026,
+        1240
+      ],
+      "size": [
+        334.14161174867354,
+        98
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "pixels",
+          "type": "IMAGE",
+          "link": 50
+        },
+        {
+          "name": "vae",
+          "type": "BIZYAIR_VAE",
+          "link": 30
+        },
+        {
+          "name": "mask",
+          "type": "MASK",
+          "link": 55
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            45
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_VAEEncodeForInpaint"
+      },
+      "widgets_values": [
+        0
+      ]
+    },
+    {
+      "id": 37,
+      "type": "BizyAirGenerateLightningImage",
+      "pos": [
+        175,
+        1085
+      ],
+      "size": {
+        "0": 400,
+        "1": 220.00001525878906
+      },
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "prompt",
+          "type": "STRING",
+          "link": 49,
+          "widget": {
+            "name": "prompt"
+          },
+          "slot_index": 0
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            48,
+            50,
+            51
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAirGenerateLightningImage"
+      },
+      "widgets_values": [
+        "a dog",
+        20,
+        "fixed",
+        1024,
+        1024,
+        1.5,
+        1
+      ]
     }
   ],
   "links": [
@@ -545,14 +581,6 @@
       "LATENT"
     ],
     [
-      47,
-      36,
-      1,
-      26,
-      2,
-      "MASK"
-    ],
-    [
       48,
       37,
       0,
@@ -591,6 +619,22 @@
       41,
       0,
       "IMAGE"
+    ],
+    [
+      54,
+      36,
+      1,
+      43,
+      0,
+      "MASK"
+    ],
+    [
+      55,
+      43,
+      0,
+      26,
+      2,
+      "MASK"
     ]
   ],
   "groups": [],
@@ -600,10 +644,10 @@
       "id": "TKSZ5XMzonRsm7MzObd2l"
     },
     "ds": {
-      "scale": 0.5131581182307067,
+      "scale": 0.8264462809917359,
       "offset": {
-        "0": 201.30997679822647,
-        "1": -382.13761162695516
+        "0": 388.71162311460705,
+        "1": -324.280105800686
       }
     }
   },
