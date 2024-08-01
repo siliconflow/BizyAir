@@ -54,7 +54,7 @@ class BizyAirNodeIO:
         nodes: Dict[str, Dict[str, any]] = {},
         config_file=None,
         configs: dict = None,
-        debug: bool = os.getenv("BIZYAIR_DEBUG", False),
+        debug: bool = BIZYAIR_DEBUG,
     ):
         self._validate_node_id(node_id=node_id)
 
@@ -115,9 +115,8 @@ class BizyAirNodeIO:
 
     @property
     def workflow_api(self):
+        # return {"prompt": self.nodes, "last_node_id": self.node_id}
         # TODO (refine)
-        return {"prompt": self.nodes, "last_node_id": self.node_id}
-
         class_configs = self.configs.get("class_types", {})
         class_usage_count = {}
         for _, instance_info in self.nodes.items():
@@ -220,6 +219,10 @@ class BizyAirNodeIO:
         # self._short_repr(self.nodes, max_length=100)
         # self._short_repr(self.workflow_api['prompt'], max_length=100)
         api_url = self.service_route()
+        if self.debug:
+            prompt = self._short_repr(self.workflow_api["prompt"], max_length=100)
+            print(f"Debug: {prompt=} {api_url=} {BizyAirNodeIO.API_KEY=}")
+
         if stream:
             result = None
             pass  # TODO(fix)
