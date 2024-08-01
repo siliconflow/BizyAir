@@ -1,6 +1,4 @@
-import { api } from "../../../../scripts/api.js";
-import { app } from "../../../scripts/app.js";
-import { $el } from "../../../scripts/ui.js";
+import { api,app,$el } from "./_help.js";
 
 const style = `
 #comfy-floating-button {

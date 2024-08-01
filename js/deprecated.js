@@ -1,4 +1,4 @@
-import { app } from "../../scripts/app.js";
+import { app } from "./_help.js";
 
 
 app.registerExtension({

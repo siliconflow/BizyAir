@@ -1,5 +1,4 @@
-import { app } from "../../scripts/app.js";
-import { ComfyWidgets } from "../../../scripts/widgets.js";
+import { app,ComfyWidgets } from "./_help.js";
 
 app.registerExtension({
     name: "bizyair.siliconcloud.llm.api",
