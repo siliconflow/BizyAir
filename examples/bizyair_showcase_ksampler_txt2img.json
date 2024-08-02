@@ -18,7 +18,7 @@
       "mode": 0,
       "outputs": [
         {
-          "name": "model🛫",
+          "name": "model",
           "type": "BIZYAIR_MODEL",
           "links": [
             81
@@ -26,7 +26,7 @@
           "shape": 3
         },
         {
-          "name": "clip🛫",
+          "name": "clip",
           "type": "BIZYAIR_CLIP",
           "links": [
             82,
@@ -36,7 +36,7 @@
           "slot_index": 1
         },
         {
-          "name": "vae🛫",
+          "name": "vae",
           "type": "BIZYAIR_VAE",
           "links": [
             44
@@ -217,7 +217,7 @@
       ],
       "outputs": [
         {
-          "name": "IMAGE🛬",
+          "name": "IMAGE",
           "type": "IMAGE",
           "links": [
             46
@@ -294,7 +294,7 @@
       ],
       "outputs": [
         {
-          "name": "LATENT🛬",
+          "name": "LATENT",
           "type": "LATENT",
           "links": [
             45

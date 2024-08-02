@@ -210,7 +210,7 @@
         "text": ""
       },
       "widgets_values": [
-        "Kolors-Inpainting 模型可以做局部重绘。\n本例子中，使用 BizyAir 的节点生成了一张原始图片，然后使用 BizyAir 的抠图节点得到其人物的 mask。\n然后利用 Kolors Inpainting 模型将其重绘为美少女战士。"
+        "Kolors-Inpainting 模型可以做局部重绘。\n本例子中，使用 BizyAir 的节点生成了一张原始图片，然后使用 BizyAir 的抠图节点得到其背景的 mask。\n然后利用 Kolors Inpainting 模型将背景替换为金字塔。"
       ],
       "color": "#432",
       "bgcolor": "#653"
