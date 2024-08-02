@@ -42,4 +42,4 @@ https://github.com/siliconflow/ComfyUI/releases/tag/latest
 
 For CN users:
 
-https://bizy-air.oss-cn-beijing.aliyuncs.com/new_ComfyUI_windows_portable_nvidia_cu121_or_cpu.7z
+https://bizy-air.oss-cn-beijing.aliyuncs.com/new_ComfyUI_windows_portable_nvidia_none_or_cpu.7z

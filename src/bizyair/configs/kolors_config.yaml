@@ -1,0 +1,578 @@
+server_format:
+  BizyAir_KSampler: KSampler
+
+service_config:
+  service_address: https://api.siliconflow.cn # http://0.0.0.0:9911
+  route: /supernode/kolors-bizyair-sdxl-comfy-ksampler
+  service_route: "{{ service_config.service_address }}{{ service_config.route }}"
+
+service_route: http://your-service-route-address
+
+class_types:
+  CLIPLoader:
+    max_instances: 1
+    node_ids:
+    - 73
+  CLIPSetLastLayer:
+    max_instances: 2
+    node_ids:
+    - 5
+    - 6
+  CLIPTextEncode:
+    max_instances: 2
+    node_ids:
+    - 3
+    - 4
+  CLIPVisionEncode:
+    max_instances: 2
+    node_ids:
+    - 76
+    - 77
+  CLIPVisionLoader:
+    max_instances: 1
+    node_ids:
+    - 89
+  CheckpointLoader:
+    max_instances: 1
+    node_ids:
+    - 100
+  CheckpointLoaderSimple:
+    max_instances: 1
+    node_ids:
+    - 2
+  ComfyAirLoadData:
+    max_instances: 20
+    node_ids:
+    - 201
+    - 202
+    - 203
+    - 204
+    - 205
+    - 206
+    - 207
+    - 208
+    - 209
+    - 210
+    - 211
+    - 212
+    - 213
+    - 214
+    - 215
+    - 216
+    - 217
+    - 218
+    - 219
+    - 220
+  ConditioningAverage:
+    max_instances: 2
+    node_ids:
+    - 44
+    - 45
+  ConditioningCombine:
+    max_instances: 2
+    node_ids:
+    - 46
+    - 47
+  ConditioningConcat:
+    max_instances: 2
+    node_ids:
+    - 48
+    - 49
+  ConditioningSetArea:
+    max_instances: 2
+    node_ids:
+    - 50
+    - 51
+  ConditioningSetAreaPercentage:
+    max_instances: 2
+    node_ids:
+    - 52
+    - 53
+  ConditioningSetAreaStrength:
+    max_instances: 2
+    node_ids:
+    - 54
+    - 55
+  ConditioningSetMask:
+    max_instances: 2
+    node_ids:
+    - 56
+    - 57
+  ConditioningSetTimestepRange:
+    max_instances: 2
+    node_ids:
+    - 108
+    - 109
+  ConditioningZeroOut:
+    max_instances: 2
+    node_ids:
+    - 106
+    - 107
+  ControlNetApply:
+    max_instances: 2
+    node_ids:
+    - 82
+    - 83
+  ControlNetApplyAdvanced:
+    max_instances: 2
+    node_ids:
+    - 84
+    - 85
+  ControlNetLoader:
+    max_instances: 1
+    node_ids:
+    - 86
+  DiffControlNetLoader:
+    max_instances: 1
+    node_ids:
+    - 87
+  DiffusersLoader:
+    max_instances: 1
+    node_ids:
+    - 101
+  DualCLIPLoader:
+    max_instances: 1
+    node_ids:
+    - 75
+  EmptyImage:
+    max_instances: 2
+    node_ids:
+    - 42
+    - 43
+  EmptyLatentImage:
+    max_instances: 2
+    node_ids:
+    - 14
+    - 15
+  GLIGENLoader:
+    max_instances: 1
+    node_ids:
+    - 95
+  GLIGENTextBoxApply:
+    max_instances: 2
+    node_ids:
+    - 96
+    - 97
+  IPAAdapterFaceIDBatch:
+    max_instances: 2
+    node_ids:
+    - 119
+    - 120
+  IPAdapter:
+    max_instances: 2
+    node_ids:
+    - 111
+    - 112
+  IPAdapterAdvanced:
+    max_instances: 2
+    node_ids:
+    - 113
+    - 114
+  IPAdapterBatch:
+    max_instances: 2
+    node_ids:
+    - 115
+    - 116
+  IPAdapterClipVisionEnhancer:
+    max_instances: 2
+    node_ids:
+    - 135
+    - 136
+  IPAdapterClipVisionEnhancerBatch:
+    max_instances: 2
+    node_ids:
+    - 137
+    - 138
+  IPAdapterCombineEmbeds:
+    max_instances: 2
+    node_ids:
+    - 156
+    - 157
+  IPAdapterCombineParams:
+    max_instances: 2
+    node_ids:
+    - 176
+    - 177
+  IPAdapterCombineWeights:
+    max_instances: 2
+    node_ids:
+    - 168
+    - 169
+  IPAdapterEmbeds:
+    max_instances: 2
+    node_ids:
+    - 125
+    - 126
+  IPAdapterEmbedsBatch:
+    max_instances: 2
+    node_ids:
+    - 127
+    - 128
+  IPAdapterEncoder:
+    max_instances: 2
+    node_ids:
+    - 154
+    - 155
+  IPAdapterFaceID:
+    max_instances: 2
+    node_ids:
+    - 117
+    - 118
+  IPAdapterFromParams:
+    max_instances: 2
+    node_ids:
+    - 139
+    - 140
+  IPAdapterInsightFaceLoader:
+    max_instances: 1
+    node_ids:
+    - 152
+  IPAdapterLoadEmbeds:
+    max_instances: 2
+    node_ids:
+    - 164
+    - 165
+  IPAdapterMS:
+    max_instances: 2
+    node_ids:
+    - 133
+    - 134
+  IPAdapterModelLoader:
+    max_instances: 1
+    node_ids:
+    - 151
+  IPAdapterNoise:
+    max_instances: 2
+    node_ids:
+    - 158
+    - 159
+  IPAdapterPreciseComposition:
+    max_instances: 2
+    node_ids:
+    - 145
+    - 146
+  IPAdapterPreciseCompositionBatch:
+    max_instances: 2
+    node_ids:
+    - 147
+    - 148
+  IPAdapterPreciseStyleTransfer:
+    max_instances: 2
+    node_ids:
+    - 141
+    - 142
+  IPAdapterPreciseStyleTransferBatch:
+    max_instances: 2
+    node_ids:
+    - 143
+    - 144
+  IPAdapterPromptScheduleFromWeightsStrategy:
+    max_instances: 2
+    node_ids:
+    - 172
+    - 173
+  IPAdapterRegionalConditioning:
+    max_instances: 2
+    node_ids:
+    - 174
+    - 175
+  IPAdapterSaveEmbeds:
+    max_instances: 2
+    node_ids:
+    - 162
+    - 163
+  IPAdapterStyleComposition:
+    max_instances: 2
+    node_ids:
+    - 129
+    - 130
+  IPAdapterStyleCompositionBatch:
+    max_instances: 2
+    node_ids:
+    - 131
+    - 132
+  IPAdapterTiled:
+    max_instances: 2
+    node_ids:
+    - 121
+    - 122
+  IPAdapterTiledBatch:
+    max_instances: 2
+    node_ids:
+    - 123
+    - 124
+  IPAdapterUnifiedLoader:
+    max_instances: 1
+    node_ids:
+    - 149
+  IPAdapterUnifiedLoaderCommunity:
+    max_instances: 1
+    node_ids:
+    - 153
+  IPAdapterUnifiedLoaderFaceID:
+    max_instances: 1
+    node_ids:
+    - 150
+  IPAdapterWeights:
+    max_instances: 2
+    node_ids:
+    - 166
+    - 167
+  IPAdapterWeightsFromStrategy:
+    max_instances: 2
+    node_ids:
+    - 170
+    - 171
+  ImageBatch:
+    max_instances: 2
+    node_ids:
+    - 38
+    - 39
+  ImageInvert:
+    max_instances: 2
+    node_ids:
+    - 36
+    - 37
+  ImagePadForOutpaint:
+    max_instances: 2
+    node_ids:
+    - 40
+    - 41
+  ImageScale:
+    max_instances: 2
+    node_ids:
+    - 32
+    - 33
+  ImageScaleBy:
+    max_instances: 2
+    node_ids:
+    - 34
+    - 35
+  InpaintModelConditioning:
+    max_instances: 2
+    node_ids:
+    - 98
+    - 99
+  KSampler:
+    max_instances: 2
+    node_ids:
+    - 0
+    - 1
+  KSamplerAdvanced:
+    max_instances: 2
+    node_ids:
+    - 58
+    - 59
+  LatentBlend:
+    max_instances: 2
+    node_ids:
+    - 64
+    - 65
+  LatentComposite:
+    max_instances: 2
+    node_ids:
+    - 62
+    - 63
+  LatentCrop:
+    max_instances: 2
+    node_ids:
+    - 70
+    - 71
+  LatentFlip:
+    max_instances: 2
+    node_ids:
+    - 68
+    - 69
+  LatentFromBatch:
+    max_instances: 2
+    node_ids:
+    - 20
+    - 21
+  LatentRotate:
+    max_instances: 2
+    node_ids:
+    - 66
+    - 67
+  LatentUpscale:
+    max_instances: 2
+    node_ids:
+    - 16
+    - 17
+  LatentUpscaleBy:
+    max_instances: 2
+    node_ids:
+    - 18
+    - 19
+  LoadImage:
+    max_instances: 2
+    node_ids:
+    - 28
+    - 29
+  LoadImageMask:
+    max_instances: 2
+    node_ids:
+    - 30
+    - 31
+  LoadLatent:
+    max_instances: 2
+    node_ids:
+    - 102
+    - 103
+  LoraLoader:
+    max_instances: 1
+    node_ids:
+    - 72
+  LoraLoaderModelOnly:
+    max_instances: 1
+    node_ids:
+    - 110
+  MZ_ApplyCUDAGenerator:
+    max_instances: 2
+    node_ids:
+    - 193
+    - 194
+  MZ_ApplySDXLSamplingSettings:
+    max_instances: 2
+    node_ids:
+    - 191
+    - 192
+  MZ_ChatGLM3:
+    max_instances: 2
+    node_ids:
+    - 198
+    - 199
+  MZ_ChatGLM3Embeds2Conditioning:
+    max_instances: 2
+    node_ids:
+    - 181
+    - 182
+  MZ_ChatGLM3Loader:
+    max_instances: 1
+    node_ids:
+    - 178
+  MZ_ChatGLM3_Advance_V2:
+    max_instances: 2
+    node_ids:
+    - 183
+    - 184
+  MZ_ChatGLM3_V2:
+    max_instances: 2
+    node_ids:
+    - 179
+    - 180
+  MZ_IPAdapterAdvancedKolors:
+    max_instances: 2
+    node_ids:
+    - 196
+    - 197
+  MZ_IPAdapterModelLoaderKolors:
+    max_instances: 1
+    node_ids:
+    - 195
+  MZ_KolorsCLIPVisionLoader:
+    max_instances: 1
+    node_ids:
+    - 190
+  MZ_KolorsCheckpointLoaderSimple:
+    max_instances: 1
+    node_ids:
+    - 185
+  MZ_KolorsControlNetLoader:
+    max_instances: 1
+    node_ids:
+    - 186
+  MZ_KolorsControlNetPatch:
+    max_instances: 2
+    node_ids:
+    - 188
+    - 189
+  MZ_KolorsUNETLoader:
+    max_instances: 1
+    node_ids:
+    - 200
+  MZ_KolorsUNETLoaderV2:
+    max_instances: 1
+    node_ids:
+    - 187
+  PrepImageForClipVision:
+    max_instances: 2
+    node_ids:
+    - 160
+    - 161
+  PreviewImage:
+    max_instances: 2
+    node_ids:
+    - 26
+    - 27
+  RepeatLatentBatch:
+    max_instances: 2
+    node_ids:
+    - 22
+    - 23
+  SaveImage:
+    max_instances: 2
+    node_ids:
+    - 24
+    - 25
+  SaveLatent:
+    max_instances: 2
+    node_ids:
+    - 104
+    - 105
+  SetLatentNoiseMask:
+    max_instances: 2
+    node_ids:
+    - 60
+    - 61
+  StyleModelApply:
+    max_instances: 2
+    node_ids:
+    - 78
+    - 79
+  StyleModelLoader:
+    max_instances: 1
+    node_ids:
+    - 88
+  UNETLoader:
+    max_instances: 1
+    node_ids:
+    - 74
+  VAEDecode:
+    max_instances: 2
+    node_ids:
+    - 7
+    - 8
+  VAEDecodeTiled:
+    max_instances: 2
+    node_ids:
+    - 90
+    - 91
+  VAEEncode:
+    max_instances: 2
+    node_ids:
+    - 9
+    - 10
+  VAEEncodeForInpaint:
+    max_instances: 2
+    node_ids:
+    - 11
+    - 12
+  VAEEncodeTiled:
+    max_instances: 2
+    node_ids:
+    - 92
+    - 93
+  VAELoader:
+    max_instances: 1
+    node_ids:
+    - 13
+  unCLIPCheckpointLoader:
+    max_instances: 1
+    node_ids:
+    - 94
+  unCLIPConditioning:
+    max_instances: 2
+    node_ids:
+    - 80
+    - 81
+

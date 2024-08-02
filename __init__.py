@@ -1,11 +1,17 @@
-from . import register
+import os
+import sys
+
+current_path = os.path.abspath(os.path.dirname(__file__))
+src_path = os.path.join(current_path, "src")
+if os.path.isdir(src_path):
+    sys.path.insert(0, src_path)
+
+from bizyair import NODE_CLASS_MAPPINGS, NODE_DISPLAY_NAME_MAPPINGS
 from . import nodes
 from . import bizyair_extras
 from . import showcase
 
 WEB_DIRECTORY = "./js"
-NODE_CLASS_MAPPINGS: dict = register.NODE_CLASS_MAPPINGS
-NODE_DISPLAY_NAME_MAPPINGS: dict = register.NODE_DISPLAY_NAME_MAPPINGS
 
 
 from . import auth

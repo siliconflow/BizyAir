@@ -1,4 +1,5 @@
 import base64
+from enum import Enum
 import io
 import json
 import os
@@ -10,13 +11,18 @@ import numpy as np
 import torch
 from PIL import Image
 import yaml
-import urllib.request
-import urllib.parse
+from .client import BizyAirStreamClient, BizyAirRequestClient
 
 # Marker to identify base64-encoded tensors
 TENSOR_MARKER = "TENSOR:"
 BIZYAIR_DEBUG = os.getenv("BIZYAIR_DEBUG", False)
 from typing import Dict
+
+
+class TaskStatus(Enum):
+    PENDING = "pending"
+    PROCESSING = "processing"
+    COMPLETED = "completed"
 
 
 def create_node_data(class_type: str, inputs: dict, outputs: dict):
@@ -35,18 +41,26 @@ def create_node_data(class_type: str, inputs: dict, outputs: dict):
     return out
 
 
+def set_api_key(API_KEY="YOUR_API_KEY"):
+    BizyAirNodeIO.API_KEY = API_KEY
+
+
 class BizyAirNodeIO:
+    API_KEY = os.getenv("BIZYAIR_API_KEY", "YOUR_API_KEY")
+
     def __init__(
         self,
         node_id: int = "0",
         nodes: Dict[str, Dict[str, any]] = {},
         config_file=None,
         configs: dict = None,
+        debug: bool = BIZYAIR_DEBUG,
     ):
         self._validate_node_id(node_id=node_id)
 
         self.node_id = node_id
         self.nodes = nodes
+        self.debug = debug
 
         if config_file:
             if not os.path.exists(config_file):
@@ -101,6 +115,8 @@ class BizyAirNodeIO:
 
     @property
     def workflow_api(self):
+        # return {"prompt": self.nodes, "last_node_id": self.node_id}
+        # TODO (refine)
         class_configs = self.configs.get("class_types", {})
         class_usage_count = {}
         for _, instance_info in self.nodes.items():
@@ -180,14 +196,16 @@ class BizyAirNodeIO:
             if isinstance(other, BizyAirNodeIO):
                 self.nodes.update(other.nodes)
 
-    @staticmethod
-    def get_headers():
-        from .auth import API_KEY
+    def get_headers(self):
+        if self.API_KEY is None or not self.API_KEY.startswith("sk-"):
+            raise ValueError(
+                f"API key is not set. Please provide a valid API key, {self.API_KEY=}"
+            )
 
         return {
             "accept": "application/json",
             "content-type": "application/json",
-            "authorization": f"Bearer {API_KEY}",
+            "authorization": f"Bearer {self.API_KEY}",
         }
 
     def service_route(self):
@@ -195,36 +213,80 @@ class BizyAirNodeIO:
         real_service_route = service_config["service_address"] + service_config["route"]
         return real_service_route
 
-    def send_request(self, url=None, headers=None) -> any:
-        #  self._short_repr(self.nodes, max_length=100)
-        #  self._short_repr(self.workflow_api, max_length=100)
+    def send_request(
+        self, url=None, headers=None, *, progress_callback=None, stream=False
+    ) -> any:
+        # self._short_repr(self.nodes, max_length=100)
+        # self._short_repr(self.workflow_api['prompt'], max_length=100)
         api_url = self.service_route()
-        try:
-            data = json.dumps(self.workflow_api).encode("utf-8")
-            req = urllib.request.Request(
-                api_url, data=data, headers=self.get_headers(), method="POST"
-            )
-            with urllib.request.urlopen(req) as response:
-                response_data = response.read().decode("utf-8")
-        except urllib.error.URLError as e:
-            if "Unauthorized" in str(e):
-                raise Exception(
-                    "Key is invalid, please refer to https://cloud.siliconflow.cn to get the API key.\n"
-                    "If you have the key, please click the 'BizyAir Key' button at the bottom right to set the key."
-                )
-            else:
-                raise Exception(
-                    f"Failed to connect to the server: {e}, if you have no key, "
-                )
+        if self.debug:
+            prompt = self._short_repr(self.workflow_api["prompt"], max_length=100)
+            print(f"Debug: {prompt=} {api_url=} {BizyAirNodeIO.API_KEY=}")
 
-        result = json.loads(response_data)
+        if stream:
+            result = None
+            pass  # TODO(fix)
+            # def process_events(api_url, workflow_api, api_key):
+            #     total_steps = None
+            #     with BizyAirStreamClient(api_url, workflow_api, api_key) as stream_client:
+            #         for event_data in stream_client.events():
+            #             try:
+            #                 event_data = json.loads(event_data)["data"]
+            #             except json.JSONDecodeError as e:
+            #                 print(f"rror decoding JSON: {e}")
+            #                 print(f"Received data: {event_data}")
+            #                 raise e
+
+            #             # if self.debug:
+            #             print(f"Debug Event Data: {self._short_repr(event_data, 100)}")
+
+            #             status = event_data["status"]
+            #             data = event_data["data"]
+            #             pending_count = event_data.get("pending_tasks_count", None)
+            #             if status == TaskStatus.PENDING.value:
+            #                 print(
+            #                     f"Task is pending, current pending tasks count: {pending_count}"
+            #                 )
+            #             elif status == TaskStatus.PROCESSING.value:
+            #                 if "progress" in data and isinstance(data["progress"], dict):
+            #                     step, total_steps = (
+            #                         data["progress"]["value"],
+            #                         data["progress"]["total"],
+            #                     )
+            #                     progress_callback(step, total_steps, preview=None)
+
+            #             elif status == TaskStatus.COMPLETED.value:
+            #                 if total_steps:
+            #                     progress_callback(total_steps, total_steps, preview=None)
+            #                 return event_data
+
+            # result = process_events(api_url, self.workflow_api, self.API_KEY)
+        else:
+            client = BizyAirRequestClient(
+                api_url, self.workflow_api, BizyAirNodeIO.API_KEY
+            )
+            response_data = client.send_request()
+            result = json.loads(response_data)
+
+        if result is None:
+            raise RuntimeError("result is None")
+
         if "result" in result:  # cloud
             msg = json.loads(result["result"])
-            if "error" in msg:
-                raise RuntimeError(f"{msg['error']}")
-            out = msg["data"]["payload"]
+            try:
+                out = msg["data"]["payload"]
+            except Exception as e:
+                raise RuntimeError(
+                    f'Unexpected error accessing result["data"]["payload"]. Result: {msg}'
+                ) from e
+
         else:  # local
-            out = result["data"]["payload"]
+            try:
+                out = result["data"]["payload"]
+            except Exception as e:
+                raise RuntimeError(
+                    f'Unexpected error accessing result["data"]["payload"]. Result: {result}'
+                ) from e
 
         real_out = decode_data(out)
         return real_out[0]
