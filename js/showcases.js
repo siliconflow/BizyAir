@@ -143,7 +143,7 @@ class FloatingButton {
     mapHtmls(item, key) {
         if (typeof item === 'string') {
             return $el("li", {
-                textContent: item,
+                textContent: key,
                 onclick: async () => await this.get_workflow_graph(item)
             });
         } else {
