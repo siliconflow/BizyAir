@@ -7,54 +7,23 @@ from aiohttp import web
 BIZYAIR_DEBUG = os.getenv("BIZYAIR_DEBUG", False)
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 
-SHOW_CASES = [
-    {
-        "title": "Remove the background from the image",
-        "file": "bizyair_showcase_remove_background.json",
-    },
-    {
-        "title": "Generate an image from a line drawing",
-        "file": "bizyair_showcase_interior_design.json",
-    },
-    {
-        "title": "Recreate an existing image",
-        "file": "bizyair_showcase_caption_redraw.json",
-    },
-    {
-        "title": "Design a submarine like a great white shark",
-        "file": "bizyair_showcase_shark_submarine.json",
-    },
-    {
-        "title": "All types of ControlNet preprocessors",
-        "file": "bizyair_controlnet_preprocessor_workflow.json",
-    },
-    {
-        "title": "Text to Image by BizyAir KSampler",
-        "file": "bizyair_showcase_ksampler_txt2img.json",
-    },
-    {
-        "title": "Image to Image by BizyAir KSampler",
-        "file": "bizyair_showcase_ksampler_img2img.json",
-    },
-    {
-        "title": "LoRA workflow by BizyAir KSampler",
-        "file": "bizyair_showcase_ksampler_lora.json",
-    },
-    {
-        "title": "ControlNet workflow by BizyAir KSampler",
-        "file": "bizyair_showcase_ksampler_controlnet.json",
-    },
-    {
-        "title": "IP Adapter workflow by BizyAir KSampler",
-        "file": "bizyair_showcase_ksampler_ipadapter.json",
-    },
-    {
-        "title": "Run BizyAir nodes with local nodes",
-        "file": "bizyair_showcase_run_with_local_nodes.json",
-    },
-]
+SHOW_CASES = {}
 
-file_whitelist = [item["file"] for item in SHOW_CASES]
+with open(os.path.join(CURRENT_DIR, "bizyair_example_menu.json"), "r") as file:
+    SHOW_CASES = json.load(file)
+
+
+def extract_files(data):
+    file_whitelist = []
+    for key, value in data.items():
+        if isinstance(value, dict):
+            file_whitelist.extend(extract_files(value))
+        else:
+            file_whitelist.append(value)
+    return file_whitelist
+
+
+file_whitelist = extract_files(SHOW_CASES)
 
 
 @server.PromptServer.instance.routes.get("/bizyair/showcases")

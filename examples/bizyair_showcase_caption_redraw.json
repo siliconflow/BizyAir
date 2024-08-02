@@ -1,6 +1,6 @@
 {
-  "last_node_id": 10,
-  "last_link_id": 9,
+  "last_node_id": 18,
+  "last_link_id": 20,
   "nodes": [
     {
       "id": 2,
@@ -14,7 +14,7 @@
         "1": 375.06640625
       },
       "flags": {},
-      "order": 2,
+      "order": 6,
       "mode": 0,
       "inputs": [
         {
@@ -39,138 +39,18 @@
         "1": 375.06640625
       },
       "flags": {},
-      "order": 7,
+      "order": 11,
       "mode": 0,
       "inputs": [
         {
           "name": "images",
           "type": "IMAGE",
-          "link": 8
+          "link": 19
         }
       ],
       "properties": {
         "Node name for S&R": "PreviewImage"
       }
-    },
-    {
-      "id": 4,
-      "type": "BizyAirKolorsTextEncode",
-      "pos": [
-        711,
-        645
-      ],
-      "size": {
-        "0": 387,
-        "1": 152.03125
-      },
-      "flags": {},
-      "order": 4,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "prompt",
-          "type": "STRING",
-          "link": 9,
-          "widget": {
-            "name": "prompt"
-          }
-        }
-      ],
-      "outputs": [
-        {
-          "name": "kolors_embeds",
-          "type": "KOLORS_EMBEDS",
-          "links": [
-            5
-          ],
-          "shape": 3,
-          "slot_index": 0
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "BizyAirKolorsTextEncode"
-      },
-      "widgets_values": [
-        "",
-        "",
-        1
-      ]
-    },
-    {
-      "id": 7,
-      "type": "BizyAirKolorsVAEDecode",
-      "pos": [
-        717,
-        841
-      ],
-      "size": {
-        "0": 371.328125,
-        "1": 26
-      },
-      "flags": {},
-      "order": 6,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "samples",
-          "type": "LATENT",
-          "link": 6
-        }
-      ],
-      "outputs": [
-        {
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
-            8
-          ],
-          "shape": 3,
-          "slot_index": 0
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "BizyAirKolorsVAEDecode"
-      }
-    },
-    {
-      "id": 3,
-      "type": "BizyAirImageCaption",
-      "pos": [
-        705,
-        456
-      ],
-      "size": {
-        "0": 398.69140625,
-        "1": 137.3203125
-      },
-      "flags": {},
-      "order": 3,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "image",
-          "type": "IMAGE",
-          "link": 2
-        }
-      ],
-      "outputs": [
-        {
-          "name": "caption",
-          "type": "STRING",
-          "links": [
-            9
-          ],
-          "shape": 3,
-          "slot_index": 0
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "BizyAirImageCaption"
-      },
-      "widgets_values": [
-        1024,
-        1
-      ]
     },
     {
       "id": 1,
@@ -212,69 +92,153 @@
       ]
     },
     {
-      "id": 6,
-      "type": "BizyAirKolorsSampler",
+      "id": 15,
+      "type": "EmptyLatentImage",
       "pos": [
-        1121,
-        621
+        713,
+        865
       ],
-      "size": [
-        335.06640625,
-        246
-      ],
+      "size": {
+        "0": 366.4786682128906,
+        "1": 106
+      },
       "flags": {},
-      "order": 5,
+      "order": 1,
       "mode": 0,
-      "inputs": [
-        {
-          "name": "kolors_embeds",
-          "type": "KOLORS_EMBEDS",
-          "link": 5
-        },
-        {
-          "name": "latent",
-          "type": "LATENT",
-          "link": null
-        }
-      ],
       "outputs": [
         {
-          "name": "latent",
+          "name": "LATENT",
           "type": "LATENT",
           "links": [
-            6
+            13
           ],
           "shape": 3,
           "slot_index": 0
         }
       ],
       "properties": {
-        "Node name for S&R": "BizyAirKolorsSampler"
+        "Node name for S&R": "EmptyLatentImage"
       },
       "widgets_values": [
         1024,
         1024,
-        20,
-        "fixed",
-        25,
-        5,
-        "EulerDiscreteScheduler",
         1
       ]
+    },
+    {
+      "id": 11,
+      "type": "BizyAir_KSampler",
+      "pos": [
+        1129,
+        623
+      ],
+      "size": {
+        "0": 326.46356201171875,
+        "1": 262
+      },
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "BIZYAIR_MODEL",
+          "link": 10
+        },
+        {
+          "name": "positive",
+          "type": "BIZYAIR_CONDITIONING",
+          "link": 11
+        },
+        {
+          "name": "negative",
+          "type": "BIZYAIR_CONDITIONING",
+          "link": 12
+        },
+        {
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 13
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            16
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_KSampler"
+      },
+      "widgets_values": [
+        1010153235821273,
+        "randomize",
+        20,
+        8,
+        "euler",
+        "normal",
+        1
+      ]
+    },
+    {
+      "id": 18,
+      "type": "BizyAir_VAEDecode",
+      "pos": [
+        1488,
+        619
+      ],
+      "size": {
+        "0": 210,
+        "1": 46
+      },
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 16
+        },
+        {
+          "name": "vae",
+          "type": "BIZYAIR_VAE",
+          "link": 18
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            19
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_VAEDecode"
+      }
     },
     {
       "id": 10,
       "type": "Note",
       "pos": [
-        1488,
-        631
+        1493,
+        832
       ],
-      "size": [
-        336.19921875,
-        236.52734375
-      ],
+      "size": {
+        "0": 317.83868408203125,
+        "1": 163.6504669189453
+      },
       "flags": {},
-      "order": 1,
+      "order": 2,
       "mode": 0,
       "properties": {
         "text": ""
@@ -284,6 +248,185 @@
       ],
       "color": "#432",
       "bgcolor": "#653"
+    },
+    {
+      "id": 3,
+      "type": "BizyAirImageCaption",
+      "pos": [
+        705,
+        456
+      ],
+      "size": {
+        "0": 398.69140625,
+        "1": 137.3203125
+      },
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "caption",
+          "type": "STRING",
+          "links": [
+            20
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAirImageCaption"
+      },
+      "widgets_values": [
+        1024,
+        1,
+        "The flower is very light pink. There is a bright yellow center. In the background there is another small flower. The flower is also bright pink as well. There are green leaves around the big flower."
+      ]
+    },
+    {
+      "id": 13,
+      "type": "BizyAir_MinusZoneChatGLM3TextEncode",
+      "pos": [
+        713,
+        645
+      ],
+      "size": [
+        382.7284710546876,
+        37.447995039062675
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "link": 20,
+          "widget": {
+            "name": "text"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "BIZYAIR_CONDITIONING",
+          "type": "BIZYAIR_CONDITIONING",
+          "links": [
+            11
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_MinusZoneChatGLM3TextEncode"
+      },
+      "widgets_values": [
+        "a dog"
+      ]
+    },
+    {
+      "id": 14,
+      "type": "BizyAir_MinusZoneChatGLM3TextEncode",
+      "pos": [
+        715,
+        728
+      ],
+      "size": {
+        "0": 387.4133605957031,
+        "1": 76
+      },
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "BIZYAIR_CONDITIONING",
+          "type": "BIZYAIR_CONDITIONING",
+          "links": [
+            12
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_MinusZoneChatGLM3TextEncode"
+      },
+      "widgets_values": [
+        "nsfw, text, watermark"
+      ]
+    },
+    {
+      "id": 12,
+      "type": "BizyAir_MZ_KolorsUNETLoaderV2",
+      "pos": [
+        1129,
+        934
+      ],
+      "size": {
+        "0": 336,
+        "1": 58
+      },
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "model",
+          "type": "BIZYAIR_MODEL",
+          "links": [
+            10
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_MZ_KolorsUNETLoaderV2"
+      },
+      "widgets_values": [
+        "kolors/Kolors.safetensors"
+      ]
+    },
+    {
+      "id": 17,
+      "type": "BizyAir_VAELoader",
+      "pos": [
+        1491,
+        713
+      ],
+      "size": {
+        "0": 315,
+        "1": 58
+      },
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "vae",
+          "type": "BIZYAIR_VAE",
+          "links": [
+            18
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_VAELoader"
+      },
+      "widgets_values": [
+        "sdxl/sdxl_vae.safetensors"
+      ]
     }
   ],
   "links": [
@@ -304,34 +447,66 @@
       "IMAGE"
     ],
     [
-      5,
-      4,
+      10,
+      12,
       0,
-      6,
+      11,
       0,
-      "KOLORS_EMBEDS"
+      "BIZYAIR_MODEL"
     ],
     [
-      6,
-      6,
+      11,
+      13,
       0,
-      7,
+      11,
+      1,
+      "BIZYAIR_CONDITIONING"
+    ],
+    [
+      12,
+      14,
+      0,
+      11,
+      2,
+      "BIZYAIR_CONDITIONING"
+    ],
+    [
+      13,
+      15,
+      0,
+      11,
+      3,
+      "LATENT"
+    ],
+    [
+      16,
+      11,
+      0,
+      18,
       0,
       "LATENT"
     ],
     [
-      8,
-      7,
+      18,
+      17,
+      0,
+      18,
+      1,
+      "BIZYAIR_VAE"
+    ],
+    [
+      19,
+      18,
       0,
       9,
       0,
       "IMAGE"
     ],
     [
-      9,
+      20,
       3,
       0,
-      4,
+      13,
       0,
       "STRING"
     ]
@@ -340,10 +515,10 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 1,
+      "scale": 0.620921323059155,
       "offset": [
-        -22.078125,
-        19.015625
+        -107.90077296874978,
+        29.013670625
       ]
     }
   },
