@@ -45,13 +45,21 @@
     "kolors": [
       "Kolors-Inpainting.safetensors",
       "Kolors.safetensors"
+    ],
+    "flux": [
+      "flux1-schnell.sft"
     ]
   },
   "vae": {
     "sdxl": [
       "sdxl_vae.safetensors"
+    ],
+    "flux": [
+      "ae.sft"
     ]
   },
-  "clip":{
-  }
+  "clip":[
+    "clip_l.safetensors",
+    "t5xxl_fp8_e4m3fn.safetensors"
+  ]
 }

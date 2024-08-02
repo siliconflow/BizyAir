@@ -108,7 +108,6 @@ def init_config():
 
         folder_names_and_paths[k].extend(recursive_extract_models(v))
 
-
 init_config()
 
 if __name__ == "__main__":
