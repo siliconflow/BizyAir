@@ -82,7 +82,7 @@
       ],
       "outputs": [
         {
-          "name": "LATENT🛬",
+          "name": "LATENT",
           "type": "LATENT",
           "links": [
             45
@@ -334,7 +334,7 @@
       ],
       "outputs": [
         {
-          "name": "IMAGE🛬",
+          "name": "IMAGE",
           "type": "IMAGE",
           "links": [
             46
