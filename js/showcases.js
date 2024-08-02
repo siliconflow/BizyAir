@@ -127,7 +127,7 @@ class FloatingButton {
         if (exampleMenu) document.body.removeChild(exampleMenu);
         const keys = Object.keys(this.show_cases)
         document.body.appendChild($el(
-            "ul.example-menu", 
+            "ul.example-menu",
             {
                 style: {
                     position: "absolute",
@@ -150,7 +150,7 @@ class FloatingButton {
             const keys = Object.keys(item)
             return $el("li.has-child", {
                 textContent: key,
-                onclick: function(e) {
+                onclick: function (e) {
                     e.preventDefault();
                     e.stopPropagation();
                     const childList = this.querySelector(".child-list");
@@ -158,7 +158,7 @@ class FloatingButton {
                     childList.style.display = childList.style.display === 'block' ? 'none' : 'block';
                 }
             }, [
-                $el("ul.child-list", { style: { display: "none" }}, keys.map(e => this.mapHtmls(item[e], e)))
+                $el("ul.child-list", { style: { display: "none" } }, keys.map(e => this.mapHtmls(item[e], e)))
             ])
         }
     }
