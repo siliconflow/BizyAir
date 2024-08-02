@@ -115,14 +115,12 @@ class BizyAirNodeIO:
 
     @property
     def workflow_api(self):
-        # return {"prompt": self.nodes, "last_node_id": self.node_id}
-        # TODO (refine)
         class_configs = self.configs.get("class_types", {})
         class_usage_count = {}
         for _, instance_info in self.nodes.items():
             class_type = instance_info["class_type"]
             if class_type not in class_configs:
-                raise NotImplementedError(f"NotImplementedError for {class_type}")
+                continue
             if class_type not in class_usage_count:
                 class_usage_count[class_type] = 0
             class_usage_count[class_type] += 1
@@ -135,41 +133,7 @@ class BizyAirNodeIO:
                     f"{class_type} max_instances is too large, allowed: {max_instances}",
                 )
 
-            wokflow_api = self.generate_workflow_with_allocated_ids()
-            return wokflow_api
-
-    def generate_workflow_with_allocated_ids(self):
-        class_configs = self.configs.get("class_types", {})
-        class_id_counter = {}
-        node_id_mapping = {}
-
-        for node_id, node_data in self.nodes.items():
-            class_type = node_data["class_type"]
-            class_node_ids = class_configs[class_type]["node_ids"]
-            class_id_counter.setdefault(class_type, 0)
-            allocated_id = class_node_ids[class_id_counter[class_type]]
-            class_id_counter[class_type] += 1
-            node_id_mapping[node_id] = str(allocated_id)
-
-        workflow = {}
-        for ins_id, ins_info in self.nodes.items():
-            node_id = node_id_mapping[ins_id]
-            workflow[node_id] = {
-                "class_type": ins_info["class_type"],
-                "outputs": ins_info["outputs"],
-                "inputs": {},
-            }
-
-            for in_key, value in ins_info["inputs"].items():
-                if isinstance(value, list) and len(value) == 2:
-                    workflow[node_id]["inputs"][in_key] = [
-                        node_id_mapping[value[0]],
-                        value[1],
-                    ]
-                else:
-                    workflow[node_id]["inputs"][in_key] = value
-
-        return {"prompt": workflow, "last_node_id": node_id_mapping[self.node_id]}
+        return {"prompt": self.nodes, "last_node_id": self.node_id}
 
     def add_node_data(
         self, class_type: str, inputs: Dict[str, Any], outputs: Dict[str, Any]
