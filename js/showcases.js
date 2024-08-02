@@ -57,6 +57,38 @@ const style = `
     color: white;
     font-size: 12px;
 }
+.example-menu {
+    background-color: var(--comfy-menu-bg);
+    filter: brightness(95%);
+    will-change: transform;
+    min-width: 100px;
+    box-shadow: 0 0 10px black;
+    padding: 10px;
+    margin: 0;
+}
+.example-menu li {
+    list-style: none;
+    cursor: pointer;
+    line-height: 1.5;
+    padding: 0;
+    margin: 4px 0;
+    position: relative;
+    padding-left: 20px;
+}
+.example-menu li.has-child::before {
+    content: "▶";
+    margin-right: 5px;
+    transition: all 0.1s;
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+.example-menu li.has-child.show-child::before {
+    transform: rotate(90deg);
+}
+.example-menu li .child-list {
+    padding-left: 0px;
+}
 `;
 
 class FloatingButton {
@@ -80,6 +112,10 @@ class FloatingButton {
 
         document.addEventListener("mousemove", (e) => this.doDrag(e));
         document.addEventListener("mouseup", () => this.endDrag());
+        document.addEventListener("click", () => {
+            const exampleMenu = document.querySelector(".example-menu")
+            if (exampleMenu) document.body.removeChild(exampleMenu);
+        });
     }
 
     async showMenu(e) {
@@ -87,20 +123,50 @@ class FloatingButton {
         e.preventDefault();
         e.stopPropagation();
 
-        LiteGraph.closeAllContextMenus();
-        const menu = new LiteGraph.ContextMenu(
-            await this.getMenuOptions(),
+        const exampleMenu = document.querySelector(".example-menu")
+        if (exampleMenu) document.body.removeChild(exampleMenu);
+        const keys = Object.keys(this.show_cases)
+        document.body.appendChild($el(
+            "ul.example-menu",
             {
-                event: e,
-                scale: 1.3,
+                style: {
+                    position: "absolute",
+                    top: e.clientY + "px",
+                    left: e.clientX + "px",
+                    zIndex: 1000,
+                }
             },
-            window
-        );
-        menu.root.classList.add("comfy-floating-menu");
+            keys.map(item => this.mapHtmls(this.show_cases[item], item))
+        ))
+    }
+
+    mapHtmls(item, key) {
+        if (typeof item === 'string') {
+            return $el("li", {
+                textContent: key,
+                onclick: async () => await this.get_workflow_graph(item)
+            });
+        } else {
+            const keys = Object.keys(item)
+            return $el("li.has-child", {
+                textContent: key,
+                onclick: function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const childList = this.querySelector(".child-list");
+                    this.classList.toggle('show-child');
+                    childList.style.display = childList.style.display === 'block' ? 'none' : 'block';
+                }
+            }, [
+                $el("ul.child-list", { style: { display: "none" } }, keys.map(e => this.mapHtmls(item[e], e)))
+            ])
+        }
     }
 
     async get_workflow_graph(file) {
         console.log("workflow file:", file);
+        const exampleMenu = document.querySelector(".example-menu")
+        if (exampleMenu) document.body.removeChild(exampleMenu);
         const response = await api.fetchApi("/bizyair/workflow", {
             method: "POST",
             headers: {
