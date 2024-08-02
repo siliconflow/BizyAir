@@ -464,7 +464,7 @@ class UNETLoader(BizyAirBaseNode):
         return {
             "required": {
                 "unet_name": (folder_paths.get_filename_list("unet"),),
-                "weight_dtype": (["default"],),  #  "fp8_e4m3fn", "fp8_e5m2"
+                "weight_dtype": (["fp8_e4m3fn"],),
             }
         }
 
