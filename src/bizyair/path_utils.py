@@ -15,7 +15,11 @@ def load_yaml_config(file_path):
 
 
 def guess_config(
-    *, ckpt_name: str = None, unet_name: str = None, vae_name: str = None
+    *,
+    ckpt_name: str = None,
+    unet_name: str = None,
+    vae_name: str = None,
+    clip_name: str = None,
 ) -> str:
     base_path = os.path.dirname(os.path.abspath(__file__))
     if ckpt_name is not None and ckpt_name.lower().startswith("sdxl"):
@@ -26,7 +30,10 @@ def guess_config(
         "sdxl/sdxl_vae.safetensors"
     ):
         return os.path.join(base_path, "configs", "kolors_config.yaml")
-    raise RuntimeError()
+
+    print(f"Debug: {locals()=}")
+    return os.path.join(base_path, "configs", "flux_config.yaml")
+    # raise RuntimeError()
 
 
 def get_config_file_list(base_path=None) -> list:
@@ -45,7 +52,13 @@ def get_config_file_list(base_path=None) -> list:
 
 def get_filename_list(folder_name):
     global folder_names_and_paths
-    return folder_names_and_paths[folder_name]
+
+    outs = folder_names_and_paths[folder_name]
+
+    # TODO del debug
+    import folder_paths
+
+    return outs + folder_paths.get_filename_list(folder_name)
 
 
 def recursive_extract_models(data: Any, prefix_path: str = "") -> List[str]:
