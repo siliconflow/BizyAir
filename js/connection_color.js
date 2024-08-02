@@ -7,6 +7,7 @@ app.registerExtension({
             BIZYAIR_MODEL: '#7C5AEC',
             BIZYAIR_CLIP: '#FFF4C4',
             BIZYAIR_VAE: '#FF5959',
+            BIZYAIR_CONDITIONING: '#967117',
         })
     },
 });
