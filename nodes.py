@@ -456,3 +456,216 @@ class VAELoader(BizyAirBaseNode):
             config_file=folder_paths.guess_config(vae_name=vae_name),
         )
         return (vae,)
+
+
+class UNETLoader(BizyAirBaseNode):
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "unet_name": (folder_paths.get_filename_list("unet"),),
+                "weight_dtype": (["fp8_e4m3fn"],),
+            }
+        }
+
+    RETURN_TYPES = (data_types.MODEL,)
+    FUNCTION = "load_unet"
+
+    CATEGORY = "advanced/loaders"
+
+    def load_unet(self, unet_name, weight_dtype):
+        node_data = create_node_data(
+            class_type="UNETLoader",
+            inputs={
+                "unet_name": unet_name,
+                "weight_dtype": weight_dtype,
+            },
+            outputs={"slot_index": 0},
+        )
+        model = BizyAirNodeIO(
+            self.assigned_id,
+            {self.assigned_id: node_data},
+            config_file=folder_paths.guess_config(unet_name=unet_name),
+        )
+        return (model,)
+
+
+class SamplerCustomAdvanced(BizyAirBaseNode):
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "noise": ("NOISE",),
+                "guider": ("GUIDER",),
+                "sampler": ("SAMPLER",),
+                "sigmas": ("SIGMAS",),
+                "latent_image": ("LATENT",),
+            }
+        }
+
+    RETURN_TYPES = ("LATENT", "LATENT")
+    RETURN_NAMES = ("output", "denoised_output")
+
+    FUNCTION = "sample"
+
+    CATEGORY = "sampling/custom_sampling"
+
+    def sample(self, **kwargs):
+        guider: BizyAirNodeIO = kwargs["guider"].copy(self.assigned_id)
+        guider.add_node_data(
+            class_type="SamplerCustomAdvanced",
+            inputs=kwargs,
+            outputs={"slot_index": 0},
+        )
+        return (guider, None)
+
+
+class BasicGuider(BizyAirBaseNode):
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "model": (data_types.MODEL,),
+                "conditioning": (data_types.CONDITIONING,),
+            }
+        }
+
+    RETURN_TYPES = ("GUIDER",)
+
+    FUNCTION = "get_guider"
+    CATEGORY = "sampling/custom_sampling/guiders"
+
+    def get_guider(self, model: BizyAirNodeIO, conditioning):
+        new_model = model.copy(self.assigned_id)
+        new_model.add_node_data(
+            class_type="BasicGuider",
+            inputs={
+                "model": model,
+                "conditioning": conditioning,
+            },
+            outputs={"slot_index": 0},
+        )
+        return (new_model,)
+
+
+class BasicScheduler(BizyAirBaseNode):
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "model": (data_types.MODEL,),
+                "scheduler": (comfy.samplers.SCHEDULER_NAMES,),
+                "steps": ("INT", {"default": 20, "min": 1, "max": 10000}),
+                "denoise": (
+                    "FLOAT",
+                    {"default": 1.0, "min": 0.0, "max": 1.0, "step": 0.01},
+                ),
+            }
+        }
+
+    RETURN_TYPES = ("SIGMAS",)
+    CATEGORY = "sampling/custom_sampling/schedulers"
+
+    FUNCTION = "get_sigmas"
+
+    def get_sigmas(self, **kwargs):
+        new_model: BizyAirNodeIO = kwargs["model"].copy(self.assigned_id)
+        new_model.add_node_data(
+            class_type="BasicScheduler",
+            inputs=kwargs,
+            outputs={"slot_index": 0},
+        )
+        return (new_model,)
+
+
+class DualCLIPLoader(BizyAirBaseNode):
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "clip_name1": (folder_paths.get_filename_list("clip"),),
+                "clip_name2": (folder_paths.get_filename_list("clip"),),
+                "type": (["sdxl", "sd3", "flux"],),
+            }
+        }
+
+    RETURN_TYPES = (data_types.CLIP,)
+    FUNCTION = "load_clip"
+
+    CATEGORY = "advanced/loaders"
+
+    def load_clip(self, clip_name1, clip_name2, type):
+
+        node_data = create_node_data(
+            class_type="DualCLIPLoader",
+            inputs={
+                "clip_name1": clip_name1,
+                "clip_name2": clip_name2,
+                "type": type,
+            },
+            outputs={"slot_index": 0},
+        )
+        model = BizyAirNodeIO(
+            self.assigned_id,
+            {self.assigned_id: node_data},
+            config_file=folder_paths.guess_config(clip_name=clip_name1),
+        )
+        return (model,)
+
+
+class KSamplerSelect(BizyAirBaseNode):
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "sampler_name": (comfy.samplers.SAMPLER_NAMES,),
+            }
+        }
+
+    RETURN_TYPES = ("SAMPLER",)
+    CATEGORY = "sampling/custom_sampling/samplers"
+
+    FUNCTION = "get_sampler"
+
+    def get_sampler(self, **kwargs):
+        node_data = create_node_data(
+            class_type="KSamplerSelect",
+            inputs=kwargs,
+            outputs={"slot_index": 0},
+        )
+        model = BizyAirNodeIO(
+            self.assigned_id,
+            {self.assigned_id: node_data},
+        )
+        return (model,)
+
+
+class RandomNoise(BizyAirBaseNode):
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "noise_seed": (
+                    "INT",
+                    {"default": 0, "min": 0, "max": 0xFFFFFFFFFFFFFFFF},
+                ),
+            }
+        }
+
+    RETURN_TYPES = ("NOISE",)
+    FUNCTION = "get_noise"
+    CATEGORY = "sampling/custom_sampling/noise"
+
+    def get_noise(self, noise_seed):
+        node_data = create_node_data(
+            class_type="RandomNoise",
+            inputs={
+                "noise_seed": noise_seed,
+            },
+            outputs={"slot_index": 0},
+        )
+        model = BizyAirNodeIO(
+            self.assigned_id,
+            {self.assigned_id: node_data},
+        )
+        return (model,)

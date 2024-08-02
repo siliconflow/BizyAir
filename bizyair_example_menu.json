@@ -1,4 +1,5 @@
 {
+    "FLUX-schnell": "bizyair_flux_schnell_workflow.json",
     "ControlNet Union": {
         "Generate an image from a line drawing": "bizyair_showcase_interior_design.json",
         "Design a submarine like a great white shark": "bizyair_showcase_shark_submarine.json",
