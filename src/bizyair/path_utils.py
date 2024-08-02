@@ -31,7 +31,7 @@ def guess_config(
     ):
         return os.path.join(base_path, "configs", "kolors_config.yaml")
 
-    print(f"Debug: {locals()=}")
+    #print(f"Debug: {locals()=}")
     return os.path.join(base_path, "configs", "flux_config.yaml")
     # raise RuntimeError()
 
