@@ -1,4 +1,5 @@
-import { app,api } from "./_help.js";
+import { app } from "../../scripts/app.js";
+import { api } from "../../scripts/api.js";
 
 app.registerExtension({
     name: "BizyAir_SetAPIKey",
