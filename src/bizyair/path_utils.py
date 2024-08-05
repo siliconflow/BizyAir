@@ -57,10 +57,7 @@ def get_filename_list(folder_name):
 
     outs = folder_names_and_paths[folder_name]
 
-    # TODO del debug
-    import folder_paths
-
-    return outs + folder_paths.get_filename_list(folder_name)
+    return outs
 
 
 def recursive_extract_models(data: Any, prefix_path: str = "") -> List[str]:
