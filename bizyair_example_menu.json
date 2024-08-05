@@ -1,5 +1,9 @@
 {
-    "FLUX-schnell": "bizyair_flux_schnell_workflow.json",
+    "FLUX": {
+        "FLUX-schnell Text to Image(4 steps)": "bizyair_flux_schnell_workflow.json",
+        "FLUX-dev Text to Image": "bizyair_flux_dev_workflow.json",
+        "FLUX-dev Image to Image": "bizyair_flux_img2img_workflow.json"
+    },
     "ControlNet Union": {
         "Generate an image from a line drawing": "bizyair_showcase_interior_design.json",
         "Design a submarine like a great white shark": "bizyair_showcase_shark_submarine.json",

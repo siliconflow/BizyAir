@@ -47,7 +47,8 @@
       "Kolors.safetensors"
     ],
     "flux": [
-      "flux1-schnell.sft"
+      "flux1-schnell.sft",
+      "flux1-dev.sft"
     ]
   },
   "vae": {
@@ -60,6 +61,7 @@
   },
   "clip":[
     "clip_l.safetensors",
+    "t5xxl_fp16.safetensors",
     "t5xxl_fp8_e4m3fn.safetensors"
   ]
 }
