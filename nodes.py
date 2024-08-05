@@ -189,6 +189,8 @@ class BizyAir_VAEDecode(BizyAirBaseNode):
             },
             outputs={"slot_index": 0},
         )
+        if isinstance(samples, BizyAirNodeIO) and samples.configs:
+            new_vae.configs = samples.configs
         return new_vae.send_request()
 
 
@@ -464,7 +466,7 @@ class UNETLoader(BizyAirBaseNode):
         return {
             "required": {
                 "unet_name": (folder_paths.get_filename_list("unet"),),
-                "weight_dtype": (["default"],),
+                "weight_dtype": (["default", "fp8_e4m3fn", "fp8_e5m2"],),
             }
         }
 
