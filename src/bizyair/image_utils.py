@@ -15,6 +15,8 @@ from .client import BizyAirStreamClient, BizyAirRequestClient
 
 # Marker to identify base64-encoded tensors
 TENSOR_MARKER = "TENSOR:"
+IMAGE_MARKER = "IMAGE:"
+
 BIZYAIR_DEBUG = os.getenv("BIZYAIR_DEBUG", False)
 from typing import Dict
 
@@ -281,7 +283,8 @@ def decode_base64_to_np(img_data: str, format: str = "png") -> np.ndarray:
         print(f"decode_base64_to_np: {format_bytes(len(img_bytes))}")
     with io.BytesIO(img_bytes) as input_buffer:
         img = Image.open(input_buffer)
-        img = img.convert("RGBA")
+        # https://github.com/comfyanonymous/ComfyUI/blob/a178e25912b01abf436eba1cfaab316ba02d272d/nodes.py#L1511
+        img = img.convert("RGB")
         return np.array(img)
 
 
@@ -380,10 +383,13 @@ def _(input):
 
 
 @decode_data.register(str)
-def _(input):
+def _(input: str):
     if input.startswith(TENSOR_MARKER):
         tensor_b64 = input[len(TENSOR_MARKER) :]
         return base64_to_tensor(tensor_b64)
+    elif input.startswith(IMAGE_MARKER):
+        tensor_b64 = input[len(IMAGE_MARKER) :]
+        return decode_comfy_image(tensor_b64)
     return input
 
 
@@ -402,8 +408,37 @@ def _(output):
     return [encode_data(x) for x in output]
 
 
+def is_image_tensor(tensor) -> bool:
+    """https://docs.comfy.org/essentials/custom_node_datatypes#image
+
+    Check if the given tensor is in the format of an IMAGE (shape [B, H, W, C] where C=3).
+
+    `Args`:
+        tensor (torch.Tensor): The tensor to check.
+
+    `Returns`:
+        bool: True if the tensor is in the IMAGE format, False otherwise.
+    """
+    try:
+        if not isinstance(tensor, torch.Tensor):
+            return False
+
+        if len(tensor.shape) != 4:
+            return False
+
+        B, H, W, C = tensor.shape
+        if C != 3:
+            return False
+
+        return True
+    except Exception as e:
+        return False
+
+
 @encode_data.register(torch.Tensor)
 def _(output):
+    if is_image_tensor(output):
+        return IMAGE_MARKER + encode_comfy_image(output, image_format="WEBP")
     return TENSOR_MARKER + tensor_to_base64(output)
 
 
