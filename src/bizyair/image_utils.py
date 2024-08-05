@@ -253,9 +253,13 @@ class BizyAirNodeIO:
                 raise RuntimeError(
                     f'Unexpected error accessing result["data"]["payload"]. Result: {result}'
                 ) from e
-
-        real_out = decode_data(out)
-        return real_out[0]
+        try:
+            real_out = decode_data(out)
+            return real_out[0]
+        except Exception as e:
+            raise RuntimeError(
+                f"Exception: {e=} {self._short_repr(out, max_length=100)}"
+            ) from e
 
 
 def convert_image_to_rgb(image: Image.Image) -> Image.Image:
