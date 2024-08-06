@@ -398,18 +398,18 @@ def _(input: str):
 
 
 @singledispatch
-def encode_data(output):
+def encode_data(output, disable_image_marker=False):
     raise NotImplementedError(f"Unsupported type: {type(output)}")
 
 
 @encode_data.register(dict)
-def _(output):
-    return {k: encode_data(v) for k, v in output.items()}
+def _(output, **kwargs):
+    return {k: encode_data(v, **kwargs) for k, v in output.items()}
 
 
 @encode_data.register(list)
-def _(output):
-    return [encode_data(x) for x in output]
+def _(output, **kwargs):
+    return [encode_data(x, **kwargs) for x in output]
 
 
 def is_image_tensor(tensor) -> bool:
@@ -440,14 +440,14 @@ def is_image_tensor(tensor) -> bool:
 
 
 @encode_data.register(torch.Tensor)
-def _(output):
-    if is_image_tensor(output):
+def _(output, **kwargs):
+    if is_image_tensor(output) and not kwargs.get("disable_image_marker", False):
         return IMAGE_MARKER + encode_comfy_image(output, image_format="WEBP")
     return TENSOR_MARKER + tensor_to_base64(output)
 
 
 @encode_data.register(BizyAirNodeIO)
-def _(output: BizyAirNodeIO):
+def _(output: BizyAirNodeIO, **kwargs):
     origin_id = output.node_id
     origin_slot = output.nodes[origin_id]["outputs"]["slot_index"]
     return [origin_id, origin_slot]
@@ -458,5 +458,5 @@ def _(output: BizyAirNodeIO):
 @encode_data.register(str)
 @encode_data.register(bool)
 @encode_data.register(type(None))
-def _(output):
+def _(output, **kwargs):
     return output
