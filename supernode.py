@@ -217,7 +217,7 @@ class AuraSR:
             "content-type": "application/json",
             "authorization": auth,
         }
-        input_image = encode_data(image)
+        input_image = encode_data(image, disable_image_marker=True)
         payload["image"] = input_image
         payload["is_compress"] = True
 
