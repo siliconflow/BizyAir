@@ -32,8 +32,7 @@ app.registerExtension({
         BizyAir_SetAPIKey.style.borderRadius = "12px";
 
         // 动态获取当前页面的协议、地址和端口
-        const currentUrl = window.location.protocol + "//" + window.location.host;
-        const apiKeyUrl = currentUrl + "/bizyair/set-api-key";
+        const apiKeyUrl = `${location.href}/bizyair/set-api-key`;
 
         // 设置按钮点击事件
         BizyAir_SetAPIKey.onclick = () => {
