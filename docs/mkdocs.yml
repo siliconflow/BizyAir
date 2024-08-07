@@ -103,6 +103,7 @@ nav:
     - Installation: getting-started/installation.md
     - Quick Start: getting-started/quick-start.md
   - AI Assistant: ai-assistants/introduce.md
+  - KSampler: ksampler/introduce.md
   - Controlnet:
     - Controlnet Union: controlnet-union/introduce.md
     - Controlnet Preprocessing: controlnet-preprocessor/introduce.md
