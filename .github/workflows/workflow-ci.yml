@@ -42,7 +42,7 @@ jobs:
       run: |
         python -c "import os;print('\n'.join(os.sys.path))"
         cd ComfyUI && ls -lh
-        python main.py --cpu --port 8188
+         nohup python main.py --cpu --port 8188 > >(tee -a service.log) 2>&1 & 
       env:
         PYTHONPATH: ${{ github.workspace }}/ComfyUI
 
