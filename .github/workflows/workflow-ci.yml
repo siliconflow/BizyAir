@@ -36,16 +36,15 @@ jobs:
         pip install selenium pytest chromedriver-binary pytest-timeout==2.3.1
         pip install -r ComfyUI/requirements.txt
         pip install -r ComfyUI/custom_nodes/BizyAir/requirements.txt
-        python -c "import os;print('\n'.join(os.sys.path))"
 
     - name: Run ComfyUI
       run: |
-        python -c "import os;print('\n'.join(os.sys.path))"
-        cd ComfyUI && ls -lh
-         nohup python main.py --cpu --port 8188 > >(tee -a service.log) 2>&1 & 
+        nohup python main.py --cpu --port 8188 > >(tee -a service.log) 2>&1 & 
       env:
         PYTHONPATH: ${{ github.workspace }}/ComfyUI
 
     - name: Run tests
       run: |
         pytest -s --timeout=1800 tests/test_examples.py
+      env:
+        PYTHONPATH: ${{ github.workspace }}/ComfyUI
