@@ -25,7 +25,7 @@ class CPUState(Enum):
 # Determine VRAM State
 vram_state = VRAMState.NORMAL_VRAM
 set_vram_to = VRAMState.NORMAL_VRAM
-cpu_state = CPUState.GPU
+cpu_state = CPUState.CPU
 
 total_vram = 0
 
