@@ -67,6 +67,7 @@ jobs:
         sleep 10
         python3 tests/test_examples.py
       env:
+        BIZYAIR_KEY: ${{ secrets.BIZYAIR_KEY }}
         PYTHONPATH: ${{ github.workspace }}/ComfyUI
 
 
