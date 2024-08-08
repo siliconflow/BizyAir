@@ -7,7 +7,10 @@ on:
 
 jobs:
   run-examples-workflows:
-    runs-on: windows-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest]
 
     steps:
     - name: Show Base
@@ -57,8 +60,11 @@ jobs:
     - name: Run ComfyUI
       run: |
         cd ComfyUI
-        #nohup python3 main.py --port 8188 --cpu & 
-        nohup python main.py --port 8188 --cpu > >(tee -a service.log) 2>&1 &
+        if [ "${{ matrix.os }}" == "windows-latest" ]; then
+          Start-Process -FilePath "python" -ArgumentList "main.py --port 8188 --cpu" -RedirectStandardOutput "service.log" -RedirectStandardError "service.log" -NoNewWindow -PassThru | Out-Null
+        else
+          nohup python main.py --port 8188 --cpu > >(tee -a service.log) 2>&1 &
+        fi
 
         cd custom_nodes/BizyAir
         echo "Current directory: $(pwd)"
