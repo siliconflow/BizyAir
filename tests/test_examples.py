@@ -35,7 +35,7 @@ def wait_for_comfy_ready(host="127.0.0.1", port=8188, wait_time_secs=120):
 def read_workflow_json(filename) -> str:
     _, extension = os.path.splitext(filename)
     if extension.endswith("json"):
-        with open(filename, "r") as f:
+        with open(filename, "r", encoding="utf-8") as f:
             c = f.read()
             return c
     else:
@@ -171,7 +171,11 @@ def flatten_dict(data):
 
 
 def get_all_examples_json(base_path):
-    with open(os.path.join(base_path, "..", "bizyair_example_menu.json"), "r") as file:
+    with open(
+        os.path.join(base_path, "..", "bizyair_example_menu.json"),
+        "r",
+        encoding="utf-8",
+    ) as file:
         show_cases_example = json.load(file)
     all_examples = flatten_dict(show_cases_example)
     return all_examples
