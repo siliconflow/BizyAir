@@ -30,6 +30,7 @@ jobs:
     - name: Patch ComfyUI
       run: |
         cp ComfyUI/custom_nodes/BizyAir/tests/model_management_patch.py ComfyUI/comfy/model_management.py
+        cp ComfyUI/custom_nodes/BizyAir/tests/main_patch.py ComfyUI/main.py
 
     - name: Set up Python
       uses: actions/setup-python@v2
