@@ -15,6 +15,8 @@ from .client import BizyAirStreamClient, BizyAirRequestClient
 
 # Marker to identify base64-encoded tensors
 TENSOR_MARKER = "TENSOR:"
+IMAGE_MARKER = "IMAGE:"
+
 BIZYAIR_DEBUG = os.getenv("BIZYAIR_DEBUG", False)
 from typing import Dict
 
@@ -115,14 +117,12 @@ class BizyAirNodeIO:
 
     @property
     def workflow_api(self):
-        # return {"prompt": self.nodes, "last_node_id": self.node_id}
-        # TODO (refine)
         class_configs = self.configs.get("class_types", {})
         class_usage_count = {}
         for _, instance_info in self.nodes.items():
             class_type = instance_info["class_type"]
             if class_type not in class_configs:
-                raise NotImplementedError(f"NotImplementedError for {class_type}")
+                continue
             if class_type not in class_usage_count:
                 class_usage_count[class_type] = 0
             class_usage_count[class_type] += 1
@@ -135,41 +135,7 @@ class BizyAirNodeIO:
                     f"{class_type} max_instances is too large, allowed: {max_instances}",
                 )
 
-            wokflow_api = self.generate_workflow_with_allocated_ids()
-            return wokflow_api
-
-    def generate_workflow_with_allocated_ids(self):
-        class_configs = self.configs.get("class_types", {})
-        class_id_counter = {}
-        node_id_mapping = {}
-
-        for node_id, node_data in self.nodes.items():
-            class_type = node_data["class_type"]
-            class_node_ids = class_configs[class_type]["node_ids"]
-            class_id_counter.setdefault(class_type, 0)
-            allocated_id = class_node_ids[class_id_counter[class_type]]
-            class_id_counter[class_type] += 1
-            node_id_mapping[node_id] = str(allocated_id)
-
-        workflow = {}
-        for ins_id, ins_info in self.nodes.items():
-            node_id = node_id_mapping[ins_id]
-            workflow[node_id] = {
-                "class_type": ins_info["class_type"],
-                "outputs": ins_info["outputs"],
-                "inputs": {},
-            }
-
-            for in_key, value in ins_info["inputs"].items():
-                if isinstance(value, list) and len(value) == 2:
-                    workflow[node_id]["inputs"][in_key] = [
-                        node_id_mapping[value[0]],
-                        value[1],
-                    ]
-                else:
-                    workflow[node_id]["inputs"][in_key] = value
-
-        return {"prompt": workflow, "last_node_id": node_id_mapping[self.node_id]}
+        return {"prompt": self.nodes, "last_node_id": self.node_id}
 
     def add_node_data(
         self, class_type: str, inputs: Dict[str, Any], outputs: Dict[str, Any]
@@ -287,9 +253,13 @@ class BizyAirNodeIO:
                 raise RuntimeError(
                     f'Unexpected error accessing result["data"]["payload"]. Result: {result}'
                 ) from e
-
-        real_out = decode_data(out)
-        return real_out[0]
+        try:
+            real_out = decode_data(out)
+            return real_out[0]
+        except Exception as e:
+            raise RuntimeError(
+                f"Exception: {e=} {self._short_repr(out, max_length=100)}"
+            ) from e
 
 
 def convert_image_to_rgb(image: Image.Image) -> Image.Image:
@@ -317,7 +287,8 @@ def decode_base64_to_np(img_data: str, format: str = "png") -> np.ndarray:
         print(f"decode_base64_to_np: {format_bytes(len(img_bytes))}")
     with io.BytesIO(img_bytes) as input_buffer:
         img = Image.open(input_buffer)
-        img = img.convert("RGBA")
+        # https://github.com/comfyanonymous/ComfyUI/blob/a178e25912b01abf436eba1cfaab316ba02d272d/nodes.py#L1511
+        img = img.convert("RGB")
         return np.array(img)
 
 
@@ -416,35 +387,67 @@ def _(input):
 
 
 @decode_data.register(str)
-def _(input):
+def _(input: str):
     if input.startswith(TENSOR_MARKER):
         tensor_b64 = input[len(TENSOR_MARKER) :]
         return base64_to_tensor(tensor_b64)
+    elif input.startswith(IMAGE_MARKER):
+        tensor_b64 = input[len(IMAGE_MARKER) :]
+        return decode_comfy_image(tensor_b64)
     return input
 
 
 @singledispatch
-def encode_data(output):
+def encode_data(output, disable_image_marker=False):
     raise NotImplementedError(f"Unsupported type: {type(output)}")
 
 
 @encode_data.register(dict)
-def _(output):
-    return {k: encode_data(v) for k, v in output.items()}
+def _(output, **kwargs):
+    return {k: encode_data(v, **kwargs) for k, v in output.items()}
 
 
 @encode_data.register(list)
-def _(output):
-    return [encode_data(x) for x in output]
+def _(output, **kwargs):
+    return [encode_data(x, **kwargs) for x in output]
+
+
+def is_image_tensor(tensor) -> bool:
+    """https://docs.comfy.org/essentials/custom_node_datatypes#image
+
+    Check if the given tensor is in the format of an IMAGE (shape [B, H, W, C] where C=3).
+
+    `Args`:
+        tensor (torch.Tensor): The tensor to check.
+
+    `Returns`:
+        bool: True if the tensor is in the IMAGE format, False otherwise.
+    """
+    try:
+        if not isinstance(tensor, torch.Tensor):
+            return False
+
+        if len(tensor.shape) != 4:
+            return False
+
+        B, H, W, C = tensor.shape
+        if C != 3:
+            return False
+
+        return True
+    except Exception as e:
+        return False
 
 
 @encode_data.register(torch.Tensor)
-def _(output):
+def _(output, **kwargs):
+    if is_image_tensor(output) and not kwargs.get("disable_image_marker", False):
+        return IMAGE_MARKER + encode_comfy_image(output, image_format="WEBP")
     return TENSOR_MARKER + tensor_to_base64(output)
 
 
 @encode_data.register(BizyAirNodeIO)
-def _(output: BizyAirNodeIO):
+def _(output: BizyAirNodeIO, **kwargs):
     origin_id = output.node_id
     origin_slot = output.nodes[origin_id]["outputs"]["slot_index"]
     return [origin_id, origin_slot]
@@ -455,5 +458,5 @@ def _(output: BizyAirNodeIO):
 @encode_data.register(str)
 @encode_data.register(bool)
 @encode_data.register(type(None))
-def _(output):
+def _(output, **kwargs):
     return output

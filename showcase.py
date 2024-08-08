@@ -25,15 +25,17 @@ def extract_files(data):
 
 file_whitelist = extract_files(SHOW_CASES)
 
+from server import PromptServer
 
-@server.PromptServer.instance.routes.get("/bizyair/showcases")
+
+@PromptServer.instance.routes.get("/bizyair/showcases")
 async def set_api_key_page(request):
     return web.Response(
         text=json.dumps(SHOW_CASES, ensure_ascii=False), content_type="application/json"
     )
 
 
-@server.PromptServer.instance.routes.post("/bizyair/workflow")
+@PromptServer.instance.routes.post("/bizyair/workflow")
 async def get_file_content(request):
     try:
         data = await request.json()
