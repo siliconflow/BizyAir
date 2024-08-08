@@ -203,6 +203,9 @@ if __name__ == "__main__":
             "All types of ControlNet preprocessors",
         ],
     )
+    print("========Running all examples========")
+    print("\n".join(all_examples_json.keys()))
+    print("====================================")
     for title, file in all_examples_json.items():
         print(f"Running example: {title} - {file}")
         launch_prompt(
