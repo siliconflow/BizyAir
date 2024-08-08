@@ -98,12 +98,17 @@ def check_error_occurs(driver):
             raise Exception(f"{element.text}")
 
 
+app_ready = None
+
+
 def launch_prompt(driver, comfy_host, comfy_port, workflow, timeout):
     try:
         time.sleep(0.1)
         start_time = time.time()
 
-        # wait_until_app_ready(driver)
+        if app_ready is None:
+            wait_until_app_ready(driver)
+            app_ready = True
 
         print("clear the workflow...")
         clear_curernt_workflow(driver)
