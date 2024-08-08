@@ -63,9 +63,17 @@ jobs:
 
     - name: Run tests
       run: |
-        cd ComfyUI/custom_nodes/BizyAir
-        pwd
+        cd ComfyUI/comfy
+        echo "Current directory: $(pwd)"
+        ls -l
+        sed -i '/def get_torch_device():/{
+    n; n; a\    print(f"===={cpu_state=}====")
+}' model_management.py
+
+        cd ../custom_nodes/BizyAir
+        echo "Current directory: $(pwd)"
         ls -l
         pytest -s --timeout=1800 tests/test_examples.py
       env:
         PYTHONPATH: ${{ github.workspace }}/ComfyUI
+
