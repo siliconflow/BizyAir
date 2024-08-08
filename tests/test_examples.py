@@ -103,7 +103,7 @@ app_ready = None
 
 def launch_prompt(driver, comfy_host, comfy_port, workflow, timeout):
     try:
-        time.sleep(0.1)
+        time.sleep(0.2)
         start_time = time.time()
         global app_ready
         if app_ready is None:
