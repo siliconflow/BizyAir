@@ -10,6 +10,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Show Files
+      run: |
+        pwd
+        ls -l
+        
     - name: Checkout ComfyUI
       uses: actions/checkout@v2
       with:
@@ -59,6 +64,7 @@ jobs:
     - name: Run tests
       run: |
         pwd
+        ls -l
         pytest -s --timeout=1800 custom_nodes/BizyAir/tests/test_examples.py
       env:
         PYTHONPATH: ${{ github.workspace }}/ComfyUI
