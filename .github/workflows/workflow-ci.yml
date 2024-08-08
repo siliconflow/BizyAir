@@ -39,10 +39,6 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-pip-
 
-    - name: Set environment variables
-      run: |
-        echo "CUDA_VISIBLE_DEVICES=-1" >> $GITHUB_ENV
-
     - name: Install dependencies
       run: |
         python3 -m pip install --upgrade pip
@@ -64,7 +60,6 @@ jobs:
 
         cd custom_nodes/BizyAir
         echo "Current directory: $(pwd)"
-        sleep 10
         python3 tests/test_examples.py
       env:
         BIZYAIR_KEY: ${{ secrets.BIZYAIR_KEY }}

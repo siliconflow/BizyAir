@@ -1,7 +1,8 @@
 # tests/test_examples.py
-
+import json
 import os
 import time
+
 import requests
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -155,14 +156,28 @@ def init_driver():
     return driver
 
 
+def flatten_dict(data):
+    file_whitelist = {}
+    for key, value in data.items():
+        if isinstance(value, dict):
+            file_whitelist.update(flatten_dict(value))
+        else:
+            file_whitelist[key] = value
+    return file_whitelist
+
+
+def get_all_examplse_json(base_path):
+    with open(os.path.join(base_path, "..", "bizyair_example_menu.json"), "r") as file:
+        show_cases_example = json.load(file)
+    all_examples = flatten_dict(show_cases_example)
+    return all_examples
+
+
 if __name__ == "__main__":
 
     COMFY_HOST = os.getenv("COMFY_HOST", "127.0.0.1")
     COMFY_PORT = os.getenv("COMFY_PORT", "8188")
     BIZYAIR_KEY = os.getenv("BIZYAIR_KEY", "")
-
-    base_path = os.path.dirname(os.path.abspath(__file__))
-    print(f"Test base path: {base_path}")
 
     wait_for_comfy_ready(host=COMFY_HOST, port=COMFY_PORT, wait_time_secs=120)
 
@@ -172,14 +187,16 @@ if __name__ == "__main__":
     # Set BizyAir API Key
     driver.add_cookie({"name": "api_key", "value": BIZYAIR_KEY, "path": "/"})
 
-    launch_prompt(
-        driver,
-        COMFY_HOST,
-        COMFY_PORT,
-        os.path.join(
-            base_path, "..", "examples", "bizyair_showcase_remove_background.json"
-        ),
-        timeout=100,
-    )
+    base_path = os.path.dirname(os.path.abspath(__file__))
+    all_examples_json = get_all_examplse_json(base_path)
+    for title, file in all_examples_json.items():
+        print(f"Running example: {title} - {file}")
+        launch_prompt(
+            driver,
+            COMFY_HOST,
+            COMFY_PORT,
+            os.path.join(base_path, "..", "examples", file),
+            timeout=100,
+        )
 
     driver.quit()
