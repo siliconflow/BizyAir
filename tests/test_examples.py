@@ -102,6 +102,7 @@ app_ready = None
 
 
 def launch_prompt(driver, comfy_host, comfy_port, workflow, timeout):
+    BIZYAIR_KEY = os.getenv("BIZYAIR_KEY", "")
     try:
         time.sleep(0.2)
         start_time = time.time()
@@ -137,14 +138,16 @@ def launch_prompt(driver, comfy_host, comfy_port, workflow, timeout):
         print(f"no error occurs when executing workflow")
     except TimeoutException:
         print("Time out")
-        exit(1)
+        driver.quit()
+        driver = init_driver()
+        driver.get(f"http://{comfy_host}:{comfy_port}")
+        driver.add_cookie({"name": "api_key", "value": BIZYAIR_KEY, "path": "/"})
     except Exception as e:
         print(type(e))
         print(e)
         print("exit with error: 1")
-        exit(1)
-    finally:
         driver.quit()
+        exit(1)
 
 
 def init_driver():
