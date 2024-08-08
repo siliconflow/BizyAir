@@ -52,11 +52,12 @@ jobs:
       run: |
         cd ComfyUI
         nohup python main.py --port 8188 --cpu > >(tee -a service.log) 2>&1 & 
+        #nohup python main.py --port 8188 --cpu > >(tee -a service.log) 2>&1 & 
       env:
         PYTHONPATH: ${{ github.workspace }}/ComfyUI
 
     - name: Run tests
       run: |
-        pytest -s --timeout=1800 ComfyUI/custom_nodes/BizyAir/tests/test_examples.py
+        pytest -s --timeout=1800 custom_nodes/BizyAir/tests/test_examples.py
       env:
         PYTHONPATH: ${{ github.workspace }}/ComfyUI

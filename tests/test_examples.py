@@ -11,7 +11,15 @@ COMFY_PORT = os.getenv("COMFY_PORT", "8188")
 BIZYAIR_KEY = os.getenv("BIZYAIR_KEY", "")
 
 base_path = os.path.dirname(os.path.abspath(__file__))
-comfy_path = os.path.join(base_path, "comfyui")
+print(f"Test base path: {base_path}")
+from comfy.model_management import get_torch_device
+
+
+def _get_torch_device():
+    return "cpu"
+
+
+get_torch_device = _get_torch_device
 
 
 def test_comfyui():
