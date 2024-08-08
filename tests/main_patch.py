@@ -250,7 +250,7 @@ if __name__ == "__main__":
     asyncio.set_event_loop(loop)
     print(f"====debug==== Starting server")
     server = server.PromptServer(loop)
-    print(f"====debug==== {server.PromptServer.instance}")
+    print(f"====debug==== {server.instance}")
     q = execution.PromptQueue(server)
 
     extra_model_paths_config_path = os.path.join(
