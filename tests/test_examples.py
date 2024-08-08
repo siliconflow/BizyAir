@@ -100,13 +100,10 @@ def check_error_occurs(driver):
 
 def launch_prompt(driver, comfy_host, comfy_port, workflow, timeout):
     try:
-        print(f"connect to ComfyUI: {comfy_host}:{comfy_port}...")
-        driver.get(f"http://{comfy_host}:{comfy_port}")
-        print(f"ComfyUI connected")
         time.sleep(0.1)
         start_time = time.time()
 
-        wait_until_app_ready(driver)
+        # wait_until_app_ready(driver)
 
         print("clear the workflow...")
         clear_curernt_workflow(driver)
@@ -114,17 +111,16 @@ def launch_prompt(driver, comfy_host, comfy_port, workflow, timeout):
 
         print("load the target workflow...")
         load_workflow_graph(driver, read_workflow_json(workflow))
-        print(f"{workflow} loaded")
 
         print("check the nodes type of workflow...")
         check_graph_node_types(driver)
-        print(f"{workflow} workflow checked")
+        print(f"workflow checked")
 
         print(f"launch the queue prompt (timeout: {timeout}s) ...")
         launch_and_wait(driver, timeout=timeout)
 
         duration = time.time() - start_time
-        print(f"{workflow} has finished, time elapsed: {duration:.1f}")
+        print(f"workflow has finished, time elapsed: {duration:.1f}")
 
         if duration < 2:
             raise ValueError(
