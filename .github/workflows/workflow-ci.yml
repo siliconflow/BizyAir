@@ -69,7 +69,7 @@ jobs:
         echo "Current directory: $(pwd)"
         ls -l
         sleep 10
-        python3 -m tests/test_examples.py
+        python3 tests/test_examples.py
       env:
         PYTHONPATH: ${{ github.workspace }}/ComfyUI
 
