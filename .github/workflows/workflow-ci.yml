@@ -47,24 +47,15 @@ jobs:
         python3 -m pip install --upgrade pip
         python3 -m pip install selenium pytest chromedriver-binary
         python3 -m pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
-        sed -i '/^torch$/d' ComfyUI/requirements.txt
-        sed -i '/^torchvision$/d' ComfyUI/requirements.txt
-        sed -i '/^torchaudio$/d' ComfyUI/requirements.txt
-        sed -i '/^torch==/d' ComfyUI/requirements.txt
-        sed -i '/^torchvision==/d' ComfyUI/requirements.txt
-        sed -i '/^torchaudio==/d' ComfyUI/requirements.txt
         python3 -m pip install -r ComfyUI/requirements.txt
         python3 -m pip install -r ComfyUI/custom_nodes/BizyAir/requirements.txt
         python3 -m pip show torch
 
-    - name: Run ComfyUI
+    - name: Run ComfyUI on Linux
+      if: matrix.os == 'ubuntu-latest'
       run: |
         cd ComfyUI
-        if [ "${{ matrix.os }}" == "windows-latest" ]; then
-          Start-Process -FilePath "python" -ArgumentList "main.py --port 8188 --cpu" -RedirectStandardOutput "service.log" -RedirectStandardError "service.log" -NoNewWindow -PassThru | Out-Null
-        else
-          nohup python main.py --port 8188 --cpu > >(tee -a service.log) 2>&1 &
-        fi
+        nohup python main.py --port 8188 --cpu > >(tee -a service.log) 2>&1 &
 
         cd custom_nodes/BizyAir
         echo "Current directory: $(pwd)"
@@ -73,4 +64,14 @@ jobs:
         BIZYAIR_KEY: ${{ secrets.BIZYAIR_KEY }}
         PYTHONPATH: ${{ github.workspace }}/ComfyUI
 
-
+    - name: Run ComfyUI on Windows
+      if: matrix.os == 'windows-latest'
+      run: |
+        cd ComfyUI
+        Start-Process -FilePath "python3" -ArgumentList "main.py --port 8188 --cpu" -NoNewWindow -RedirectStandardOutput "CON" -RedirectStandardError "CON"
+        cd custom_nodes/BizyAir
+        Write-Output "Current directory: $(Get-Location)"
+        python3 tests/test_examples.py
+      env:
+        BIZYAIR_KEY: ${{ secrets.BIZYAIR_KEY }}
+        PYTHONPATH: ${{ github.workspace }}/ComfyUI
