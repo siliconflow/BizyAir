@@ -68,7 +68,7 @@ jobs:
       if: matrix.os == 'windows-latest'
       run: |
         cd ComfyUI
-        Start-Process -FilePath "python3" -ArgumentList "main.py --port 8188 --cpu" -NoNewWindow -RedirectStandardOutput "CON" -RedirectStandardError "CON"
+        Start-Process -FilePath "python3" -ArgumentList "main.py --port 8188 --cpu" -NoNewWindow
         cd custom_nodes/BizyAir
         Write-Output "Current directory: $(Get-Location)"
         python3 tests/test_examples.py
