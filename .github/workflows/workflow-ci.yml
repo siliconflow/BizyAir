@@ -47,10 +47,9 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install selenium pytest chromedriver-binary pytest-timeout==2.3.1
+        pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
         pip install -r ComfyUI/requirements.txt
         pip install -r ComfyUI/custom_nodes/BizyAir/requirements.txt
-        pip uninstall -y torch torchvision torchaudio
-        pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
         pip show torch
 
     - name: Run ComfyUI

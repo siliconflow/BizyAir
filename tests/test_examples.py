@@ -12,14 +12,18 @@ BIZYAIR_KEY = os.getenv("BIZYAIR_KEY", "")
 
 base_path = os.path.dirname(os.path.abspath(__file__))
 print(f"Test base path: {base_path}")
-from comfy.model_management import get_torch_device
+from comfy.model_management import get_torch_device, cpu_state
 
 
 def _get_torch_device():
+    global cpu_state
+    print(f"===={cpu_state=}====")
     return "cpu"
 
 
 get_torch_device = _get_torch_device
+
+get_torch_device()
 
 
 def test_comfyui():
