@@ -58,6 +58,7 @@ jobs:
 
     - name: Run tests
       run: |
+        pwd
         pytest -s --timeout=1800 custom_nodes/BizyAir/tests/test_examples.py
       env:
         PYTHONPATH: ${{ github.workspace }}/ComfyUI
