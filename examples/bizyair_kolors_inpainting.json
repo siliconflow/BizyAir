@@ -46,7 +46,7 @@
         "1": 46
       },
       "flags": {},
-      "order": 12,
+      "order": 11,
       "mode": 0,
       "inputs": [
         {
@@ -153,7 +153,7 @@
         "1": 420.3405456542969
       },
       "flags": {},
-      "order": 8,
+      "order": 7,
       "mode": 0,
       "inputs": [
         {
@@ -178,7 +178,7 @@
         "1": 420.3405456542969
       },
       "flags": {},
-      "order": 13,
+      "order": 12,
       "mode": 0,
       "inputs": [
         {
@@ -193,29 +193,6 @@
       }
     },
     {
-      "id": 42,
-      "type": "Note",
-      "pos": [
-        176,
-        661
-      ],
-      "size": {
-        "0": 609.0453491210938,
-        "1": 64.54571533203125
-      },
-      "flags": {},
-      "order": 3,
-      "mode": 0,
-      "properties": {
-        "text": ""
-      },
-      "widgets_values": [
-        "Kolors-Inpainting 模型可以做局部重绘。\n本例子中，使用 BizyAir 的节点生成了一张原始图片，然后使用 BizyAir 的抠图节点得到其背景的 mask。\n然后利用 Kolors Inpainting 模型将背景替换为金字塔。"
-      ],
-      "color": "#432",
-      "bgcolor": "#653"
-    },
-    {
       "id": 29,
       "type": "BizyAir_MinusZoneChatGLM3TextEncode",
       "pos": [
@@ -227,7 +204,7 @@
         "1": 126.94926452636719
       },
       "flags": {},
-      "order": 4,
+      "order": 3,
       "mode": 0,
       "outputs": [
         {
@@ -259,7 +236,7 @@
         "1": 46.24819564819336
       },
       "flags": {},
-      "order": 7,
+      "order": 6,
       "mode": 0,
       "inputs": [
         {
@@ -302,7 +279,7 @@
         "1": 26
       },
       "flags": {},
-      "order": 9,
+      "order": 8,
       "mode": 0,
       "inputs": [
         {
@@ -338,7 +315,7 @@
         "1": 98
       },
       "flags": {},
-      "order": 10,
+      "order": 9,
       "mode": 0,
       "inputs": [
         {
@@ -387,7 +364,7 @@
         "1": 267.5857849121094
       },
       "flags": {},
-      "order": 11,
+      "order": 10,
       "mode": 0,
       "inputs": [
         {
@@ -426,7 +403,7 @@
         "Node name for S&R": "BizyAir_KSampler"
       },
       "widgets_values": [
-        11,
+        12,
         "increment",
         20,
         5,
@@ -442,24 +419,14 @@
         182,
         1095
       ],
-      "size": {
-        "0": 400,
-        "1": 220.00001525878906
-      },
-      "flags": {},
-      "order": 6,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "prompt",
-          "type": "STRING",
-          "link": 56,
-          "widget": {
-            "name": "prompt"
-          },
-          "slot_index": 0
-        }
+      "size": [
+        400,
+        220.00001525878906
       ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [],
       "outputs": [
         {
           "name": "IMAGE",
@@ -477,7 +444,7 @@
         "Node name for S&R": "BizyAirGenerateLightningImage"
       },
       "widgets_values": [
-        "a dog",
+        "\nA joyful young girl, with a bright, genuine smile, surrounded by a serene garden with colorful flowers and butterflies fluttering around her. She is wearing a casual dress, playing with a fluffy dog, her eyes sparkling with happiness and wonder.",
         20,
         "fixed",
         1024,
@@ -487,41 +454,27 @@
       ]
     },
     {
-      "id": 44,
-      "type": "BizyAirSiliconCloudLLMAPI",
+      "id": 42,
+      "type": "Note",
       "pos": [
-        190,
-        799
+        199,
+        800
       ],
       "size": [
-        384.351732598283,
-        247.9999885559082
+        371.351732598283,
+        217.24020650869352
       ],
       "flags": {},
       "order": 5,
       "mode": 0,
-      "outputs": [
-        {
-          "name": "STRING",
-          "type": "STRING",
-          "links": [
-            56
-          ],
-          "shape": 3,
-          "slot_index": 0
-        }
-      ],
       "properties": {
-        "Node name for S&R": "BizyAirSiliconCloudLLMAPI"
+        "text": ""
       },
       "widgets_values": [
-        "No LLM Enhancement",
-        "你是一个 stable diffusion prompt 专家，为我生成适用于 Stable Diffusion 模型的prompt。\n我给你相关的单词，你帮我扩写为适合 Stable Diffusion 文生图的 prompt。要求：\n1. 英文输出\n2. 除了 prompt 外，不要输出任何其它的信息\n",
-        "\nA joyful young girl, with a bright, genuine smile, surrounded by a serene garden with colorful flowers and butterflies fluttering around her. She is wearing a casual dress, playing with a fluffy dog, her eyes sparkling with happiness and wonder.",
-        512,
-        0.7,
-        "\nA joyful young girl, with a bright, genuine smile, surrounded by a serene garden with colorful flowers and butterflies fluttering around her. She is wearing a casual dress, playing with a fluffy dog, her eyes sparkling with happiness and wonder."
-      ]
+        "Kolors-Inpainting 模型可以做局部重绘。\n本例子中，使用 BizyAir 的节点生成了一张原始图片，然后使用 BizyAir 的抠图节点得到其背景的 mask。\n然后利用 Kolors Inpainting 模型将背景替换为金字塔。"
+      ],
+      "color": "#432",
+      "bgcolor": "#653"
     }
   ],
   "links": [
@@ -628,14 +581,6 @@
       26,
       2,
       "MASK"
-    ],
-    [
-      56,
-      44,
-      0,
-      37,
-      0,
-      "STRING"
     ]
   ],
   "groups": [],
