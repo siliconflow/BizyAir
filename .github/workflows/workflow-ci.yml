@@ -60,19 +60,13 @@ jobs:
       run: |
         cd ComfyUI
         nohup python main.py --port 8188 --cpu & 
-        #nohup python main.py --port 8188 --cpu > >(tee -a service.log) 2>&1 & 
-      env:
-        PYTHONPATH: ${{ github.workspace }}/ComfyUI
+        #nohup python main.py --port 8188 --cpu > >(tee -a service.log) 2>&1 &
 
-    - name: Run tests
-      run: |
-        cd ComfyUI/comfy
-        echo "Current directory: $(pwd)"
-        ls -l
-
-        cd ../custom_nodes/BizyAir
+        cd custom_nodes/BizyAir
         echo "Current directory: $(pwd)"
         ls -l
         pytest -s --timeout=1800 tests/test_examples.py
       env:
         PYTHONPATH: ${{ github.workspace }}/ComfyUI
+
+
