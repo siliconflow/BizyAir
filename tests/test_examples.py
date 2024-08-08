@@ -14,21 +14,20 @@ base_path = os.path.dirname(os.path.abspath(__file__))
 print(f"Test base path: {base_path}")
 
 
-def test_comfyui():
-    # Wait for the page to load
-    print(f"wainting for comfyui to start")
-    time.sleep(10)
-    print(f"End wainting for comfyui to start")
+# Wait for the page to load
+print(f"wainting for comfyui to start")
+time.sleep(10)
+print(f"End wainting for comfyui to start")
 
-    chrome_options = Options()
-    chrome_options.add_argument("--headless")
-    chrome_options.add_argument("--no-sandbox")
-    chrome_options.add_argument("--disable-dev-shm-usage")
+chrome_options = Options()
+chrome_options.add_argument("--headless")
+chrome_options.add_argument("--no-sandbox")
+chrome_options.add_argument("--disable-dev-shm-usage")
 
-    driver = webdriver.Chrome(options=chrome_options)
-    driver.get(f"http://{COMFY_HOST}:{COMFY_PORT}")
+driver = webdriver.Chrome(options=chrome_options)
+driver.get(f"http://{COMFY_HOST}:{COMFY_PORT}")
 
-    # Add a cookie
-    driver.add_cookie({"name": "api_key", "value": BIZYAIR_KEY, "path": "/"})
+# Add a cookie
+driver.add_cookie({"name": "api_key", "value": BIZYAIR_KEY, "path": "/"})
 
-    driver.quit()
+driver.quit()
