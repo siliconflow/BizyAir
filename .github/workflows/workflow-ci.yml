@@ -50,23 +50,24 @@ jobs:
 
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
-        pip install selenium pytest chromedriver-binary pytest-timeout==2.3.1
-        pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
-        pip install -r ComfyUI/requirements.txt
-        pip install -r ComfyUI/custom_nodes/BizyAir/requirements.txt
-        pip show torch
+        python3 -m pip install --upgrade pip
+        python3 -m pip install selenium pytest chromedriver-binary pytest-timeout==2.3.1
+        python3 -m pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+        python3 -m pip install -r ComfyUI/requirements.txt
+        python3 -m pip install -r ComfyUI/custom_nodes/BizyAir/requirements.txt
+        python3 -m pip show torch
 
     - name: Run ComfyUI
       run: |
         cd ComfyUI
-        nohup python main.py --port 8188 --cpu & 
+        nohup python3 main.py --port 8188 --cpu & 
         #nohup python main.py --port 8188 --cpu > >(tee -a service.log) 2>&1 &
 
         cd custom_nodes/BizyAir
         echo "Current directory: $(pwd)"
         ls -l
-        pytest -s --timeout=1800 tests/test_examples.py
+        sleep 10
+        python3 -m pytest -s --timeout=1800 tests/test_examples.py
       env:
         PYTHONPATH: ${{ github.workspace }}/ComfyUI
 
