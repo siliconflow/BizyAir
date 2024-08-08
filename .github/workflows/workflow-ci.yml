@@ -56,7 +56,7 @@ jobs:
     - name: Run ComfyUI
       run: |
         cd ComfyUI
-        nohup python main.py --port 8188 --cpu > >(tee -a service.log) 2>&1 & 
+        nohup python main.py --port 8188 --cpu & 
         #nohup python main.py --port 8188 --cpu > >(tee -a service.log) 2>&1 & 
       env:
         PYTHONPATH: ${{ github.workspace }}/ComfyUI
