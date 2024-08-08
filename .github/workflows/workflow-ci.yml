@@ -66,6 +66,7 @@ jobs:
         pwd
         ls -l
         pytest -s --timeout=1800 tests/test_examples.py
-      path: ComfyUI/custom_nodes/BizyAir
+      with:
+        path: ComfyUI/custom_nodes/BizyAir
       env:
         PYTHONPATH: ${{ github.workspace }}/ComfyUI
