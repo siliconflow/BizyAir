@@ -42,7 +42,10 @@ jobs:
     - name: Install dependencies
       run: |
         python3 -m pip install --upgrade pip
-        python3 -m pip install selenium pytest chromedriver-binary pytest-timeout==2.3.1
+        python3 -m pip install selenium pytest chromedriver-binary
+        sed -i '/^torch$/d' ComfyUI/requirements.txt
+        sed -i '/^torchvision$/d' ComfyUI/requirements.txt
+        sed -i '/^torchaudio$/d' ComfyUI/requirements.txt
         sed -i '/^torch==/d' ComfyUI/requirements.txt
         sed -i '/^torchvision==/d' ComfyUI/requirements.txt
         sed -i '/^torchaudio==/d' ComfyUI/requirements.txt
