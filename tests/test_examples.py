@@ -178,7 +178,7 @@ def get_all_examples_json(base_path):
 
 
 def filter_examples_json(all_examples_json: dict, bypass_titles: list):
-    return {k: v for k, v in all_examples_json.items() if k not in bypass_titles.keys()}
+    return {k: v for k, v in all_examples_json.items() if k not in bypass_titles}
 
 
 if __name__ == "__main__":
