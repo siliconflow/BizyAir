@@ -170,11 +170,15 @@ def flatten_dict(data):
     return file_whitelist
 
 
-def get_all_examplse_json(base_path):
+def get_all_examples_json(base_path):
     with open(os.path.join(base_path, "..", "bizyair_example_menu.json"), "r") as file:
         show_cases_example = json.load(file)
     all_examples = flatten_dict(show_cases_example)
     return all_examples
+
+
+def filter_examples_json(all_examples_json: dict, bypass_titles: list):
+    return {k: v for k, v in all_examples_json.items() if k not in bypass_titles.keys()}
 
 
 if __name__ == "__main__":
@@ -192,7 +196,13 @@ if __name__ == "__main__":
     driver.add_cookie({"name": "api_key", "value": BIZYAIR_KEY, "path": "/"})
 
     base_path = os.path.dirname(os.path.abspath(__file__))
-    all_examples_json = get_all_examplse_json(base_path)
+    all_examples_json = get_all_examples_json(base_path)
+    all_examples_json = filter_examples_json(
+        all_examples_json,
+        [
+            "All types of ControlNet preprocessors",
+        ],
+    )
     for title, file in all_examples_json.items():
         print(f"Running example: {title} - {file}")
         launch_prompt(
