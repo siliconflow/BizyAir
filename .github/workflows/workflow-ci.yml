@@ -10,28 +10,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Show Files
+    - name: Show Base
       run: |
-        pwd
-        ls -l
+        echo "Current directory: $(pwd)"
         
     - name: Checkout ComfyUI
       uses: actions/checkout@v2
       with:
         repository: comfyanonymous/ComfyUI
         path: ComfyUI
-        ref: v0.0.3
+        ref: v0.0.4
 
     - name: Checkout plugin repository
       uses: actions/checkout@v2
       with:
         path: ComfyUI/custom_nodes/BizyAir
-
-    - name: Patch ComfyUI
-      run: |
-        echo "Patch on ComfyUI"
-        #cp ComfyUI/custom_nodes/BizyAir/tests/model_management_patch.py ComfyUI/comfy/model_management.py
-        #cp ComfyUI/custom_nodes/BizyAir/tests/main_patch.py ComfyUI/main.py
 
     - name: Set up Python
       uses: actions/setup-python@v2
@@ -54,6 +47,9 @@ jobs:
       run: |
         python3 -m pip install --upgrade pip
         python3 -m pip install selenium pytest chromedriver-binary pytest-timeout==2.3.1
+        sed -i '/^torch==/d' ComfyUI/requirements.txt
+        sed -i '/^torchvision==/d' ComfyUI/requirements.txt
+        sed -i '/^torchaudio==/d' ComfyUI/requirements.txt
         python3 -m pip install -r ComfyUI/requirements.txt
         python3 -m pip install -r ComfyUI/custom_nodes/BizyAir/requirements.txt
         python3 -m pip uninstall torch torchvision torchaudio -y
@@ -63,12 +59,11 @@ jobs:
     - name: Run ComfyUI
       run: |
         cd ComfyUI
-        nohup python3 main.py --port 8188 --cpu & 
-        #nohup python main.py --port 8188 --cpu > >(tee -a service.log) 2>&1 &
+        #nohup python3 main.py --port 8188 --cpu & 
+        nohup python main.py --port 8188 --cpu > >(tee -a service.log) 2>&1 &
 
         cd custom_nodes/BizyAir
         echo "Current directory: $(pwd)"
-        ls -l
         sleep 10
         python3 tests/test_examples.py
       env:
