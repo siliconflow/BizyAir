@@ -25,6 +25,7 @@ from . import supernode
 NODE_CLASS_MAPPINGS.update(**supernode.NODE_CLASS_MAPPINGS)
 NODE_DISPLAY_NAME_MAPPINGS.update(**supernode.NODE_DISPLAY_NAME_MAPPINGS)
 
+
 from . import llm
 
 NODE_CLASS_MAPPINGS.update(**llm.NODE_CLASS_MAPPINGS)
@@ -52,3 +53,9 @@ from . import mzkolors
 
 NODE_CLASS_MAPPINGS.update(**mzkolors.NODE_CLASS_MAPPINGS)
 NODE_DISPLAY_NAME_MAPPINGS.update(**mzkolors.NODE_DISPLAY_NAME_MAPPINGS)
+
+
+from . import cuteyou
+
+NODE_CLASS_MAPPINGS.update(**cuteyou.NODE_CLASS_MAPPINGS)
+NODE_DISPLAY_NAME_MAPPINGS.update(**cuteyou.NODE_DISPLAY_NAME_MAPPINGS)
