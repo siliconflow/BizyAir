@@ -12,7 +12,7 @@ jobs:
       only_non_code_files: ${{ steps.check_files.outputs.only_non_code_files }}
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
 
@@ -22,7 +22,7 @@ jobs:
         modified_files=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }})
         only_non_code_files=true
         for file in $modified_files; do
-          if [[ "$file" == *.py ]] || [[ "$file" == *.js ]] || [[ "$file" == *.json ]]; then
+          if [[ "$file" == *.py ]] || [[ "$file" == *.js ]] || [[ "$file" == *.json ]] || [[ "$file" == *.yml ]]; then
             only_non_code_files=false
             break
           fi
@@ -43,24 +43,24 @@ jobs:
         echo "Current directory: $(pwd)"
 
     - name: Checkout ComfyUI
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
         repository: comfyanonymous/ComfyUI
         path: ComfyUI
         ref: v0.0.4
 
     - name: Checkout plugin repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
         path: ComfyUI/custom_nodes/BizyAir
 
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v5
       with:
         python-version: '3.10'
 
     - name: Cache pip packages
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
         path: ~/.cache/pip
         key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
