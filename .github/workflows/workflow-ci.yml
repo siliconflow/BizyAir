@@ -29,6 +29,9 @@ jobs:
         done
         echo "only_non_code_files=$only_non_code_files" >> $GITHUB_OUTPUT
 
+    - name: Debug only_non_code_files
+      run: echo "only_non_code_files=${{ steps.check_files.outputs.only_non_code_files }}"
+
   run-examples-workflows:
     needs: check-modified-files
     if: ${{ needs.check-modified-files.outputs.only_non_code_files == 'false' }}
