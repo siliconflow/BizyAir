@@ -22,12 +22,12 @@ jobs:
         modified_files=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }})
         only_non_code_files=true
         for file in $modified_files; do
-          if [[ "$file" == *.py ]] || [[ "$file" == *.js ]] || [[ "$file" == *.json ]] || [[ "$file" == *.yml ]]; then
+          if [[ "$file" == *.py ]] || [[ "$file" == *.js ]] || [[ "$file" == *.json ]]; then
             only_non_code_files=false
             break
           fi
         done
-        echo "::set-output name=only_non_code_files::$only_non_code_files"
+        echo "only_non_code_files=$only_non_code_files" >> $GITHUB_OUTPUT
 
   run-examples-workflows:
     needs: check-modified-files
