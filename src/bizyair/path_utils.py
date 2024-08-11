@@ -110,8 +110,43 @@ def init_config():
 
 init_config()
 
+
+class MODELTYPE:
+    CHECKPOINT = "bizyair/checkpoint"
+    LORA = "bizyair/lora"
+    VAE = "bizyair/vae"
+
+
+def list_model(base_domain: str, api_key: str, type: str) -> dict:
+    api_url = f"{base_domain}/supernode/listmodel"
+
+    payload = {
+        "api_key": api_key,
+        "model_type": type,
+    }
+    auth = f"Bearer {api_key}"
+    headers = {
+        "accept": "application/json",
+        "content-type": "application/json",
+        "authorization": auth,
+    }
+
+    response: str = send_post_request(self.API_URL, payload=payload, headers=headers)
+
+    ret = json.loads(response_text)
+
+    if "result" in ret:  # cloud
+        msg = json.loads(ret["result"])
+    else:  # local
+        msg = ret
+    return response
+
+
 if __name__ == "__main__":
     # print(f"Loaded config from {get_config_file_list()}")
     # configs = [load_yaml_config(x) for x in get_config_file_list()]
     # print(get_filename_list("clip_vision"))
-    print(folder_names_and_paths)
+    # print(folder_names_and_paths)
+    api_key = os.getenv("BIZYAIR_KEY", "")
+    host_ckpts = list_model("http://127.0.0.1:8000", api_key, MODELTYPE.checkpoint)
+    print(host_ckpts)
