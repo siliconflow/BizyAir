@@ -2,6 +2,7 @@ import os
 import yaml
 import json
 from typing import Any, List
+import urllib.request
 
 ScanPathType = list[str]
 folder_names_and_paths: dict[str, ScanPathType] = {}
@@ -131,9 +132,15 @@ def list_model(base_domain: str, api_key: str, type: str) -> dict:
         "authorization": auth,
     }
 
-    response: str = send_post_request(self.API_URL, payload=payload, headers=headers)
+    try:
+        data = json.dumps(payload).encode("utf-8")
+        req = urllib.request.Request(api_url, data=data, headers=headers, method="POST")
+        with urllib.request.urlopen(req) as response:
+            response = response.read().decode("utf-8")
+    except Exception as e:
+        raise f"fail to list model: {str(e)}"
 
-    ret = json.loads(response_text)
+    ret = json.loads(response)
 
     if "result" in ret:  # cloud
         msg = json.loads(ret["result"])
@@ -148,5 +155,5 @@ if __name__ == "__main__":
     # print(get_filename_list("clip_vision"))
     # print(folder_names_and_paths)
     api_key = os.getenv("BIZYAIR_KEY", "")
-    host_ckpts = list_model("http://127.0.0.1:8000", api_key, MODELTYPE.checkpoint)
+    host_ckpts = list_model("http://127.0.0.1:8000", api_key, MODELTYPE.CHECKPOINT)
     print(host_ckpts)
