@@ -12,7 +12,7 @@ jobs:
       only_non_code_files: ${{ steps.check_files.outputs.only_non_code_files }}
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
 
@@ -29,6 +29,9 @@ jobs:
         done
         echo "only_non_code_files=$only_non_code_files" >> $GITHUB_OUTPUT
 
+    - name: Debug only_non_code_files
+      run: echo "only_non_code_files=${{ steps.check_files.outputs.only_non_code_files }}"
+
   run-examples-workflows:
     needs: check-modified-files
     if: ${{ needs.check-modified-files.outputs.only_non_code_files == 'false' }}
@@ -43,24 +46,24 @@ jobs:
         echo "Current directory: $(pwd)"
 
     - name: Checkout ComfyUI
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
         repository: comfyanonymous/ComfyUI
         path: ComfyUI
         ref: v0.0.4
 
     - name: Checkout plugin repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
         path: ComfyUI/custom_nodes/BizyAir
 
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v5
       with:
         python-version: '3.10'
 
     - name: Cache pip packages
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
         path: ~/.cache/pip
         key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
