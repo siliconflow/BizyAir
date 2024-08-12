@@ -56,7 +56,7 @@ set_api_key_html = """
             if(endpoint.includes('/bizyair/set-api-key'))
                endpoint = endpoint.replace('/bizyair/set-api-key','/bizyair/set_api_key');
             else
-               endpoint=`${endpoint}/bizyair/set_api_key`;
+               endpoint =`${endpoint}/bizyair/set_api_key`;
             const response = await fetch(endpoint, {
                 method: 'POST',
                 headers: {
