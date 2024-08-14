@@ -52,7 +52,12 @@ set_api_key_html = """
     <script>
         async function setApiKey() {
             const apiKey = document.getElementById('apiKey').value;
-            const response = await fetch('/bizyair/set_api_key', {
+            let endpoint = location.href;
+            if(endpoint.includes('/bizyair/set-api-key'))
+               endpoint = endpoint.replace('/bizyair/set-api-key','/bizyair/set_api_key');
+            else
+               endpoint =`${endpoint}/bizyair/set_api_key`;
+            const response = await fetch(endpoint, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
