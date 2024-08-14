@@ -24,5 +24,5 @@
     },
     "Remove the background from the image": "bizyair_showcase_remove_background.json",
     "Super Resolution": "bizyair_showcase_realistic_superresolution.json",
-    "Recreate an existing image": "bizyair_showcase_caption_redraw.json"
+    "Recreate an existing image": "bizyair_flux_joycaption_img2img_workflow.json"
 }
