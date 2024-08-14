@@ -1,7 +1,12 @@
 import os
 import threading
-import nodes as comfy_nodes
 import logging
+
+try:
+    import nodes as comfy_nodes
+except:
+    print(f"waring: import comfyui.nodes failded!!")
+    comfy_nodes = type("nodes", (object,), {"NODE_DISPLAY_NAME_MAPPINGS": {}})
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

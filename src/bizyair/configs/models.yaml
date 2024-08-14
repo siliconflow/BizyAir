@@ -1,0 +1,10 @@
+service_config:
+  service_address: https://api.siliconflow.cn
+  route: /supernode/listmodelserver
+  service_route: "{{ service_config.service_address }}{{ service_config.route }}"
+
+model_types:
+  # folder_name, server_folder_name
+  loras: bizyair/lora
+  # checkpoints: bizyair/checkpoint
+  # vae: bizyair/vae
