@@ -1,7 +1,7 @@
 
 service_config:
   service_address: https://api.siliconflow.cn # http://0.0.0.0:9911
-  route: /supernode/bizyair-sdxl-comfy-ksampler
+  route: /supernode/test-bizyair-comfy-pipeline
   service_route: "{{ service_config.service_address }}{{ service_config.route }}"
 
 server_format:

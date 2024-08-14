@@ -1,12 +1,17 @@
+from collections.abc import Collection
 import os
 import yaml
 import json
 from typing import Any, List
 import urllib.request
 
+supported_pt_extensions: set[str] = {'.ckpt', '.pt', '.bin', '.pth', '.safetensors', '.pkl', '.sft'}
 ScanPathType = list[str]
 folder_names_and_paths: dict[str, ScanPathType] = {}
 base_path = os.path.dirname(os.path.abspath(__file__))
+
+def filter_files_extensions(files: Collection[str], extensions: Collection[str]) -> list[str]:
+    return sorted(list(filter(lambda a: os.path.splitext(a)[-1].lower() in extensions or len(extensions) == 0, files)))
 
 
 def load_yaml_config(file_path):
@@ -23,6 +28,10 @@ def guess_config(
     clip_name: str = None,
 ) -> str:
     base_path = os.path.dirname(os.path.abspath(__file__))
+
+    # Debug
+    return os.path.join(base_path, "configs", "sdxl_config.yaml")
+
     if ckpt_name is not None and ckpt_name.lower().startswith("sdxl"):
         return os.path.join(base_path, "configs", "sdxl_config.yaml")
     if unet_name is not None and unet_name.lower().startswith("kolors"):
@@ -55,9 +64,11 @@ def get_config_file_list(base_path=None) -> list:
 
 def get_filename_list(folder_name):
     global folder_names_and_paths
-
+    if "loras" == folder_name:
+        api_key = os.getenv("BIZYAIR_KEY", "")
+        # return ['sd15/majicmixRealistic_v7.safetensors']
+        return list_model("https://api.siliconflow.cn", api_key, MODELTYPE.LORA)
     outs = folder_names_and_paths[folder_name]
-
     return outs
 
 
@@ -119,11 +130,12 @@ class MODELTYPE:
 
 
 def list_model(base_domain: str, api_key: str, type: str) -> dict:
-    api_url = f"{base_domain}/supernode/listmodel"
+    api_url = f"{base_domain}/supernode/listmodelserver"
 
     payload = {
         "api_key": api_key,
         "model_type": type,
+        "secret": "6x7=42",
     }
     auth = f"Bearer {api_key}"
     headers = {
@@ -141,12 +153,13 @@ def list_model(base_domain: str, api_key: str, type: str) -> dict:
         raise f"fail to list model: {str(e)}"
 
     ret = json.loads(response)
-
+    # print(f'Debug: {ret}')
     if "result" in ret:  # cloud
         msg = json.loads(ret["result"])
     else:  # local
         msg = ret
-    return response
+    outs =  [x['real_path'] for x in msg['data']]
+    return filter_files_extensions(outs, supported_pt_extensions)
 
 
 if __name__ == "__main__":
@@ -155,5 +168,7 @@ if __name__ == "__main__":
     # print(get_filename_list("clip_vision"))
     # print(folder_names_and_paths)
     api_key = os.getenv("BIZYAIR_KEY", "")
-    host_ckpts = list_model("http://127.0.0.1:8000", api_key, MODELTYPE.CHECKPOINT)
+    # host_ckpts = list_model("http://127.0.0.1:8000", api_key, MODELTYPE.LORA)
+    host_ckpts = list_model("https://api.siliconflow.cn", api_key, MODELTYPE.LORA)
+
     print(host_ckpts)
