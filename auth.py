@@ -150,5 +150,6 @@ async def get_api_key(request):
     except Exception as e:
         return web.Response(text="str(e)", status=500)
 
-NODE_CLASS_MAPPINGS={}
-NODE_DISPLAY_NAME_MAPPINGS={}
+
+NODE_CLASS_MAPPINGS = {}
+NODE_DISPLAY_NAME_MAPPINGS = {}
