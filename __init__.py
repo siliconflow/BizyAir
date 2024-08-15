@@ -19,7 +19,6 @@ try:
     from . import supernode
     from . import llm
     from . import nodes_controlnet_aux
-    from . import kolors
     from . import nodes_controlnet_union_sdxl
     from . import mzkolors
 
@@ -31,7 +30,6 @@ try:
     update_mappings(supernode)
     update_mappings(llm)
     update_mappings(nodes_controlnet_aux)
-    update_mappings(kolors)
     update_mappings(nodes_controlnet_union_sdxl)
     update_mappings(mzkolors)
 
