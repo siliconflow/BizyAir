@@ -1,7 +1,9 @@
 # tests/test_examples.py
+import configparser
 import json
 import os
 import time
+from pathlib import Path
 
 import requests
 from selenium import webdriver
@@ -141,7 +143,6 @@ def launch_prompt(driver, comfy_host, comfy_port, workflow, timeout):
         driver.quit()
         driver = init_driver()
         driver.get(f"http://{comfy_host}:{comfy_port}")
-        driver.add_cookie({"name": "api_key", "value": BIZYAIR_KEY, "path": "/"})
     except Exception as e:
         print(type(e))
         print(e)
@@ -185,19 +186,28 @@ def filter_examples_json(all_examples_json: dict, bypass_titles: list):
     return {k: v for k, v in all_examples_json.items() if k not in bypass_titles}
 
 
+def create_api_key_file(api_key):
+    config = configparser.ConfigParser()
+    config["auth"] = {"api_key": api_key}
+    file_path = Path(os.path.abspath(__file__)).parents[1] / "api_key.ini"
+    try:
+        with open(file_path, "w", encoding="utf-8") as configfile:
+            config.write(configfile)
+    except Exception as e:
+        raise Exception(f"An error occurred when save the key: {e}")
+
+
 if __name__ == "__main__":
 
     COMFY_HOST = os.getenv("COMFY_HOST", "127.0.0.1")
     COMFY_PORT = os.getenv("COMFY_PORT", "8188")
     BIZYAIR_KEY = os.getenv("BIZYAIR_KEY", "")
+    create_api_key_file(BIZYAIR_KEY)
 
     wait_for_comfy_ready(host=COMFY_HOST, port=COMFY_PORT, wait_time_secs=120)
 
     driver = init_driver()
     driver.get(f"http://{COMFY_HOST}:{COMFY_PORT}")
-
-    # Set BizyAir API Key
-    driver.add_cookie({"name": "api_key", "value": BIZYAIR_KEY, "path": "/"})
 
     base_path = os.path.dirname(os.path.abspath(__file__))
     all_examples_json = get_all_examples_json(base_path)
