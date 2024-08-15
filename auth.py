@@ -54,25 +54,24 @@ async def set_api_key(request):
 @server.PromptServer.instance.routes.get("/bizyair/get_api_key")
 async def get_api_key(request):
     global API_KEY
-    has_key, api_key = load_api_key()
-    if has_key:
-        API_KEY = api_key
-        bizyair.set_api_key(API_KEY)
-        return web.Response(text="Key has been loaded from the api_key.ini file")
-
-    if not has_key:
-        api_key = request.cookies.get("api_key")
     try:
-        if api_key:
+        has_key, api_key = load_api_key()
+        if has_key:
             API_KEY = api_key
-            response = web.Response(text="ok")
             bizyair.set_api_key(API_KEY)
-            return response
+            return web.Response(text="Key has been loaded from the api_key.ini file")
         else:
-            return web.Response(
-                text="No api key found in cookie, please refer to cloud.siliconflow.cn to get the key",
-                status=404,
-            )
+            api_key = request.cookies.get("api_key")
+            if not api_key:
+                print("No api key found in cookies")
+                return web.Response(
+                    text="No api key found in cookies, please refer to cloud.siliconflow.cn to get the key",
+                    status=404,
+                )
+            API_KEY = api_key
+            bizyair.set_api_key(API_KEY)
+            return web.Response(text="Key has been loaded from the cookies")
+
     except Exception as e:
         return web.Response(text="str(e)", status=500)
 
