@@ -22,7 +22,7 @@ jobs:
         modified_files=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }})
         only_non_code_files=true
         for file in $modified_files; do
-          if [[ "$file" == *.py ]] || [[ "$file" == *.js ]] || [[ "$file" == *.json ]] || [[ "$file" == *.yml ]]; then
+          if [[ "$file" == *.py ]] || [[ "$file" == *.js ]] || [[ "$file" == *.json ]]; then
             only_non_code_files=false
             break
           fi

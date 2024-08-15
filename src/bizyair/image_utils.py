@@ -162,7 +162,7 @@ class BizyAirNodeIO:
     def get_headers(self):
         if self.API_KEY is None or not self.API_KEY.startswith("sk-"):
             raise ValueError(
-                f"API key is not set. Please provide a valid API key, {self.API_KEY=}"
+                f"API key is not set. Please provide a valid API key(from cloud.siliconflow.cn), {self.API_KEY=}"
             )
 
         return {

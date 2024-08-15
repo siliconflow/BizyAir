@@ -8,6 +8,7 @@ from .utils import (
     get_api_key,
 )
 
+from bizyair.image_utils import encode_data, decode_data
 from .utils import get_llm_response
 
 BIZYAIR_SERVER_ADDRESS = os.getenv(
@@ -135,11 +136,99 @@ class BizyAirImageCaption:
         return {"ui": {"text": (caption,)}, "result": (caption,)}
 
 
+class BizyAirJoyCaption:
+    # refer to: https://huggingface.co/spaces/fancyfeast/joy-caption-pre-alpha
+    API_URL = f"{BIZYAIR_SERVER_ADDRESS}/supernode/joycaption"
+
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "image": ("IMAGE",),
+                "do_sample": (["enable", "disable"],),
+                "temperature": (
+                    "FLOAT",
+                    {
+                        "default": 0.5,
+                        "min": 0.0,
+                        "max": 2.0,
+                        "step": 0.01,
+                        "round": 0.001,
+                        "display": "number",
+                    },
+                ),
+                "max_tokens": (
+                    "INT",
+                    {
+                        "default": 256,
+                        "min": 16,
+                        "max": 512,
+                        "step": 16,
+                        "display": "number",
+                    },
+                ),
+            }
+        }
+
+    RETURN_TYPES = ("STRING",)
+    FUNCTION = "joycaption"
+
+    CATEGORY = "☁️BizyAir/AI Assistants"
+
+    def joycaption(self, image, do_sample, temperature, max_tokens):
+        API_KEY = get_api_key()
+        SIZE_LIMIT = 1536
+        device = image.device
+        _, w, h, c = image.shape
+        assert (
+            w <= SIZE_LIMIT and h <= SIZE_LIMIT
+        ), f"width and height must be less than {SIZE_LIMIT}x{SIZE_LIMIT}, but got {w} and {h}"
+
+        payload = {
+            "image": None,
+            "do_sample": do_sample == "enable",
+            "temperature": temperature,
+            "max_new_tokens": max_tokens,
+        }
+        auth = f"Bearer {API_KEY}"
+        headers = {
+            "accept": "application/json",
+            "content-type": "application/json",
+            "authorization": auth,
+        }
+        input_image = encode_data(image, disable_image_marker=True)
+        payload["image"] = input_image
+
+        ret: str = send_post_request(self.API_URL, payload=payload, headers=headers)
+        ret = json.loads(ret)
+
+        try:
+            if "result" in ret:
+                ret = json.loads(ret["result"])
+        except Exception as e:
+            raise Exception(f"Unexpected response: {ret}")
+
+        if ret["status"] == "error":
+            raise Exception(ret["message"])
+
+        msg = ret["data"]
+        if msg["type"] not in (
+            "comfyair",
+            "bizyair",
+        ):
+            raise Exception(f"Unexpected response type: {msg}")
+
+        caption = msg["data"]
+        return {"ui": {"text": (caption,)}, "result": (caption,)}
+
+
 NODE_CLASS_MAPPINGS = {
     "BizyAirSiliconCloudLLMAPI": SiliconCloudLLMAPI,
     "BizyAirImageCaption": BizyAirImageCaption,
+    "BizyAirJoyCaption": BizyAirJoyCaption,
 }
 NODE_DISPLAY_NAME_MAPPINGS = {
     "BizyAirSiliconCloudLLMAPI": "☁️BizyAir SiliconCloud LLM API",
     "BizyAirImageCaption": "☁️BizyAir Image Caption",
+    "BizyAirJoyCaption": "☁️BizyAir Joy Caption",
 }

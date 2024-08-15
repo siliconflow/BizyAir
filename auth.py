@@ -51,7 +51,12 @@ set_api_key_html = """
     <script>
         async function setApiKey() {
             const apiKey = document.getElementById('apiKey').value;
-            const response = await fetch('/bizyair/set_api_key', {
+            let endpoint = location.href;
+            if(endpoint.includes('/bizyair/set-api-key'))
+               endpoint = endpoint.replace('/bizyair/set-api-key','/bizyair/set_api_key');
+            else
+               endpoint =`${endpoint}/bizyair/set_api_key`;
+            const response = await fetch(endpoint, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
@@ -145,33 +150,5 @@ async def get_api_key(request):
     except Exception as e:
         return web.Response(text="str(e)", status=500)
 
-
-class SetAPIKey:
-    @classmethod
-    def INPUT_TYPES(s):
-        return {
-            "required": {
-                "API_KEY": ("STRING", {"default": "YOUR_API_KEY"}),
-            }
-        }
-
-    RETURN_TYPES = ()
-    FUNCTION = "set_api_key"
-
-    CATEGORY = "☁️BizyAir"
-    OUTPUT_NODE = True
-
-    def set_api_key(self, API_KEY="YOUR_API_KEY"):
-        return {"ui": {"api_key": (API_KEY,)}, "result": ()}
-
-    @classmethod
-    def IS_CHANGED(s, latent):
-        return uuid.uuid4().hex
-
-
-NODE_CLASS_MAPPINGS = {
-    "BizyAirSetAPIKey": SetAPIKey,
-}
-NODE_DISPLAY_NAME_MAPPINGS = {
-    "BizyAirSetAPIKey": "☁️Set SiliconCloud API Key(deprecated)",
-}
+NODE_CLASS_MAPPINGS={}
+NODE_DISPLAY_NAME_MAPPINGS={}
