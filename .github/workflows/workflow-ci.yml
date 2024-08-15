@@ -4,7 +4,7 @@ on:
   pull_request:
     branches:
       - master
-      - set_key_by_ini_file
+      - add_listmodel_request 
 
 jobs:
   check-modified-files:
