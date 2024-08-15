@@ -37,5 +37,17 @@ app.registerExtension({
         };
 
         menu.append(BizyAir_SetAPIKey);
+
+        const response = await api.fetchApi("/bizyair/get_api_key",
+            { method: "GET" });
+        if (response.status === 200) {
+            console.log("get SiliconCloud api key successfuly")
+        } else {
+            alert(`Please click "BizyAir Key" button to set API key first,
+you can get your key from cloud.siliconflow.cn,
+or you can only use nodes locally.`);
+            const text = await response.text();
+            console.log("not set api key:", text)
+        }
     }
 });
