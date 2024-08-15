@@ -28,26 +28,21 @@ async def set_api_key_page(request):
 @server.PromptServer.instance.routes.post("/bizyair/set_api_key")
 async def set_api_key(request):
     global API_KEY
-    has_key, api_key = load_api_key()
-    if has_key:
-        API_KEY = api_key
-        bizyair.set_api_key(API_KEY)
-        return web.Response(text="Key has been loaded from the api_key.ini file")
-    data = await request.post()
-    api_key = data.get("api_key")
     try:
+        data = await request.post()
+        api_key = data.get("api_key")
         if api_key:
-            response = web.Response(text="ok")
-            response.set_cookie("api_key", api_key, max_age=30 * 24 * 60 * 60)
+            create_api_key_file(api_key)
             API_KEY = api_key
             bizyair.set_api_key(API_KEY)
-            return response
+            return web.Response(text="ok")
         else:
             return web.Response(
                 text="No token provided, please refer to cloud.siliconflow.cn to get the key",
                 status=400,
             )
     except Exception as e:
+        print(f"set api key error: {str(e)}")
         return web.Response(text=str(e), status=500)
 
 
