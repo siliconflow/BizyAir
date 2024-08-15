@@ -115,31 +115,31 @@ def launch_prompt(driver, comfy_host, comfy_port, workflow, timeout):
             wait_until_app_ready(driver)
             app_ready = True
 
-        print("clear the workflow...")
+        print(" clear the workflow...")
         clear_curernt_workflow(driver)
-        print("workflow cleard")
+        print(" workflow cleard")
 
-        print("load the target workflow...")
+        print(" load the target workflow...")
         load_workflow_graph(driver, read_workflow_json(workflow))
 
-        print("check the nodes type of workflow...")
+        print(" check the nodes type of workflow...")
         check_graph_node_types(driver)
-        print(f"workflow checked")
+        print(f" workflow checked")
 
-        print(f"launch the queue prompt (timeout: {timeout}s) ...")
+        print(f" launch the queue prompt (timeout: {timeout}s) ...")
         launch_and_wait(driver, timeout=timeout)
 
         duration = time.time() - start_time
-        print(f"workflow has finished, time elapsed: {duration:.1f}")
+        print(f" workflow has finished, time elapsed: {duration:.1f}")
 
         if duration < 1:
             print(
-                f"Warning: Execution duration is too short ({duration:.1f}), be careful with your workflow execution"
+                f" Warning: Execution duration is too short ({duration:.1f}), be careful with your workflow execution"
             )
 
-        print(f"check if error occurs...")
+        print(f" check if error occurs...")
         check_error_occurs(driver)
-        print(f"no error occurs when executing workflow")
+        print(f" no error occurs when executing workflow")
     except TimeoutException:
         print("Time out")
         driver.quit()
@@ -149,7 +149,7 @@ def launch_prompt(driver, comfy_host, comfy_port, workflow, timeout):
     except Exception as e:
         print(type(e))
         print(e)
-        print("exit with error: 1")
+        print(" exit with error: 1")
         driver.quit()
         exit(1)
 
@@ -213,7 +213,7 @@ if __name__ == "__main__":
         ],
     )
     print("========Running all examples========")
-    print("\n".join(all_examples_json.keys()))
+    print("\n".join(f"{key} -- {value}" for key, value in all_examples_json.items()))
     print("====================================")
     for title, file in all_examples_json.items():
         print(f"Running example: {title} - {file}")
