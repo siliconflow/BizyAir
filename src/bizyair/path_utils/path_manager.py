@@ -101,28 +101,26 @@ def cached_filename_list(folder_name: str, verbose=True) -> list[str]:
     )
 
 
-def convert_prompt_label_path_to_real_path(
-    prompt: dict[str, dict[str, any]], inplace: bool = True
-) -> dict:
+def convert_prompt_label_path_to_real_path(prompt: dict[str, dict[str, any]]) -> dict:
     # TODO fix Temporarily write dead
-    if not inplace:
-        prompt = copy.deepcopy(prompt)
-
-    lora_name = inputs["lora_name"]
-    file_list = get_filename_list("loras")
-    assert (
-        lora_name in file_list
-    ), f"The specified {lora_name} is not found in the file list: {file_list}."
+    new_prompt = {}
     for unique_id in prompt:
-        inputs = prompt[unique_id]["inputs"]
-        if (
-            "lora_name" in inputs
-            and inputs["lora_name"] in filename_path_mapping["loras"]
-        ):
+        new_prompt[unique_id] = copy.copy(prompt[unique_id])
+        inputs = copy.copy(prompt[unique_id]["inputs"])
+        if "lora_name" in inputs:
             lora_name = inputs["lora_name"]
-            inputs["lora_name"] = filename_path_mapping["loras"][lora_name]
+            new_lora_name = filename_path_mapping.get("loras", {}).get(lora_name, None)
+            if new_lora_name:
+                inputs["lora_name"] = new_lora_name
+            else:
+                file_list = get_filename_list("loras")
+                if lora_name not in file_list:
+                    raise ValueError(
+                        f"Lora name '{lora_name}' not found in file list. Available lora names: {', '.join(file_list)}"
+                    )
 
-    return prompt
+        new_prompt[unique_id]["inputs"] = inputs
+    return new_prompt
 
 
 def get_filename_list(folder_name, *, verbose=False):
