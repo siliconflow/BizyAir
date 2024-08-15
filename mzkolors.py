@@ -87,10 +87,8 @@ class BizyAir_MinusZoneChatGLM3TextEncode(BizyAirMZChatGLM3TextEncode, BizyAirBa
 
 
 NODE_CLASS_MAPPINGS = {
-    "BizyAirMZChatGLM3TextEncode": BizyAirMZChatGLM3TextEncode,
     "BizyAir_MinusZoneChatGLM3TextEncode": BizyAir_MinusZoneChatGLM3TextEncode,
 }
 NODE_DISPLAY_NAME_MAPPINGS = {
-    "BizyAirMZChatGLM3TextEncode": "☁️BizyAir ChatGLM3 Text Encode(deprecated)",
     "BizyAir_MinusZoneChatGLM3TextEncode": "☁️BizyAir MinusZone ChatGLM3 Text Encode",
 }

@@ -37,14 +37,7 @@ app.registerExtension({
         };
 
         menu.append(BizyAir_SetAPIKey);
-    }
-});
 
-
-
-app.registerExtension({
-    name: "bizyair.set.api.key",
-    async setup() {
         const response = await api.fetchApi("/bizyair/get_api_key",
             { method: "GET" });
         if (response.status === 200) {
@@ -56,39 +49,5 @@ or you can only use nodes locally.`);
             const text = await response.text();
             console.log("not set api key:", text)
         }
-
-    },
-    async beforeRegisterNodeDef(nodeType, nodeData, app) {
-        if (nodeData.name === "BizyAirSetAPIKey") {
-            async function set_api_key_to_cookies(text) {
-                if (text === "sk-****************") {
-                    return;
-                }
-                const body = new FormData();
-                body.append("api_key", text);
-                const response = await api.fetchApi("/bizyair/set_api_key",
-                    {
-                        method: "POST",
-                        body: body,
-                    }
-                );
-
-                if (response.status === 200) {
-                    console.log("set SiliconCloud api key successfuly")
-                } else {
-                    const text = await response.text();
-                    alert(`Please click "BizyAir Key" button to set API key first,
-                        you can get your key from cloud.siliconflow.cn,
-                        or you can only use nodes locally.`);
-                }
-
-                this.widgets[0].value = "sk-****************";
-            }
-            const onExecuted = nodeType.prototype.onExecuted;
-            nodeType.prototype.onExecuted = function (message) {
-                onExecuted?.apply(this, arguments);
-                set_api_key_to_cookies.call(this, message.api_key[0]);
-            };
-        }
-    },
+    }
 });
