@@ -1,92 +1,18 @@
+import os
 import uuid
+from pathlib import Path
+
 import server
 from aiohttp import web
+
 import bizyair
-from bizyair.common import load_api_key
+from bizyair.common import load_api_key, create_api_key_file
 
 
 API_KEY = None
-set_api_key_html = """
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BizyAir - Set API Key</title>
-    <style>
-        body {
-            background-color: #121212;
-            color: #ffffff;
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .container {
-            text-align: center;
-        }
-        input[type="password"] {
-            padding: 10px;
-            margin: 10px;
-            border: 2px solid rgb(130, 88, 245);
-            border-radius: 5px;
-            background-color: #1e1e1e;
-            color: #ffffff;
-            width: 200px;
-        }
-        button {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            background-color: rgb(130, 88, 245);
-            color: #ffffff;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-    </style>
-    <script>
-        async function setApiKey() {
-            const apiKey = document.getElementById('apiKey').value;
-            let endpoint = location.href;
-            if(endpoint.includes('/bizyair/set-api-key'))
-               endpoint = endpoint.replace('/bizyair/set-api-key','/bizyair/set_api_key');
-            else
-               endpoint =`${endpoint}/bizyair/set_api_key`;
-            const response = await fetch(endpoint, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                body: `api_key=${encodeURIComponent(apiKey)}`
-            });
-            if (response.ok) {
-                alert('API Key set successfully!');
-                if (window.opener) {
-                    window.close();
-                }
-            } else {
-                alert('Failed to set API Key: ' + await response.text());
-            }
-        }
-    </script>
-</head>
-<body>
-    <div class="container">
-        <h1>Set API Key</h1>
-        <input type="password" id="apiKey" placeholder="Enter API Key">
-        <button onclick="setApiKey()">Set API Key</button>
-        <p>To get your key, visit <a href="https://cloud.siliconflow.cn" target="_blank">https://cloud.siliconflow.cn</a></p>
-    </div>
-</body>
-</html>
-    </div>
-</body>
-</html>
-"""
+html_file_path = Path(os.path.dirname(os.path.abspath(__file__))) / "set_api_key.html"
+with open(html_file_path, "r", encoding="utf-8") as htmlfile:
+    set_api_key_html = htmlfile.read()
 
 
 has_key, api_key = load_api_key()

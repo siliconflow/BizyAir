@@ -53,7 +53,11 @@ def click_queue_prompt_button(driver):
 
 
 def clear_curernt_workflow(driver):
-    driver.execute_script("window.app.graph.clear()")
+    try:
+        driver.execute_script("window.app.graph.clear()")
+    except Exception as e:
+        print(str(e))
+        raise Exception("Error: clear graph failed.")
 
 
 def wait_until_queue_finished(driver, timeout=100):

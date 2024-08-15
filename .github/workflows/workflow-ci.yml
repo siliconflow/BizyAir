@@ -4,6 +4,7 @@ on:
   pull_request:
     branches:
       - master
+      - set_key_by_ini_file
 
 jobs:
   check-modified-files:
