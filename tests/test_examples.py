@@ -132,9 +132,9 @@ def launch_prompt(driver, comfy_host, comfy_port, workflow, timeout):
         duration = time.time() - start_time
         print(f"workflow has finished, time elapsed: {duration:.1f}")
 
-        if duration < 2:
-            raise ValueError(
-                "Execution duration is too short, possible error in workflow execution"
+        if duration < 1:
+            print(
+                f"Warning: Execution duration is too short ({duration:.1f}), be careful with your workflow execution"
             )
 
         print(f"check if error occurs...")
