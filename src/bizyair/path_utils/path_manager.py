@@ -8,6 +8,7 @@ from ..common import fetch_models_by_type
 from .utils import load_yaml_config, filter_files_extensions, get_service_route
 from ..common.env_var import BIZYAIR_SPECIFIED_MODEL_CONFIG_FILE
 
+
 supported_pt_extensions: set[str] = {
     ".ckpt",
     ".pt",
