@@ -1,9 +1,8 @@
 import uuid
-import os
-import configparser
 import server
 from aiohttp import web
 import bizyair
+from bizyair.common import load_api_key
 
 
 API_KEY = None
@@ -83,20 +82,6 @@ set_api_key_html = """
 </body>
 </html>
 """
-
-
-def load_api_key():
-    current_directory = os.path.dirname(os.path.abspath(__file__))
-    file_path = os.path.join(current_directory, "api_key.ini")
-
-    if os.path.exists(file_path):
-        config = configparser.ConfigParser()
-        config.read(file_path)
-        api_key: str = config.get("auth", "api_key", fallback="").strip().strip("'\"")
-        has_key = api_key.startswith("sk-")
-        return has_key, api_key
-    else:
-        return False, ""
 
 
 has_key, api_key = load_api_key()

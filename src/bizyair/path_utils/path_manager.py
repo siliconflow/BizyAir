@@ -1,10 +1,13 @@
 from collections.abc import Collection
 import copy
 import os
+import re
 import yaml
 import json
 from typing import Any, Dict, List
 from ..common import fetch_models_by_type
+from .utils import load_yaml_config, filter_files_extensions, get_service_route
+from ..common.env_var import BIZYAIR_SPECIFIED_MODEL_CONFIG_FILE
 
 supported_pt_extensions: set[str] = {
     ".ckpt",
@@ -28,25 +31,9 @@ def _get_config_path():
 
 configs_path = _get_config_path()
 
-
-def filter_files_extensions(
-    files: Collection[str], extensions: Collection[str]
-) -> list[str]:
-    return sorted(
-        list(
-            filter(
-                lambda a: os.path.splitext(a)[-1].lower() in extensions
-                or len(extensions) == 0,
-                files,
-            )
-        )
-    )
-
-
-def load_yaml_config(file_path):
-    with open(file_path, "r") as file:
-        config = yaml.safe_load(file)
-    return config
+models_config: Dict[str, Dict[str, Any]] = load_yaml_config(
+    os.path.join(configs_path, "models.yaml")
+)
 
 
 def guess_config(
@@ -56,23 +43,24 @@ def guess_config(
     vae_name: str = None,
     clip_name: str = None,
 ) -> str:
-    # Debug
-    return os.path.join(configs_path, "sdxl_config.yaml")
+    # Development Settings
+    if BIZYAIR_SPECIFIED_MODEL_CONFIG_FILE:
+        return os.path.join(configs_path, BIZYAIR_SPECIFIED_MODEL_CONFIG_FILE)
+    # Priority order:ckpt_name > unet_name > vae_name
+    input_name = ckpt_name or unet_name or vae_name
+    if input_name is None:
+        return None
 
-    if ckpt_name is not None and ckpt_name.lower().startswith("sdxl"):
-        return os.path.join(configs_path, "sdxl_config.yaml")
-    if unet_name is not None and unet_name.lower().startswith("kolors"):
-        return os.path.join(configs_path, "kolors_config.yaml")
-    if vae_name is not None and vae_name.lower().startswith(
-        "sdxl/sdxl_vae.safetensors"
-    ):
-        return os.path.join(configs_path, "kolors_config.yaml")
-    if unet_name is not None and unet_name.lower().startswith("flux/flux1-dev.sft"):
-        return os.path.join(configs_path, "flux_dev_config.yaml")
-    if unet_name is not None and unet_name.lower().startswith("flux/flux1-schnell.sft"):
-        return os.path.join(configs_path, "flux_config.yaml")
-    if vae_name is not None and vae_name.lower().startswith("flux/ae.sft"):
-        return os.path.join(configs_path, "flux_config.yaml")
+    input_name = input_name.lower()
+    routing_rules = models_config["routing_rules"]
+    config_files = models_config["config_files"]
+    for rule in routing_rules:
+        if re.match(rule["pattern"], input_name):
+            config_key = rule["config"]
+            config_path = config_files[config_key]["path"]
+            return os.path.join(configs_path, config_path)
+
+    return None
 
 
 def get_config_file_list(base_path=None) -> list:
@@ -89,22 +77,16 @@ def get_config_file_list(base_path=None) -> list:
     return config_files
 
 
-models_config: Dict[str, Dict[str, Any]] = load_yaml_config(
-    os.path.join(configs_path, "models.yaml")
-)
-
-
-def cached_filename_list(
-    folder_name: str, verbose=True
-) -> tuple[list[str], dict[str, float], float] | None:
+def cached_filename_list(folder_name: str, verbose=True) -> list[str]:
     global filename_path_mapping
     if folder_name not in filename_path_mapping:
-        mod_service_config = models_config["service_config"]
-        url = f"{mod_service_config['service_address']}{mod_service_config['route']}"
+        url = get_service_route(models_config["service_config"])
         model_types: Dict[str, str] = models_config["model_types"]
         msg = fetch_models_by_type(url=url, model_type=model_types[folder_name])
         if verbose:
             print(f"cached_filename_list {msg=}")
+        if not msg:
+            return []
 
         filename_path_mapping[folder_name] = {
             x["label_path"]: x["real_path"] for x in msg["data"] if x["label_path"]
@@ -184,6 +166,8 @@ def init_config():
         if k not in folder_names_and_paths:
             folder_names_and_paths[k] = []
         folder_names_and_paths[k].extend(recursive_extract_models(v))
+
+    print(folder_names_and_paths)
 
 
 init_config()

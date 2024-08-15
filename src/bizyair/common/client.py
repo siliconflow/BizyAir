@@ -6,24 +6,30 @@ import urllib.error
 
 __all__ = ["send_request"]
 
-_BIZYAIR_API_KEY = os.getenv("BIZYAIR_API_KEY", "YOUR_API_KEY")
+from .env_var import BIZYAIR_API_KEY
 
 
 def set_api_key(API_KEY="YOUR_API_KEY"):
-    global _BIZYAIR_API_KEY
-    _BIZYAIR_API_KEY = API_KEY
+    global BIZYAIR_API_KEY
+    BIZYAIR_API_KEY = API_KEY
+
+
+def validate_api_key(api_key):
+    if api_key is None or not api_key.startswith("sk-"):
+        return False
+    return True
 
 
 def get_api_key():
-    global _BIZYAIR_API_KEY
-    if _BIZYAIR_API_KEY is None or not _BIZYAIR_API_KEY.startswith("sk-"):
+    global BIZYAIR_API_KEY
+    if not validate_api_key(BIZYAIR_API_KEY):
         error_message = (
             "BIZYAIR_API_KEY is not set or invalid. "
             "Please provide a valid API key starting with 'sk-'. "
-            f"Current BIZYAIR_API_KEY: {_BIZYAIR_API_KEY}"
+            f"Current BIZYAIR_API_KEY: {BIZYAIR_API_KEY}"
         )
         raise ValueError(error_message)
-    return _BIZYAIR_API_KEY
+    return BIZYAIR_API_KEY
 
 
 def _headers():
@@ -68,6 +74,9 @@ def send_request(
 
 
 def fetch_models_by_type(url: str, model_type: str, *, verbose=False) -> dict:
+    if not validate_api_key(BIZYAIR_API_KEY):
+        return {}
+
     payload = {
         "api_key": get_api_key(),
         "model_type": model_type,
