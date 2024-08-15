@@ -1,11 +1,12 @@
 import os
 import threading
 import logging
-
+import importlib
+import warnings
 try:
-    import nodes as comfy_nodes
-except:
-    print(f"waring: import comfyui.nodes failded!!")
+    comfy_nodes = importlib.import_module('nodes')
+except ModuleNotFoundError:
+    warnings.warn("Importing comfyui.nodes failed!")
     comfy_nodes = type("nodes", (object,), {"NODE_DISPLAY_NAME_MAPPINGS": {}})
 
 logging.basicConfig(level=logging.INFO)
