@@ -14,6 +14,8 @@ from . import showcase
 WEB_DIRECTORY = "./js"
 
 
+from . import auth
+
 from . import supernode
 
 NODE_CLASS_MAPPINGS.update(**supernode.NODE_CLASS_MAPPINGS)
