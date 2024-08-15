@@ -18,7 +18,6 @@ with open(html_file_path, "r", encoding="utf-8") as htmlfile:
 has_key, api_key = load_api_key()
 if has_key:
     API_KEY = api_key
-    bizyair.set_api_key(API_KEY)
 
 
 @server.PromptServer.instance.routes.get("/bizyair/set-api-key")
