@@ -126,7 +126,7 @@ def launch_prompt(driver, comfy_host, comfy_port, workflow, timeout):
         check_graph_node_types(driver)
         print(f" workflow checked")
 
-        print(f" launch the queue prompt (timeout: {timeout}s) ...")
+        print(f" launch the queue prompt (timeout: {timeout}s)...")
         launch_and_wait(driver, timeout=timeout)
 
         duration = time.time() - start_time
