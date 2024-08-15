@@ -150,7 +150,6 @@ def convert_prompt_label_path_to_real_path(prompt: dict[str, dict[str, any]]) ->
 
 def get_filename_list(folder_name, *, verbose=False):
     global folder_names_and_paths
-    print(f"get_filename_list. {folder_name}")
     results = []
     if folder_name in models_config["model_types"]:
         results.extend(cached_filename_list(folder_name, verbose=verbose, refresh=True))
