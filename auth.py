@@ -164,34 +164,3 @@ async def get_api_key(request):
             )
     except Exception as e:
         return web.Response(text="str(e)", status=500)
-
-
-class SetAPIKey:
-    @classmethod
-    def INPUT_TYPES(s):
-        return {
-            "required": {
-                "API_KEY": ("STRING", {"default": "YOUR_API_KEY"}),
-            }
-        }
-
-    RETURN_TYPES = ()
-    FUNCTION = "set_api_key"
-
-    CATEGORY = "☁️BizyAir"
-    OUTPUT_NODE = True
-
-    def set_api_key(self, API_KEY="YOUR_API_KEY"):
-        return {"ui": {"api_key": (API_KEY,)}, "result": ()}
-
-    @classmethod
-    def IS_CHANGED(s, latent):
-        return uuid.uuid4().hex
-
-
-NODE_CLASS_MAPPINGS = {
-    "BizyAirSetAPIKey": SetAPIKey,
-}
-NODE_DISPLAY_NAME_MAPPINGS = {
-    "BizyAirSetAPIKey": "☁️Set SiliconCloud API Key(deprecated)",
-}
