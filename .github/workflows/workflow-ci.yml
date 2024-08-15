@@ -4,7 +4,6 @@ on:
   pull_request:
     branches:
       - master
-      - add_listmodel_request 
 
 jobs:
   check-modified-files:
