@@ -86,9 +86,9 @@ def cached_filename_list(folder_name: str, verbose=True) -> list[str]:
         if verbose:
             print(f"cached_filename_list {msg=}")
 
-        if not msg or 'data' not in msg:
+        if not msg or "data" not in msg:
             return []
-        
+
         filename_path_mapping[folder_name] = {
             x["label_path"]: x["real_path"] for x in msg["data"] if x["label_path"]
         }
@@ -108,6 +108,11 @@ def convert_prompt_label_path_to_real_path(
     if not inplace:
         prompt = copy.deepcopy(prompt)
 
+    lora_name = inputs["lora_name"]
+    file_list = get_filename_list("loras")
+    assert (
+        lora_name in file_list
+    ), f"The specified {lora_name} is not found in the file list: {file_list}."
     for unique_id in prompt:
         inputs = prompt[unique_id]["inputs"]
         if (
