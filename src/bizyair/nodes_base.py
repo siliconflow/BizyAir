@@ -1,7 +1,14 @@
 import os
 import threading
-import nodes as comfy_nodes
 import logging
+import importlib
+import warnings
+
+try:
+    comfy_nodes = importlib.import_module("nodes")
+except ModuleNotFoundError:
+    warnings.warn("Importing comfyui.nodes failed!")
+    comfy_nodes = type("nodes", (object,), {"NODE_DISPLAY_NAME_MAPPINGS": {}})
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -51,6 +58,7 @@ def register_node(cls, prefix):
 
 
 class IDAllocator:
+    # TODO Change to using Comfyui system ID
     _id_counter = 0
     _lock = threading.Lock()
 

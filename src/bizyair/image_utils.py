@@ -11,14 +11,17 @@ import numpy as np
 import torch
 from PIL import Image
 import yaml
-from .client import BizyAirStreamClient, BizyAirRequestClient
+
 
 # Marker to identify base64-encoded tensors
 TENSOR_MARKER = "TENSOR:"
 IMAGE_MARKER = "IMAGE:"
 
 BIZYAIR_DEBUG = os.getenv("BIZYAIR_DEBUG", False)
+
 from typing import Dict
+from .common import client
+from .path_utils import convert_prompt_label_path_to_real_path
 
 
 class TaskStatus(Enum):
@@ -43,13 +46,7 @@ def create_node_data(class_type: str, inputs: dict, outputs: dict):
     return out
 
 
-def set_api_key(API_KEY="YOUR_API_KEY"):
-    BizyAirNodeIO.API_KEY = API_KEY
-
-
 class BizyAirNodeIO:
-    API_KEY = os.getenv("BIZYAIR_API_KEY", "YOUR_API_KEY")
-
     def __init__(
         self,
         node_id: int = "0",
@@ -134,8 +131,8 @@ class BizyAirNodeIO:
                     False,
                     f"{class_type} max_instances is too large, allowed: {max_instances}",
                 )
-
-        return {"prompt": self.nodes, "last_node_id": self.node_id}
+        prompt = convert_prompt_label_path_to_real_path(self.nodes)
+        return {"prompt": prompt, "last_node_id": self.node_id}
 
     def add_node_data(
         self, class_type: str, inputs: Dict[str, Any], outputs: Dict[str, Any]
@@ -187,8 +184,7 @@ class BizyAirNodeIO:
         api_url = self.service_route()
         if self.debug:
             prompt = self._short_repr(self.workflow_api["prompt"], max_length=100)
-            print(f"Debug: {prompt=} {api_url=} {BizyAirNodeIO.API_KEY=}")
-
+            print(f"Debug: {prompt=} {api_url=}")
         if stream:
             result = None
             pass  # TODO(fix)
@@ -228,31 +224,19 @@ class BizyAirNodeIO:
 
             # result = process_events(api_url, self.workflow_api, self.API_KEY)
         else:
-            client = BizyAirRequestClient(
-                api_url, self.workflow_api, BizyAirNodeIO.API_KEY
+            result = client.send_request(
+                url=api_url, data=json.dumps(self.workflow_api).encode("utf-8")
             )
-            response_data = client.send_request()
-            result = json.loads(response_data)
 
         if result is None:
             raise RuntimeError("result is None")
 
-        if "result" in result:  # cloud
-            msg = json.loads(result["result"])
-            try:
-                out = msg["data"]["payload"]
-            except Exception as e:
-                raise RuntimeError(
-                    f'Unexpected error accessing result["data"]["payload"]. Result: {msg}'
-                ) from e
-
-        else:  # local
-            try:
-                out = result["data"]["payload"]
-            except Exception as e:
-                raise RuntimeError(
-                    f'Unexpected error accessing result["data"]["payload"]. Result: {result}'
-                ) from e
+        try:
+            out = result["data"]["payload"]
+        except Exception as e:
+            raise RuntimeError(
+                f'Unexpected error accessing result["data"]["payload"]. Result: {result}'
+            ) from e
         try:
             real_out = decode_data(out)
             return real_out[0]
@@ -455,8 +439,12 @@ def _(output: BizyAirNodeIO, **kwargs):
 
 @encode_data.register(int)
 @encode_data.register(float)
-@encode_data.register(str)
 @encode_data.register(bool)
 @encode_data.register(type(None))
+def _(output, **kwargs):
+    return output
+
+
+@encode_data.register(str)
 def _(output, **kwargs):
     return output
