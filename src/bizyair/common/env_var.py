@@ -42,7 +42,18 @@ def load_api_key():
         has_key = api_key.startswith("sk-")
         return has_key, api_key
     else:
-        return False, "Not Find!"
+        return False, "Key not found, please refer to cloud.siliconflow.cn"
+
+
+def create_api_key_file(api_key):
+    config = configparser.ConfigParser()
+    config["auth"] = {"api_key": api_key}
+    file_path = Path(os.path.abspath(__file__)).parents[3] / "api_key.ini"
+    try:
+        with open(file_path, "w", encoding="utf-8") as configfile:
+            config.write(configfile)
+    except Exception as e:
+        raise Exception(f"An error occurred when save the key: {e}")
 
 
 BIZYAIR_API_KEY = env("BIZYAIR_API_KEY", str, load_api_key()[1])
