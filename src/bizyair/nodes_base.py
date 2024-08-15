@@ -57,6 +57,7 @@ def register_node(cls, prefix):
 
 
 class IDAllocator:
+    # TODO Change to using Comfyui system ID
     _id_counter = 0
     _lock = threading.Lock()
 
