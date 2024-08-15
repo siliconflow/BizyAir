@@ -13,4 +13,4 @@ You also have the freedom to set other system prompts for specific tasks.
 
 ## ☁️BizyAir Joy Caption
 
-The ☁️BizyAir Joy Caption node is a powerful tool designed to automatically generate descriptive captions for images. Thanks to https://huggingface.co/spaces/fancyfeast/joy-caption-pre-alpha.
+The ☁️BizyAir Joy Caption node is a powerful tool designed to automatically generate descriptive captions for images, thanks to https://huggingface.co/spaces/fancyfeast/joy-caption-pre-alpha.
