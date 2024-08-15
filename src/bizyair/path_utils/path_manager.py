@@ -86,9 +86,9 @@ def cached_filename_list(folder_name: str, verbose=True) -> list[str]:
         if verbose:
             print(f"cached_filename_list {msg=}")
 
-        if not msg or 'data' not in msg:
+        if not msg or "data" not in msg:
             return []
-        
+
         filename_path_mapping[folder_name] = {
             x["label_path"]: x["real_path"] for x in msg["data"] if x["label_path"]
         }
