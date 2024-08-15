@@ -2,7 +2,6 @@ from collections.abc import Collection
 import copy
 import os
 import re
-import yaml
 import json
 from typing import Any, Dict, List
 from ..common import fetch_models_by_type
@@ -101,6 +100,32 @@ def cached_filename_list(folder_name: str, verbose=True) -> list[str]:
     )
 
 
+def cached_filename_list(
+    folder_name: str, *, verbose=False, refresh=False
+) -> list[str]:
+    global filename_path_mapping
+    if refresh or folder_name not in filename_path_mapping:
+        url = get_service_route(models_config["service_config"])
+        model_types: Dict[str, str] = models_config["model_types"]
+        msg = fetch_models_by_type(url=url, model_type=model_types[folder_name])
+        if verbose:
+            print(f"cached_filename_list {msg=}")
+
+        if not msg or "data" not in msg:
+            return []
+
+        filename_path_mapping[folder_name] = {
+            x["label_path"]: x["real_path"] for x in msg["data"] if x["label_path"]
+        }
+
+    return list(
+        filter_files_extensions(
+            filename_path_mapping[folder_name].keys(),
+            extensions=supported_pt_extensions,
+        )
+    )
+
+
 def convert_prompt_label_path_to_real_path(prompt: dict[str, dict[str, any]]) -> dict:
     # TODO fix Temporarily write dead
     new_prompt = {}
@@ -125,9 +150,10 @@ def convert_prompt_label_path_to_real_path(prompt: dict[str, dict[str, any]]) ->
 
 def get_filename_list(folder_name, *, verbose=False):
     global folder_names_and_paths
+    print(f"get_filename_list. {folder_name}")
     results = []
     if folder_name in models_config["model_types"]:
-        results.extend(cached_filename_list(folder_name, verbose=verbose))
+        results.extend(cached_filename_list(folder_name, verbose=verbose, refresh=True))
     results.extend(folder_names_and_paths[folder_name])
     return results
 
