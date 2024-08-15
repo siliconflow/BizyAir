@@ -18,6 +18,7 @@ with open(html_file_path, "r", encoding="utf-8") as htmlfile:
 has_key, api_key = load_api_key()
 if has_key:
     API_KEY = api_key
+    bizyair.set_api_key(API_KEY)
 
 
 @server.PromptServer.instance.routes.get("/bizyair/set-api-key")
@@ -37,8 +38,12 @@ async def set_api_key(request):
             bizyair.set_api_key(API_KEY)
             return web.Response(text="ok")
         else:
+            error_msg = (
+                "No token provided, please refer to cloud.siliconflow.cn to get the key"
+            )
+            print("set_api_key:", erro_msg)
             return web.Response(
-                text="No token provided, please refer to cloud.siliconflow.cn to get the key",
+                text=error_msg,
                 status=400,
             )
     except Exception as e:
