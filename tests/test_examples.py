@@ -205,6 +205,7 @@ if __name__ == "__main__":
         all_examples_json,
         [
             "All types of ControlNet preprocessors",
+            "FLUX-dev Simple Lora",
         ],
     )
     print("========Running all examples========")
