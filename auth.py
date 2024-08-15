@@ -134,7 +134,7 @@ async def get_api_key(request):
         bizyair.set_api_key(API_KEY)
         return web.Response(text="Key has been loaded from the api_key.ini file")
 
-    if api_key == "":
+    if not has_key:
         api_key = request.cookies.get("api_key")
     try:
         if api_key:
