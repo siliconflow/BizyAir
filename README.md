@@ -1,5 +1,6 @@
 # BizyAir
 
+- [2024/08/14] 🌩️ BizyAir JoyCaption node has been released. [Try the example to recreate a image by JoyCaption and Flux](./examples/bizyair_flux_joycaption_img2img_workflow.json), thanks to [fancyfeast/joy-caption-pre-alpha](https://huggingface.co/spaces/fancyfeast/joy-caption-pre-alpha)
 - [2024/08/05] 🌩️ FLUX.1-dev has been supported. [FLUX.1-dev Text to Image](./examples/bizyair_flux_dev_workflow.json), [FLUX.1-dev Image to Image](./examples/bizyair_flux_img2img_workflow.json)
 - [2024/08/02] 🌩️ FLUX.1-schnell has been supported. [FLUX.1-schnell Text to Image](./examples/bizyair_flux_schnell_workflow.json)
 - [2024/08/01] 🌩️  [BizyAir MinusZone Kolors](https://siliconflow.github.io/BizyAir/kolors/introduce.html) nodes have been released(thanks to [MinusZoneAI/ComfyUI-Kolors-MZ](https://github.com/MinusZoneAI/ComfyUI-Kolors-MZ)), and BizyAir now supports over 10 new base models. They all support ControlNet, LoRA, and IPAdapter. [BizyAir KSampler](https://siliconflow.github.io/BizyAir/ksampler/introduce.html)

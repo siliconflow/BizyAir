@@ -137,6 +137,7 @@ class BizyAirImageCaption:
 
 
 class BizyAirJoyCaption:
+    # refer to: https://huggingface.co/spaces/fancyfeast/joy-caption-pre-alpha
     API_URL = f"{BIZYAIR_SERVER_ADDRESS}/supernode/joycaption"
 
     @classmethod
