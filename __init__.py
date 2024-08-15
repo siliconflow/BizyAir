@@ -14,12 +14,6 @@ from . import showcase
 WEB_DIRECTORY = "./js"
 
 
-from . import auth
-
-NODE_CLASS_MAPPINGS.update(**auth.NODE_CLASS_MAPPINGS)
-NODE_DISPLAY_NAME_MAPPINGS.update(**auth.NODE_DISPLAY_NAME_MAPPINGS)
-
-
 from . import supernode
 
 NODE_CLASS_MAPPINGS.update(**supernode.NODE_CLASS_MAPPINGS)
@@ -34,11 +28,6 @@ from . import nodes_controlnet_aux
 
 NODE_CLASS_MAPPINGS.update(**nodes_controlnet_aux.NODE_CLASS_MAPPINGS)
 NODE_DISPLAY_NAME_MAPPINGS.update(**nodes_controlnet_aux.NODE_DISPLAY_NAME_MAPPINGS)
-
-from . import kolors
-
-NODE_CLASS_MAPPINGS.update(**kolors.NODE_CLASS_MAPPINGS)
-NODE_DISPLAY_NAME_MAPPINGS.update(**kolors.NODE_DISPLAY_NAME_MAPPINGS)
 
 
 from . import nodes_controlnet_union_sdxl
