@@ -301,7 +301,7 @@ def format_bytes(num_bytes: int) -> str:
         return f"{num_bytes / (1024 * 1024):.2f} MB"
 
 
-def encode_comfy_image(image: torch.Tensor, image_format="png") -> str:
+def _legacy_encode_comfy_image(image: torch.Tensor, image_format="png") -> str:
     input_image = image.cpu().detach().numpy()
     i = 255.0 * input_image[0]
     input_image = np.clip(i, 0, 255).astype(np.uint8)
@@ -311,7 +311,9 @@ def encode_comfy_image(image: torch.Tensor, image_format="png") -> str:
     return base64ed_image
 
 
-def decode_comfy_image(img_data: Union[List, str], image_format="png") -> torch.tensor:
+def _legacy_decode_comfy_image(
+    img_data: Union[List, str], image_format="png"
+) -> torch.tensor:
     if isinstance(img_data, List):
         decoded_imgs = [decode_comfy_image(x) for x in img_data]
 
@@ -322,6 +324,65 @@ def decode_comfy_image(img_data: Union[List, str], image_format="png") -> torch.
     out = np.array(out).astype(np.float32) / 255.0
     output = torch.from_numpy(out)[None,]
     return output
+
+
+def _new_encode_comfy_image(images: torch.Tensor, image_format="WEBP") -> str:
+    """https://docs.comfy.org/essentials/custom_node_snippets#save-an-image-batch
+    Encode a batch of images to base64 strings.
+
+    Args:
+        images (torch.Tensor): A batch of images.
+        image_format (str, optional): The format of the images. Defaults to "WEBP".
+
+    Returns:
+        str: A JSON string containing the base64-encoded images.
+    """
+    results = {}
+    for batch_number, image in enumerate(images):
+        i = 255.0 * image.cpu().numpy()
+        img = Image.fromarray(np.clip(i, 0, 255).astype(np.uint8))
+        base64ed_image = encode_image_to_base64(img, format=image_format)
+        results[batch_number] = base64ed_image
+
+    return json.dumps(results)
+
+
+def _new_decode_comfy_image(img_datas: str, image_format="WEBP") -> torch.tensor:
+    """
+    Decode a batch of base64-encoded images.
+
+    Args:
+        img_datas (str): A JSON string containing the base64-encoded images.
+        image_format (str, optional): The format of the images. Defaults to "WEBP".
+
+    Returns:
+        torch.Tensor: A tensor containing the decoded images.
+    """
+    img_datas = json.loads(img_datas)
+
+    decoded_imgs = []
+    for img_data in img_datas.values():
+        decoded_image = decode_base64_to_np(img_data, format=image_format)
+        decoded_image = np.array(decoded_image).astype(np.float32) / 255.0
+        decoded_imgs.append(torch.from_numpy(decoded_image)[None,])
+
+    return torch.cat(decoded_imgs, dim=0)
+
+
+def encode_comfy_image(image: torch.Tensor, image_format="WEBP") -> str:
+    try:
+        return _new_encode_comfy_image(image, image_format)
+    except Exception as e:
+        # warnings.warn(f"New version of encode_comfy_image failed, falling back to old version: {e}", UserWarning)
+        return _legacy_encode_comfy_image(image, image_format)
+
+
+def decode_comfy_image(img_data: Union[List, str], image_format="WEBP") -> torch.tensor:
+    try:
+        return _new_decode_comfy_image(img_data, image_format)
+    except Exception as e:
+        # warnings.warn(f"New version of decode_comfy_image failed, falling back to old version: {e}", UserWarning)
+        return _legacy_decode_comfy_image(img_data, image_format)
 
 
 def tensor_to_base64(tensor: torch.Tensor, compress=True) -> str:
