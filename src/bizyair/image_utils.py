@@ -11,14 +11,17 @@ import numpy as np
 import torch
 from PIL import Image
 import yaml
-from .client import BizyAirStreamClient, BizyAirRequestClient
+
 
 # Marker to identify base64-encoded tensors
 TENSOR_MARKER = "TENSOR:"
 IMAGE_MARKER = "IMAGE:"
 
 BIZYAIR_DEBUG = os.getenv("BIZYAIR_DEBUG", False)
+
 from typing import Dict
+from .common import client
+from .path_utils import convert_prompt_label_path_to_real_path
 
 
 class TaskStatus(Enum):
@@ -43,13 +46,7 @@ def create_node_data(class_type: str, inputs: dict, outputs: dict):
     return out
 
 
-def set_api_key(API_KEY="YOUR_API_KEY"):
-    BizyAirNodeIO.API_KEY = API_KEY
-
-
 class BizyAirNodeIO:
-    API_KEY = os.getenv("BIZYAIR_API_KEY", "YOUR_API_KEY")
-
     def __init__(
         self,
         node_id: int = "0",
@@ -134,8 +131,8 @@ class BizyAirNodeIO:
                     False,
                     f"{class_type} max_instances is too large, allowed: {max_instances}",
                 )
-
-        return {"prompt": self.nodes, "last_node_id": self.node_id}
+        prompt = convert_prompt_label_path_to_real_path(self.nodes)
+        return {"prompt": prompt, "last_node_id": self.node_id}
 
     def add_node_data(
         self, class_type: str, inputs: Dict[str, Any], outputs: Dict[str, Any]
@@ -165,7 +162,7 @@ class BizyAirNodeIO:
     def get_headers(self):
         if self.API_KEY is None or not self.API_KEY.startswith("sk-"):
             raise ValueError(
-                f"API key is not set. Please provide a valid API key, {self.API_KEY=}"
+                f"API key is not set. Please provide a valid API key(from cloud.siliconflow.cn), {self.API_KEY=}"
             )
 
         return {
@@ -187,8 +184,7 @@ class BizyAirNodeIO:
         api_url = self.service_route()
         if self.debug:
             prompt = self._short_repr(self.workflow_api["prompt"], max_length=100)
-            print(f"Debug: {prompt=} {api_url=} {BizyAirNodeIO.API_KEY=}")
-
+            print(f"Debug: {prompt=} {api_url=}")
         if stream:
             result = None
             pass  # TODO(fix)
@@ -228,31 +224,19 @@ class BizyAirNodeIO:
 
             # result = process_events(api_url, self.workflow_api, self.API_KEY)
         else:
-            client = BizyAirRequestClient(
-                api_url, self.workflow_api, BizyAirNodeIO.API_KEY
+            result = client.send_request(
+                url=api_url, data=json.dumps(self.workflow_api).encode("utf-8")
             )
-            response_data = client.send_request()
-            result = json.loads(response_data)
 
         if result is None:
             raise RuntimeError("result is None")
 
-        if "result" in result:  # cloud
-            msg = json.loads(result["result"])
-            try:
-                out = msg["data"]["payload"]
-            except Exception as e:
-                raise RuntimeError(
-                    f'Unexpected error accessing result["data"]["payload"]. Result: {msg}'
-                ) from e
-
-        else:  # local
-            try:
-                out = result["data"]["payload"]
-            except Exception as e:
-                raise RuntimeError(
-                    f'Unexpected error accessing result["data"]["payload"]. Result: {result}'
-                ) from e
+        try:
+            out = result["data"]["payload"]
+        except Exception as e:
+            raise RuntimeError(
+                f'Unexpected error accessing result["data"]["payload"]. Result: {result}'
+            ) from e
         try:
             real_out = decode_data(out)
             return real_out[0]
@@ -317,7 +301,7 @@ def format_bytes(num_bytes: int) -> str:
         return f"{num_bytes / (1024 * 1024):.2f} MB"
 
 
-def encode_comfy_image(image: torch.Tensor, image_format="png") -> str:
+def _legacy_encode_comfy_image(image: torch.Tensor, image_format="png") -> str:
     input_image = image.cpu().detach().numpy()
     i = 255.0 * input_image[0]
     input_image = np.clip(i, 0, 255).astype(np.uint8)
@@ -327,9 +311,11 @@ def encode_comfy_image(image: torch.Tensor, image_format="png") -> str:
     return base64ed_image
 
 
-def decode_comfy_image(img_data: Union[List, str], image_format="png") -> torch.tensor:
+def _legacy_decode_comfy_image(
+    img_data: Union[List, str], image_format="png"
+) -> torch.tensor:
     if isinstance(img_data, List):
-        decoded_imgs = [decode_comfy_image(x) for x in img_data]
+        decoded_imgs = [decode_comfy_image(x, old_version=True) for x in img_data]
 
         combined_imgs = torch.cat(decoded_imgs, dim=0)
         return combined_imgs
@@ -338,6 +324,65 @@ def decode_comfy_image(img_data: Union[List, str], image_format="png") -> torch.
     out = np.array(out).astype(np.float32) / 255.0
     output = torch.from_numpy(out)[None,]
     return output
+
+
+def _new_encode_comfy_image(images: torch.Tensor, image_format="WEBP") -> str:
+    """https://docs.comfy.org/essentials/custom_node_snippets#save-an-image-batch
+    Encode a batch of images to base64 strings.
+
+    Args:
+        images (torch.Tensor): A batch of images.
+        image_format (str, optional): The format of the images. Defaults to "WEBP".
+
+    Returns:
+        str: A JSON string containing the base64-encoded images.
+    """
+    results = {}
+    for batch_number, image in enumerate(images):
+        i = 255.0 * image.cpu().numpy()
+        img = Image.fromarray(np.clip(i, 0, 255).astype(np.uint8))
+        base64ed_image = encode_image_to_base64(img, format=image_format)
+        results[batch_number] = base64ed_image
+
+    return json.dumps(results)
+
+
+def _new_decode_comfy_image(img_datas: str, image_format="WEBP") -> torch.tensor:
+    """
+    Decode a batch of base64-encoded images.
+
+    Args:
+        img_datas (str): A JSON string containing the base64-encoded images.
+        image_format (str, optional): The format of the images. Defaults to "WEBP".
+
+    Returns:
+        torch.Tensor: A tensor containing the decoded images.
+    """
+    img_datas = json.loads(img_datas)
+
+    decoded_imgs = []
+    for img_data in img_datas.values():
+        decoded_image = decode_base64_to_np(img_data, format=image_format)
+        decoded_image = np.array(decoded_image).astype(np.float32) / 255.0
+        decoded_imgs.append(torch.from_numpy(decoded_image)[None,])
+
+    return torch.cat(decoded_imgs, dim=0)
+
+
+def encode_comfy_image(
+    image: torch.Tensor, image_format="WEBP", old_version=False
+) -> str:
+    if old_version:
+        return _legacy_encode_comfy_image(image, image_format)
+    return _new_encode_comfy_image(image, image_format)
+
+
+def decode_comfy_image(
+    img_data: Union[List, str], image_format="WEBP", old_version=False
+) -> torch.tensor:
+    if old_version:
+        return _legacy_decode_comfy_image(img_data, image_format)
+    return _new_decode_comfy_image(img_data, image_format)
 
 
 def tensor_to_base64(tensor: torch.Tensor, compress=True) -> str:
@@ -364,7 +409,7 @@ def base64_to_tensor(tensor_b64: str, compress=True) -> torch.Tensor:
 
 
 @singledispatch
-def decode_data(input):
+def decode_data(input, old_version=False):
     raise NotImplementedError(f"Unsupported type: {type(input)}")
 
 
@@ -372,33 +417,34 @@ def decode_data(input):
 @decode_data.register(float)
 @decode_data.register(bool)
 @decode_data.register(type(None))
-def _(input):
+def _(input, **kwargs):
     return input
 
 
 @decode_data.register(dict)
-def _(input):
-    return {k: decode_data(v) for k, v in input.items()}
+def _(input, **kwargs):
+    return {k: decode_data(v, **kwargs) for k, v in input.items()}
 
 
 @decode_data.register(list)
-def _(input):
-    return [decode_data(x) for x in input]
+def _(input, **kwargs):
+    return [decode_data(x, **kwargs) for x in input]
 
 
 @decode_data.register(str)
-def _(input: str):
+def _(input: str, **kwargs):
     if input.startswith(TENSOR_MARKER):
         tensor_b64 = input[len(TENSOR_MARKER) :]
         return base64_to_tensor(tensor_b64)
     elif input.startswith(IMAGE_MARKER):
         tensor_b64 = input[len(IMAGE_MARKER) :]
-        return decode_comfy_image(tensor_b64)
+        old_version = kwargs.get("old_version", False)
+        return decode_comfy_image(tensor_b64, old_version=old_version)
     return input
 
 
 @singledispatch
-def encode_data(output, disable_image_marker=False):
+def encode_data(output, disable_image_marker=False, old_version=False):
     raise NotImplementedError(f"Unsupported type: {type(output)}")
 
 
@@ -442,7 +488,10 @@ def is_image_tensor(tensor) -> bool:
 @encode_data.register(torch.Tensor)
 def _(output, **kwargs):
     if is_image_tensor(output) and not kwargs.get("disable_image_marker", False):
-        return IMAGE_MARKER + encode_comfy_image(output, image_format="WEBP")
+        old_version = kwargs.get("old_version", False)
+        return IMAGE_MARKER + encode_comfy_image(
+            output, image_format="WEBP", old_version=old_version
+        )
     return TENSOR_MARKER + tensor_to_base64(output)
 
 
@@ -455,8 +504,12 @@ def _(output: BizyAirNodeIO, **kwargs):
 
 @encode_data.register(int)
 @encode_data.register(float)
-@encode_data.register(str)
 @encode_data.register(bool)
 @encode_data.register(type(None))
+def _(output, **kwargs):
+    return output
+
+
+@encode_data.register(str)
 def _(output, **kwargs):
     return output

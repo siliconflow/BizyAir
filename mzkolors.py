@@ -81,16 +81,15 @@ class BizyAir_MinusZoneChatGLM3TextEncode(BizyAirMZChatGLM3TextEncode, BizyAirBa
         node_data["is_changed"] = uuid.uuid4().hex
         return (
             BizyAirNodeIO(
-                self.assigned_id, nodes={self.assigned_id: encode_data(node_data)}
+                self.assigned_id,
+                nodes={self.assigned_id: encode_data(node_data, old_version=True)},
             ),
         )
 
 
 NODE_CLASS_MAPPINGS = {
-    "BizyAirMZChatGLM3TextEncode": BizyAirMZChatGLM3TextEncode,
     "BizyAir_MinusZoneChatGLM3TextEncode": BizyAir_MinusZoneChatGLM3TextEncode,
 }
 NODE_DISPLAY_NAME_MAPPINGS = {
-    "BizyAirMZChatGLM3TextEncode": "☁️BizyAir ChatGLM3 Text Encode(deprecated)",
     "BizyAir_MinusZoneChatGLM3TextEncode": "☁️BizyAir MinusZone ChatGLM3 Text Encode",
 }

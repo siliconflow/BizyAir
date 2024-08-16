@@ -11,12 +11,6 @@ This node offers five Large Langauge Models,  including two completely free mode
 You also have the freedom to set other system prompts for specific tasks.
 
 
-## ☁️BizyAir Image Caption
+## ☁️BizyAir Joy Caption
 
-The ☁️BizyAir Image Caption node is a powerful tool designed to automatically generate descriptive captions for images.
-
-![](./imgs/image-caption.png)
-
- It is generally very useful in the workflow of redrawing images.
-
- ![](./imgs/image-caption-redraw.png)
+The ☁️BizyAir Joy Caption node is a powerful tool designed to automatically generate descriptive captions for images, thanks to https://huggingface.co/spaces/fancyfeast/joy-caption-pre-alpha.
