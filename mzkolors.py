@@ -81,7 +81,8 @@ class BizyAir_MinusZoneChatGLM3TextEncode(BizyAirMZChatGLM3TextEncode, BizyAirBa
         node_data["is_changed"] = uuid.uuid4().hex
         return (
             BizyAirNodeIO(
-                self.assigned_id, nodes={self.assigned_id: encode_data(node_data, old_version = True)}
+                self.assigned_id,
+                nodes={self.assigned_id: encode_data(node_data, old_version=True)},
             ),
         )
 

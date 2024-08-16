@@ -369,17 +369,20 @@ def _new_decode_comfy_image(img_datas: str, image_format="WEBP") -> torch.tensor
     return torch.cat(decoded_imgs, dim=0)
 
 
-def encode_comfy_image(image: torch.Tensor, image_format="WEBP", old_version=False) -> str:
+def encode_comfy_image(
+    image: torch.Tensor, image_format="WEBP", old_version=False
+) -> str:
     if old_version:
         return _legacy_encode_comfy_image(image, image_format)
     return _new_encode_comfy_image(image, image_format)
 
 
-def decode_comfy_image(img_data: Union[List, str], image_format="WEBP", old_version = False) -> torch.tensor:
+def decode_comfy_image(
+    img_data: Union[List, str], image_format="WEBP", old_version=False
+) -> torch.tensor:
     if old_version:
         return _legacy_decode_comfy_image(img_data, image_format)
     return _new_decode_comfy_image(img_data, image_format)
- 
 
 
 def tensor_to_base64(tensor: torch.Tensor, compress=True) -> str:
@@ -441,7 +444,7 @@ def _(input: str, **kwargs):
 
 
 @singledispatch
-def encode_data(output, disable_image_marker=False, old_version = False):
+def encode_data(output, disable_image_marker=False, old_version=False):
     raise NotImplementedError(f"Unsupported type: {type(output)}")
 
 
@@ -486,7 +489,9 @@ def is_image_tensor(tensor) -> bool:
 def _(output, **kwargs):
     if is_image_tensor(output) and not kwargs.get("disable_image_marker", False):
         old_version = kwargs.get("old_version", False)
-        return IMAGE_MARKER + encode_comfy_image(output, image_format="WEBP", old_version=old_version)
+        return IMAGE_MARKER + encode_comfy_image(
+            output, image_format="WEBP", old_version=old_version
+        )
     return TENSOR_MARKER + tensor_to_base64(output)
 
 
