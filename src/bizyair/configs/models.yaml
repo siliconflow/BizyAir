@@ -1,0 +1,39 @@
+service_config:
+  service_address: https://api.siliconflow.cn
+  route: /supernode/listmodelserver
+  service_route: "{{ service_config.service_address }}{{ service_config.route }}"
+
+model_types:
+  # folder_name, server_folder_name
+  loras: bizyair/lora
+  # checkpoints: bizyair/checkpoint
+  # vae: bizyair/vae
+
+
+config_files:
+  sdxl:
+    path: sdxl_config.yaml
+  kolors:
+    path: kolors_config.yaml
+  flux-dev:
+    path: flux_dev_config.yaml
+  flux-schnell:
+    path: flux_config.yaml
+
+routing_rules:
+  - name: sdxl
+    pattern: ^sdxl.*
+    config: sdxl
+  - name: kolors
+    pattern: ^kolors.*
+    config: kolors
+  - name: flux-dev
+    pattern: ^flux/flux1-dev.sft$
+    config: flux-dev
+  - name: flux-schnell
+    pattern: ^flux/flux1-schnell.sft$
+    config: flux-schnell
+  - name: flux-vae
+    pattern: ^flux/ae.sft$
+    config: flux-schnell
+  

@@ -1,0 +1,4 @@
+service_config:
+  service_address: https://api.siliconflow.cn # http://0.0.0.0:9911
+  route: /supernode/test-flux-dev-bizyair-comfy-ksampler
+  service_route: "{{ service_config.service_address }}{{ service_config.route }}"
