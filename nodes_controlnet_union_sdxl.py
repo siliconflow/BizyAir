@@ -118,7 +118,7 @@ class StableDiffusionXLControlNetUnionPipeline:
                 height, width = v.shape[1:3]
                 ratio = np.sqrt(1024.0 * 1024.0 / (width * height))
                 new_width, new_height = int(width * ratio), int(height * ratio)
-                controlnet_img[k] = encode_comfy_image(v)
+                controlnet_img[k] = encode_comfy_image(v, old_version=True)
 
         if new_width > 1536 or new_height > 1536:
             error_message = (
@@ -159,7 +159,7 @@ class StableDiffusionXLControlNetUnionPipeline:
         else:  # local
             img_data = result["data"]["payload"]
 
-        output = decode_comfy_image(img_data)
+        output = decode_comfy_image(img_data, old_version=True)
         return (output,)
 
 
