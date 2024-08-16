@@ -672,3 +672,65 @@ class RandomNoise(BizyAirBaseNode):
             {self.assigned_id: node_data},
         )
         return (model,)
+
+
+class CLIPSetLastLayer(BizyAirBaseNode):
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "clip": (data_types.CLIP,),
+                "stop_at_clip_layer": (
+                    "INT",
+                    {"default": -1, "min": -24, "max": -1, "step": 1},
+                ),
+            }
+        }
+
+    RETURN_TYPES = (data_types.CLIP,)
+    FUNCTION = "set_last_layer"
+
+    CATEGORY = "conditioning"
+
+    def set_last_layer(self, clip: BizyAirNodeIO, stop_at_clip_layer):
+        new_clip = clip.copy(new_node_id=self.assigned_id)
+        new_clip.add_node_data(
+            class_type="CLIPSetLastLayer",
+            inputs={
+                "stop_at_clip_layer": stop_at_clip_layer,
+                "clip": clip,
+            },
+            outputs={"slot_index": 0},
+        )
+        return (new_clip,)
+
+
+class FluxGuidance(BizyAirBaseNode):
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "conditioning": (data_types.CONDITIONING,),
+                "guidance": (
+                    "FLOAT",
+                    {"default": 3.5, "min": 0.0, "max": 100.0, "step": 0.1},
+                ),
+            }
+        }
+
+    RETURN_TYPES = (data_types.CONDITIONING,)
+    FUNCTION = "append"
+
+    CATEGORY = "advanced/conditioning/flux"
+
+    def append(self, conditioning: BizyAirNodeIO, guidance):
+        new_conditioning = conditioning.copy(self.assigned_id)
+        new_conditioning.add_node_data(
+            class_type="FluxGuidance",
+            inputs={
+                "conditioning": conditioning,
+                "guidance": guidance,
+            },
+            outputs={"slot_index": 0},
+        )
+        return (new_conditioning,)
