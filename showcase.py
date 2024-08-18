@@ -15,7 +15,7 @@ SHOW_CASES = {}
 def get_bizyair_news(base_url="https://bizyair.siliconflow.cn"):
     url = f"{base_url}/news.json"
     try:
-        response = urllib.request.urlopen(url)
+        response = urllib.request.urlopen(url, timeout=5)
         if response.getcode() == 200:
             data = response.read()
             return json.loads(data)
@@ -25,7 +25,9 @@ def get_bizyair_news(base_url="https://bizyair.siliconflow.cn"):
     except urllib.error.URLError as e:
         print(f"Error fetching news.json: {e.reason}")
         return {}
-    return bizyair_news
+    except Exception as e:
+        print(f"Error fetching BizyAir news.json: {str(e)}")
+        return {}
 
 
 SHOW_CASES.update(get_bizyair_news())
