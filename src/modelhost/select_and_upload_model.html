@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BizyAir - Model Upload</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            width: 80%;
+            max-width: 600px;
+        }
+
+        .section {
+            margin-bottom: 20px;
+        }
+
+        .section h2 {
+            margin-bottom: 10px;
+        }
+
+        input[type="text"],
+        input[type="file"],
+        select {
+            padding: 10px;
+            margin: 10px 0;
+            border: 2px solid rgb(130, 88, 245);
+            border-radius: 5px;
+            background-color: #1e1e1e;
+            color: #ffffff;
+            width: calc(100% - 24px);
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: rgb(130, 88, 245);
+            color: #ffffff;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Model Upload</h1>
+        <div class="section">
+            <h2>Select Local Files</h2>
+            <input type="file" id="fileInput" webkitdirectory directory multiple onchange="displaySelectedFiles()">
+        </div>
+        <div class="section">
+            <h2>Model Type</h2>
+            <select id="modelType">
+                <option value="bizyair/checkpoint">bizyair/checkpoint</option>
+                <option value="bizyair/lora">bizyair/lora</option>
+            </select>
+        </div>
+        <div class="section">
+            <h2>Remote Directory Name</h2>
+            <input type="text" id="remoteDirName" placeholder="Enter remote directory name">
+        </div>
+        <div class="section">
+            <button onclick="uploadModel()">Upload Model</button>
+        </div>
+    </div>
+
+    <script>
+        function displaySelectedFiles() {
+            const fileInput = document.getElementById('fileInput');
+            const files = fileInput.files;
+            const fileList = [];
+
+            for (let i = 0; i < files.length; i++) {
+                fileList.push(files[i].webkitRelativePath);
+            }
+
+            const fileJson = JSON.stringify(fileList, null, 2);
+            console.log(fileJson);
+
+            fetch('/bizyair/modelhost/upload', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: fileJson
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        }
+
+        function uploadModel() {
+            const modelType = document.getElementById('modelType').value;
+            const remoteDirName = document.getElementById('remoteDirName').value;
+
+            console.log('Model Type:', modelType);
+            console.log('Remote Directory Name:', remoteDirName);
+
+            // Here you would typically send the data to your server using fetch or XMLHttpRequest
+            alert('Model upload simulated. Check console for details.');
+        }
+    </script>
+</body>
+
+</html>

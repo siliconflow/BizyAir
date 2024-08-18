@@ -32,3 +32,5 @@ update_mappings(llm)
 update_mappings(nodes_controlnet_aux)
 update_mappings(nodes_controlnet_union_sdxl)
 update_mappings(mzkolors)
+
+import modelhost
