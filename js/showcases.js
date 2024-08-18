@@ -164,19 +164,24 @@ class FloatingButton {
     }
 
     async get_workflow_graph(file) {
-        console.log("workflow file:", file);
-        const exampleMenu = document.querySelector(".example-menu")
-        if (exampleMenu) document.body.removeChild(exampleMenu);
-        const response = await api.fetchApi("/bizyair/workflow", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ file: file }),
-        });
-        const showcase_graph = await response.json()
-        app.graph.clear()
-        await app.loadGraphData(showcase_graph)
+        if (file.startsWith("https://")) {
+            console.log("open BizyAir NEWS:", file);
+            window.open(file, '_blank');
+        } else if (file.endsWith(".json")) {
+            console.log("workflow file:", file);
+            const exampleMenu = document.querySelector(".example-menu")
+            if (exampleMenu) document.body.removeChild(exampleMenu);
+            const response = await api.fetchApi("/bizyair/workflow", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ file: file }),
+            });
+            const showcase_graph = await response.json()
+            app.graph.clear()
+            await app.loadGraphData(showcase_graph)
+        }
     }
 
     async getMenuOptions() {
