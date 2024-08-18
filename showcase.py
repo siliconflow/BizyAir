@@ -1,3 +1,5 @@
+import urllib.request
+import urllib.error
 import json
 import os
 
@@ -9,8 +11,29 @@ CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 SHOW_CASES = {}
 
+
+def get_bizyair_news(base_url="https://bizyair.siliconflow.cn"):
+    url = f"{base_url}/news.json"
+    try:
+        response = urllib.request.urlopen(url, timeout=5)
+        if response.getcode() == 200:
+            data = response.read()
+            return json.loads(data)
+        else:
+            print(f"Failed to fetch news.json: HTTP Status {response.getcode()}")
+            return {}
+    except urllib.error.URLError as e:
+        print(f"Error fetching news.json: {e.reason}")
+        return {}
+    except Exception as e:
+        print(f"Error fetching BizyAir news.json: {str(e)}")
+        return {}
+
+
+SHOW_CASES.update(get_bizyair_news())
+
 with open(os.path.join(CURRENT_DIR, "bizyair_example_menu.json"), "r") as file:
-    SHOW_CASES = json.load(file)
+    SHOW_CASES.update(json.load(file))
 
 
 def extract_files(data):
