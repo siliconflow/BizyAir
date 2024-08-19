@@ -4,7 +4,7 @@ import { ComfyWidgets } from "../../scripts/widgets.js";
 app.registerExtension({
     name: "bizyair.image.to.caption",
     async beforeRegisterNodeDef(nodeType, nodeData, app) {
-        if (nodeData.name === "BizyAirImageCaption" || nodeData.name === "BizyAirJoyCaption") {
+        if (nodeData.name === "BizyAirJoyCaption") {
             function populate(text) {
                 if (this.widgets) {
                     const pos = this.widgets.findIndex((w) => w.name === "showtext");
