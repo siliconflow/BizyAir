@@ -1,17 +1,24 @@
+import base64
+import hashlib
 import json
 import os
 from pathlib import Path
 import urllib.request
 import urllib.parse
+
+import crcmod
+import oss2
 from aiohttp import web
 
 from server import PromptServer
 import bizyair
 import bizyair.common
 from .errno import ErrorNo, CODE_OK, INVAILD_TYPE, INVAILD_NAME, CHECK_MODEL_EXISTS_ERR, NO_FILE_UPLOAD_ERR, \
-    EMPTY_UPLOAD_ID_ERR
+    EMPTY_UPLOAD_ID_ERR, SIGN_FILE_ERR, UPLOAD_ERR, COMMIT_FILE_ERR, MODEL_ALREADY_EXISTS_ERR, COMMIT_MODEL_ERR, INVAILD_UPLOAD_ID_ERR, EMPTY_FILES_ERR
 
-# from .cache import UploadCache
+from .cache import UploadCache
+from .oss import AliOssStorageClient
+import logging
 
 current_path = os.path.abspath(os.path.dirname(__file__))
 prompt_server = PromptServer.instance
@@ -22,8 +29,17 @@ BIZYAIR_SERVER_ADDRESS = os.getenv(
 
 API_PREFIX = "bizyair/modelhost"
 
+CACHE = UploadCache()
+logging.basicConfig(level=logging.DEBUG)
 
-# CACHE = UploadCache()
+TYPE_OPTIONS = {
+    "checkpoint": "bizyair/lora",
+    "lora": "bizyair/lora",
+    "vae": "bizyair/vae",
+    "controlnet": "bizyair/controlnet",
+    "other": "other"
+}
+ALLOW_TYPES = list(TYPE_OPTIONS.values())
 
 
 def _get_modelserver_list(api_key, model_type="bizyair/lora"):
@@ -79,27 +95,27 @@ async def forward_upload_model_html(request):
     return web.Response(text=upload_model_html, content_type="text/html")
 
 
+@prompt_server.routes.get(f"/{API_PREFIX}/model_types")
+async def list_model_types(request):
+    return JsonResponse(TYPE_OPTIONS)
+
+
 @prompt_server.routes.post(f"/{API_PREFIX}/check_model_exists")
 async def check_model_exists(request):
     json_data = await request.json()
-    if "type" not in json_data:
-        return ErrResponse(INVAILD_TYPE)
+    err = check_type(json_data)
+    if err is not None:
+        return err
 
-    type = json_data["type"]
-    if not is_string_valid(type):
-        return ErrResponse(INVAILD_TYPE)
+    err = check_str_param(json_data, param_name="name", err=INVAILD_TYPE)
+    if err is not None:
+        return err
 
-    if type not in ["bizyair/lora"]:
-        return ErrResponse(INVAILD_TYPE)
+    exists, err = check_model(name=json_data["name"], type=json_data["type"])
+    if err is not None:
+        return ErrResponse(err)
 
-    if "name" not in json_data:
-        return ErrResponse(INVAILD_NAME)
-
-    name = json_data["name"]
-    if not is_string_valid(name):
-        return ErrResponse(INVAILD_NAME)
-
-    return check_model(name=name, type=type)
+    return OKResponse({"exists": exists})
 
 
 @prompt_server.routes.post(f"/{API_PREFIX}/file_upload")
@@ -120,22 +136,97 @@ async def file_upload(request):
         if not os.path.exists(parent_folder):
             os.makedirs(parent_folder)
 
-        print(f"write file to localstore: upload_id={upload_id}, filepath={filepath}")
         with open(filepath, "wb") as f:
             f.write(file.file.read())
-        #
-        # if not CACHE.upload_id_exists(upload_id=upload_id):
-        #     upload_file_cache = CACHE.get_valuemap(upload_id=upload_id)
-        #
-        # CACHE.set_file_info(upload_id=upload_id, filename=filename, info={
-        #     "relPath": filename,
-        #     "size": os.path.getsize(filepath)
-        # })
 
-    return JsonResponse(200, {"code": CODE_OK, "message": "success"})
+        sha256sum = calculate_hash(filepath)
+        print(f"write file to localstore: upload_id={upload_id}, filepath={filepath}, signature={sha256sum}")
+
+        if not CACHE.upload_id_exists(upload_id=upload_id):
+            CACHE.set_valuemap(upload_id=upload_id, valuemap={})
+
+        CACHE.set_file_info(upload_id=upload_id, filename=filename, info={
+            "relPath": to_slash(filename),
+            "size": os.path.getsize(filepath),
+            "signature": sha256sum,
+        })
+
+        sign_data, err = sign(sha256sum)
+        file_record = sign_data.get("file")
+        if err is not None:
+            return ErrResponse(err)
+
+        if is_string_valid(file_record.get("id")):
+            file_info = CACHE.get_file_info(upload_id=upload_id, filename=filename)
+            file_info["id"] = file_record.get("id")
+            file_info["remote_key"] = file_record.get("object_key")
+        else:
+            print("need upload file")
+            file_storage = sign_data.get("storage")
+            try:
+                oss_client = AliOssStorageClient(endpoint=file_storage.get("endpoint"),
+                                                 bucket_name=file_storage.get("bucket"),
+                                                 access_key=file_record.get("access_key_id"),
+                                                 secret_key=file_record.get("access_key_secret"),
+                                                 security_token=file_record.get("security_token"))
+                oss_client.upload_file(filepath, file_record.get("object_key"))
+            except oss2.exceptions.OssError as e:
+                return ErrResponse(UPLOAD_ERR)
+
+            commit_data, err = commit_file(signature=sha256sum, object_key=file_record.get("object_key"))
+            if err is not None:
+                return ErrResponse(err)
+            new_file_record = commit_data.get("file")
+            file_info = CACHE.get_file_info(upload_id=upload_id, filename=filename)
+            file_info["id"] = new_file_record.get("id")
+            file_info["remote_key"] = new_file_record.get("object_key")
+            print(f"{file_info['relPath']} Already Uploaded")
+
+        file_info = CACHE.get_file_info(upload_id=upload_id, filename=filename)
+        return OKResponse({"sign": file_info["signature"]})
+    else:
+        return ErrResponse(NO_FILE_UPLOAD_ERR)
 
 
-def check_model(type: str, name: str):
+@prompt_server.routes.post(f"/{API_PREFIX}/model_upload")
+async def upload_model(request):
+    json_data = await request.json()
+    err = check_str_param(json_data, "upload_id", EMPTY_UPLOAD_ID_ERR)
+    if err is not None:
+        return err
+
+    if not CACHE.upload_id_exists(json_data["upload_id"]):
+        return ErrResponse(INVAILD_UPLOAD_ID_ERR)
+
+    err = check_type(json_data)
+    if err is not None:
+        return err
+
+    err = check_str_param(json_data, "name", INVAILD_NAME)
+    if err is not None:
+        return err
+
+    exists, err = check_model(type=json_data["type"], name=json_data["name"])
+    if err is not None:
+        return err
+
+    if exists and "overwrite" not in json_data or json_data["overwrite"] is not True:
+        return ErrResponse(MODEL_ALREADY_EXISTS_ERR)
+
+    if "files" not in json_data or len(json_data["files"]) < 1:
+        return ErrResponse(EMPTY_FILES_ERR)
+
+    files = json_data["files"]
+
+    commit_ret, err = commit_model(model_files=files, model_name=json_data["name"], model_type=json_data["type"], overwrite=json_data["overwrite"])
+    if err is not None:
+        return ErrResponse(err)
+
+    print("Uploaded successfully")
+    return OKResponse(None)
+
+
+def check_model(type: str, name: str) -> (bool, ErrorNo):
     server_url = f"{BIZYAIR_SERVER_ADDRESS}/x/v1/models/check"
 
     payload = {
@@ -149,14 +240,80 @@ def check_model(type: str, name: str):
         ret = json.loads(resp)
         print(ret)
         if ret["code"] != CODE_OK:
-            return ErrResponse(ErrorNo(500, ret["code"], None, ret["message"]))
+            return ErrorNo(500, ret["code"], None, ret["message"])
 
-        exists = ret["data"]["exists"]
-        return JsonResponse(200, {"exists": exists})
+        if "exists" not in ret["data"]:
+            return False, None
+
+        return True, None
 
     except Exception as e:
-        print(f"fail to list model: {str(e)}")
-        return ErrResponse(CHECK_MODEL_EXISTS_ERR)
+        print(f"fail to check model: {str(e)}")
+        return None, CHECK_MODEL_EXISTS_ERR
+
+
+def sign(signature: str) -> (dict, ErrorNo):
+    server_url = f"{BIZYAIR_SERVER_ADDRESS}/x/v1/files/{signature}"
+    headers = auth_header()
+
+    try:
+        resp = do_get(server_url, params=None, headers=headers)
+        ret = json.loads(resp)
+        print(ret)
+        if ret["code"] != CODE_OK:
+            return None, ErrorNo(500, ret["code"], None, ret["message"])
+
+        return ret["data"], None
+
+    except Exception as e:
+        print(f"fail to sign model: {str(e)}")
+        return None, SIGN_FILE_ERR
+
+
+def commit_file(signature: str, object_key: str) -> (dict, ErrorNo):
+    server_url = f"{BIZYAIR_SERVER_ADDRESS}/x/v1/files"
+
+    payload = {
+        "sign": signature,
+        "object_key": object_key,
+    }
+    headers = auth_header()
+    print(payload)
+
+    try:
+        resp = do_post(server_url, data=payload, headers=headers)
+        ret = json.loads(resp)
+        if ret["code"] != CODE_OK:
+            return None, ErrorNo(500, ret["code"], None, ret["message"])
+
+        return ret["data"], None
+    except Exception as e:
+        print(f"fail to commit file: {str(e)}")
+        return None, COMMIT_FILE_ERR
+
+
+def commit_model(model_files, model_name: str, model_type: str, overwrite: bool) -> (dict, ErrorNo):
+    server_url = f"{BIZYAIR_SERVER_ADDRESS}/x/v1/models"
+
+    payload = {
+        "name": model_name,
+        "type": model_type,
+        "overwrite": overwrite,
+        "files": model_files,
+    }
+    headers = auth_header()
+    print(payload)
+
+    try:
+        resp = do_post(server_url, data=payload, headers=headers)
+        ret = json.loads(resp)
+        if ret["code"] != CODE_OK:
+            return None, ErrorNo(500, ret["code"], None, ret["message"])
+
+        return ret["data"], None
+    except Exception as e:
+        print(f"fail to commit model: {str(e)}")
+        return None, COMMIT_MODEL_ERR
 
 
 def is_string_valid(s):
@@ -171,8 +328,28 @@ def to_slash(path):
     return path.replace('\\', '/')
 
 
+def check_str_param(json_data, param_name: str, err):
+    if param_name not in json_data:
+        return ErrResponse(err)
+    if not is_string_valid(json_data[param_name]):
+        return ErrResponse(err)
+    return None
+
+
+def check_type(json_data):
+    if "type" not in json_data:
+        return ErrResponse(INVAILD_TYPE)
+    if not is_string_valid(json_data["type"]) or json_data["type"] not in ALLOW_TYPES:
+        return ErrResponse(INVAILD_TYPE)
+    return None
+
+
 def JsonResponse(http_status_code, data):
     return web.json_response(data, status=http_status_code, content_type="application/json")
+
+
+def OKResponse(data):
+    return JsonResponse(200, {"message": "success", "code": CODE_OK, "data": data})
 
 
 def ErrResponse(err: ErrorNo):
@@ -205,11 +382,42 @@ def do_get(url, params=None, headers=None):
 def do_post(url, data=None, headers=None):
     # 将字典转换为字节串
     if data:
-        data = urllib.parse.urlencode(data).encode('utf-8')
+        data = bytes(json.dumps(data), 'utf-8')
 
+    print(data)
     # 创建请求对象
     request = urllib.request.Request(url, data=data, headers=headers, method='POST')
 
     # 发送POST请求
     with urllib.request.urlopen(request) as response:
         return response.read().decode('utf-8')
+
+
+def calculate_hash(file_path):
+    # 读取文件并计算 CRC64
+    # 创建CRC64校验函数。
+    do_crc64 = crcmod.mkCrcFun(0x142F0E1EBA9EA3693, initCrc=0, xorOut=0xffffffffffffffff, rev=True)
+    crc64_signature = 0
+    buf_size = 65536  # 缓冲区大小为64KB
+
+    # 打开文件并读取内容
+    with open(file_path, 'rb') as f:
+        while chunk := f.read(buf_size):
+            crc64_signature = do_crc64(chunk, crc64_signature)
+
+    # 重新读取文件计算 MD5
+    md5_hash = hashlib.md5()
+    with open(file_path, 'rb') as file:
+        while chunk := file.read(buf_size):
+            md5_hash.update(chunk)
+    md5_str = base64.b64encode(md5_hash.digest()).decode('utf-8')
+
+    # 计算 SHA256
+    hasher = hashlib.sha256()
+    hasher.update(f"{md5_str}{crc64_signature}".encode('utf-8'))
+    hash_string = hasher.hexdigest()
+
+    # 调试信息输出
+    logging.debug(f"file: {file_path}, crc64: {crc64_signature}, md5: {md5_str}, sha256: {hash_string}")
+
+    return hash_string

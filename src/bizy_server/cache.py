@@ -1,16 +1,23 @@
+import functools
+import json
 import threading
 
 
 class UploadCache:
+    _lock = threading.Lock()
+
     def __init__(self):
         self._cache = {}  # 用于存储缓存数据
-        self._lock = threading.Lock()  # 用于线程同步的锁
 
-    def _with_lock(self, func):
+    @staticmethod
+    def _with_lock(func):
         """装饰器，用于在执行函数前获取锁，并在函数执行后释放锁"""
+
         def wrapper(*args, **kwargs):
-            with self._lock:
-                return func(*args, **kwargs)
+            with UploadCache._lock:
+                result = func(*args, **kwargs)
+            return result
+
         return wrapper
 
     def upload_id_exists(self, upload_id):
@@ -39,3 +46,13 @@ class UploadCache:
         if upload_id not in self._cache:
             self._cache[upload_id] = {}
         self._cache[upload_id][filename] = info
+
+    def __str__(self):
+        cache_str = "UploadCache(\n"
+        for upload_id, valuemap in self._cache.items():
+            cache_str += f"  {upload_id}: {{\n"
+            for filename, info in valuemap.items():
+                cache_str += f"    {json.dumps(filename)}: {json.dumps(info)}\n"
+            cache_str += "  }\n"
+        cache_str += ")"
+        return cache_str
