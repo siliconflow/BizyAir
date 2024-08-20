@@ -1,3 +1,5 @@
+from typing import Callable, Any
+
 import oss2
 import os
 import logging
@@ -8,12 +10,13 @@ logging.basicConfig(level=logging.DEBUG)
 
 
 class AliOssStorageClient:
-    def __init__(self, endpoint, bucket_name, access_key, secret_key, security_token=None):
+    def __init__(self, endpoint, bucket_name, access_key, secret_key, security_token, onUploading: Callable[[Any, Any], None]):
         auth = oss2.StsAuth(access_key, secret_key, security_token) if security_token else oss2.Auth(access_key,
                                                                                                      secret_key)
         self.bucket = oss2.Bucket(auth, endpoint, bucket_name)
         self.bucket_name = bucket_name
         self.region = endpoint
+        self.onUploading = onUploading
         logging.debug(f"New OSS storage client initialized: {self.bucket_name} in {self.region}")
 
     def upload_file(self, file_path, object_name):
@@ -23,6 +26,8 @@ class AliOssStorageClient:
 
         def progress_callback(bytes_sent, total_bytes):
             progress_bar.update(bytes_sent)
+            if self.onUploading:
+                self.onUploading(bytes_sent, total_bytes)
 
         try:
             self.bucket.put_object_from_file(object_name, file_path, progress_callback=progress_callback)

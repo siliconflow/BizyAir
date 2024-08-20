@@ -15,7 +15,7 @@ import bizyair
 import bizyair.common
 from .errno import ErrorNo, CODE_OK, INVAILD_TYPE, INVAILD_NAME, CHECK_MODEL_EXISTS_ERR, NO_FILE_UPLOAD_ERR, \
     EMPTY_UPLOAD_ID_ERR, SIGN_FILE_ERR, UPLOAD_ERR, COMMIT_FILE_ERR, MODEL_ALREADY_EXISTS_ERR, COMMIT_MODEL_ERR, \
-    INVALID_UPLOAD_ID_ERR, EMPTY_FILES_ERR, LIST_MODEL_FILE_ERR
+    INVALID_UPLOAD_ID_ERR, EMPTY_FILES_ERR, LIST_MODEL_FILE_ERR, INVALID_FILENAME_ERR
 
 from .cache import UploadCache
 from .oss import AliOssStorageClient
@@ -129,15 +129,23 @@ async def file_upload(request):
             file_info = CACHE.get_file_info(upload_id=upload_id, filename=filename)
             file_info["id"] = file_record.get("id")
             file_info["remote_key"] = file_record.get("object_key")
+            file_info["progress"] = "100.00%"
         else:
             print("need upload file")
             file_storage = sign_data.get("storage")
             try:
+                def updateProgress(consume_bytes, total_bytes):
+                    print(f"uploading: {consume_bytes}/{total_bytes}")
+                    fi = CACHE.get_file_info(upload_id=upload_id, filename=filename)
+                    if fi is not None:
+                        fi["progress"] = "{:.2f}%".format(consume_bytes / total_bytes * 100)
+
                 oss_client = AliOssStorageClient(endpoint=file_storage.get("endpoint"),
                                                  bucket_name=file_storage.get("bucket"),
                                                  access_key=file_record.get("access_key_id"),
                                                  secret_key=file_record.get("access_key_secret"),
-                                                 security_token=file_record.get("security_token"))
+                                                 security_token=file_record.get("security_token"),
+                                                 onUploading=updateProgress)
                 oss_client.upload_file(filepath, file_record.get("object_key"))
             except oss2.exceptions.OssError as e:
                 return ErrResponse(UPLOAD_ERR)
@@ -150,6 +158,10 @@ async def file_upload(request):
             file_info["id"] = new_file_record.get("id")
             file_info["remote_key"] = new_file_record.get("object_key")
             print(f"{file_info['relPath']} Already Uploaded")
+
+        if os.path.exists(filepath):
+            # 删除文件
+            os.remove(filepath)
 
         file_info = CACHE.get_file_info(upload_id=upload_id, filename=filename)
         return OKResponse({"sign": file_info["signature"]})
@@ -186,6 +198,8 @@ async def upload_model(request):
         return ErrResponse(EMPTY_FILES_ERR)
 
     files = json_data["files"]
+    for file in files:
+        file["path"] = to_slash(file["path"])
 
     commit_ret, err = commit_model(model_files=files, model_name=json_data["name"], model_type=json_data["type"],
                                    overwrite=json_data["overwrite"])
@@ -229,6 +243,24 @@ async def list_model_files(request):
         return ErrResponse(LIST_MODEL_FILE_ERR)
 
 
+@prompt_server.routes.get(f"/{API_PREFIX}/file_upload/progress")
+async def file_upload_progress(request):
+    if "upload_id" not in request.rel_url.query:
+        return ErrResponse(INVALID_UPLOAD_ID_ERR)
+    if "filename" not in request.rel_url.query:
+        return ErrResponse(INVALID_FILENAME_ERR)
+
+    upload_id = request.rel_url.query["upload_id"]
+    filename = request.rel_url.query["filename"]
+
+    file_info = CACHE.get_file_info(upload_id=upload_id, filename=filename)
+    if file_info is not None:
+        if "progress" in file_info:
+            return JsonResponse({"progress": file_info["progress"]})
+
+    return JsonResponse({"progress": "0.00%"})
+
+
 def check_model(type: str, name: str) -> (bool, ErrorNo):
     server_url = f"{BIZYAIR_SERVER_ADDRESS}/x/v1/models/check"
 
@@ -262,7 +294,6 @@ def sign(signature: str) -> (dict, ErrorNo):
     try:
         resp = do_get(server_url, params=None, headers=headers)
         ret = json.loads(resp)
-        print(ret)
         if ret["code"] != CODE_OK:
             return None, ErrorNo(500, ret["code"], None, ret["message"])
 
@@ -281,7 +312,6 @@ def commit_file(signature: str, object_key: str) -> (dict, ErrorNo):
         "object_key": object_key,
     }
     headers = auth_header()
-    print(payload)
 
     try:
         resp = do_post(server_url, data=payload, headers=headers)
@@ -305,7 +335,6 @@ def commit_model(model_files, model_name: str, model_type: str, overwrite: bool)
         "files": model_files,
     }
     headers = auth_header()
-    print(payload)
 
     try:
         resp = do_post(server_url, data=payload, headers=headers)
