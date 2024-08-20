@@ -3,28 +3,97 @@ import { api } from "../../scripts/api.js";
 import { $el, ComfyDialog } from "../../scripts/ui.js";
 const style = `
 .comfy-modal-close {
+    width: calc(100% - 64px);
+    bottom: 10px;
     position: absolute;
-    left: 0;
-    bottom: 0;
+    overflow: hidden;
+    left: 32px;
+}
+#cm-manager-dialog {
+	width: 1000px;
+	height: 520px;
+	box-sizing: content-box;
+	z-index: 10000;
+	overflow-y: auto;
+}
+.cm-file-list{
     width: 100%;
-    height: 40px;
-
+    box-sizing: border-box;
+    height: 320px;
+    overflow-y: auto;
+    padding: 10px;
+    margin: 0;
+    transition: all 0.3s;
+}
+.cm-file-list li{
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    height: 30px;
+    line-height: 30px;
+    color: #FFF;
+    border-bottom: 1px solid #ccc;
+}
+@keyframes spinner {
+    to {
+        transform: rotate(360deg);
+    }
+}
+.spinner {
+    border: 4px solid rgba(0, 0, 0, 0.2);
+    border-top-color: #3498db;
+    border-radius: 50%;
+    width: 14px;
+    height: 14px;
+    animation: spinner 1.5s linear infinite;
+}
+.spinner-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 14px;
+    margin-top: 8px;
+}
+.bubble {
+    position: relative;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background-color: #4CAF50;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    font-size: 14px;
+    margin-top: 8px;
+}
+.bubble::before {
+    content: '✔';
+    position: absolute;
+    font-size: 14px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 `
 class myDialog extends ComfyDialog {
     constructor() {
         super();
         this.filesAry = []
+        this.uploadId = ''
         const close_button = $el("button.comfy-modal-close", { type: "button", textContent: "Close", onclick: () => this.close() });
         const content =
             $el("div.comfy-modal-content",
                 [
-                    $el("tr.cm-title", {}, [
+                    $el("div.cm-title", {}, [
                         $el("font", { size: 6, color: "white" }, [`BizyAir Workflow`]),]
                     ),
                     $el("br", {}, []),
                     $el("input.cm-input-file-modle", { type: "file", webkitdirectory: true, mozdirectory: true, odirectory: true, msdirectory: true, onchange: (e) => this.onFileChange(e) }),
                     $el("br", {}, []),
+                    $el('ul.cm-file-list', {}, []),
                     close_button,
                 ]
             );
@@ -42,28 +111,48 @@ class myDialog extends ComfyDialog {
         });
     }
     onFileChange(e) {
-        console.log(e.srcElement.files)
-        this.filesAry = [...e.srcElement.files].map(e => ({ file: e, id: this.generateUUID() }))
-        console.log(this.filesAry)
+        this.uploadId = this.generateUUID()
+        this.filesAry = [...e.srcElement.files]
+        console.log(document.querySelector('.cm-file-list'))
+        this.filesAry.forEach(file => {
+            document.querySelector('.cm-file-list').appendChild(
+                $el('li', {}, [
+                    $el("span", {}, [`${ file.webkitRelativePath }`]),
+                    // $el("span", {}, [`${ file.size }`]),
+                    // $el("span", {}, [`${ file.type }`]),
+                    $el("span.spinner-container", {}, [
+                        $el("span.spinner", {}, [])
+                    ]),
+                ])
+            )
+        })
         this.todoUpload()
     }
     todoUpload() {
         if (this.filesAry.length === 0) {
-            return
+            return;
         }
-        const fileIndex = this.filesAry.length - 1;
-        const { file, id } = this.filesAry.pop()
-        console.log(fileIndex)
-        this.fetchApiToUpload(file, id, () => {
-            this.todoUpload()
-        })
+        const file = this.filesAry.shift();
+        this.fetchApiToUpload(file, (data) => {
+            // 处理上传结果
+            if (data.code === 20000) {
+                // 如果上传成功，继续上传下个文件
+                const cmFileList = document.querySelectorAll('.cm-file-list li');
+                const i = cmFileList.length - this.filesAry.length - 1;
+                cmFileList[i].querySelector('.spinner-container').innerHTML = `<span class="bubble"></span>`;
+                document.querySelector('.cm-file-list').scrollTop = cmFileList[i].offsetTop - 134;
+                this.todoUpload();
+            } else {
+                // 如果上传失败，显示错误信息
+                app.ui.dialog.show(`${data.message}`);
+            }
+        });
     }
-    fetchApiToUpload(file, id, fn) {
+    fetchApiToUpload(file, fn) {
         const formData = new FormData();
         formData.append('file', file);
         formData.append('filename', file.webkitRelativePath);
-        formData.append("upload_id", id);
-        formData.append('id', id);
+        formData.append("upload_id", this.uploadId);
         fetch('/bizyair/modelhost/file_upload', {
             method: 'POST',
             body: formData
@@ -73,7 +162,7 @@ class myDialog extends ComfyDialog {
             console.log('Request successful', data);
             
             if (fn) {
-                fn()
+                fn(data)
             }
         })
         .catch(error => {
