@@ -14,7 +14,8 @@ from server import PromptServer
 import bizyair
 import bizyair.common
 from .errno import ErrorNo, CODE_OK, INVAILD_TYPE, INVAILD_NAME, CHECK_MODEL_EXISTS_ERR, NO_FILE_UPLOAD_ERR, \
-    EMPTY_UPLOAD_ID_ERR, SIGN_FILE_ERR, UPLOAD_ERR, COMMIT_FILE_ERR, MODEL_ALREADY_EXISTS_ERR, COMMIT_MODEL_ERR, INVAILD_UPLOAD_ID_ERR, EMPTY_FILES_ERR
+    EMPTY_UPLOAD_ID_ERR, SIGN_FILE_ERR, UPLOAD_ERR, COMMIT_FILE_ERR, MODEL_ALREADY_EXISTS_ERR, COMMIT_MODEL_ERR, \
+    INVALID_UPLOAD_ID_ERR, EMPTY_FILES_ERR, LIST_MODEL_FILE_ERR
 
 from .cache import UploadCache
 from .oss import AliOssStorageClient
@@ -40,38 +41,6 @@ TYPE_OPTIONS = {
     "other": "other"
 }
 ALLOW_TYPES = list(TYPE_OPTIONS.values())
-
-
-def _get_modelserver_list(api_key, model_type="bizyair/lora"):
-    api_url = f"{BIZYAIR_SERVER_ADDRESS}/supernode/listmodelserver"
-
-    payload = {
-        "api_key": api_key,
-        "model_type": model_type,
-        "secret": "6x7=42",
-    }
-    auth = f"Bearer {api_key}"
-    headers = {
-        "accept": "application/json",
-        "content-type": "application/json",
-        "authorization": auth,
-    }
-
-    try:
-        data = json.dumps(payload).encode("utf-8")
-        req = urllib.request.Request(api_url, data=data, headers=headers, method="POST")
-        with urllib.request.urlopen(req) as response:
-            response = response.read().decode("utf-8")
-        ret = json.loads(response)
-
-        if "result" in ret:  # cloud
-            msg = json.loads(ret["result"])
-        else:  # local
-            msg = ret
-        return msg["data"]
-    except Exception as e:
-        print(f"fail to list model: {str(e)}")
-        return []
 
 
 def get_html_content(filename: str):
@@ -196,7 +165,7 @@ async def upload_model(request):
         return err
 
     if not CACHE.upload_id_exists(json_data["upload_id"]):
-        return ErrResponse(INVAILD_UPLOAD_ID_ERR)
+        return ErrResponse(INVALID_UPLOAD_ID_ERR)
 
     err = check_type(json_data)
     if err is not None:
@@ -218,12 +187,46 @@ async def upload_model(request):
 
     files = json_data["files"]
 
-    commit_ret, err = commit_model(model_files=files, model_name=json_data["name"], model_type=json_data["type"], overwrite=json_data["overwrite"])
+    commit_ret, err = commit_model(model_files=files, model_name=json_data["name"], model_type=json_data["type"],
+                                   overwrite=json_data["overwrite"])
     if err is not None:
         return ErrResponse(err)
 
     print("Uploaded successfully")
     return OKResponse(None)
+
+
+@prompt_server.routes.get(f"/{API_PREFIX}/models/files")
+async def list_model_files(request):
+    err = check_type(request.rel_url.query)
+    if err is not None:
+        return err
+
+    payload = {
+        "type": request.rel_url.query["type"],
+    }
+
+    if "name" in request.rel_url.query:
+        payload["name"] = request.rel_url.query["name"]
+
+    if "ext_name" in request.rel_url.query:
+        payload["ext_name"] = request.rel_url.query["ext_name"]
+
+    headers = auth_header()
+    server_url = f"{BIZYAIR_SERVER_ADDRESS}/x/v1/models/files"
+
+    try:
+        resp = do_get(server_url, params=payload, headers=headers)
+        ret = json.loads(resp)
+        print(ret)
+        if ret["code"] != CODE_OK:
+            return ErrorNo(500, ret["code"], None, ret["message"])
+
+        return OKResponse(ret["data"]["files"])
+
+    except Exception as e:
+        print(f"fail to list model files: {str(e)}")
+        return ErrResponse(LIST_MODEL_FILE_ERR)
 
 
 def check_model(type: str, name: str) -> (bool, ErrorNo):

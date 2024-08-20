@@ -33,4 +33,14 @@ update_mappings(nodes_controlnet_aux)
 update_mappings(nodes_controlnet_union_sdxl)
 update_mappings(mzkolors)
 
-import bizy_server
+
+# bizy_server
+bizyair_adv_is_not_installed = False
+try:
+    import crcmod
+    import oss2
+except ImportError:
+    bizyair_adv_is_not_installed = True
+
+if not bizyair_adv_is_not_installed:
+    import bizy_server
