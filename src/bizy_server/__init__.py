@@ -8,7 +8,10 @@ from aiohttp import web
 from server import PromptServer
 import bizyair
 import bizyair.common
-from .errno import ErrorNo, CODE_OK, INVAILD_TYPE, INVAILD_NAME, CHECK_MODEL_EXISTS_ERR
+from .errno import ErrorNo, CODE_OK, INVAILD_TYPE, INVAILD_NAME, CHECK_MODEL_EXISTS_ERR, NO_FILE_UPLOAD_ERR, \
+    EMPTY_UPLOAD_ID_ERR
+
+# from .cache import UploadCache
 
 current_path = os.path.abspath(os.path.dirname(__file__))
 prompt_server = PromptServer.instance
@@ -18,6 +21,9 @@ BIZYAIR_SERVER_ADDRESS = os.getenv(
 )
 
 API_PREFIX = "bizyair/modelhost"
+
+
+# CACHE = UploadCache()
 
 
 def _get_modelserver_list(api_key, model_type="bizyair/lora"):
@@ -96,8 +102,41 @@ async def check_model_exists(request):
     return check_model(name=name, type=type)
 
 
+@prompt_server.routes.post(f"/{API_PREFIX}/file_upload")
+async def file_upload(request):
+    post = await request.post()
+    upload_id = post.get("upload_id")
+    if not is_string_valid(upload_id):
+        return ErrResponse(EMPTY_UPLOAD_ID_ERR)
+
+    file = post.get("file")
+    if file and file.file:
+        filename = file.filename
+        if not filename:
+            return ErrResponse(NO_FILE_UPLOAD_ERR)
+        full_output_folder = os.path.join(os.path.normpath("bizy_air"), os.path.normpath("localstore"), upload_id)
+        filepath = os.path.abspath(os.path.join(full_output_folder, filename))
+        parent_folder = os.path.dirname(filepath)
+        if not os.path.exists(parent_folder):
+            os.makedirs(parent_folder)
+
+        print(f"write file to localstore: upload_id={upload_id}, filepath={filepath}")
+        with open(filepath, "wb") as f:
+            f.write(file.file.read())
+        #
+        # if not CACHE.upload_id_exists(upload_id=upload_id):
+        #     upload_file_cache = CACHE.get_valuemap(upload_id=upload_id)
+        #
+        # CACHE.set_file_info(upload_id=upload_id, filename=filename, info={
+        #     "relPath": filename,
+        #     "size": os.path.getsize(filepath)
+        # })
+
+    return JsonResponse(200, {"code": CODE_OK, "message": "success"})
+
+
 def check_model(type: str, name: str):
-    serverUrl = f"{BIZYAIR_SERVER_ADDRESS}/x/v1/models/check"
+    server_url = f"{BIZYAIR_SERVER_ADDRESS}/x/v1/models/check"
 
     payload = {
         "name": name,
@@ -106,7 +145,7 @@ def check_model(type: str, name: str):
     headers = auth_header()
 
     try:
-        resp = doGet(serverUrl, params=payload, headers=headers)
+        resp = do_get(server_url, params=payload, headers=headers)
         ret = json.loads(resp)
         print(ret)
         if ret["code"] != CODE_OK:
@@ -121,17 +160,15 @@ def check_model(type: str, name: str):
 
 
 def is_string_valid(s):
-    """
-    检查字符串s是否存在且不为空。
-
-    :param s: 要检查的字符串
-    :return: 如果字符串存在且不为空，则返回True，否则返回False
-    """
     # 检查s是否已经被定义（即不是None）且不是空字符串
     if s is not None and s != "":
         return True
     else:
         return False
+
+
+def to_slash(path):
+    return path.replace('\\', '/')
 
 
 def JsonResponse(http_status_code, data):
@@ -153,7 +190,7 @@ def auth_header():
     return headers
 
 
-def doGet(url, params=None, headers=None):
+def do_get(url, params=None, headers=None):
     # 将字典编码为URL参数字符串
     if params:
         query_string = urllib.parse.urlencode(params)
@@ -165,7 +202,7 @@ def doGet(url, params=None, headers=None):
         return response.read().decode('utf-8')
 
 
-def doPost(url, data=None, headers=None):
+def do_post(url, data=None, headers=None):
     # 将字典转换为字节串
     if data:
         data = urllib.parse.urlencode(data).encode('utf-8')

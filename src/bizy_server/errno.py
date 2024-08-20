@@ -5,7 +5,12 @@ class ErrorNo:
         self.message = message
         self.data = payload
 
+
 CODE_OK = 20000
+
 INVAILD_TYPE = ErrorNo(400, 400100, None, "type is invalid")
 INVAILD_NAME = ErrorNo(400, 400101, None, "name is invalid")
+NO_FILE_UPLOAD_ERR = ErrorNo(400, 400102, None, "no file uploaded")
+EMPTY_UPLOAD_ID_ERR = ErrorNo(400, 400103, None, "empty upload id")
+
 CHECK_MODEL_EXISTS_ERR = ErrorNo(500, 500100, None, "failed to check model")

@@ -61,7 +61,8 @@ class myDialog extends ComfyDialog {
     fetchApiToUpload(file, id, fn) {
         const formData = new FormData();
         formData.append('file', file);
-        formData.append('fileName', file.webkitRelativePath);
+        formData.append('filename', file.webkitRelativePath);
+        formData.append("upload_id", id);
         formData.append('id', id);
         fetch('/bizyair/modelhost/file_upload', {
             method: 'POST',
