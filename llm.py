@@ -85,57 +85,6 @@ class SiliconCloudLLMAPI:
         return {"ui": {"text": (text,)}, "result": (text,)}
 
 
-class BizyAirImageCaption:
-    API_URL = f"{BIZYAIR_SERVER_ADDRESS}/supernode/florence2imagecaption"
-
-    @classmethod
-    def INPUT_TYPES(s):
-        return {
-            "required": {
-                "image": ("IMAGE",),
-                "max_new_tokens": ("INT", {"default": 1024, "min": 1, "max": 4096}),
-                "num_beams": ("INT", {"default": 3, "min": 1, "max": 15}),
-            },
-        }
-
-    RETURN_TYPES = ("STRING",)
-    RETURN_NAMES = ("caption",)
-    OUTPUT_NODE = True
-    FUNCTION = "detailed_caption"
-    CATEGORY = "☁️BizyAir/AI Assistants"
-
-    def detailed_caption(
-        self,
-        image,
-        num_beams,
-        max_new_tokens,
-    ):
-        API_KEY = get_api_key()
-
-        payload = {
-            "max_new_tokens": max_new_tokens,
-            "num_beams": num_beams,
-            "is_compress": None,
-            "image": None,
-        }
-        auth = f"Bearer {API_KEY}"
-        headers = {
-            "accept": "application/json",
-            "content-type": "application/json",
-            "authorization": auth,
-        }
-        input_image, compress = serialize_and_encode(image.cpu().numpy(), compress=True)
-        payload["image"] = input_image
-        payload["is_compress"] = compress
-
-        response: str = send_post_request(
-            self.API_URL, payload=payload, headers=headers
-        )
-        caption = decode_and_deserialize(response)
-
-        return {"ui": {"text": (caption,)}, "result": (caption,)}
-
-
 class BizyAirJoyCaption:
     # refer to: https://huggingface.co/spaces/fancyfeast/joy-caption-pre-alpha
     API_URL = f"{BIZYAIR_SERVER_ADDRESS}/supernode/joycaption"
@@ -224,11 +173,9 @@ class BizyAirJoyCaption:
 
 NODE_CLASS_MAPPINGS = {
     "BizyAirSiliconCloudLLMAPI": SiliconCloudLLMAPI,
-    "BizyAirImageCaption": BizyAirImageCaption,
     "BizyAirJoyCaption": BizyAirJoyCaption,
 }
 NODE_DISPLAY_NAME_MAPPINGS = {
     "BizyAirSiliconCloudLLMAPI": "☁️BizyAir SiliconCloud LLM API",
-    "BizyAirImageCaption": "☁️BizyAir Image Caption",
     "BizyAirJoyCaption": "☁️BizyAir Joy Caption",
 }
