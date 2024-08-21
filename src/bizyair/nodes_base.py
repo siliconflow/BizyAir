@@ -75,5 +75,5 @@ class IDAllocator:
 class BizyAirBaseNode(IDAllocator):
     def __init_subclass__(cls, **kwargs):
         if not cls.CATEGORY.startswith(f"{LOGO}{PREFIX}"):
-            cls.CATEGORY = os.path.join(f"{LOGO}{PREFIX}", cls.CATEGORY)
+            cls.CATEGORY = f"{LOGO}{PREFIX}/{cls.CATEGORY}"
         register_node(cls, PREFIX)
