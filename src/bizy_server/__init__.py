@@ -66,7 +66,7 @@ async def forward_upload_model_html(request):
 
 @prompt_server.routes.get(f"/{API_PREFIX}/model_types")
 async def list_model_types(request):
-    return JsonResponse(TYPE_OPTIONS)
+    return OKResponse(TYPE_OPTIONS)
 
 
 @prompt_server.routes.post(f"/{API_PREFIX}/check_model_exists")
