@@ -66,7 +66,11 @@ async def forward_upload_model_html(request):
 
 @prompt_server.routes.get(f"/{API_PREFIX}/model_types")
 async def list_model_types(request):
-    return OKResponse(TYPE_OPTIONS)
+    types = []
+    for k, v in TYPE_OPTIONS.items():
+        types.append({"label": k, "value": v})
+
+    return OKResponse(types)
 
 
 @prompt_server.routes.post(f"/{API_PREFIX}/check_model_exists")
