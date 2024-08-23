@@ -1,7 +1,7 @@
+import importlib
+import logging
 import os
 import threading
-import logging
-import importlib
 import warnings
 
 try:

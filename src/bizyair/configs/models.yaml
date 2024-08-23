@@ -19,8 +19,13 @@ config_files:
     path: flux_dev_config.yaml
   flux-schnell:
     path: flux_config.yaml
+  ultimatesdupscale:
+    path: ultimatesdupscale.yaml
 
 routing_rules:
+  - name: ultimatesdupscale
+    pattern: ^sd15/dreamshaper_8.safetensors$
+    config: ultimatesdupscale
   - name: sdxl
     pattern: ^sdxl.*
     config: sdxl
