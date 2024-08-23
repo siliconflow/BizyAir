@@ -71,7 +71,6 @@
     "t5xxl_fp8_e4m3fn.safetensors"
   ],
   "upscale_models":[
-    "4x-UltraSharp.pth",
     "4x_NMKD-Siax_200k.pth"
   ]
 }
