@@ -506,8 +506,8 @@
         "Node name for S&R": "EmptyLatentImage"
       },
       "widgets_values": [
-        512,
-        768,
+        256,
+        256,
         1
       ]
     },
