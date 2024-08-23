@@ -1,10 +1,9 @@
 import os
 from typing import List
-from bizyair import data_types
+
 import comfy
+from bizyair import BizyAirBaseNode, BizyAirNodeIO, create_node_data, data_types
 from bizyair.path_utils import path_manager as folder_paths
-from bizyair import create_node_data, BizyAirBaseNode
-from bizyair import BizyAirNodeIO
 
 LOGO = "☁️"
 PREFIX = f"{LOGO}BizyAir"
@@ -87,6 +86,52 @@ class BizyAir_KSampler(BizyAirBaseNode):
             },
             outputs={"slot_index": 0},
         )
+        progress_callback = ProgressCallback()
+        return new_model.send_request(progress_callback=progress_callback)
+
+
+class KSamplerAdvanced(BizyAirBaseNode):
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "model": (data_types.MODEL,),
+                "add_noise": (["enable", "disable"],),
+                "noise_seed": (
+                    "INT",
+                    {"default": 0, "min": 0, "max": 0xFFFFFFFFFFFFFFFF},
+                ),
+                "steps": ("INT", {"default": 20, "min": 1, "max": 10000}),
+                "cfg": (
+                    "FLOAT",
+                    {
+                        "default": 8.0,
+                        "min": 0.0,
+                        "max": 100.0,
+                        "step": 0.1,
+                        "round": 0.01,
+                    },
+                ),
+                "sampler_name": (comfy.samplers.KSampler.SAMPLERS,),
+                "scheduler": (comfy.samplers.KSampler.SCHEDULERS,),
+                "positive": (data_types.CONDITIONING,),
+                "negative": (data_types.CONDITIONING,),
+                "latent_image": ("LATENT",),
+                "start_at_step": ("INT", {"default": 0, "min": 0, "max": 10000}),
+                "end_at_step": ("INT", {"default": 10000, "min": 0, "max": 10000}),
+                "return_with_leftover_noise": (["disable", "enable"],),
+            }
+        }
+
+    RETURN_TYPES = ("LATENT",)
+    FUNCTION = "sample"
+
+    CATEGORY = "sampling"
+
+    def sample(self, model, **kwargs):
+        new_model: BizyAirNodeIO = model.copy(self.assigned_id)
+        kwargs["model"] = model
+        new_model.add_node_data(class_type="KSamplerAdvanced", inputs=kwargs)
         progress_callback = ProgressCallback()
         return new_model.send_request(progress_callback=progress_callback)
 
@@ -390,7 +435,7 @@ class BizyAir_ControlNetApply(BizyAirBaseNode):
         }
 
     RETURN_TYPES = (data_types.CONDITIONING,)
-    RETURN_NAMES = ("CONTROL_NET",)
+    RETURN_NAMES = ("CONDITIONING",)
     FUNCTION = "apply_controlnet"
 
     CATEGORY = f"{PREFIX}/conditioning/controlnet"

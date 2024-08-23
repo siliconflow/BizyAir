@@ -9,6 +9,9 @@
         "Design a submarine like a great white shark": "bizyair_showcase_shark_submarine.json",
         "All types of ControlNet preprocessors": "bizyair_controlnet_preprocessor_workflow.json"
     },
+    "SD15": {
+        "UltimateSDUpscale": "bizyair_ultimate_sd_upscale.json"
+    },
     "SDXL": {
         "Text to Image by BizyAir KSampler": "bizyair_showcase_ksampler_txt2img.json",
         "Image to Image by BizyAir KSampler": "bizyair_showcase_ksampler_img2img.json",
