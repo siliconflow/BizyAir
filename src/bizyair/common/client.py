@@ -1,12 +1,12 @@
 import json
 import os
-from typing import Dict
-import urllib.request
 import urllib.error
+import urllib.request
+from typing import Dict
 
 __all__ = ["send_request"]
 
-from .env_var import BIZYAIR_API_KEY
+from .env_var import BIZYAIR_API_KEY, BIZYAIR_DEBUG, BIZYAIR_DEV_REQUEST_URL
 
 
 def set_api_key(API_KEY="YOUR_API_KEY"):
@@ -46,6 +46,11 @@ def send_request(
 ) -> Dict:
     try:
         headers = kwargs.pop("headers", _headers())
+
+        if BIZYAIR_DEV_REQUEST_URL:
+            url = BIZYAIR_DEV_REQUEST_URL
+        if BIZYAIR_DEBUG:
+            print(f"{method=} {url=}")
         if verbose:
             print(f"{method=} {url=} {headers=} {data=}")
         req = urllib.request.Request(
@@ -67,6 +72,7 @@ def send_request(
             )
     ret = json.loads(response_data)
     if "result" in ret:  # cloud
+
         msg = json.loads(ret["result"])
     else:  # local
         msg = ret

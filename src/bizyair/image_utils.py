@@ -1,17 +1,17 @@
 import base64
-from enum import Enum
 import io
 import json
 import os
 import pickle
+import zlib
+from enum import Enum
 from functools import singledispatch
 from typing import Any, List, Union
-import zlib
+
 import numpy as np
 import torch
-from PIL import Image
 import yaml
-
+from PIL import Image
 
 # Marker to identify base64-encoded tensors
 TENSOR_MARKER = "TENSOR:"
@@ -20,6 +20,7 @@ IMAGE_MARKER = "IMAGE:"
 BIZYAIR_DEBUG = os.getenv("BIZYAIR_DEBUG", False)
 
 from typing import Dict
+
 from .common import client
 from .path_utils import convert_prompt_label_path_to_real_path
 
@@ -52,7 +53,7 @@ class BizyAirNodeIO:
         node_id: int = "0",
         nodes: Dict[str, Dict[str, any]] = {},
         config_file=None,
-        configs: dict = None,
+        configs: dict = {},
         debug: bool = BIZYAIR_DEBUG,
     ):
         self._validate_node_id(node_id=node_id)
@@ -135,7 +136,10 @@ class BizyAirNodeIO:
         return {"prompt": prompt, "last_node_id": self.node_id}
 
     def add_node_data(
-        self, class_type: str, inputs: Dict[str, Any], outputs: Dict[str, Any]
+        self,
+        class_type: str,
+        inputs: Dict[str, Any],
+        outputs: Dict[str, Any] = {"slot_index": 0},
     ):
         node_data = create_node_data(
             class_type=class_type,
@@ -172,6 +176,8 @@ class BizyAirNodeIO:
         }
 
     def service_route(self):
+        if not self.configs:
+            return None
         service_config = self.configs["service_config"]
         real_service_route = service_config["service_address"] + service_config["route"]
         return real_service_route
@@ -181,10 +187,11 @@ class BizyAirNodeIO:
     ) -> any:
         # self._short_repr(self.nodes, max_length=100)
         # self._short_repr(self.workflow_api['prompt'], max_length=100)
+
         api_url = self.service_route()
         if self.debug:
             prompt = self._short_repr(self.workflow_api["prompt"], max_length=100)
-            print(f"Debug: {prompt=} {api_url=}")
+            print(f"Debug: {prompt=}")
         if stream:
             result = None
             pass  # TODO(fix)

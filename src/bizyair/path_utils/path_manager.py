@@ -1,13 +1,12 @@
-from collections.abc import Collection
 import copy
+import json
 import os
 import re
-import json
 from typing import Any, Dict, List
-from ..common import fetch_models_by_type
-from .utils import load_yaml_config, filter_files_extensions, get_service_route
-from ..common.env_var import BIZYAIR_SPECIFIED_MODEL_CONFIG_FILE
 
+from ..common import fetch_models_by_type
+from ..common.env_var import BIZYAIR_DEBUG
+from .utils import filter_files_extensions, get_service_route, load_yaml_config
 
 supported_pt_extensions: set[str] = {
     ".ckpt",
@@ -43,9 +42,6 @@ def guess_config(
     vae_name: str = None,
     clip_name: str = None,
 ) -> str:
-    # Development Settings
-    if BIZYAIR_SPECIFIED_MODEL_CONFIG_FILE:
-        return os.path.join(configs_path, BIZYAIR_SPECIFIED_MODEL_CONFIG_FILE)
     # Priority order:ckpt_name > unet_name > vae_name
     input_name = ckpt_name or unet_name or vae_name
     if input_name is None:
@@ -154,7 +150,16 @@ def get_filename_list(folder_name, *, verbose=False):
     results = []
     if folder_name in models_config["model_types"]:
         results.extend(cached_filename_list(folder_name, verbose=verbose, refresh=True))
-    results.extend(folder_names_and_paths[folder_name])
+    if folder_name in folder_names_and_paths:
+        results.extend(folder_names_and_paths[folder_name])
+    if BIZYAIR_DEBUG:
+        try:
+            import folder_paths
+
+            results.extend(folder_paths.get_filename_list(folder_name))
+        except:
+            pass
+
     return results
 
 

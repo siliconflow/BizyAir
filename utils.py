@@ -2,10 +2,10 @@ import base64
 import json
 import os
 import pickle
-from typing import Tuple, Union
-import urllib.request
 import urllib.parse
+import urllib.request
 import zlib
+from typing import Tuple, Union
 
 import numpy as np
 

@@ -1,15 +1,15 @@
 import json
 import os
 
+from bizyair.image_utils import decode_data, encode_data
+
 from .utils import (
     decode_and_deserialize,
+    get_api_key,
+    get_llm_response,
     send_post_request,
     serialize_and_encode,
-    get_api_key,
 )
-
-from bizyair.image_utils import encode_data, decode_data
-from .utils import get_llm_response
 
 BIZYAIR_SERVER_ADDRESS = os.getenv(
     "BIZYAIR_SERVER_ADDRESS", "https://api.siliconflow.cn"

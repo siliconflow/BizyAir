@@ -11,6 +11,9 @@
       "mannEDreams_v004.safetensors",
       "realisticStockPhoto_v20.safetensors",
       "samaritan3dCartoon_v40SDXL.safetensors"
+    ],
+    "sd15":[
+      "dreamshaper_8.safetensors"
     ]
   },
   "clip_vision": {
@@ -28,6 +31,9 @@
     ],
     "sdxl": [
       "diffusion_pytorch_model_promax.safetensors"
+    ],
+    "sd15":[
+      "control_v11f1e_sd15_tile.pth"
     ]
   },
   "ipadapter": {
@@ -63,5 +69,8 @@
     "clip_l.safetensors",
     "t5xxl_fp16.safetensors",
     "t5xxl_fp8_e4m3fn.safetensors"
+  ],
+  "upscale_models":[
+    "4x-UltraSharp.pth"
   ]
 }

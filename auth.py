@@ -2,12 +2,10 @@ import os
 import uuid
 from pathlib import Path
 
+import bizyair
 import server
 from aiohttp import web
-
-import bizyair
-from bizyair.common import load_api_key, create_api_key_file
-
+from bizyair.common import create_api_key_file, load_api_key
 
 API_KEY = None
 html_file_path = Path(os.path.dirname(os.path.abspath(__file__))) / "set_api_key.html"
