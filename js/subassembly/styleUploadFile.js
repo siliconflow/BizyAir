@@ -80,7 +80,7 @@ p.cm-word-file-modle{
     overflow: hidden;
     border: 1px solid var(--border-color);
 }
-.cm-input-file-modle {
+bizyair-input-file-modle {
     position: absolute;
     top: 0;
     left: 0;
@@ -91,7 +91,7 @@ p.cm-word-file-modle{
     z-index: 100;
     opacity: 0;
 }
-.cm-file-list{
+.bizyair-file-list{
     width: 100%;
     box-sizing: border-box;
     height: 250px;
@@ -102,7 +102,7 @@ p.cm-word-file-modle{
     position: relative;
     z-index: 10;
 }
-.cm-file-list li{
+.bizyair-file-list li{
     list-style: none;
     display: flex;
     justify-content: space-between;

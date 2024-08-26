@@ -29,7 +29,7 @@ export function uploadPage (typeList) {
                 } }),
                 $el('div.cm-input-file-box', {}, [
                     $el("p.cm-word-file-modle", {}, ['select folder']),
-                    $el("input.cm-input-file-modle", { 
+                    $el("inputbizyair-input-file-modle", { 
                         type: "file", 
                         webkitdirectory: true, 
                         mozdirectory: true, 
@@ -39,7 +39,7 @@ export function uploadPage (typeList) {
                     }),
                 ]),
                 $el("br", {}, []),
-                $el('ul.cm-file-list', {}, []),
+                $el('ul.bizyair-file-list', {}, []),
                 $el('div.cm-bottom-footer', {}, [close_button, submit_button]),
             ]
         ),
@@ -78,7 +78,7 @@ export function uploadPage (typeList) {
         toSubmit() {
             const elSelect = document.querySelector('select.cm-input-item')
             const elInput = document.querySelector('input.cm-input-item')
-            const cmFileList = document.querySelector('.cm-file-list')
+            const cmFileList = document.querySelector('.bizyair-file-list')
             const cmWordFileMmodle = document.querySelector('.cm-word-file-modle')
             
             if (!elSelect.value) {
@@ -124,10 +124,10 @@ export function uploadPage (typeList) {
                 // 处理上传结果
                 if (data.code === 20000) {
                     // 如果上传成功，继续上传下个文件
-                    const cmFileList = document.querySelectorAll('.cm-file-list li');
+                    const cmFileList = document.querySelectorAll('.bizyair-file-list li');
                     const i = cmFileList.length - this.filesAry.length - 1;
                     cmFileList[i].querySelector('.spinner-container').innerHTML = `<span class="bubble"></span>`;
-                    document.querySelector('.cm-file-list').scrollTop = cmFileList[i].offsetTop - 134;
+                    document.querySelector('.bizyair-file-list').scrollTop = cmFileList[i].offsetTop - 134;
                     this.signs.push({
                         sign: data.data.sign,
                         path: file.webkitRelativePath
@@ -188,9 +188,9 @@ export function uploadPage (typeList) {
             cmWordFileMmodle.className = cmWordFileMmodle.className.replace(/cm-input-item-error/g, '')
             this.uploadId = this.generateUUID()
             this.filesAry = [...e.srcElement.files]
-            console.log(document.querySelector('.cm-file-list'))
+            console.log(document.querySelector('.bizyair-file-list'))
             this.filesAry.forEach(file => {
-                document.querySelector('.cm-file-list').appendChild(
+                document.querySelector('.bizyair-file-list').appendChild(
                     $el('li', {}, [
                         $el("span", {}, [`${ file.webkitRelativePath }`]),
                         $el("span.spinner-container", {}, [
