@@ -14,7 +14,7 @@ export class ModelDialog extends ComfyDialog {
         const close_button = $el("button.comfy-bizyair-close", { 
             type: "button", 
             textContent: "Close", 
-            onclick: () => this.close() 
+            onclick: () => this.remove() 
         });
         const submit_button = $el("button.comfy-bizyair-submit", { 
             type: "button", 
@@ -59,14 +59,10 @@ export class ModelDialog extends ComfyDialog {
                     $el('div.cm-bottom-footer', {}, [close_button, submit_button]),
                 ]
             );
-        if (document.querySelector('#bizyair-model-dialog')) {
-            document.querySelector('#bizyair-model-dialog').style.display = 'none'
-        } else {
-            this.element = $el("div.comfy-modal.bizyair-dialog", { 
+        this.element = $el("div.comfy-modal.bizyair-dialog", { 
                 id: 'bizyair-model-dialog',
                 parent: document.body 
             }, [content]);
-        }
     }
     showModel() {
         document.querySelector('#bizyair-d-model').style.display = 'block'
@@ -76,6 +72,9 @@ export class ModelDialog extends ComfyDialog {
     showUpload() {
         document.querySelector('#bizyair-d-model').style.display = 'none'
         document.querySelector('#bizyair-d-upload').style.display = 'block'
+    }
+    remove() {
+        this.element.remove()
     }
     showDialog(listData, typeData) {
         this.element.style.display = "block";

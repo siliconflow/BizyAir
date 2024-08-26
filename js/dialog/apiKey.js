@@ -9,7 +9,7 @@ export class ApiKey extends ComfyDialog {
         const close_button = $el("button.comfy-bizyair-close", { 
             type: "button", 
             textContent: "Close", 
-            onclick: () => this.close() 
+            onclick: () => this.remove() 
         });
         const submit_button = $el("button.comfy-bizyair-submit", { 
             type: "button", 
@@ -36,7 +36,10 @@ export class ApiKey extends ComfyDialog {
                     $el('div.cm-bottom-footer', {}, [close_button, submit_button]),
                 ]
             );
-        this.element = $el("div.comfy-modal.bizyair-dialog.bizyair-dialog-sml", { parent: document.body }, [content]);
+        this.element = $el("div.comfy-modal.bizyair-dialog.bizyair-dialog-sml", { 
+            id: 'bizyair-api-key-dialog',
+            parent: document.body
+        }, [content]);
         
     }
     async toSubmit() {
@@ -75,6 +78,9 @@ export class ApiKey extends ComfyDialog {
             expires = "; expires=" + date.toUTCString();
         }
         document.cookie = name + "=" + (value || "") + expires + "; path=/";
+    }
+    remove() {
+        this.element.remove();
     }
     showDialog() {
         this.element.style.display = "block";
