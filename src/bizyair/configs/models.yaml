@@ -12,7 +12,7 @@ model_types:
 routing_configs:
   sdxl:
     service_address: https://api.siliconflow.cn
-    route: /supernode/test-flux-dev-bizyair-comfy-ksampler
+    route: /supernode/bizyair-sdxl-comfy-ksampler
   kolors:
     service_address: https://api.siliconflow.cn
     route: /supernode/kolors-bizyair-sdxl-comfy-ksampler

@@ -1,12 +1,12 @@
 import json
-import os
+import pprint
 import urllib.error
 import urllib.request
 from typing import Dict
 
 __all__ = ["send_request"]
 
-from .env_var import BIZYAIR_API_KEY, BIZYAIR_DEBUG, BIZYAIR_DEV_REQUEST_URL
+from .env_var import BIZYAIR_API_KEY, BIZYAIR_DEBUG
 
 
 def set_api_key(API_KEY="YOUR_API_KEY"):
@@ -63,13 +63,15 @@ def send_request(
             raise Exception(
                 f"Failed to connect to the server: {error_message}, if you have no key, "
             )
-    ret = json.loads(response_data)
-    if "result" in ret:  # cloud
-
-        msg = json.loads(ret["result"])
-    else:  # local
-        msg = ret
-    return msg
+    try:
+        ret = json.loads(response_data)
+        if "result" in ret:  # cloud
+            msg = json.loads(ret["result"])
+        else:  # local
+            msg = ret
+        return msg
+    except json.decoder.JSONDecodeError:
+        pprint.pprint(response_data)
 
 
 def fetch_models_by_type(url: str, model_type: str, *, verbose=False) -> dict:
