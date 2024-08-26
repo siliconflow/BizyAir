@@ -192,7 +192,7 @@ input.cm-input-item-error{
     overflow-y: auto;
 }
 .bizyair-model-list-item-header{
-    fonw-weight: bold;
+    font-weight: bold;
 }
 .bizyair-model-list-item{
     width: 100%;
