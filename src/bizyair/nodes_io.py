@@ -55,28 +55,6 @@ class BizyAirNodeIO:
             node_id=new_node_id,
         )
 
-    # @property
-    # def workflow_api(self):
-    #     # class_configs = self.configs.get("class_types", {})
-    #     # class_usage_count = {}
-    #     # for _, instance_info in self.nodes.items():
-    #     #     class_type = instance_info["class_type"]
-    #     #     if class_type not in class_configs:
-    #     #         continue
-    #     #     if class_type not in class_usage_count:
-    #     #         class_usage_count[class_type] = 0
-    #     #     class_usage_count[class_type] += 1
-
-    #     #     max_instances = class_configs[class_type]["max_instances"]
-    #     #     # Check if the maximum instances limit has been exceeded
-    #     #     if max_instances < class_usage_count[class_type]:
-    #     #         raise RuntimeError(
-    #     #             False,
-    #     #             f"{class_type} max_instances is too large, allowed: {max_instances}",
-    #     #         )
-    #     # prompt = convert_prompt_label_path_to_real_path(self.nodes)
-    #     return {"prompt": self.nodes, "last_node_id": self.node_id}
-
     def add_node_data(
         self,
         class_type: str,
@@ -111,78 +89,6 @@ class BizyAirNodeIO:
             prompt=self.nodes, last_node_ids=[self.node_id]
         )
         return out
-        # from .commands.invoker import Invoker
-        # # Search service routing
-        # ssr = SearchServiceRouter()
-        # Invoker(PromptServer(ssr)).action()
-
-        # # 处理请求
-        # prompt_processer = PromptProcessor()
-        # Invoker(PromptServer(prompt_processer)).action()
-        # pass
-        # api_url = self.service_route()
-        # if self.debug:
-        #     prompt = self._short_repr(self.workflow_api["prompt"], max_length=100)
-        #     print(f"Debug: {prompt=}")
-        # if stream:
-        #     result = None
-        #     pass  # TODO(fix)
-        # def process_events(api_url, workflow_api, api_key):
-        #     total_steps = None
-        #     with BizyAirStreamClient(api_url, workflow_api, api_key) as stream_client:
-        #         for event_data in stream_client.events():
-        #             try:
-        #                 event_data = json.loads(event_data)["data"]
-        #             except json.JSONDecodeError as e:
-        #                 print(f"rror decoding JSON: {e}")
-        #                 print(f"Received data: {event_data}")
-        #                 raise e
-
-        #             # if self.debug:
-        #             print(f"Debug Event Data: {self._short_repr(event_data, 100)}")
-
-        #             status = event_data["status"]
-        #             data = event_data["data"]
-        #             pending_count = event_data.get("pending_tasks_count", None)
-        #             if status == TaskStatus.PENDING.value:
-        #                 print(
-        #                     f"Task is pending, current pending tasks count: {pending_count}"
-        #                 )
-        #             elif status == TaskStatus.PROCESSING.value:
-        #                 if "progress" in data and isinstance(data["progress"], dict):
-        #                     step, total_steps = (
-        #                         data["progress"]["value"],
-        #                         data["progress"]["total"],
-        #                     )
-        #                     progress_callback(step, total_steps, preview=None)
-
-        #             elif status == TaskStatus.COMPLETED.value:
-        #                 if total_steps:
-        #                     progress_callback(total_steps, total_steps, preview=None)
-        #                 return event_data
-
-        # result = process_events(api_url, self.workflow_api, self.API_KEY)
-        # else:
-        #     result = client.send_request(
-        #         url=api_url, data=json.dumps(self.workflow_api).encode("utf-8")
-        #     )
-
-        # if result is None:
-        #     raise RuntimeError("result is None")
-
-        # try:
-        #     out = result["data"]["payload"]
-        # except Exception as e:
-        #     raise RuntimeError(
-        #         f'Unexpected error accessing result["data"]["payload"]. Result: {result}'
-        #     ) from e
-        # try:
-        #     real_out = decode_data(out)
-        #     return real_out[0]
-        # except Exception as e:
-        #     raise RuntimeError(
-        #         f"Exception: {e=} {self._short_repr(out, max_length=100)}"
-        #     ) from e
 
 
 @encode_data.register(BizyAirNodeIO)
