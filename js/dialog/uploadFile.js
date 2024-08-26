@@ -53,7 +53,7 @@ export function uploadPage (typeList, submitBtn) {
                 if (data.code === 20000) {
                     if (data.data.exists) {
                         this.confirmExists()
-                    } else {
+                    } else {``
                         this.todoUpload()
                     }
                 }
