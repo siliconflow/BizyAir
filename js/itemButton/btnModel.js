@@ -7,9 +7,14 @@ export const modelBtn = $el('div.menus-item.menus-item-model', {
 
 const upload = new UploadDialog()
 function showModel() {
-    upload.showDialog()
+    Promise.all([
+        fetch('/bizyair/modelhost/models/files?type=bizyair/lora', {method: 'GET'}),
+        fetch('/bizyair/modelhost/model_types', {method: 'GET'})
+    ]).then(responses => {
+        return Promise.all(responses.map(response => response.json()));
+    }).then(data => {
+        new ModelDialog(data[0].data, data[1].data).showDialog(data[0].data, data[1].data);
+    }).catch(error => {
+        console.error('请求失败:', error);
+    });
 }
-fetch('/bizyair/modelhost/models/files?type=bizyair/lora', {method: 'GET'}).then(response => response.json()).then(data => {
-    console.log(data)
-    new ModelDialog().showDialog(data.data)
-})
