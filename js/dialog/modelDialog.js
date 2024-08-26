@@ -10,7 +10,6 @@ export class ModelDialog extends ComfyDialog {
         let modelListData = listData
         let typeListData = typeData
         
-        const initUpload = uploadPage(typeListData)
         const close_button = $el("button.comfy-bizyair-close", { 
             type: "button", 
             textContent: "Close", 
@@ -18,7 +17,7 @@ export class ModelDialog extends ComfyDialog {
         });
         const submit_button = $el("button.comfy-bizyair-submit", { 
             type: "button", 
-            textContent: "submit", 
+            textContent: "Submit", 
             style: { display: 'none' },
             onclick: () => initUpload.toSubmit() 
         });
@@ -29,6 +28,7 @@ export class ModelDialog extends ComfyDialog {
             })
             ele.className = 'bizyair-header-tab-item bizyair-header-tab-item-active'
         }
+        const initUpload = uploadPage(typeListData, submit_button)
         const content =
             $el("div.comfy-modal-content",
                 [
@@ -39,14 +39,14 @@ export class ModelDialog extends ComfyDialog {
                                 handleTabItemClass(this)
                                 submit_button.style.display = 'none'
                             }
-                        }, ['uoplod list']),
+                        }, ['My Models']),
                         $el('div.bizyair-header-tab-item', {
                             onclick: function() {
                                 __this.showUpload()
                                 handleTabItemClass(this)
                                 submit_button.style.display = 'block'
                             }
-                        }, ['uoplod model'])
+                        }, ['Upload'])
                     ]),
                     $el('div.bizyair-d-content-item', { 
                         id: 'bizyair-d-model',

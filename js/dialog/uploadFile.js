@@ -3,7 +3,7 @@ import { $el } from "../../../scripts/ui.js";
 // import { style } from "../subassembly/style.js";
 import { ConfirmDialog } from "../subassembly/confirm.js";
 
-export function uploadPage (typeList) {
+export function uploadPage (typeList, submitBtn) {
     const close_button = $el("button.comfy-bizyair-close", { 
         type: "button", 
         textContent: "Close", 
@@ -62,16 +62,16 @@ export function uploadPage (typeList) {
         },
         confirmExists() {
             new ConfirmDialog({
-                title: "BizyAir Workflow",
-                message: "Are you sure to submit?",
+                title: "The model already exists",
+                message: "Do you want to overwrite it?",
                 yesText: "Yes",
                 noText: "No",
                 onYes: () => {
                     this.todoUpload()
                 },
                 onNo: () => {
-                    document.querySelector('.comfy-modal-submit').disabled = false
-                    document.querySelector('.comfy-modal-submit').innerText = 'submit'
+                    submitBtn.disabled = false
+                    submitBtn.innerText = 'submit'
                 }
             })
         },
@@ -109,10 +109,13 @@ export function uploadPage (typeList) {
                 cmWordFileMmodle.className = `${cmWordFileMmodle.className} cm-input-item-error`
                 return
             }
-            document.querySelector('.comfy-modal-submit').disabled = true
-            document.querySelector('.comfy-modal-submit').innerText = 'Waiting...'
+            submitBtn.disabled = true
+            submitBtn.innerText = 'Waiting...'
             this.signs = []
             this.queryExists()
+            document.querySelectorAll('.spinner-container').forEach(e => {
+                e.innerHTML = `<span class="spinner"></span>`
+            })
         },
         todoUpload() {
             if (this.filesAry.length === 0) {
@@ -121,9 +124,7 @@ export function uploadPage (typeList) {
             }
             const file = this.filesAry.shift();
             this.fetchApiToUpload(file, (data) => {
-                // 处理上传结果
                 if (data.code === 20000) {
-                    // 如果上传成功，继续上传下个文件
                     const cmFileList = document.querySelectorAll('.bizyair-file-list li');
                     const i = cmFileList.length - this.filesAry.length - 1;
                     cmFileList[i].querySelector('.spinner-container').innerHTML = `<span class="bubble"></span>`;
@@ -134,7 +135,6 @@ export function uploadPage (typeList) {
                     });
                     this.todoUpload();
                 } else {
-                    // 如果上传失败，显示错误信息
                     app.ui.dialog.show(`${data.message}`);
                 }
             });
@@ -153,7 +153,7 @@ export function uploadPage (typeList) {
                  })
             }).then(response => response.json()).then(data => {
                 console.log(data)
-                document.querySelector('.comfy-modal-submit').style.display = 'none'
+                submitBtn.style.display = 'none'
             })
         },
         fetchApiToUpload(file, fn) {
