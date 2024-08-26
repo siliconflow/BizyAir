@@ -4,12 +4,12 @@ export class ConfirmDialog extends ComfyDialog {
     constructor(options) {
         super();
         this.options = options;
-        const close_button = $el("button.comfy-modal-close", { 
+        const close_button = $el("button.comfy-bizyair-close", { 
             type: "button", 
             textContent: options.noText || "Close", 
             onclick: () => this.closeBtnClick() 
         });
-        const submit_button = $el("button.comfy-modal-submit", { 
+        const submit_button = $el("button.comfy-bizyair-submit", { 
             type: "button", 
             textContent: options.yesText, 
             onclick: () => this.submitBtnClick() 

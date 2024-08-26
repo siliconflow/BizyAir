@@ -1,7 +1,7 @@
 import { $el } from "../../../scripts/ui.js";
 
 export const modelList = (listData) => {
-    const elDataItem = listData.map(e => $el('div.bizyair-model-list-item', {}, [
+    const elDataItem = listData.map(e => $el('div.bizyair-model-list-item.bizyair-model-list-item-header', {}, [
         $el('div.bizyair-model-list-item-label', {}, [e.label_path]),
         $el('div.bizyair-model-list-item-available', {}, [e.available])
     ]))

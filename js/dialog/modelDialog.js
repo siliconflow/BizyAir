@@ -7,12 +7,12 @@ export class ModelDialog extends ComfyDialog {
         super();
         const __this = this
         let modelListData = []
-        const close_button = $el("button.comfy-modal-close", { 
+        const close_button = $el("button.comfy-bizyair-close", { 
             type: "button", 
             textContent: "Close", 
             onclick: () => this.close() 
         });
-        const submit_button = $el("button.comfy-modal-submit", { 
+        const submit_button = $el("button.comfy-bizyair-submit", { 
             type: "button", 
             textContent: "submit", 
             style: { display: 'none' },

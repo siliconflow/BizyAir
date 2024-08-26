@@ -6,12 +6,12 @@ export class ApiKey extends ComfyDialog {
     constructor() {
         super();
         
-        const close_button = $el("button.comfy-modal-close", { 
+        const close_button = $el("button.comfy-bizyair-close", { 
             type: "button", 
             textContent: "Close", 
             onclick: () => this.close() 
         });
-        const submit_button = $el("button.comfy-modal-submit", { 
+        const submit_button = $el("button.comfy-bizyair-submit", { 
             type: "button", 
             textContent: "submit", 
             onclick: () => this.toSubmit() 

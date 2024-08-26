@@ -51,10 +51,10 @@ export const styleUploadFile = `
     left: 32px;
     display: flex;
 }
-.comfy-modal-close {
+.comfy-bizyair-close {
     flex: 1;
 }
-.comfy-modal-submit{
+.comfy-bizyair-submit{
     flex: 1;
 }
 .cm-input-file-box{
@@ -188,6 +188,9 @@ input.cm-input-item-error{
     margin-top: 40px;
     color: var(--input-text);
     overflow-y: auto;
+}
+.bizyair-model-list-item-header{
+    fonw-weight: bold;
 }
 .bizyair-model-list-item{
     width: 100%;

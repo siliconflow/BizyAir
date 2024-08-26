@@ -9,12 +9,12 @@ export class UploadDialog extends ComfyDialog {
         this.filesAry = []
         this.signs = []
         this.uploadId = ''
-        const close_button = $el("button.comfy-modal-close", { 
+        const close_button = $el("button.comfy-bizyair-close", { 
             type: "button", 
             textContent: "Close", 
             onclick: () => this.close() 
         });
-        const submit_button = $el("button.comfy-modal-submit", { 
+        const submit_button = $el("button.comfy-bizyair-submit", { 
             type: "button", 
             textContent: "submit", 
             onclick: () => this.toSubmit() 
