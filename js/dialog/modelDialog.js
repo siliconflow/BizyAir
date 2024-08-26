@@ -2,11 +2,12 @@
 import { $el, ComfyDialog } from "../../../scripts/ui.js";
 // import { ConfirmDialog } from "../subassembly/confirm.js";
 import { modelList } from "./modelList.js";
+import { UploadDialog } from "./uploadFile.js";
 export class ModelDialog extends ComfyDialog {
-    constructor() {
+    constructor(data) {
         super();
         const __this = this
-        let modelListData = []
+        let modelListData = data
         const close_button = $el("button.comfy-bizyair-close", { 
             type: "button", 
             textContent: "Close", 
@@ -42,7 +43,7 @@ export class ModelDialog extends ComfyDialog {
                                 handleTabItemClass(this)
                                 submit_button.style.display = 'block'
                             }
-                        }, ['model model'])
+                        }, ['uoplod model'])
                     ]),
                     $el('div.bizyair-d-content-item', { 
                         id: 'bizyair-d-model',
@@ -51,7 +52,7 @@ export class ModelDialog extends ComfyDialog {
                     $el('div.bizyair-d-content-item', { 
                         id: 'bizyair-d-upload',
                         style: { display: 'none' }
-                    }, [ 123 ]),
+                    }, [ new UploadDialog() ]),
                     $el('div.cm-bottom-footer', {}, [close_button, submit_button]),
                 ]
             );

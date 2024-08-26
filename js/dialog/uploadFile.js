@@ -22,11 +22,6 @@ export class UploadDialog extends ComfyDialog {
         const content =
             $el("div.comfy-modal-content",
                 [
-                    // $el("p", {}, [
-                    //     $el("font", { size: 6, color: "white" }, [`BizyAir Workflow`]),]
-                    // ),
-                    // $el("br", {}, []),
-                    // $el("br", {}, []),
                     $el("select.cm-input-item", {
                         onchange: function() {
                             this.className = this.className.replace(/cm-input-item-error/g, '')
@@ -45,7 +40,7 @@ export class UploadDialog extends ComfyDialog {
                 ]
             );
         this.element = $el("div.comfy-modal.bizyair-dialog", { parent: document.body }, [content]);
-        // this.element.style.display = "block";
+        this.element.style.display = "block";
         fetch('/bizyair/modelhost/model_types', {method: 'GET'})
             .then(response => response.json())
             .then(data => {
@@ -215,9 +210,9 @@ export class UploadDialog extends ComfyDialog {
             )
         })
     }
-    showDialog() {
-        this.element.style.display = "block";
-    }
+    // showDialog() {
+    //     this.element.style.display = "block";
+    // }
 }
 
 // app.registerExtension({
