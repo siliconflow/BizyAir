@@ -3,6 +3,7 @@ from collections import deque
 from typing import Any, Dict, List
 
 from bizyair.common import client
+from bizyair.common.env_var import BIZYAIR_DEBUG
 from bizyair.path_utils import guess_url_from_node
 
 from ..base import Processor  # type: ignore
@@ -28,7 +29,8 @@ class SearchServiceRouter(Processor):
         results = []
         while queue:
             vertex = queue.popleft()
-            print(vertex, end=" ")
+            if BIZYAIR_DEBUG:
+                print(vertex, end="->")
             url = guess_url_from_node(prompt[vertex])
             if url:
                 results.append(url)
