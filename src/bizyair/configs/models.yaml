@@ -4,23 +4,27 @@ service_config:
   service_route: "{{ service_config.service_address }}{{ service_config.route }}"
 
 model_types:
-  # folder_name, server_folder_name
   loras: bizyair/lora
+  # folder_name, server_folder_name
   # checkpoints: bizyair/checkpoint
   # vae: bizyair/vae
 
-
-config_files:
+routing_configs:
   sdxl:
-    path: sdxl_config.yaml
+    service_address: https://api.siliconflow.cn
+    route: /supernode/test-flux-dev-bizyair-comfy-ksampler
   kolors:
-    path: kolors_config.yaml
+    service_address: https://api.siliconflow.cn
+    route: /supernode/kolors-bizyair-sdxl-comfy-ksampler
   flux-dev:
-    path: flux_dev_config.yaml
+    service_address:  https://api.siliconflow.cn
+    route: /supernode/flux-dev-bizyair-comfy-ksampler-speedup
   flux-schnell:
-    path: flux_config.yaml
+    service_address:  https://api.siliconflow.cn
+    route: /supernode/flux-bizyair-sdxl-comfy-ksampler
   ultimatesdupscale:
-    path: ultimatesdupscale.yaml
+    service_address: https://api.siliconflow.cn
+    route: /supernode/bizyair-ultimate-sd-upscale-ksampler
 
 routing_rules:
   - name: ultimatesdupscale
@@ -41,4 +45,3 @@ routing_rules:
   - name: flux-vae
     pattern: ^flux/ae.sft$
     config: flux-schnell
-  

@@ -1,4 +1,4 @@
-""" 
+"""
 huggingface: https://huggingface.co/xinsir/controlnet-union-sdxl-1.0
 github: https://github.com/xinsir6/ControlNetPlus/tree/main
 """
@@ -8,6 +8,7 @@ import os
 
 import numpy as np
 import requests
+
 from bizyair.image_utils import decode_comfy_image, encode_comfy_image
 
 from .utils import get_api_key

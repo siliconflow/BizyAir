@@ -2,7 +2,8 @@ import copy
 import json
 import os
 import re
-from typing import Any, Dict, List
+import warnings
+from typing import Any, Dict, List, Union
 
 from ..common import fetch_models_by_type
 from ..common.env_var import BIZYAIR_DEBUG
@@ -35,6 +36,21 @@ models_config: Dict[str, Dict[str, Any]] = load_yaml_config(
 )
 
 
+def guess_url_from_node(node: Dict[str, Dict[str, Any]]) -> Union[str, None]:
+    if "loader" in node["class_type"].lower():
+        for attr in ("ckpt_name", "unet_name", "vae_name"):
+            if attr in node["inputs"]:
+                input_name = node["inputs"][attr].lower()
+
+                routing_rules = models_config["routing_rules"]
+                routing_configs = models_config["routing_configs"]
+                for rule in routing_rules:
+                    if re.match(rule["pattern"], input_name):
+                        config_key = rule["config"]
+                        configs = routing_configs[config_key]
+                        return configs["service_address"] + configs["route"]
+
+
 def guess_config(
     *,
     ckpt_name: str = None,
@@ -42,21 +58,7 @@ def guess_config(
     vae_name: str = None,
     clip_name: str = None,
 ) -> str:
-    # Priority order:ckpt_name > unet_name > vae_name
-    input_name = ckpt_name or unet_name or vae_name
-    if input_name is None:
-        return None
-
-    input_name = input_name.lower()
-    routing_rules = models_config["routing_rules"]
-    config_files = models_config["config_files"]
-    for rule in routing_rules:
-        if re.match(rule["pattern"], input_name):
-            config_key = rule["config"]
-            config_path = config_files[config_key]["path"]
-            return os.path.join(configs_path, config_path)
-
-    return None
+    warnings.warn("The interface has changed, please do not use it", DeprecationWarning)
 
 
 def get_config_file_list(base_path=None) -> list:

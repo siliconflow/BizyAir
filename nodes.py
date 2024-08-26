@@ -2,6 +2,7 @@ import os
 from typing import List
 
 import comfy
+
 from bizyair import BizyAirBaseNode, BizyAirNodeIO, create_node_data, data_types
 from bizyair.path_utils import path_manager as folder_paths
 
@@ -235,8 +236,6 @@ class BizyAir_VAEDecode(BizyAirBaseNode):
             },
             outputs={"slot_index": 0},
         )
-        if isinstance(samples, BizyAirNodeIO) and samples.configs:
-            new_vae.configs = samples.configs
         return new_vae.send_request()
 
 
