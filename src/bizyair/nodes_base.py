@@ -63,7 +63,7 @@ def ensure_unique_id(org_func, original_has_unique_id=False):
     def new_func(self, **kwargs):
         if original_has_unique_id:
             self._assigned_id = kwargs.get("unique_id", "UNIQUE_ID")
-        else:
+        elif "unique_id" in kwargs:
             self._assigned_id = kwargs.pop("unique_id")
         return org_func(self, **kwargs)
 
