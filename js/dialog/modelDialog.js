@@ -9,6 +9,8 @@ export class ModelDialog extends ComfyDialog {
         const __this = this
         let modelListData = listData
         let typeListData = typeData
+        
+        const initUpload = uploadPage(typeListData)
         const close_button = $el("button.comfy-bizyair-close", { 
             type: "button", 
             textContent: "Close", 
@@ -18,7 +20,7 @@ export class ModelDialog extends ComfyDialog {
             type: "button", 
             textContent: "submit", 
             style: { display: 'none' },
-            onclick: () => this.toSubmit() 
+            onclick: () => initUpload.toSubmit() 
         });
         const handleTabItemClass = (ele) => {
             const tabItem = document.querySelectorAll('.bizyair-header-tab-item');
@@ -53,7 +55,7 @@ export class ModelDialog extends ComfyDialog {
                     $el('div.bizyair-d-content-item', { 
                         id: 'bizyair-d-upload',
                         style: { display: 'none' }
-                    }, [ uploadPage(typeListData) ]),
+                    }, [ initUpload.content ]),
                     $el('div.cm-bottom-footer', {}, [close_button, submit_button]),
                 ]
             );

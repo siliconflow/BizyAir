@@ -38,7 +38,9 @@ export const styleUploadFile = `
     margin-bottom: -2px;
     height: 42px;
 }
-
+.comfy-modal-content-file{
+    margin-top: 40px;
+}
 .comfy-modal-content{
     width: 100%;
     height: 100%;

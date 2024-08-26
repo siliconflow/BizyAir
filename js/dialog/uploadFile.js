@@ -15,9 +15,8 @@ export function uploadPage (typeList) {
         onclick: () => this.toSubmit() 
     });
     const elOptions = typeList.map(item => $el("option", { value: item.value }, [item.label]))
-    return {
-        content: $el("div.comfy-modal-content",
-            [
+    const temp = {
+        content: $el("div.comfy-modal-content.comfy-modal-content-file",[
                 $el("select.cm-input-item", {
                     onchange: function() {
                         this.className = this.className.replace(/cm-input-item-error/g, '')
@@ -30,7 +29,14 @@ export function uploadPage (typeList) {
                 } }),
                 $el('div.cm-input-file-box', {}, [
                     $el("p.cm-word-file-modle", {}, ['select folder']),
-                    $el("input.cm-input-file-modle", { type: "file", webkitdirectory: true, mozdirectory: true, odirectory: true, msdirectory: true, onchange: (e) => this.onFileChange(e) }),
+                    $el("input.cm-input-file-modle", { 
+                        type: "file", 
+                        webkitdirectory: true, 
+                        mozdirectory: true, 
+                        odirectory: true, 
+                        msdirectory: true, 
+                        onchange: (e) => temp.onFileChange(e) 
+                    }),
                 ]),
                 $el("br", {}, []),
                 $el('ul.cm-file-list', {}, []),
@@ -188,11 +194,12 @@ export function uploadPage (typeList) {
                     $el('li', {}, [
                         $el("span", {}, [`${ file.webkitRelativePath }`]),
                         $el("span.spinner-container", {}, [
-                            $el("span.spinner", {}, [])
+                            // $el("span.spinner", {}, [])
                         ]),
                     ])
                 )
             })
         }
     }
+    return temp
 }
