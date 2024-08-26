@@ -59,8 +59,14 @@ export class ModelDialog extends ComfyDialog {
                     $el('div.cm-bottom-footer', {}, [close_button, submit_button]),
                 ]
             );
-        this.element = $el("div.comfy-modal.bizyair-dialog", { parent: document.body }, [content]);
-        
+        if (document.querySelector('#bizyair-model-dialog')) {
+            document.querySelector('#bizyair-model-dialog').style.display = 'none'
+        } else {
+            this.element = $el("div.comfy-modal.bizyair-dialog", { 
+                id: 'bizyair-model-dialog',
+                parent: document.body 
+            }, [content]);
+        }
     }
     showModel() {
         document.querySelector('#bizyair-d-model').style.display = 'block'

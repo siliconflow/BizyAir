@@ -193,6 +193,7 @@ input.cm-input-item-error{
 }
 .bizyair-model-list-item-header{
     font-weight: bold;
+    font-size: 18px;
 }
 .bizyair-model-list-item{
     width: 100%;

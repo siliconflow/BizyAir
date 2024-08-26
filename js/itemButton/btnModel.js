@@ -5,7 +5,7 @@ export const modelBtn = $el('div.menus-item.menus-item-model', {
     onclick: () => showModel(),
 }, ['Model'])
 
-// const upload = new UploadDialog()
+const modelPage = new ModelDialog([], [])
 function showModel() {
     Promise.all([
         fetch('/bizyair/modelhost/models/files?type=bizyair/lora', {method: 'GET'}),
@@ -13,7 +13,7 @@ function showModel() {
     ]).then(responses => {
         return Promise.all(responses.map(response => response.json()));
     }).then(data => {
-        new ModelDialog(data[0].data, data[1].data).showDialog(data[0].data, data[1].data);
+        modelPage.showDialog(data[0].data, data[1].data);
         // new ModelDialog([], []).showDialog([], []);
     }).catch(error => {
         console.error('请求失败:', error);
