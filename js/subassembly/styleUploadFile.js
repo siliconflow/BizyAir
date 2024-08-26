@@ -182,4 +182,27 @@ input.cm-input-item-error{
     color: var(--bizyair-link);
     margin-left: 10px;
 }
+.bizyair-model-list{
+    width: 100%;
+    height: 360px;
+    margin-top: 40px;
+    color: var(--input-text);
+    overflow-y: auto;
+}
+.bizyair-model-list-item{
+    width: 100%;
+    display: flex;
+    line-height: 40px;
+    height: 40px;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border-color);
+}
+.bizyair-model-list-label{
+    flex: 1;
+    width: 50%;
+}
+.bizyair-model-list-available{
+    flex: 1;
+    width: 50%;
+}
 `

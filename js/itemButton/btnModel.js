@@ -11,5 +11,5 @@ function showModel() {
 }
 fetch('/bizyair/modelhost/models/files?type=bizyair/lora', {method: 'GET'}).then(response => response.json()).then(data => {
     console.log(data)
-    new ModelDialog().showDialog()
+    new ModelDialog().showDialog(data.data)
 })

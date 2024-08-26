@@ -45,9 +45,13 @@ export class ModelDialog extends ComfyDialog {
                         }, ['model model'])
                     ]),
                     $el('div.bizyair-d-content-item', { 
-                        id: 'bizyair-d-model' 
+                        id: 'bizyair-d-model',
+                        style: { display: 'block' }
                     }, [ modelList(modelListData) ]),
-                    $el('div.bizyair-d-content-item', { id: 'bizyair-d-upload' }, [ modelList() ]),
+                    $el('div.bizyair-d-content-item', { 
+                        id: 'bizyair-d-upload',
+                        style: { display: 'none' }
+                    }, [ 123 ]),
                     $el('div.cm-bottom-footer', {}, [close_button, submit_button]),
                 ]
             );
