@@ -32,9 +32,7 @@ class SearchServiceRouter(Processor):
             url = guess_url_from_node(prompt[vertex])
             if url:
                 results.append(url)
-            for unique_id, in_data in prompt[vertex].get("inputs", {}).items():
-                if unique_id in visited:
-                    continue
+            for _, in_data in prompt[vertex].get("inputs", {}).items():
                 if is_link(in_data):
                     neighbor = in_data[0]
                     if neighbor not in visited:
