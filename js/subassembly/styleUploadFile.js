@@ -80,7 +80,7 @@ p.cm-word-file-modle{
     overflow: hidden;
     border: 1px solid var(--border-color);
 }
-bizyair-input-file-modle {
+.bizyair-input-file-modle {
     position: absolute;
     top: 0;
     left: 0;

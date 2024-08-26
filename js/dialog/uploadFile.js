@@ -29,7 +29,7 @@ export function uploadPage (typeList) {
                 } }),
                 $el('div.cm-input-file-box', {}, [
                     $el("p.cm-word-file-modle", {}, ['select folder']),
-                    $el("inputbizyair-input-file-modle", { 
+                    $el("input.bizyair-input-file-modle", { 
                         type: "file", 
                         webkitdirectory: true, 
                         mozdirectory: true, 
