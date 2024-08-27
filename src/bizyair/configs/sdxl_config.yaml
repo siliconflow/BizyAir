@@ -6,7 +6,7 @@ service_config:
 
 server_format:
   BizyAir_KSampler: KSampler
-  
+
 # class_types:
 #   CheckpointLoaderSimple:
 #     max_instances: 1

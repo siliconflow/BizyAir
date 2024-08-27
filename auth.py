@@ -2,9 +2,10 @@ import os
 import uuid
 from pathlib import Path
 
-import bizyair
 import server
 from aiohttp import web
+
+import bizyair
 from bizyair.common import create_api_key_file, load_api_key
 
 API_KEY = None
@@ -38,7 +39,7 @@ async def set_api_key(request):
             error_msg = (
                 "No token provided, please refer to cloud.siliconflow.cn to get the key"
             )
-            print("set_api_key:", erro_msg)
+            print("set_api_key:", error_msg)
             return web.Response(
                 text=error_msg,
                 status=400,
@@ -70,7 +71,7 @@ async def get_api_key(request):
             return web.Response(text="Key has been loaded from the cookies")
 
     except Exception as e:
-        return web.Response(text="str(e)", status=500)
+        return web.Response(text=str(e), status=500)
 
 
 NODE_CLASS_MAPPINGS = {}

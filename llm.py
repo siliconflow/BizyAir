@@ -127,7 +127,7 @@ class BizyAirJoyCaption:
     def joycaption(self, image, do_sample, temperature, max_tokens):
         API_KEY = get_api_key()
         SIZE_LIMIT = 1536
-        device = image.device
+        # device = image.device
         _, w, h, c = image.shape
         assert (
             w <= SIZE_LIMIT and h <= SIZE_LIMIT
@@ -155,7 +155,7 @@ class BizyAirJoyCaption:
             if "result" in ret:
                 ret = json.loads(ret["result"])
         except Exception as e:
-            raise Exception(f"Unexpected response: {ret}")
+            raise Exception(f"Unexpected response: {ret} {e=}")
 
         if ret["status"] == "error":
             raise Exception(ret["message"])
