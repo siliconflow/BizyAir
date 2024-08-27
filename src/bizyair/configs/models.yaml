@@ -41,4 +41,3 @@ routing_rules:
   - name: flux-vae
     pattern: ^flux/ae.sft$
     config: flux-schnell
-  

@@ -63,7 +63,12 @@ def clear_curernt_workflow(driver):
 def wait_until_queue_finished(driver, timeout=100):
     time.sleep(0.3)
     wait = WebDriverWait(driver, timeout)
-    element = wait.until(
+    # element = wait.until(
+    #     EC.presence_of_element_located(
+    #         (By.XPATH, f'//*[contains(text(), "Queue size: 0")]')
+    #     )
+    # )
+    wait.until(
         EC.presence_of_element_located(
             (By.XPATH, f'//*[contains(text(), "Queue size: 0")]')
         )
@@ -88,13 +93,15 @@ def check_graph_node_types(driver):
     try:
         driver.execute_script("window.graph.checkNodeTypes()")
     except Exception as e:
-        raise Exception("Error: Workflow nodes checking failed, likely missing nodes")
+        raise Exception(
+            f"Error: Workflow nodes checking failed, likely missing nodes {e=}"
+        )
 
 
 def check_error_occurs(driver):
     elements = driver.find_elements(By.CLASS_NAME, "comfy-modal-content")
 
-    desired_element = None
+    # desired_element = None local variable 'desired_element'
     for element in elements:
         element_text = element.text
         if "Error occurred when" in element_text:

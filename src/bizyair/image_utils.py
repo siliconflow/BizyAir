@@ -488,7 +488,7 @@ def is_image_tensor(tensor) -> bool:
             return False
 
         return True
-    except Exception as e:
+    except:
         return False
 
 

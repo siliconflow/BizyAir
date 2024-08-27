@@ -6,8 +6,9 @@ pip install numpy scikit-image pillow
 import numpy as np
 import torch
 import torch.nn.functional as F
-from bizyair import NODE_CLASS_MAPPINGS
 from PIL import Image
+
+from bizyair import NODE_CLASS_MAPPINGS
 
 
 class ImagesTest:
