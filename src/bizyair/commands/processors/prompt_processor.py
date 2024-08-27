@@ -4,7 +4,7 @@ from typing import Any, Dict, List
 
 from bizyair.common import client
 from bizyair.common.env_var import BIZYAIR_DEBUG
-from bizyair.path_utils import guess_url_from_node
+from bizyair.path_utils import guess_url_from_node, convert_prompt_label_path_to_real_path
 
 from ..base import Processor  # type: ignore
 
@@ -21,17 +21,32 @@ def is_link(obj):
     return True
 
 
+
+
+from dataclasses import dataclass
+
+@dataclass
+class NodeUsageState:
+    loras = []
+    
+
 class SearchServiceRouter(Processor):
     def process(self, prompt: Dict[str, Dict[str, Any]], last_node_ids: List[str]):
         # TODO Improve distribution logic
         queue = deque(last_node_ids)
         visited = {key: True for key in last_node_ids}
         results = []
+        node_usage_state = NodeUsageState()
         while queue:
             vertex = queue.popleft()
             if BIZYAIR_DEBUG:
                 print(vertex, end="->")
-            url = guess_url_from_node(prompt[vertex])
+            class_type = prompt[vertex]['class_type']
+            
+            if class_type == "LoraLoader":
+                node_usage_state.loras.append(prompt[vertex])
+
+            url = guess_url_from_node(prompt[vertex], node_usage_state)
             if url:
                 results.append(url)
             for _, in_data in prompt[vertex].get("inputs", {}).items():
@@ -53,7 +68,7 @@ class PromptProcessor(Processor):
     def process(
         self, url: str, prompt: Dict[str, Dict[str, Any]], last_node_ids: List[str]
     ):
-        # convert_prompt_label_path_to_real_path
+        prompt = convert_prompt_label_path_to_real_path(prompt)
         return client.send_request(
             url=url,
             data=json.dumps(
