@@ -217,6 +217,7 @@ if __name__ == "__main__":
         [
             "All types of ControlNet preprocessors",
             "FLUX-dev Simple Lora",
+            "Super Resolution",
         ],
     )
     print("========Running all examples========")

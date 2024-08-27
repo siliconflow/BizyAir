@@ -236,8 +236,6 @@ class BizyAir_VAEDecode(BizyAirBaseNode):
             },
             outputs={"slot_index": 0},
         )
-        if isinstance(samples, BizyAirNodeIO) and samples.configs:
-            new_vae.configs = samples.configs
         return new_vae.send_request()
 
 
