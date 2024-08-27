@@ -211,4 +211,47 @@ input.cm-input-item-error{
     flex: 1;
     width: 50%;
 }
+.bizyair-form-item{
+    display: flex;
+    margin-bottom: 10px;
+    width: 100%;
+}
+.bizyair-form-label{
+    width: 100px;
+    line-height: 30px;
+    font-size: 16px;
+    color: var(--input-text);
+}
+.bizyair-form-item .cm-input-item, .bizyair-form-item .cm-input-file-box{
+    flex: 1;
+}
+.bizyair-form-qa{
+    width: 20px;
+    height: 20px;
+    line-height: 20px;
+    text-align: center;
+    font-size: 16px;
+    color: var(--input-text);
+    margin-left: 10px;
+    cursor: pointer;
+    font-style: normal;
+    background-color: var(--comfy-input-bg);
+    border-radius: 50%;
+    margin-top: 5px;
+    position: relative;
+}
+.bizyair-form-qa-hint{
+    position: absolute;
+    background-color: var(--comfy-input-bg);
+    border: 1px solid var(--border-color);
+    padding: 5px 10px;
+    border-radius: 8px;
+    color: var(--input-text);
+    right: 0;
+    line-height: 30px;
+    top: -40px;
+    white-space: nowrap;
+    font-size: 18px;
+    font-weight: bold;
+}
 `

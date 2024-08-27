@@ -1,4 +1,3 @@
-import { app } from "../../../scripts/app.js";
 import { $el, ComfyDialog } from "../../../scripts/ui.js";
 import { ConfirmDialog } from "../subassembly/confirm.js";
 
@@ -13,7 +12,7 @@ export class ApiKey extends ComfyDialog {
         });
         const submit_button = $el("button.comfy-bizyair-submit", { 
             type: "button", 
-            textContent: "submit", 
+            textContent: "Submit", 
             onclick: () => this.toSubmit() 
         });
         const content =
@@ -36,11 +35,26 @@ export class ApiKey extends ComfyDialog {
                     $el('div.cm-bottom-footer', {}, [close_button, submit_button]),
                 ]
             );
-        this.element = $el("div.comfy-modal.bizyair-dialog.bizyair-dialog-sml", { 
-            id: 'bizyair-api-key-dialog',
-            parent: document.body
-        }, [content]);
-        
+        // this.element =;
+        this.element = $el('div', {
+            parent: document.body,
+            style: {
+                width: '100vw',
+                height: '100vh',
+                position: 'fixed',
+                left: 0,
+                top: 0,
+                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                display: 'none',
+                zIndex: '100000'
+            }
+        }, [
+            $el("div.comfy-modal.bizyair-dialog.bizyair-dialog-sml", { 
+                id: 'bizyair-api-key-dialog',
+                parent: document.body,
+                style: { display: 'block' }
+            }, [content])
+        ])
     }
     async toSubmit() {
         const apiKey = document.querySelector('#bizyair-api-key');

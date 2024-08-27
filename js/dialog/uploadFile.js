@@ -17,32 +17,73 @@ export function uploadPage (typeList, submitBtn) {
     const elOptions = typeList.map(item => $el("option", { value: item.value }, [item.label]))
     const temp = {
         content: $el("div.comfy-modal-content.comfy-modal-content-file",[
-                $el("select.cm-input-item", {
-                    onchange: function() {
-                        this.className = this.className.replace(/cm-input-item-error/g, '')
-                    }
-                }, [
-                    ...elOptions
+                $el("div.bizyair-form-item", {}, [
+                    $el("span.bizyair-form-label", {}, ['Type']),
+                    $el("select.cm-input-item", {
+                        onchange: function() {
+                            this.className = this.className.replace(/cm-input-item-error/g, '')
+                        }
+                    }, [
+                        ...elOptions
+                    ]),
+                    $el("i.bizyair-form-qa", {
+                        onmouseover: function() {
+                            temp.showQA(this, 'This is the type of model')
+                        },
+                        onmouseout: function() {
+                            temp.hideQA(this)
+                        }
+                    }, ['?']),
                 ]),
-                $el("input.cm-input-item", { type: "text", placeholder: "model name", onchange: function() {
-                    this.className = this.className.replace(/cm-input-item-error/g, '')
-                } }),
-                $el('div.cm-input-file-box', {}, [
-                    $el("p.cm-word-file-modle", {}, ['select folder']),
-                    $el("input.bizyair-input-file-modle", { 
-                        type: "file", 
-                        webkitdirectory: true, 
-                        mozdirectory: true, 
-                        odirectory: true, 
-                        msdirectory: true, 
-                        onchange: (e) => temp.onFileChange(e) 
-                    }),
+                $el("div.bizyair-form-item", {}, [
+                    $el("span.bizyair-form-label", {}, ['Name']),
+                    $el("input.cm-input-item", { type: "text", placeholder: "model name", onchange: function() {
+                        this.className = this.className.replace(/cm-input-item-error/g, '')
+                    } }),
+                    $el("i.bizyair-form-qa", {
+                        onmouseover: function() {
+                            temp.showQA(this, 'That is the name of the model')
+                        },
+                        onmouseout: function() {
+                            temp.hideQA(this)
+                        }
+                    }, ['?']),
+                ]),
+                $el("div.bizyair-form-item", {}, [
+                    $el("span.bizyair-form-label", {}, ['Files']),
+                    $el('div.cm-input-file-box', {}, [
+                        $el("p.cm-word-file-modle", {}, ['select folder']),
+                        $el("input.bizyair-input-file-modle", { 
+                            type: "file", 
+                            webkitdirectory: true, 
+                            mozdirectory: true, 
+                            odirectory: true, 
+                            msdirectory: true, 
+                            onchange: (e) => temp.onFileChange(e) 
+                        }),
+                    ]),
+                    $el("i.bizyair-form-qa", {
+                        onmouseover: function() {
+                            temp.showQA(this, 'This is the model file. You need to select a folder.')
+                        },
+                        onmouseout: function() {
+                            temp.hideQA(this)
+                        }
+                    }, ['?']),
                 ]),
                 $el("br", {}, []),
                 $el('ul.bizyair-file-list', {}, []),
                 $el('div.cm-bottom-footer', {}, [close_button, submit_button]),
             ]
         ),
+        showQA(ele, text) {
+            $el('span.bizyair-form-qa-hint', {
+                parent: ele,
+            }, [text])
+        },
+        hideQA(ele) {
+            ele.querySelector('.bizyair-form-qa-hint').remove()
+        },
         queryExists() {
             const type = document.querySelector('select.cm-input-item').value
             const name = document.querySelector('input.cm-input-item').value

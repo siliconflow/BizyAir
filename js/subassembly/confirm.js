@@ -1,4 +1,5 @@
-import { $el, ComfyDialog } from "../../../scripts/ui.js";
+import { $el, ComfyDialog, } from "../../../scripts/ui.js";
+console.log(ComfyDialog)
 
 export class ConfirmDialog extends ComfyDialog {
     constructor(options) {

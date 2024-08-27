@@ -14,6 +14,7 @@ class FloatingButton {
         this.show_cases = show_cases
         this.button = $el("div.comfy-floating-button", {
             parent: document.body,
+            style: { top: app.menu.element.style.display == 'none' ? '': '60px' },
             onmousedown: (e) => this.startDrag(e),
         }, [
             $el("h2.bizyair-logo", {}, ["BizyAir"]),
@@ -36,6 +37,14 @@ class FloatingButton {
         document.addEventListener("mousemove", (e) => this.doDrag(e));
         document.addEventListener("mouseup", () => this.endDrag());
 
+    }
+
+    getDisplayStyle(element) {
+        if (element.currentStyle) {
+            return element.currentStyle.display;
+        } else {
+            return window.getComputedStyle(element).display;
+        }
     }
 
     startDrag(e) {
