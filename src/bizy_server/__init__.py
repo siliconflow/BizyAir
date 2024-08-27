@@ -13,9 +13,9 @@ from aiohttp import web
 from server import PromptServer
 import bizyair
 import bizyair.common
-from .errno import ErrorNo, CODE_OK, INVAILD_TYPE, INVAILD_NAME, CHECK_MODEL_EXISTS_ERR, NO_FILE_UPLOAD_ERR, \
+from .errno import ErrorNo, CODE_OK, INVALID_TYPE, INVALID_NAME, CHECK_MODEL_EXISTS_ERR, NO_FILE_UPLOAD_ERR, \
     EMPTY_UPLOAD_ID_ERR, SIGN_FILE_ERR, UPLOAD_ERR, COMMIT_FILE_ERR, MODEL_ALREADY_EXISTS_ERR, COMMIT_MODEL_ERR, \
-    INVALID_UPLOAD_ID_ERR, EMPTY_FILES_ERR, LIST_MODEL_FILE_ERR, INVALID_FILENAME_ERR
+    INVALID_UPLOAD_ID_ERR, EMPTY_FILES_ERR, LIST_MODEL_FILE_ERR, INVALID_FILENAME_ERR, DELETE_MODEL_ERR
 
 from .cache import UploadCache
 from .oss import AliOssStorageClient
@@ -80,7 +80,7 @@ async def check_model_exists(request):
     if err is not None:
         return err
 
-    err = check_str_param(json_data, param_name="name", err=INVAILD_TYPE)
+    err = check_str_param(json_data, param_name="name", err=INVALID_TYPE)
     if err is not None:
         return err
 
@@ -187,7 +187,7 @@ async def upload_model(request):
     if err is not None:
         return err
 
-    err = check_str_param(json_data, "name", INVAILD_NAME)
+    err = check_str_param(json_data, "name", INVALID_NAME)
     if err is not None:
         return err
 
@@ -263,6 +263,26 @@ async def file_upload_progress(request):
             return JsonResponse({"progress": file_info["progress"]})
 
     return JsonResponse({"progress": "0.00%"})
+
+
+@prompt_server.routes.delete(f"/{API_PREFIX}/models")
+async def delete_model(request):
+    json_data = await request.json()
+
+    err = check_type(json_data)
+    if err is not None:
+        return err
+
+    err = check_str_param(json_data, "name", INVALID_NAME)
+    if err is not None:
+        return err
+
+    err = remove_model(model_type=json_data["type"], model_name=json_data["name"])
+    if err is not None:
+        return err
+
+    print("Delete successfully")
+    return OKResponse(None)
 
 
 def check_model(type: str, name: str) -> (bool, ErrorNo):
@@ -352,6 +372,27 @@ def commit_model(model_files, model_name: str, model_type: str, overwrite: bool)
         return None, COMMIT_MODEL_ERR
 
 
+def remove_model(model_name: str, model_type: str) -> (dict, ErrorNo):
+    server_url = f"{BIZYAIR_SERVER_ADDRESS}/x/v1/models"
+
+    payload = {
+        "name": model_name,
+        "type": model_type,
+    }
+    headers = auth_header()
+
+    try:
+        resp = do_delete(server_url, data=payload, headers=headers)
+        ret = json.loads(resp)
+        if ret["code"] != CODE_OK:
+            return ErrorNo(500, ret["code"], None, ret["message"])
+
+        return None
+    except Exception as e:
+        print(f"fail to remove model: {str(e)}")
+        return DELETE_MODEL_ERR
+
+
 def is_string_valid(s):
     # 检查s是否已经被定义（即不是None）且不是空字符串
     if s is not None and s != "":
@@ -374,9 +415,9 @@ def check_str_param(json_data, param_name: str, err):
 
 def check_type(json_data):
     if "type" not in json_data:
-        return ErrResponse(INVAILD_TYPE)
+        return ErrResponse(INVALID_TYPE)
     if not is_string_valid(json_data["type"]) or json_data["type"] not in ALLOW_TYPES:
-        return ErrResponse(INVAILD_TYPE)
+        return ErrResponse(INVALID_TYPE)
     return None
 
 
@@ -423,6 +464,20 @@ def do_post(url, data=None, headers=None):
     print(data)
     # 创建请求对象
     request = urllib.request.Request(url, data=data, headers=headers, method='POST')
+
+    # 发送POST请求
+    with urllib.request.urlopen(request) as response:
+        return response.read().decode('utf-8')
+
+
+def do_delete(url, data=None, headers=None):
+    # 将字典转换为字节串
+    if data:
+        data = bytes(json.dumps(data), 'utf-8')
+
+    print(data)
+    # 创建请求对象
+    request = urllib.request.Request(url, data=data, headers=headers, method='DELETE')
 
     # 发送POST请求
     with urllib.request.urlopen(request) as response:
