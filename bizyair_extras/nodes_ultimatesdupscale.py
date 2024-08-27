@@ -1,6 +1,7 @@
 from enum import Enum
 
 import comfy
+
 from bizyair import BizyAirBaseNode, BizyAirNodeIO
 from bizyair.data_types import CONDITIONING, MODEL, UPSCALE_MODEL, VAE
 

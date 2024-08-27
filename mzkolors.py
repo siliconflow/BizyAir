@@ -2,6 +2,7 @@ import os
 import uuid
 
 import torch
+
 from bizyair import BizyAirBaseNode, BizyAirNodeIO, create_node_data
 from bizyair.data_types import CONDITIONING
 from bizyair.image_utils import encode_data

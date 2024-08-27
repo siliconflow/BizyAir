@@ -44,7 +44,7 @@ Make sure to **set your API KEY** for the **first time** use!
 
 ## Installation
 
-You can install BizyAir through several methods: using the ComfyUI Manager, the Comfy CLI, downloading the standalone package for Windows, or by cloning the BizyAir repository into the custom_nodes subdirectory of ComfyUI. 
+You can install BizyAir through several methods: using the ComfyUI Manager, the Comfy CLI, downloading the standalone package for Windows, or by cloning the BizyAir repository into the custom_nodes subdirectory of ComfyUI.
 
 ### Method 1: Install via ComfyUI Manager
 
@@ -68,7 +68,7 @@ Then, restart ComfyUI.
 - Prerequisites
     - Ensure `pip install comfy-cli` is installed.
     - Installing ComfyUI `comfy install`
-  
+
 To install the `BizyAir`, use the following command:
 
 ```shell

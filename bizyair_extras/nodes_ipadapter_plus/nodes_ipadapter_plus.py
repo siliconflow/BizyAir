@@ -3,6 +3,7 @@ import os
 
 import folder_paths
 import torch
+
 from bizyair import BizyAirBaseNode
 from bizyair.data_types import CLIP, CONDITIONING, MODEL
 from bizyair.image_utils import BizyAirNodeIO, create_node_data
@@ -36,11 +37,11 @@ WEIGHT_TYPES = [
 ]
 
 
-"""
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- Loaders 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-"""
+# """
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#  Loaders
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# """
 
 
 class IPAdapterUnifiedLoader(BizyAirBaseNode):
@@ -190,11 +191,11 @@ class IPAdapterModelLoader(BizyAirBaseNode):
 #     CATEGORY = "ipadapter/loaders"
 
 
-"""
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- Main Apply Nodes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-"""
+# """
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#  Main Apply Nodes
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# """
 
 
 class IPAdapterSimple(BizyAirBaseNode):
