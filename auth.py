@@ -71,7 +71,7 @@ async def get_api_key(request):
             return web.Response(text="Key has been loaded from the cookies")
 
     except Exception as e:
-        return web.Response(text=f"str({e})", status=500)
+        return web.Response(text=str(e), status=500)
 
 
 NODE_CLASS_MAPPINGS = {}

@@ -101,7 +101,7 @@ def check_graph_node_types(driver):
 def check_error_occurs(driver):
     elements = driver.find_elements(By.CLASS_NAME, "comfy-modal-content")
 
-    # desired_element = None
+    # desired_element = None local variable 'desired_element'
     for element in elements:
         element_text = element.text
         if "Error occurred when" in element_text:
