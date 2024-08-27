@@ -20,6 +20,7 @@ from .errno import ErrorNo, CODE_OK, INVALID_TYPE, INVALID_NAME, CHECK_MODEL_EXI
 from .cache import UploadCache
 from .oss import AliOssStorageClient
 import logging
+from collections import defaultdict
 
 current_path = os.path.abspath(os.path.dirname(__file__))
 prompt_server = PromptServer.instance
@@ -240,7 +241,18 @@ async def list_model_files(request):
         if ret["code"] != CODE_OK:
             return ErrorNo(500, ret["code"], None, ret["message"])
 
-        return OKResponse(ret["data"]["files"])
+        files = ret["data"]["files"]
+        tree = defaultdict(lambda: {"name": "", "list": []})
+
+        for item in files:
+            parts = item['label_path'].split('/')
+            model_name = parts[0]
+            if model_name not in tree:
+                tree[model_name] = {"name": model_name, "list": [item]}
+            else:
+                tree[model_name]["list"].append(item)
+
+        return OKResponse(list(tree.values()))
 
     except Exception as e:
         print(f"fail to list model files: {str(e)}")
