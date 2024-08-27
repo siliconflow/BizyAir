@@ -2,12 +2,13 @@ import json
 import pprint
 import urllib.error
 import urllib.request
-from typing import Dict
 import warnings
+from typing import Dict
 
 __all__ = ["send_request"]
 
 from .env_var import BIZYAIR_API_KEY, BIZYAIR_DEBUG
+
 
 def set_api_key(API_KEY="YOUR_API_KEY"):
     global BIZYAIR_API_KEY
@@ -21,6 +22,7 @@ def validate_api_key(api_key):
     if api_key is None or not api_key.startswith("sk-"):
         return False
     return True
+
 
 def get_api_key():
     global BIZYAIR_API_KEY

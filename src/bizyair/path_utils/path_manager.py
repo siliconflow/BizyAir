@@ -1,10 +1,11 @@
 import copy
 import json
 import os
+import pprint
 import re
 import warnings
 from typing import Any, Dict, List, Union
-import pprint
+
 from ..common import fetch_models_by_type
 from ..common.env_var import BIZYAIR_DEBUG
 from .utils import filter_files_extensions, get_service_route, load_yaml_config
@@ -36,7 +37,9 @@ models_config: Dict[str, Dict[str, Any]] = load_yaml_config(
 )
 
 
-def guess_url_from_node(node: Dict[str, Dict[str, Any]], node_usage_state) -> Union[str, None]:
+def guess_url_from_node(
+    node: Dict[str, Dict[str, Any]], node_usage_state
+) -> Union[str, None]:
     if "loader" in node["class_type"].lower():
         for attr in ("ckpt_name", "unet_name", "vae_name"):
             if attr in node["inputs"]:
@@ -50,7 +53,10 @@ def guess_url_from_node(node: Dict[str, Dict[str, Any]], node_usage_state) -> Un
                         configs = routing_configs[config_key]
                         # TODO fix
                         if len(node_usage_state.loras) > 0 and config_key == "flux-dev":
-                            return configs["service_address"] + "/supernode/test-flux-dev-bizyair-comfy-ksampler"
+                            return (
+                                configs["service_address"]
+                                + "/supernode/test-flux-dev-bizyair-comfy-ksampler"
+                            )
                         return configs["service_address"] + configs["route"]
 
 
@@ -157,6 +163,7 @@ def get_filename_list(folder_name, *, verbose=BIZYAIR_DEBUG):
     if BIZYAIR_DEBUG:
         try:
             import folder_paths
+
             results.extend(folder_paths.get_filename_list(folder_name))
         except:
             pass
@@ -203,7 +210,7 @@ def init_config():
             folder_names_and_paths[k] = []
         folder_names_and_paths[k].extend(recursive_extract_models(v))
     if BIZYAIR_DEBUG:
-        pprint.pprint("="*20+"init_config: "+"="*20)
+        pprint.pprint("=" * 20 + "init_config: " + "=" * 20)
         pprint.pprint(folder_names_and_paths)
 
 
@@ -215,7 +222,7 @@ if __name__ == "__main__":
     # configs = [load_yaml_config(x) for x in get_config_file_list()]
     # print(get_filename_list("clip_vision"))
     # print(folder_names_and_paths)
-    
+
     api_key = os.getenv("BIZYAIR_API_KEY", "")
     host_ckpts = get_filename_list("loras", verbose=True)
     print(host_ckpts)

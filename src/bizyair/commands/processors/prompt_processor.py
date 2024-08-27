@@ -4,7 +4,10 @@ from typing import Any, Dict, List
 
 from bizyair.common import client
 from bizyair.common.env_var import BIZYAIR_DEBUG
-from bizyair.path_utils import guess_url_from_node, convert_prompt_label_path_to_real_path
+from bizyair.path_utils import (
+    convert_prompt_label_path_to_real_path,
+    guess_url_from_node,
+)
 
 from ..base import Processor  # type: ignore
 
@@ -21,14 +24,13 @@ def is_link(obj):
     return True
 
 
-
-
 from dataclasses import dataclass
+
 
 @dataclass
 class NodeUsageState:
     loras = []
-    
+
 
 class SearchServiceRouter(Processor):
     def process(self, prompt: Dict[str, Dict[str, Any]], last_node_ids: List[str]):
@@ -41,8 +43,8 @@ class SearchServiceRouter(Processor):
             vertex = queue.popleft()
             if BIZYAIR_DEBUG:
                 print(vertex, end="->")
-            class_type = prompt[vertex]['class_type']
-            
+            class_type = prompt[vertex]["class_type"]
+
             if class_type == "LoraLoader":
                 node_usage_state.loras.append(prompt[vertex])
 
