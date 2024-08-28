@@ -39,7 +39,7 @@ export class ModelDialog extends ComfyDialog {
                                 handleTabItemClass(this)
                                 submit_button.style.display = 'none'
                             }
-                        }, ['My Models']),
+                        }, ['My Files']),
                         $el('div.bizyair-header-tab-item', {
                             onclick: function() {
                                 __this.showUpload()
@@ -51,7 +51,7 @@ export class ModelDialog extends ComfyDialog {
                     $el('div.bizyair-d-content-item', { 
                         id: 'bizyair-d-model',
                         style: { display: 'block' }
-                    }, [ modelList(modelListData) ]),
+                    }, [ modelList(modelListData, typeListData) ]),
                     $el('div.bizyair-d-content-item', { 
                         id: 'bizyair-d-upload',
                         style: { display: 'none' }
@@ -59,15 +59,22 @@ export class ModelDialog extends ComfyDialog {
                     $el('div.cm-bottom-footer', {}, [close_button, submit_button]),
                 ]
             );
-        this.element = $el("div.comfy-modal.bizyair-dialog", { 
+        this.element = $el('div.bizyair-modal', {
+            parent: document.body,
+        }, [
+            $el("div.comfy-modal.bizyair-dialog", { 
                 id: 'bizyair-model-dialog',
-                parent: document.body 
-            }, [content]);
+                parent: document.body,
+                style: { display: 'block' }
+            }, [content])
+        ])
     }
     showModel() {
         document.querySelector('#bizyair-d-model').style.display = 'block'
         document.querySelector('#bizyair-d-upload').style.display = 'none'
-        
+        fetch(`/bizyair/modelhost/models/files?type=bizyair/lora`, {method: 'GET'}).then(res => res.json()).then(res => {
+            document.querySelector('#bizyair-d-model').innerHTML = modelList(res.data, typeListData)
+        })        
     }
     showUpload() {
         document.querySelector('#bizyair-d-model').style.display = 'none'

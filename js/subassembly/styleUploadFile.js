@@ -1,4 +1,14 @@
 export const styleUploadFile = `
+.bizyair-modal{
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    z-index: 10000000;
+}
 .bizyair-dialog{
 	width: 1000px;
 	height: 520px;
@@ -37,6 +47,17 @@ export const styleUploadFile = `
 .bizyair-header-tab-item-active{
     margin-bottom: -2px;
     height: 42px;
+}
+.bizyair-model-filter-item{
+    width: 100%;
+    display: flex;
+}
+.bizyair-filter-label{
+    width: 60px;
+    line-height: 30px;
+}
+.bizyair-model-filter-item .cm-input-item{
+    flex: 1;
 }
 .comfy-modal-content-file{
     margin-top: 40px;
@@ -194,22 +215,64 @@ input.cm-input-item-error{
 .bizyair-model-list-item-header{
     font-weight: bold;
     font-size: 18px;
-}
-.bizyair-model-list-item{
     width: 100%;
     display: flex;
     line-height: 40px;
     height: 40px;
     justify-content: space-between;
+}
+.bizyair-model-list-item{
+    line-height: 40px;
     border-bottom: 1px solid var(--border-color);
 }
-.bizyair-model-list-label{
-    flex: 1;
-    width: 50%;
+.bizyair-model-list-item:hover .bizyair-icon-delete{
+    display: block;
 }
-.bizyair-model-list-available{
+.bizyair-model-list-item-folder{
+    width: 100%;
+    height: 40px;
+    font-weight: bold;
+    display: flex;
+    border-bottom: 1px solid var(--border-color);
+}
+.bizyair-icon-unfold{
+    width: 24px;
+    height: 24px;
+    line-height: 24px;
+    text-align: center;
+    cursor: pointer;
+    font-size: 18px;
+    color: var(--input-text);
+    margin: 8px 8px 0 0;
+    background-color: var(--comfy-input-bg);
+    border: 1px solid var(--border-color);
+    border-redius: 4px;
+}
+.bizyair-icon-delete{
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    margin: 8px 0 0 8px;
+    display: none;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='white' d='M7.616 20q-.672 0-1.144-.472T6 18.385V6H5V5h4v-.77h6V5h4v1h-1v12.385q0 .69-.462 1.153T16.384 20zM17 6H7v12.385q0 .269.173.442t.443.173h8.769q.23 0 .423-.192t.192-.424zM9.808 17h1V8h-1zm3.384 0h1V8h-1zM7 6v13z'/%3E%3C/svg%3E");
+}
+.bizyair-icon-delete:hover{
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23f93e3e' d='M7.616 20q-.672 0-1.144-.472T6 18.385V6H5V5h4v-.77h6V5h4v1h-1v12.385q0 .69-.462 1.153T16.384 20zM17 6H7v12.385q0 .269.173.442t.443.173h8.769q.23 0 .423-.192t.192-.424zM9.808 17h1V8h-1zm3.384 0h1V8h-1zM7 6v13z'/%3E%3C/svg%3E");
+}
+.bizyair-model-list-item-child{
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    height: 40px;
+    border-bottom: 1px solid var(--border-color);
+}
+.bizyair-flex-item{
     flex: 1;
-    width: 50%;
+}
+.bizyair-flex-item-avaulable{
+    width: 100px;
 }
 .bizyair-form-item{
     display: flex;

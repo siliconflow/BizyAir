@@ -29,12 +29,15 @@ export class ConfirmDialog extends ComfyDialog {
                     $el('div.cm-bottom-footer', {}, [close_button, (options.yesText ? submit_button: '')]),
                 ]
             );
-
-        this.element = $el("div.comfy-modal.bizyair-dialog-confirm", { parent: document.body }, [content]);
+        this.element = $el('div.bizyair-modal', {
+            parent: document.body
+        }, [
+            $el("div.comfy-modal.bizyair-dialog-confirm", { parent: document.body, style: { display: 'block' } }, [content])
+        ])
         this.element.style.display = "block";
     }
     closeBtnClick() {
-        this.close();
+        this.element.remove();
         if (this.options.onNo) {
             this.options.onNo();
         }
@@ -43,6 +46,6 @@ export class ConfirmDialog extends ComfyDialog {
         if (this.options.onYes) {
             this.options.onYes();
         }
-        this.close();
+        this.element.remove();
     }
 }

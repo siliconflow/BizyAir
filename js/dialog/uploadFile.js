@@ -37,9 +37,13 @@ export function uploadPage (typeList, submitBtn) {
                 ]),
                 $el("div.bizyair-form-item", {}, [
                     $el("span.bizyair-form-label", {}, ['Name']),
-                    $el("input.cm-input-item", { type: "text", placeholder: "model name", onchange: function() {
-                        this.className = this.className.replace(/cm-input-item-error/g, '')
-                    } }),
+                    $el("input.cm-input-item", { 
+                        type: "text", 
+                        placeholder: "The name of the uploaded file", 
+                        onchange: function() {
+                            this.className = this.className.replace(/cm-input-item-error/g, '')
+                        }
+                    }),
                     $el("i.bizyair-form-qa", {
                         onmouseover: function() {
                             temp.showQA(this, 'That is the name of the model')
@@ -50,7 +54,7 @@ export function uploadPage (typeList, submitBtn) {
                     }, ['?']),
                 ]),
                 $el("div.bizyair-form-item", {}, [
-                    $el("span.bizyair-form-label", {}, ['Files']),
+                    $el("span.bizyair-form-label", {}, ['Purpose']),
                     $el('div.cm-input-file-box', {}, [
                         $el("p.cm-word-file-modle", {}, ['select folder']),
                         $el("input.bizyair-input-file-modle", { 
@@ -94,7 +98,7 @@ export function uploadPage (typeList, submitBtn) {
                 if (data.code === 20000) {
                     if (data.data.exists) {
                         this.confirmExists()
-                    } else {``
+                    } else {
                         this.todoUpload()
                     }
                 }

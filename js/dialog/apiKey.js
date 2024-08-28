@@ -36,18 +36,8 @@ export class ApiKey extends ComfyDialog {
                 ]
             );
         // this.element =;
-        this.element = $el('div', {
-            parent: document.body,
-            style: {
-                width: '100vw',
-                height: '100vh',
-                position: 'fixed',
-                left: 0,
-                top: 0,
-                backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                display: 'none',
-                zIndex: '100000'
-            }
+        this.element = $el('div.bizyair-modal', {
+            parent: document.body
         }, [
             $el("div.comfy-modal.bizyair-dialog.bizyair-dialog-sml", { 
                 id: 'bizyair-api-key-dialog',
