@@ -74,7 +74,8 @@ export class ModelDialog extends ComfyDialog {
         document.querySelector('#bizyair-d-model').style.display = 'block'
         document.querySelector('#bizyair-d-upload').style.display = 'none'
         fetch(`/bizyair/modelhost/models/files?type=bizyair/lora`, {method: 'GET'}).then(res => res.json()).then(res => {
-            document.querySelector('#bizyair-d-model').innerHTML = modelList(res.data, this.typeListData)
+            document.querySelector('#bizyair-d-model').innerHTML = ''
+            document.querySelector('#bizyair-d-model').appendChild(modelList(res.data, this.typeListData))
         })        
     }
     showUpload() {
