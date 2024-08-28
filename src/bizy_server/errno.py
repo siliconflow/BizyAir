@@ -7,6 +7,7 @@ class ErrorNo:
 
 
 CODE_OK = 20000
+CODE_NO_MODEL_FOUND = 20226
 
 INVALID_TYPE = ErrorNo(400, 400100, None, "type is invalid")
 INVALID_NAME = ErrorNo(400, 400101, None, "name is invalid")
