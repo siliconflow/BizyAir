@@ -242,17 +242,20 @@ async def list_model_files(request):
             return ErrorNo(500, ret["code"], None, ret["message"])
 
         files = ret["data"]["files"]
-        tree = defaultdict(lambda: {"name": "", "list": []})
+        result = []
+        if len(files) > 0:
+            tree = defaultdict(lambda: {"name": "", "list": []})
 
-        for item in files:
-            parts = item['label_path'].split('/')
-            model_name = parts[0]
-            if model_name not in tree:
-                tree[model_name] = {"name": model_name, "list": [item]}
-            else:
-                tree[model_name]["list"].append(item)
+            for item in files:
+                parts = item['label_path'].split('/')
+                model_name = parts[0]
+                if model_name not in tree:
+                    tree[model_name] = {"name": model_name, "list": [item]}
+                else:
+                    tree[model_name]["list"].append(item)
+            result = list(tree.values())
 
-        return OKResponse(list(tree.values()))
+        return OKResponse(result)
 
     except Exception as e:
         print(f"fail to list model files: {str(e)}")
