@@ -15,7 +15,7 @@ import bizyair
 import bizyair.common
 from .errno import ErrorNo, CODE_OK, INVALID_TYPE, INVALID_NAME, CHECK_MODEL_EXISTS_ERR, NO_FILE_UPLOAD_ERR, \
     EMPTY_UPLOAD_ID_ERR, SIGN_FILE_ERR, UPLOAD_ERR, COMMIT_FILE_ERR, MODEL_ALREADY_EXISTS_ERR, COMMIT_MODEL_ERR, \
-    INVALID_UPLOAD_ID_ERR, EMPTY_FILES_ERR, LIST_MODEL_FILE_ERR, INVALID_FILENAME_ERR, DELETE_MODEL_ERR
+    INVALID_UPLOAD_ID_ERR, EMPTY_FILES_ERR, LIST_MODEL_FILE_ERR, INVALID_FILENAME_ERR, DELETE_MODEL_ERR, CODE_NO_MODEL_FOUND
 
 from .cache import UploadCache
 from .oss import AliOssStorageClient
@@ -239,7 +239,13 @@ async def list_model_files(request):
         ret = json.loads(resp)
         print(ret)
         if ret["code"] != CODE_OK:
-            return ErrorNo(500, ret["code"], None, ret["message"])
+            if ret["code"] == CODE_NO_MODEL_FOUND:
+                return OKResponse([])
+            else:
+                return ErrResponse(ErrorNo(500, ret["code"], None, ret["message"]))
+
+        if not ret["data"]:
+           return OKResponse([])
 
         files = ret["data"]["files"]
         result = []
