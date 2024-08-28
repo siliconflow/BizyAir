@@ -242,6 +242,7 @@ async def list_model_files(request):
             return ErrorNo(500, ret["code"], None, ret["message"])
 
         files = ret["data"]["files"]
+        result = []
         if len(files) > 0:
             tree = defaultdict(lambda: {"name": "", "list": []})
 
@@ -252,8 +253,9 @@ async def list_model_files(request):
                     tree[model_name] = {"name": model_name, "list": [item]}
                 else:
                     tree[model_name]["list"].append(item)
+            result = list(tree.values())
 
-        return OKResponse(list(tree.values()))
+        return OKResponse(result)
 
     except Exception as e:
         print(f"fail to list model files: {str(e)}")
