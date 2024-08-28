@@ -22,7 +22,7 @@ export const modelList = (listData, typeList) => {
                         name,
                     }),
                 }).then(res => res.json()).then(res => {
-                    if (res.code === 20000) {
+                    if (res.code == 20000) {
                         ele.closest('.bizyair-model-list-item').remove()
                     }
                 })
@@ -58,9 +58,12 @@ export const modelList = (listData, typeList) => {
     }
     
     const changeType = (e) => {
+        const elItemBody = document.querySelector('#bizyair-model-list-item-body')
         fetch(`/bizyair/modelhost/models/files?type=${e.target.value}`, {method: 'GET'}).then(res => res.json()).then(res => {
-            document.querySelector('#bizyair-model-list-item-body').innerHTML = ''
-            document.querySelector('#bizyair-model-list-item-body').appendChild(...elDataItem(res.data))
+            elItemBody.innerHTML = ''
+            elDataItem(res.data).foreach(ele => {
+                elItemBody.appendChild(ele)
+            })
         })
     }
     
