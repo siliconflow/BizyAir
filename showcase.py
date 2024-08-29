@@ -1,7 +1,7 @@
-import urllib.request
-import urllib.error
 import json
 import os
+import urllib.error
+import urllib.request
 
 import server
 from aiohttp import web
@@ -61,7 +61,8 @@ async def set_api_key_page(request):
 @PromptServer.instance.routes.get("/bizyair/news")
 async def list_news(request):
     return web.Response(
-        text=json.dumps(get_bizyair_news(), ensure_ascii=False), content_type="application/json"
+        text=json.dumps(get_bizyair_news(), ensure_ascii=False),
+        content_type="application/json",
     )
 
 
