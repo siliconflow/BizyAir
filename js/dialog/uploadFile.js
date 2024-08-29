@@ -4,15 +4,15 @@ import { $el } from "../../../scripts/ui.js";
 import { ConfirmDialog } from "../subassembly/confirm.js";
 
 export function uploadPage (typeList, submitBtn) {
-    const close_button = $el("button.comfy-bizyair-close", { 
-        type: "button", 
-        textContent: "Close", 
-        onclick: () => this.close() 
+    const close_button = $el("button.comfy-bizyair-close", {
+        type: "button",
+        textContent: "Close",
+        onclick: () => this.close()
     });
-    const submit_button = $el("button.comfy-bizyair-submit", { 
-        type: "button", 
-        textContent: "submit", 
-        onclick: () => this.toSubmit() 
+    const submit_button = $el("button.comfy-bizyair-submit", {
+        type: "button",
+        textContent: "submit",
+        onclick: () => this.toSubmit()
     });
     const elOptions = typeList.map(item => $el("option", { value: item.value }, [item.label]))
     const temp = {
@@ -37,9 +37,9 @@ export function uploadPage (typeList, submitBtn) {
                 ]),
                 $el("div.bizyair-form-item", {}, [
                     $el("span.bizyair-form-label", {}, ['Name']),
-                    $el("input.cm-input-item", { 
-                        type: "text", 
-                        placeholder: "The name of the uploaded file", 
+                    $el("input.cm-input-item", {
+                        type: "text",
+                        placeholder: "The name of the uploaded file",
                         onchange: function() {
                             this.className = this.className.replace(/cm-input-item-error/g, '')
                         }
@@ -57,13 +57,13 @@ export function uploadPage (typeList, submitBtn) {
                     $el("span.bizyair-form-label", {}, ['Purpose']),
                     $el('div.cm-input-file-box', {}, [
                         $el("p.cm-word-file-modle", {}, ['select folder']),
-                        $el("input.bizyair-input-file-modle", { 
-                            type: "file", 
-                            webkitdirectory: true, 
-                            mozdirectory: true, 
-                            odirectory: true, 
-                            msdirectory: true, 
-                            onchange: (e) => temp.onFileChange(e) 
+                        $el("input.bizyair-input-file-modle", {
+                            type: "file",
+                            webkitdirectory: true,
+                            mozdirectory: true,
+                            odirectory: true,
+                            msdirectory: true,
+                            onchange: (e) => temp.onFileChange(e)
                         }),
                     ]),
                     $el("i.bizyair-form-qa", {
@@ -102,7 +102,7 @@ export function uploadPage (typeList, submitBtn) {
                         this.todoUpload()
                     }
                 }
-                
+
             });
         },
         confirmExists() {
@@ -125,7 +125,7 @@ export function uploadPage (typeList, submitBtn) {
             const elInput = document.querySelector('input.cm-input-item')
             const cmFileList = document.querySelector('.bizyair-file-list')
             const cmWordFileMmodle = document.querySelector('.cm-word-file-modle')
-            
+
             if (!elSelect.value) {
                 new ConfirmDialog({
                     title: "",
@@ -134,7 +134,7 @@ export function uploadPage (typeList, submitBtn) {
                 })
                 elSelect.className = `${elSelect.className} cm-input-item-error`
                 return
-    
+
             }
             if (!elInput.value) {
                 new ConfirmDialog({
@@ -189,7 +189,7 @@ export function uploadPage (typeList, submitBtn) {
             const elInput = document.querySelector('input.cm-input-item')
             fetch('/bizyair/modelhost/model_upload', {
                 method: 'POST',
-                body: JSON.stringify({ 
+                body: JSON.stringify({
                     upload_id: this.uploadId,
                     name: elInput.value,
                     type: elSelect.value,
@@ -213,7 +213,7 @@ export function uploadPage (typeList, submitBtn) {
             .then(response => response.json())
             .then(data => {
                 console.log('Request successful', data);
-                
+
                 if (fn) {
                     fn(data)
                 }

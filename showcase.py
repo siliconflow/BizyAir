@@ -1,7 +1,7 @@
-import urllib.request
-import urllib.error
 import json
 import os
+import urllib.error
+import urllib.request
 
 import server
 from aiohttp import web
@@ -13,7 +13,7 @@ SHOW_CASES = {}
 
 
 def get_bizyair_news(base_url="https://bizyair.siliconflow.cn"):
-    url = f"{base_url}/news.json"
+    url = f"{base_url}/bznews.json"
     try:
         response = urllib.request.urlopen(url, timeout=5)
         if response.getcode() == 200:
@@ -61,7 +61,8 @@ async def set_api_key_page(request):
 @PromptServer.instance.routes.get("/bizyair/news")
 async def list_news(request):
     return web.Response(
-        text=json.dumps(get_bizyair_news(), ensure_ascii=False), content_type="application/json"
+        text=json.dumps(get_bizyair_news(), ensure_ascii=False),
+        content_type="application/json",
     )
 
 

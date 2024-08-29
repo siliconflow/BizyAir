@@ -26,11 +26,11 @@ class FloatingButton {
                     newsBtn,
                 ]),
             ]),
-            $el('div.cmfy-floating-button-closer', { 
-                onclick: () => this.toggleVisibility(event) 
+            $el('div.cmfy-floating-button-closer', {
+                onclick: () => this.toggleVisibility(event)
             })
         ]);
-        
+
         this.dragging = false;
         this.visible = true;
 
@@ -97,7 +97,7 @@ app.registerExtension({
             textContent: styleUploadFile,
             parent: document.head,
         });
-        
+
         new FloatingButton();
     },
 });

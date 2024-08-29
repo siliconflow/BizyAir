@@ -4,14 +4,14 @@ import uuid
 
 import torch
 
+from bizyair.image_utils import decode_data, encode_data
+
 from .utils import (
     decode_and_deserialize,
+    get_api_key,
     send_post_request,
     serialize_and_encode,
-    get_api_key,
 )
-
-from bizyair.image_utils import encode_data, decode_data
 
 BIZYAIR_SERVER_ADDRESS = os.getenv(
     "BIZYAIR_SERVER_ADDRESS", "https://api.siliconflow.cn"
@@ -228,7 +228,7 @@ class AuraSR:
             if "result" in ret:
                 ret = json.loads(ret["result"])
         except Exception as e:
-            raise Exception(f"Unexpected response: {ret}")
+            raise Exception(f"Unexpected response: {ret} {e=}")
 
         if ret["status"] == "error":
             raise Exception(ret["message"])

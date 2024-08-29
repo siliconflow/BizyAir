@@ -1,0 +1,4 @@
+black==24.4.2
+isort==5.9.3
+pre-commit
+flake8
