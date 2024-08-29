@@ -13,7 +13,7 @@ SHOW_CASES = {}
 
 
 def get_bizyair_news(base_url="https://bizyair.siliconflow.cn"):
-    url = f"{base_url}/news.json"
+    url = f"{base_url}/bznews.json"
     try:
         response = urllib.request.urlopen(url, timeout=5)
         if response.getcode() == 200:
