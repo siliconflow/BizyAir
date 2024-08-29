@@ -1,13 +1,13 @@
-import numpy as np
 import os
 
+import numpy as np
 import torch
 
 from .utils import (
     decode_and_deserialize,
+    get_api_key,
     send_post_request,
     serialize_and_encode,
-    get_api_key,
 )
 
 BIZYAIR_SERVER_ADDRESS = os.getenv(
