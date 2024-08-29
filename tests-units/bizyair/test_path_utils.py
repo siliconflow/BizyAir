@@ -1,4 +1,5 @@
 import pytest
+
 from bizyair.path_utils import guess_config
 
 test_data = {

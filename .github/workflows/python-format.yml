@@ -24,10 +24,11 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install black==24.4.2
+        pip install -r dev_requirements.txt
+        pre-commit install
 
-    - name: Run Black formatting check
-      run: python3 -m black --check .
+    - name: Run formatting check
+      run: pre-commit run --all-files
 
     - name: Add PR review comment if formatting is incorrect
       if: failure()
@@ -35,7 +36,7 @@ jobs:
       with:
         script: |
           const { pull_request } = context.payload;
-          const comment = "Your code does not meet the Black formatting standards.\nPlease run `python3 -m pip install black==24.4.2 && python3 -m black .` to format your code.";
+          const comment = "Your code does not meet the Black formatting standards.\nPlease run `python3 -m pip install -r dev_requirements.txt && pre-commit install && pre-commit run --all-files` to format your code.";
           await github.issues.createComment({
             issue_number: pull_request.number,
             owner: context.repo.owner,

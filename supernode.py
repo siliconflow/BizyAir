@@ -3,6 +3,7 @@ import os
 import uuid
 
 import torch
+
 from bizyair.image_utils import decode_data, encode_data
 
 from .utils import (
@@ -227,7 +228,7 @@ class AuraSR:
             if "result" in ret:
                 ret = json.loads(ret["result"])
         except Exception as e:
-            raise Exception(f"Unexpected response: {ret}")
+            raise Exception(f"Unexpected response: {ret} {e=}")
 
         if ret["status"] == "error":
             raise Exception(ret["message"])
