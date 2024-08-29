@@ -193,7 +193,7 @@ input.cm-input-item-error{
 }
 .comfy-modal-confirm{
     width: 100%;
-    
+
 }
 .bizyair-dialog-confirm{
     width: 300px;

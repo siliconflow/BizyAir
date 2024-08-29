@@ -5,15 +5,15 @@ export class ConfirmDialog extends ComfyDialog {
     constructor(options) {
         super();
         this.options = options;
-        const close_button = $el("button.comfy-bizyair-close", { 
-            type: "button", 
-            textContent: options.noText || "Close", 
-            onclick: () => this.closeBtnClick() 
+        const close_button = $el("button.comfy-bizyair-close", {
+            type: "button",
+            textContent: options.noText || "Close",
+            onclick: () => this.closeBtnClick()
         });
-        const submit_button = $el("button.comfy-bizyair-submit", { 
-            type: "button", 
-            textContent: options.yesText, 
-            onclick: () => this.submitBtnClick() 
+        const submit_button = $el("button.comfy-bizyair-submit", {
+            type: "button",
+            textContent: options.yesText,
+            onclick: () => this.submitBtnClick()
         });
         const content =
             $el("div.comfy-modal-content",
@@ -21,7 +21,7 @@ export class ConfirmDialog extends ComfyDialog {
                     $el("p", {}, [
                         $el("font", { size: 5, color: "white" }, [options.title]),]
                     ),
-                    (options.warning ? 
+                    (options.warning ?
                         $el("p", {}, [options.message])
                         :
                         $el("p.confirm-word", {}, [options.message])
