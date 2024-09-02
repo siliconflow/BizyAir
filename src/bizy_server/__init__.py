@@ -18,6 +18,7 @@ import bizyair.common
 
 from .cache import UploadCache
 from .errno import (
+    INVALID_API_KEY,
     CHECK_MODEL_EXISTS_ERR,
     CODE_NO_MODEL_FOUND,
     CODE_OK,
@@ -268,7 +269,10 @@ async def list_model_files(request):
     if "ext_name" in request.rel_url.query:
         payload["ext_name"] = request.rel_url.query["ext_name"]
 
-    headers = auth_header()
+    headers, err = auth_header()
+    if err is not None:
+        return err
+
     server_url = f"{BIZYAIR_SERVER_ADDRESS}/x/v1/models/files"
 
     try:
@@ -350,7 +354,9 @@ def check_model(type: str, name: str) -> (bool, ErrorNo):
         "name": name,
         "type": type,
     }
-    headers = auth_header()
+    headers, err = auth_header()
+    if err is not None:
+        return err
 
     try:
         resp = do_get(server_url, params=payload, headers=headers)
@@ -371,7 +377,9 @@ def check_model(type: str, name: str) -> (bool, ErrorNo):
 
 def sign(signature: str) -> (dict, ErrorNo):
     server_url = f"{BIZYAIR_SERVER_ADDRESS}/x/v1/files/{signature}"
-    headers = auth_header()
+    headers, err = auth_header()
+    if err is not None:
+        return err
 
     try:
         resp = do_get(server_url, params=None, headers=headers)
@@ -393,7 +401,9 @@ def commit_file(signature: str, object_key: str) -> (dict, ErrorNo):
         "sign": signature,
         "object_key": object_key,
     }
-    headers = auth_header()
+    headers, err = auth_header()
+    if err is not None:
+        return err
 
     try:
         resp = do_post(server_url, data=payload, headers=headers)
@@ -408,7 +418,7 @@ def commit_file(signature: str, object_key: str) -> (dict, ErrorNo):
 
 
 def commit_model(
-    model_files, model_name: str, model_type: str, overwrite: bool
+        model_files, model_name: str, model_type: str, overwrite: bool
 ) -> (dict, ErrorNo):
     server_url = f"{BIZYAIR_SERVER_ADDRESS}/x/v1/models"
 
@@ -418,7 +428,9 @@ def commit_model(
         "overwrite": overwrite,
         "files": model_files,
     }
-    headers = auth_header()
+    headers, err = auth_header()
+    if err is not None:
+        return err
 
     try:
         resp = do_post(server_url, data=payload, headers=headers)
@@ -439,7 +451,9 @@ def remove_model(model_name: str, model_type: str) -> (dict, ErrorNo):
         "name": model_name,
         "type": model_type,
     }
-    headers = auth_header()
+    headers, err = auth_header()
+    if err is not None:
+        return err
 
     try:
         resp = do_delete(server_url, data=payload, headers=headers)
@@ -499,14 +513,17 @@ def ErrResponse(err: ErrorNo):
 
 
 def auth_header():
-    api_key = bizyair.common.get_api_key()
-    auth = f"Bearer {api_key}"
-    headers = {
-        "accept": "application/json",
-        "content-type": "application/json",
-        "authorization": auth,
-    }
-    return headers
+    try:
+        api_key = bizyair.common.get_api_key()
+        auth = f"Bearer {api_key}"
+        headers = {
+            "accept": "application/json",
+            "content-type": "application/json",
+            "authorization": auth,
+        }
+        return headers, None
+    except ValueError as e:
+        return None, ErrResponse(INVALID_API_KEY)
 
 
 def do_get(url, params=None, headers=None):

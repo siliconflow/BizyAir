@@ -13,6 +13,7 @@ INVALID_TYPE = ErrorNo(400, 400100, None, "type is invalid")
 INVALID_NAME = ErrorNo(400, 400101, None, "name is invalid")
 NO_FILE_UPLOAD_ERR = ErrorNo(400, 400102, None, "no file uploaded")
 EMPTY_UPLOAD_ID_ERR = ErrorNo(400, 400103, None, "empty upload id")
+INVALID_API_KEY = ErrorNo(401, 401000, None, "invalid API key")
 
 CHECK_MODEL_EXISTS_ERR = ErrorNo(500, 500100, None, "failed to check model")
 SIGN_FILE_ERR = ErrorNo(500, 500101, None, "failed to sign file")
