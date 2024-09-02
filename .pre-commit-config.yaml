@@ -1,0 +1,35 @@
+exclude: \.txt$
+repos:
+  - repo: local
+    hooks:
+      - id: sort-imports
+        name: Sort imports
+        entry: python -m isort --profile black .
+        language: system
+        types: [python]
+      - id: format-code
+        name: Format code
+        entry: python -m black .
+        language: system
+        types: [python]
+      - id: flake8-code-check
+        name: Code Quality Check
+        entry: python -m flake8 .
+        language: system
+        types: [python]
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.0.1
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-docstring-first
+      - id: check-json
+      - id: check-toml
+      - id: check-yaml
+        exclude: ^docs/mkdocs\.yml$
+        args:
+          - --allow-multiple-documents
+      - id: mixed-line-ending
+        args: [--fix=lf]
+      - id: end-of-file-fixer

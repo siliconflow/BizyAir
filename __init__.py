@@ -10,15 +10,17 @@ from bizyair import NODE_CLASS_MAPPINGS, NODE_DISPLAY_NAME_MAPPINGS
 
 WEB_DIRECTORY = "./js"
 
-from . import nodes
-from . import bizyair_extras
-from . import showcase
-from . import auth
-from . import supernode
-from . import llm
-from . import nodes_controlnet_aux
-from . import nodes_controlnet_union_sdxl
-from . import mzkolors
+from . import (
+    auth,
+    bizyair_extras,
+    llm,
+    mzkolors,
+    nodes,
+    nodes_controlnet_aux,
+    nodes_controlnet_union_sdxl,
+    showcase,
+    supernode,
+)
 
 
 def update_mappings(module):

@@ -52,5 +52,3 @@ BizyAir offers more than 20 ControlNet preprocessing nodes.
 ## Tile
 
 - ☁️BizyAir Tile
-
-

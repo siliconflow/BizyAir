@@ -1,6 +1,6 @@
 import configparser
-from os import environ
 import os
+from os import environ
 from pathlib import Path
 
 
@@ -58,6 +58,5 @@ def create_api_key_file(api_key):
 
 BIZYAIR_API_KEY = env("BIZYAIR_API_KEY", str, load_api_key()[1])
 # Development Settings
-BIZYAIR_SPECIFIED_MODEL_CONFIG_FILE = env(
-    "BIZYAIR_SPECIFIED_MODEL_CONFIG_FILE", str, None
-)
+BIZYAIR_DEV_REQUEST_URL = env("BIZYAIR_DEV_REQUEST_URL", str, None)
+BIZYAIR_DEBUG = env("BIZYAIR_DEBUG", bool, False)

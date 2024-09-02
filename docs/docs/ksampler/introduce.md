@@ -2,7 +2,7 @@
 
  In BizyAir, there is a KSampler node provided along with other matching nodes.
  These can handle tasks such as text to image, image to image, inpainting, outpainting, LoRA, ControlNet, IPAdapter, and more.
- 
+
  Utilizing cloud resources, there is no need to download models or use local graphics cards, yet the usage habits remain consistent with the native ComfyUI.
 
 ## ☁️BizyAir KSampler
@@ -54,5 +54,3 @@ In the category "☁️BizyAir/latent", you can see the nodes working with laten
 - ☁️BizyAir VAE Decode: convert the latent to image
 - ☁️BizyAir VAE Encode: convert the image to latent
 - ☁️BizyAir VAE Encode(for Inpainting): used with the mask for inpainting
-
-

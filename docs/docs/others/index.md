@@ -17,5 +17,3 @@ This node helps you remove the background, resulting in a transparent-background
 ## ☁️BizyAir Generate Photorealistic Images
 
 This node can help you generate photo-style images with very simple prompts.
-
-

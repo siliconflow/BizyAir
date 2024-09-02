@@ -1,8 +1,0 @@
-server_format:
-  BizyAir_KSampler: KSampler
-
-service_config:
-  service_address:  https://api.siliconflow.cn # http://0.0.0.0:9911
-  route: /supernode/flux-bizyair-sdxl-comfy-ksampler
-  service_route: "{{ service_config.service_address }}{{ service_config.route }}"
-
