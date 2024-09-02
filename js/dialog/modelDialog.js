@@ -42,7 +42,7 @@ export class ModelDialog extends ComfyDialog {
                                 handleTabItemClass(this)
                                 document.querySelector('#bizyair-upload-submit').style.display = 'none'
                             }
-                        }, ['My Files']),
+                        }, ['Remote Folders']),
                         $el('div.bizyair-header-tab-item', {
                             onclick: function() {
                                 __this.showUpload()

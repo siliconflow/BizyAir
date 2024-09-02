@@ -31,7 +31,7 @@ export class ApiKey extends ComfyDialog {
                             this.className = 'cm-input-item'
                         }
                     }),
-                    $el('p.confirm-word', {}, ['To get your key, visit', $el('a.bizyair-link', { href: 'https://bizyair.com', target: '_blank' }, ['https://bizyair.com'])]),
+                    $el('p.confirm-word', {}, ['Please visit', $el('a.bizyair-link', { href: 'https://cloud.siliconflow.cn', target: '_blank' }, ['https://cloud.siliconflow.cn']), " to get your key."]),
                     $el('div.cm-bottom-footer', {}, [close_button, submit_button]),
                 ]
             );
