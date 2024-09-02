@@ -18,7 +18,6 @@ import bizyair.common
 
 from .cache import UploadCache
 from .errno import (
-    INVALID_API_KEY,
     CHECK_MODEL_EXISTS_ERR,
     CODE_NO_MODEL_FOUND,
     CODE_OK,
@@ -27,6 +26,7 @@ from .errno import (
     DELETE_MODEL_ERR,
     EMPTY_FILES_ERR,
     EMPTY_UPLOAD_ID_ERR,
+    INVALID_API_KEY,
     INVALID_FILENAME_ERR,
     INVALID_NAME,
     INVALID_TYPE,
@@ -416,7 +416,7 @@ def commit_file(signature: str, object_key: str) -> (dict, ErrorNo):
 
 
 def commit_model(
-        model_files, model_name: str, model_type: str, overwrite: bool
+    model_files, model_name: str, model_type: str, overwrite: bool
 ) -> (dict, ErrorNo):
     server_url = f"{BIZYAIR_SERVER_ADDRESS}/x/v1/models"
 

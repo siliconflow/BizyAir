@@ -28,9 +28,9 @@ export function uploadPage (typeList, submitBtn) {
                 ]),
                 $el("div.bizyair-form-item", {}, [
                     $el("span.bizyair-form-label", {}, ['Name']),
-                    $el("input.cm-input-item", { 
-                        type: "text", 
-                        placeholder: "The remote folder name", 
+                    $el("input.cm-input-item", {
+                        type: "text",
+                        placeholder: "The remote folder name",
                         id: 'bizyair-model-name',
                         onchange: function() {
                             this.className = this.className.replace(/cm-input-item-error/g, '')
@@ -52,22 +52,22 @@ export function uploadPage (typeList, submitBtn) {
                     }, [
                         $el('div.cm-input-file-box', {}, [
                             $el("p.cm-word-file-modle", {}, ['select file']),
-                            $el("input.bizyair-input-file-modle", { 
-                                type: "file", 
-                                onchange: (e) => temp.onFileChange(e) 
+                            $el("input.bizyair-input-file-modle", {
+                                type: "file",
+                                onchange: (e) => temp.onFileChange(e)
                             }),
                         ]),
                         $el('div.cm-input-file-box', {}, [
                             $el("p.cm-word-file-modle", {}, ['select folder']),
-                            $el("input.bizyair-input-file-modle", { 
-                                type: "file", 
-                                webkitdirectory: true, 
-                                mozdirectory: true, 
-                                odirectory: true, 
-                                msdirectory: true, 
-                                onchange: (e) => temp.onFileMultiChange(e) 
+                            $el("input.bizyair-input-file-modle", {
+                                type: "file",
+                                webkitdirectory: true,
+                                mozdirectory: true,
+                                odirectory: true,
+                                msdirectory: true,
+                                onchange: (e) => temp.onFileMultiChange(e)
                             }),
-                        ]) 
+                        ])
                     ]),
                     $el("i.bizyair-form-qa", {
                         onmouseover: function() {
@@ -137,7 +137,7 @@ export function uploadPage (typeList, submitBtn) {
             const elInput = document.querySelector('input.cm-input-item')
             const cmFileList = document.querySelector('.bizyair-file-list')
             const bizyairInputFileBox = document.querySelector('#bizyair-input-file-box')
-            
+
             if (!elSelect.value) {
                 new ConfirmDialog({
                     title: "",
