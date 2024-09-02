@@ -60,10 +60,13 @@ export const modelList = (listData, typeList) => {
     const changeType = (e) => {
         const elItemBody = document.querySelector('#bizyair-model-list-item-body')
         fetch(`/bizyair/modelhost/models/files?type=${e.target.value}`, {method: 'GET'}).then(res => res.json()).then(res => {
-            elItemBody.innerHTML = ''
-            elDataItem(res.data).foreach(ele => {
-                elItemBody.appendChild(ele)
-            })
+            if (res.code == 20000) {
+                elItemBody.innerHTML = ''
+                const elData = elDataItem(res.data)
+                elData.length && elData.forEach(ele => {
+                    elItemBody.appendChild(ele)
+                });
+            }
         })
     }
     

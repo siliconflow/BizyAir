@@ -20,6 +20,7 @@ export class ModelDialog extends ComfyDialog {
             type: "button", 
             textContent: "Submit", 
             style: { display: 'none' },
+            id: 'bizyair-upload-submit',
             onclick: () => initUpload.toSubmit() 
         });
         const handleTabItemClass = (ele) => {
@@ -30,6 +31,7 @@ export class ModelDialog extends ComfyDialog {
             ele.className = 'bizyair-header-tab-item bizyair-header-tab-item-active'
         }
         const initUpload = uploadPage(typeListData, submit_button)
+        this.initUpload = initUpload
         const content =
             $el("div.comfy-modal-content",
                 [
@@ -38,14 +40,14 @@ export class ModelDialog extends ComfyDialog {
                             onclick: function() {
                                 __this.showModel()
                                 handleTabItemClass(this)
-                                submit_button.style.display = 'none'
+                                document.querySelector('#bizyair-upload-submit').style.display = 'none'
                             }
                         }, ['My Files']),
                         $el('div.bizyair-header-tab-item', {
                             onclick: function() {
                                 __this.showUpload()
                                 handleTabItemClass(this)
-                                submit_button.style.display = 'block'
+                                document.querySelector('#bizyair-upload-submit').style.display = 'block'
                             }
                         }, ['Upload'])
                     ]),
@@ -56,7 +58,9 @@ export class ModelDialog extends ComfyDialog {
                     $el('div.bizyair-d-content-item', { 
                         id: 'bizyair-d-upload',
                         style: { display: 'none' }
-                    }, [ initUpload.content ]),
+                    }, [
+                        initUpload.content
+                    ]),
                     $el('div.cm-bottom-footer', {}, [close_button, submit_button]),
                 ]
             );
@@ -81,6 +85,7 @@ export class ModelDialog extends ComfyDialog {
     showUpload() {
         document.querySelector('#bizyair-d-model').style.display = 'none'
         document.querySelector('#bizyair-d-upload').style.display = 'block'
+        this.initUpload.redraw()
     }
     remove() {
         this.element.remove()

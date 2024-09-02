@@ -184,9 +184,10 @@ select.cm-input-item{
     margin: 0 0 10px 0;
 }
 p.cm-input-item-error,
+div.cm-input-item-error,
 select.cm-input-item-error,
 input.cm-input-item-error{
-    border-color: var(--error-text);
+    border: 1px solid var(--error-text);
 }
 .confirm-word{
     color: var(--input-text);
@@ -286,6 +287,10 @@ input.cm-input-item-error{
     color: var(--input-text);
 }
 .bizyair-form-item .cm-input-item, .bizyair-form-item .cm-input-file-box{
+    flex: 1;
+}
+.bizyair-form-item-subset{
+    display: flex;
     flex: 1;
 }
 .bizyair-form-qa{

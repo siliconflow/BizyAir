@@ -4,18 +4,9 @@ import { $el } from "../../../scripts/ui.js";
 import { ConfirmDialog } from "../subassembly/confirm.js";
 
 export function uploadPage (typeList, submitBtn) {
-    const close_button = $el("button.comfy-bizyair-close", { 
-        type: "button", 
-        textContent: "Close", 
-        onclick: () => this.close() 
-    });
-    const submit_button = $el("button.comfy-bizyair-submit", { 
-        type: "button", 
-        textContent: "submit", 
-        onclick: () => this.toSubmit() 
-    });
     const elOptions = typeList.map(item => $el("option", { value: item.value }, [item.label]))
     const temp = {
+        filesAry: [],
         content: $el("div.comfy-modal-content.comfy-modal-content-file",[
                 $el("div.bizyair-form-item", {}, [
                     $el("span.bizyair-form-label", {}, ['Type']),
@@ -40,6 +31,7 @@ export function uploadPage (typeList, submitBtn) {
                     $el("input.cm-input-item", { 
                         type: "text", 
                         placeholder: "The name of the uploaded file", 
+                        id: 'bizyair-model-name',
                         onchange: function() {
                             this.className = this.className.replace(/cm-input-item-error/g, '')
                         }
@@ -55,16 +47,27 @@ export function uploadPage (typeList, submitBtn) {
                 ]),
                 $el("div.bizyair-form-item", {}, [
                     $el("span.bizyair-form-label", {}, ['Purpose']),
-                    $el('div.cm-input-file-box', {}, [
-                        $el("p.cm-word-file-modle", {}, ['select folder']),
-                        $el("input.bizyair-input-file-modle", { 
-                            type: "file", 
-                            webkitdirectory: true, 
-                            mozdirectory: true, 
-                            odirectory: true, 
-                            msdirectory: true, 
-                            onchange: (e) => temp.onFileChange(e) 
-                        }),
+                    $el("div.bizyair-form-item-subset", {
+                        id: 'bizyair-input-file-box'
+                    }, [
+                        $el('div.cm-input-file-box', {}, [
+                            $el("p.cm-word-file-modle", {}, ['select file']),
+                            $el("input.bizyair-input-file-modle", { 
+                                type: "file", 
+                                onchange: (e) => temp.onFileChange(e) 
+                            }),
+                        ]),
+                        $el('div.cm-input-file-box', {}, [
+                            $el("p.cm-word-file-modle", {}, ['select folder']),
+                            $el("input.bizyair-input-file-modle", { 
+                                type: "file", 
+                                webkitdirectory: true, 
+                                mozdirectory: true, 
+                                odirectory: true, 
+                                msdirectory: true, 
+                                onchange: (e) => temp.onFileMultiChange(e) 
+                            }),
+                        ]) 
                     ]),
                     $el("i.bizyair-form-qa", {
                         onmouseover: function() {
@@ -77,7 +80,7 @@ export function uploadPage (typeList, submitBtn) {
                 ]),
                 $el("br", {}, []),
                 $el('ul.bizyair-file-list', {}, []),
-                $el('div.cm-bottom-footer', {}, [close_button, submit_button]),
+                // $el('div.cm-bottom-footer', {}, [close_button, submit_button]),
             ]
         ),
         showQA(ele, text) {
@@ -99,6 +102,9 @@ export function uploadPage (typeList, submitBtn) {
                     if (data.data.exists) {
                         this.confirmExists()
                     } else {
+                        document.querySelectorAll('.spinner-container').forEach(e => {
+                            e.innerHTML = `<span class="spinner"></span>`
+                        })
                         this.todoUpload()
                     }
                 }
@@ -112,11 +118,17 @@ export function uploadPage (typeList, submitBtn) {
                 yesText: "Yes",
                 noText: "No",
                 onYes: () => {
+                    document.querySelectorAll('.spinner-container').forEach(e => {
+                        e.innerHTML = `<span class="spinner"></span>`
+                    })
                     this.todoUpload()
                 },
                 onNo: () => {
                     submitBtn.disabled = false
                     submitBtn.innerText = 'submit'
+                    document.querySelectorAll('.spinner-container').forEach(e => {
+                        e.innerHTML = ''
+                    })
                 }
             })
         },
@@ -124,7 +136,7 @@ export function uploadPage (typeList, submitBtn) {
             const elSelect = document.querySelector('select.cm-input-item')
             const elInput = document.querySelector('input.cm-input-item')
             const cmFileList = document.querySelector('.bizyair-file-list')
-            const cmWordFileMmodle = document.querySelector('.cm-word-file-modle')
+            const bizyairInputFileBox = document.querySelector('#bizyair-input-file-box')
             
             if (!elSelect.value) {
                 new ConfirmDialog({
@@ -151,18 +163,16 @@ export function uploadPage (typeList, submitBtn) {
                     warning: true,
                     message: "Please select files"
                 })
-                cmWordFileMmodle.className = `${cmWordFileMmodle.className} cm-input-item-error`
+                bizyairInputFileBox.className = `${bizyairInputFileBox.className} cm-input-item-error`
                 return
             }
             submitBtn.disabled = true
             submitBtn.innerText = 'Waiting...'
             this.signs = []
             this.queryExists()
-            document.querySelectorAll('.spinner-container').forEach(e => {
-                e.innerHTML = `<span class="spinner"></span>`
-            })
         },
         todoUpload() {
+            console.log(this.filesAry)
             if (this.filesAry.length === 0) {
                 this.modelUpload()
                 return;
@@ -176,7 +186,7 @@ export function uploadPage (typeList, submitBtn) {
                     document.querySelector('.bizyair-file-list').scrollTop = cmFileList[i].offsetTop - 134;
                     this.signs.push({
                         sign: data.data.sign,
-                        path: file.webkitRelativePath
+                        path: file.webkitRelativePath || file.name
                     });
                     this.todoUpload();
                 } else {
@@ -229,12 +239,35 @@ export function uploadPage (typeList, submitBtn) {
             });
         },
         onFileChange(e) {
-            const cmWordFileMmodle = document.querySelector('.cm-word-file-modle')
-            cmWordFileMmodle.className = cmWordFileMmodle.className.replace(/cm-input-item-error/g, '')
-            this.uploadId = this.generateUUID()
-            this.filesAry = [...e.srcElement.files]
-            console.log(document.querySelector('.bizyair-file-list'))
-            this.filesAry.forEach(file => {
+            const file = e.target.files[0];
+            // if (this.filesAry && this.filesAry.length > 0) {
+                console.log(this.filesAry.indexOf(file))
+            // }
+            this.filesAry.push(file)
+            console.log(file)
+            const bizyairInputFileBox = document.querySelector('#bizyair-input-file-box')
+            bizyairInputFileBox.className = bizyairInputFileBox.className.replace(/cm-input-item-error/g, '')
+            if (!this.uploadId) {
+                this.uploadId = this.generateUUID()
+            }
+            document.querySelector('.bizyair-file-list').appendChild(
+                $el('li', {}, [
+                    $el("span", {}, [`${ file.name }`]),
+                    $el("span.spinner-container", {}, [
+                        // $el("span.spinner", {}, [])
+                    ]),
+                ])
+            )
+        },
+        onFileMultiChange(e) {
+            const bizyairInputFileBox = document.querySelector('#bizyair-input-file-box')
+            bizyairInputFileBox.className = bizyairInputFileBox.className.replace(/cm-input-item-error/g, '')
+            if (!this.uploadId) {
+                this.uploadId = this.generateUUID()
+            }
+            const files = [...e.srcElement.files]
+            files.forEach(file => {
+                this.filesAry.push(file)
                 document.querySelector('.bizyair-file-list').appendChild(
                     $el('li', {}, [
                         $el("span", {}, [`${ file.webkitRelativePath }`]),
@@ -244,6 +277,11 @@ export function uploadPage (typeList, submitBtn) {
                     ])
                 )
             })
+        },
+        redraw() {
+            document.querySelector('#bizyair-model-name').value = ''
+            document.querySelector('.bizyair-file-list').innerHTML = ''
+            document.querySelector('.bizyair-input-file-modle').innerHTML = ''
         }
     }
     return temp
