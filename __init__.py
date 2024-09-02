@@ -35,7 +35,6 @@ update_mappings(nodes_controlnet_aux)
 update_mappings(nodes_controlnet_union_sdxl)
 update_mappings(mzkolors)
 
-
 # bizy_server
 bizyair_adv_is_not_installed = False
 try:
@@ -43,6 +42,8 @@ try:
     import oss2
 except ImportError:
     bizyair_adv_is_not_installed = True
+    print("\n\n\033[91m[ERROR]\033[0m BizyAir: Some required dependencies are not installed. Please run"
+          " 'pip install -r requirement_adv.txt' to install them.\n\n")
 
 if not bizyair_adv_is_not_installed:
     import bizy_server
