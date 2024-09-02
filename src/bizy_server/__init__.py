@@ -523,6 +523,8 @@ def auth_header():
         }
         return headers, None
     except ValueError as e:
+        error_message = e.args[0] if e.args else INVALID_API_KEY.message
+        INVALID_API_KEY.message = error_message
         return None, ErrResponse(INVALID_API_KEY)
 
 
