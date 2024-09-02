@@ -42,8 +42,8 @@ try:
     import oss2
 except ImportError:
     bizyair_adv_is_not_installed = True
-    print("\n\n\033[91m[ERROR]\033[0m BizyAir: Some required dependencies are not installed. Please run"
-          " 'pip install -r requirement_adv.txt' to install them.\n\n")
+    print("\n\n\033[91m[WARN]\033[0m BizyAir: Some required dependencies are not installed. Please run"
+          " 'pip install -r requirements_adv.txt' to install them.\n\n")
 
 if not bizyair_adv_is_not_installed:
     import bizy_server
