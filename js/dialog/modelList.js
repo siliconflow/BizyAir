@@ -18,7 +18,7 @@ export const modelList = (listData, typeList) => {
                 fetch(`/bizyair/modelhost/models`, {
                     method: 'DELETE',
                     body: JSON.stringify({
-                        type: document.querySelector('#bizyair-model-filter').value, 
+                        type: document.querySelector('#bizyair-model-filter').value,
                         name,
                     }),
                 }).then(res => res.json()).then(res => {
@@ -50,13 +50,13 @@ export const modelList = (listData, typeList) => {
                     }
                 }),
             ]),
-            $el('div.bizyair-model-list-item-lis', 
-                {}, 
+            $el('div.bizyair-model-list-item-lis',
+                {},
                 elDataItemChild(e.list)
             ),
         ]))
     }
-    
+
     const changeType = (e) => {
         const elItemBody = document.querySelector('#bizyair-model-list-item-body')
         fetch(`/bizyair/modelhost/models/files?type=${e.target.value}`, {method: 'GET'}).then(res => res.json()).then(res => {
@@ -69,8 +69,8 @@ export const modelList = (listData, typeList) => {
             }
         })
     }
-    
-    
+
+
     return $el('div.bizyair-model-list', {}, [
         $el('div.bizyair-model-filter-item', {}, [
             $el("span.bizyair-filter-label", {}, ['Filter']),
@@ -87,8 +87,8 @@ export const modelList = (listData, typeList) => {
             $el('div.bizyair-flex-item', {}, ['File Name']),
             $el('div.bizyair-flex-item-avaulable', {}, ['Status']),
         ]),
-        $el('div', 
-            { id: 'bizyair-model-list-item-body' }, 
+        $el('div',
+            { id: 'bizyair-model-list-item-body' },
             elDataItem(listData)
         )
     ])

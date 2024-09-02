@@ -1,14 +1,17 @@
-""" 
+"""
 huggingface: https://huggingface.co/xinsir/controlnet-union-sdxl-1.0
 github: https://github.com/xinsir6/ControlNetPlus/tree/main
 """
 
 import json
 import os
+
 import numpy as np
 import requests
+
+from bizyair.image_utils import decode_comfy_image, encode_comfy_image
+
 from .utils import get_api_key
-from bizyair.image_utils import encode_comfy_image, decode_comfy_image
 
 BIZYAIR_SERVER_ADDRESS = os.getenv(
     "BIZYAIR_SERVER_ADDRESS", "https://api.siliconflow.cn"

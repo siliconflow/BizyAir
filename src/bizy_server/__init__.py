@@ -1,26 +1,43 @@
 import base64
 import hashlib
 import json
+import logging
 import os
-from pathlib import Path
-import urllib.request
 import urllib.parse
+import urllib.request
+from collections import defaultdict
+from pathlib import Path
 
 import crcmod
 import oss2
 from aiohttp import web
-
 from server import PromptServer
+
 import bizyair
 import bizyair.common
-from .errno import ErrorNo, CODE_OK, INVALID_TYPE, INVALID_NAME, CHECK_MODEL_EXISTS_ERR, NO_FILE_UPLOAD_ERR, \
-    EMPTY_UPLOAD_ID_ERR, SIGN_FILE_ERR, UPLOAD_ERR, COMMIT_FILE_ERR, MODEL_ALREADY_EXISTS_ERR, COMMIT_MODEL_ERR, \
-    INVALID_UPLOAD_ID_ERR, EMPTY_FILES_ERR, LIST_MODEL_FILE_ERR, INVALID_FILENAME_ERR, DELETE_MODEL_ERR, CODE_NO_MODEL_FOUND
 
 from .cache import UploadCache
+from .errno import (
+    CHECK_MODEL_EXISTS_ERR,
+    CODE_NO_MODEL_FOUND,
+    CODE_OK,
+    COMMIT_FILE_ERR,
+    COMMIT_MODEL_ERR,
+    DELETE_MODEL_ERR,
+    EMPTY_FILES_ERR,
+    EMPTY_UPLOAD_ID_ERR,
+    INVALID_FILENAME_ERR,
+    INVALID_NAME,
+    INVALID_TYPE,
+    INVALID_UPLOAD_ID_ERR,
+    LIST_MODEL_FILE_ERR,
+    MODEL_ALREADY_EXISTS_ERR,
+    NO_FILE_UPLOAD_ERR,
+    SIGN_FILE_ERR,
+    UPLOAD_ERR,
+    ErrorNo,
+)
 from .oss import AliOssStorageClient
-import logging
-from collections import defaultdict
 
 current_path = os.path.abspath(os.path.dirname(__file__))
 prompt_server = PromptServer.instance
@@ -39,7 +56,7 @@ TYPE_OPTIONS = {
     "lora": "bizyair/lora",
     "vae": "bizyair/vae",
     "controlnet": "bizyair/controlnet",
-    "other": "other"
+    "other": "other",
 }
 ALLOW_TYPES = list(TYPE_OPTIONS.values())
 
@@ -104,7 +121,9 @@ async def file_upload(request):
         filename = file.filename
         if not filename:
             return ErrResponse(NO_FILE_UPLOAD_ERR)
-        full_output_folder = os.path.join(os.path.normpath("bizy_air"), os.path.normpath("localstore"), upload_id)
+        full_output_folder = os.path.join(
+            os.path.normpath("bizy_air"), os.path.normpath("localstore"), upload_id
+        )
         filepath = os.path.abspath(os.path.join(full_output_folder, filename))
         parent_folder = os.path.dirname(filepath)
         if not os.path.exists(parent_folder):
@@ -114,16 +133,22 @@ async def file_upload(request):
             f.write(file.file.read())
 
         sha256sum = calculate_hash(filepath)
-        print(f"write file to localstore: upload_id={upload_id}, filepath={filepath}, signature={sha256sum}")
+        print(
+            f"write file to localstore: upload_id={upload_id}, filepath={filepath}, signature={sha256sum}"
+        )
 
         if not CACHE.upload_id_exists(upload_id=upload_id):
             CACHE.set_valuemap(upload_id=upload_id, valuemap={})
 
-        CACHE.set_file_info(upload_id=upload_id, filename=filename, info={
-            "relPath": to_slash(filename),
-            "size": os.path.getsize(filepath),
-            "signature": sha256sum,
-        })
+        CACHE.set_file_info(
+            upload_id=upload_id,
+            filename=filename,
+            info={
+                "relPath": to_slash(filename),
+                "size": os.path.getsize(filepath),
+                "signature": sha256sum,
+            },
+        )
 
         sign_data, err = sign(sha256sum)
         file_record = sign_data.get("file")
@@ -139,23 +164,31 @@ async def file_upload(request):
             print("need upload file")
             file_storage = sign_data.get("storage")
             try:
+
                 def updateProgress(consume_bytes, total_bytes):
                     print(f"uploading: {consume_bytes}/{total_bytes}")
                     fi = CACHE.get_file_info(upload_id=upload_id, filename=filename)
                     if fi is not None:
-                        fi["progress"] = "{:.2f}%".format(consume_bytes / total_bytes * 100)
+                        fi["progress"] = "{:.2f}%".format(
+                            consume_bytes / total_bytes * 100
+                        )
 
-                oss_client = AliOssStorageClient(endpoint=file_storage.get("endpoint"),
-                                                 bucket_name=file_storage.get("bucket"),
-                                                 access_key=file_record.get("access_key_id"),
-                                                 secret_key=file_record.get("access_key_secret"),
-                                                 security_token=file_record.get("security_token"),
-                                                 onUploading=updateProgress)
+                oss_client = AliOssStorageClient(
+                    endpoint=file_storage.get("endpoint"),
+                    bucket_name=file_storage.get("bucket"),
+                    access_key=file_record.get("access_key_id"),
+                    secret_key=file_record.get("access_key_secret"),
+                    security_token=file_record.get("security_token"),
+                    onUploading=updateProgress,
+                )
                 oss_client.upload_file(filepath, file_record.get("object_key"))
             except oss2.exceptions.OssError as e:
+                print(f"OSS err:{str(e)}")
                 return ErrResponse(UPLOAD_ERR)
 
-            commit_data, err = commit_file(signature=sha256sum, object_key=file_record.get("object_key"))
+            commit_data, err = commit_file(
+                signature=sha256sum, object_key=file_record.get("object_key")
+            )
             if err is not None:
                 return ErrResponse(err)
             new_file_record = commit_data.get("file")
@@ -206,8 +239,12 @@ async def upload_model(request):
     for file in files:
         file["path"] = to_slash(file["path"])
 
-    commit_ret, err = commit_model(model_files=files, model_name=json_data["name"], model_type=json_data["type"],
-                                   overwrite=json_data["overwrite"])
+    commit_ret, err = commit_model(
+        model_files=files,
+        model_name=json_data["name"],
+        model_type=json_data["type"],
+        overwrite=json_data["overwrite"],
+    )
     if err is not None:
         return ErrResponse(err)
 
@@ -245,7 +282,7 @@ async def list_model_files(request):
                 return ErrResponse(ErrorNo(500, ret["code"], None, ret["message"]))
 
         if not ret["data"]:
-           return OKResponse([])
+            return OKResponse([])
 
         files = ret["data"]["files"]
         result = []
@@ -253,7 +290,7 @@ async def list_model_files(request):
             tree = defaultdict(lambda: {"name": "", "list": []})
 
             for item in files:
-                parts = item['label_path'].split('/')
+                parts = item["label_path"].split("/")
                 model_name = parts[0]
                 if model_name not in tree:
                     tree[model_name] = {"name": model_name, "list": [item]}
@@ -370,7 +407,9 @@ def commit_file(signature: str, object_key: str) -> (dict, ErrorNo):
         return None, COMMIT_FILE_ERR
 
 
-def commit_model(model_files, model_name: str, model_type: str, overwrite: bool) -> (dict, ErrorNo):
+def commit_model(
+    model_files, model_name: str, model_type: str, overwrite: bool
+) -> (dict, ErrorNo):
     server_url = f"{BIZYAIR_SERVER_ADDRESS}/x/v1/models"
 
     payload = {
@@ -423,7 +462,7 @@ def is_string_valid(s):
 
 
 def to_slash(path):
-    return path.replace('\\', '/')
+    return path.replace("\\", "/")
 
 
 def check_str_param(json_data, param_name: str, err):
@@ -443,7 +482,9 @@ def check_type(json_data):
 
 
 def JsonResponse(http_status_code, data):
-    return web.json_response(data, status=http_status_code, content_type="application/json")
+    return web.json_response(
+        data, status=http_status_code, content_type="application/json"
+    )
 
 
 def OKResponse(data):
@@ -451,7 +492,10 @@ def OKResponse(data):
 
 
 def ErrResponse(err: ErrorNo):
-    return JsonResponse(err.http_status_code, {"message": err.message, "code": err.code, "data": err.data})
+    return JsonResponse(
+        err.http_status_code,
+        {"message": err.message, "code": err.code, "data": err.data},
+    )
 
 
 def auth_header():
@@ -472,64 +516,68 @@ def do_get(url, params=None, headers=None):
         url = f"{url}?{query_string}"
 
     # 发送GET请求
-    request = urllib.request.Request(url, headers=headers, method='GET')
+    request = urllib.request.Request(url, headers=headers, method="GET")
     with urllib.request.urlopen(request) as response:
-        return response.read().decode('utf-8')
+        return response.read().decode("utf-8")
 
 
 def do_post(url, data=None, headers=None):
     # 将字典转换为字节串
     if data:
-        data = bytes(json.dumps(data), 'utf-8')
+        data = bytes(json.dumps(data), "utf-8")
 
     print(data)
     # 创建请求对象
-    request = urllib.request.Request(url, data=data, headers=headers, method='POST')
+    request = urllib.request.Request(url, data=data, headers=headers, method="POST")
 
     # 发送POST请求
     with urllib.request.urlopen(request) as response:
-        return response.read().decode('utf-8')
+        return response.read().decode("utf-8")
 
 
 def do_delete(url, data=None, headers=None):
     # 将字典转换为字节串
     if data:
-        data = bytes(json.dumps(data), 'utf-8')
+        data = bytes(json.dumps(data), "utf-8")
 
     print(data)
     # 创建请求对象
-    request = urllib.request.Request(url, data=data, headers=headers, method='DELETE')
+    request = urllib.request.Request(url, data=data, headers=headers, method="DELETE")
 
     # 发送POST请求
     with urllib.request.urlopen(request) as response:
-        return response.read().decode('utf-8')
+        return response.read().decode("utf-8")
 
 
 def calculate_hash(file_path):
     # 读取文件并计算 CRC64
     # 创建CRC64校验函数。
-    do_crc64 = crcmod.mkCrcFun(0x142F0E1EBA9EA3693, initCrc=0, xorOut=0xffffffffffffffff, rev=True)
+    do_crc64 = crcmod.mkCrcFun(
+        0x142F0E1EBA9EA3693, initCrc=0, xorOut=0xFFFFFFFFFFFFFFFF, rev=True
+    )
     crc64_signature = 0
     buf_size = 65536  # 缓冲区大小为64KB
 
     # 打开文件并读取内容
-    with open(file_path, 'rb') as f:
+    with open(file_path, "rb") as f:
         while chunk := f.read(buf_size):
             crc64_signature = do_crc64(chunk, crc64_signature)
 
     # 重新读取文件计算 MD5
     md5_hash = hashlib.md5()
-    with open(file_path, 'rb') as file:
+    with open(file_path, "rb") as file:
         while chunk := file.read(buf_size):
             md5_hash.update(chunk)
-    md5_str = base64.b64encode(md5_hash.digest()).decode('utf-8')
+    md5_str = base64.b64encode(md5_hash.digest()).decode("utf-8")
 
     # 计算 SHA256
     hasher = hashlib.sha256()
-    hasher.update(f"{md5_str}{crc64_signature}".encode('utf-8'))
+    hasher.update(f"{md5_str}{crc64_signature}".encode("utf-8"))
     hash_string = hasher.hexdigest()
 
     # 调试信息输出
-    logging.debug(f"file: {file_path}, crc64: {crc64_signature}, md5: {md5_str}, sha256: {hash_string}")
+    logging.debug(
+        f"file: {file_path}, crc64: {crc64_signature}, md5: {md5_str}, sha256: {hash_string}"
+    )
 
     return hash_string

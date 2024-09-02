@@ -1,13 +1,14 @@
-from collections.abc import Collection
 import copy
-import os
-import re
 import json
-from typing import Any, Dict, List
-from ..common import fetch_models_by_type
-from .utils import load_yaml_config, filter_files_extensions, get_service_route
-from ..common.env_var import BIZYAIR_SPECIFIED_MODEL_CONFIG_FILE
+import os
+import pprint
+import re
+import warnings
+from typing import Any, Dict, List, Union
 
+from ..common import fetch_models_by_type
+from ..common.env_var import BIZYAIR_DEBUG
+from .utils import filter_files_extensions, get_service_route, load_yaml_config
 
 supported_pt_extensions: set[str] = {
     ".ckpt",
@@ -36,6 +37,29 @@ models_config: Dict[str, Dict[str, Any]] = load_yaml_config(
 )
 
 
+def guess_url_from_node(
+    node: Dict[str, Dict[str, Any]], node_usage_state
+) -> Union[str, None]:
+    if "loader" in node["class_type"].lower():
+        for attr in ("ckpt_name", "unet_name", "vae_name"):
+            if attr in node["inputs"]:
+                input_name = node["inputs"][attr].lower()
+
+                routing_rules = models_config["routing_rules"]
+                routing_configs = models_config["routing_configs"]
+                for rule in routing_rules:
+                    if re.match(rule["pattern"], input_name):
+                        config_key = rule["config"]
+                        configs = routing_configs[config_key]
+                        # TODO fix
+                        if len(node_usage_state.loras) > 0 and config_key == "flux-dev":
+                            return (
+                                configs["service_address"]
+                                + "/supernode/test-flux-dev-bizyair-comfy-ksampler"
+                            )
+                        return configs["service_address"] + configs["route"]
+
+
 def guess_config(
     *,
     ckpt_name: str = None,
@@ -43,24 +67,7 @@ def guess_config(
     vae_name: str = None,
     clip_name: str = None,
 ) -> str:
-    # Development Settings
-    if BIZYAIR_SPECIFIED_MODEL_CONFIG_FILE:
-        return os.path.join(configs_path, BIZYAIR_SPECIFIED_MODEL_CONFIG_FILE)
-    # Priority order:ckpt_name > unet_name > vae_name
-    input_name = ckpt_name or unet_name or vae_name
-    if input_name is None:
-        return None
-
-    input_name = input_name.lower()
-    routing_rules = models_config["routing_rules"]
-    config_files = models_config["config_files"]
-    for rule in routing_rules:
-        if re.match(rule["pattern"], input_name):
-            config_key = rule["config"]
-            config_path = config_files[config_key]["path"]
-            return os.path.join(configs_path, config_path)
-
-    return None
+    warnings.warn("The interface has changed, please do not use it", DeprecationWarning)
 
 
 def get_config_file_list(base_path=None) -> list:
@@ -83,9 +90,6 @@ def cached_filename_list(folder_name: str, verbose=True) -> list[str]:
         url = get_service_route(models_config["service_config"])
         model_types: Dict[str, str] = models_config["model_types"]
         msg = fetch_models_by_type(url=url, model_type=model_types[folder_name])
-        if verbose:
-            print(f"cached_filename_list {msg=}")
-
         if not msg or "data" not in msg:
             return []
 
@@ -110,7 +114,7 @@ def cached_filename_list(
         model_types: Dict[str, str] = models_config["model_types"]
         msg = fetch_models_by_type(url=url, model_type=model_types[folder_name])
         if verbose:
-            print(f"cached_filename_list {msg=}")
+            pprint.pprint({"cached_filename_list": msg})
 
         if not msg or "data" not in msg:
             return []
@@ -149,12 +153,21 @@ def convert_prompt_label_path_to_real_path(prompt: dict[str, dict[str, any]]) ->
     return new_prompt
 
 
-def get_filename_list(folder_name, *, verbose=False):
+def get_filename_list(folder_name, *, verbose=BIZYAIR_DEBUG):
     global folder_names_and_paths
     results = []
     if folder_name in models_config["model_types"]:
         results.extend(cached_filename_list(folder_name, verbose=verbose, refresh=True))
-    results.extend(folder_names_and_paths[folder_name])
+    if folder_name in folder_names_and_paths:
+        results.extend(folder_names_and_paths[folder_name])
+    if BIZYAIR_DEBUG:
+        try:
+            import folder_paths
+
+            results.extend(folder_paths.get_filename_list(folder_name))
+        except:
+            pass
+
     return results
 
 
@@ -196,8 +209,9 @@ def init_config():
         if k not in folder_names_and_paths:
             folder_names_and_paths[k] = []
         folder_names_and_paths[k].extend(recursive_extract_models(v))
-
-    print(folder_names_and_paths)
+    if BIZYAIR_DEBUG:
+        pprint.pprint("=" * 20 + "init_config: " + "=" * 20)
+        pprint.pprint(folder_names_and_paths)
 
 
 init_config()
@@ -208,6 +222,7 @@ if __name__ == "__main__":
     # configs = [load_yaml_config(x) for x in get_config_file_list()]
     # print(get_filename_list("clip_vision"))
     # print(folder_names_and_paths)
-    api_key = os.getenv("BIZYAIR_KEY", "")
+
+    api_key = os.getenv("BIZYAIR_API_KEY", "")
     host_ckpts = get_filename_list("loras", verbose=True)
     print(host_ckpts)

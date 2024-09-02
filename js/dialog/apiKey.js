@@ -4,16 +4,16 @@ import { ConfirmDialog } from "../subassembly/confirm.js";
 export class ApiKey extends ComfyDialog {
     constructor() {
         super();
-        
-        const close_button = $el("button.comfy-bizyair-close", { 
-            type: "button", 
-            textContent: "Close", 
-            onclick: () => this.remove() 
+
+        const close_button = $el("button.comfy-bizyair-close", {
+            type: "button",
+            textContent: "Close",
+            onclick: () => this.remove()
         });
-        const submit_button = $el("button.comfy-bizyair-submit", { 
-            type: "button", 
-            textContent: "Submit", 
-            onclick: () => this.toSubmit() 
+        const submit_button = $el("button.comfy-bizyair-submit", {
+            type: "button",
+            textContent: "Submit",
+            onclick: () => this.toSubmit()
         });
         const content =
             $el("div.comfy-modal-content",
@@ -25,11 +25,11 @@ export class ApiKey extends ComfyDialog {
                     $el("br", {}, []),
                     $el('input.cm-input-item', {
                         id: 'bizyair-api-key',
-                        type: 'password', 
-                        placeholder: 'API Key', 
-                        onchange: function() { 
-                            this.className = 'cm-input-item' 
-                        } 
+                        type: 'password',
+                        placeholder: 'API Key',
+                        onchange: function() {
+                            this.className = 'cm-input-item'
+                        }
                     }),
                     $el('p.confirm-word', {}, ['To get your key, visit', $el('a.bizyair-link', { href: 'https://bizyair.com', target: '_blank' }, ['https://bizyair.com'])]),
                     $el('div.cm-bottom-footer', {}, [close_button, submit_button]),
@@ -39,7 +39,7 @@ export class ApiKey extends ComfyDialog {
         this.element = $el('div.bizyair-modal', {
             parent: document.body
         }, [
-            $el("div.comfy-modal.bizyair-dialog.bizyair-dialog-sml", { 
+            $el("div.comfy-modal.bizyair-dialog.bizyair-dialog-sml", {
                 id: 'bizyair-api-key-dialog',
                 parent: document.body,
                 style: { display: 'block' }

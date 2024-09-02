@@ -108,7 +108,7 @@ export function uploadPage (typeList, submitBtn) {
                         this.todoUpload()
                     }
                 }
-                
+
             });
         },
         confirmExists() {
@@ -146,7 +146,7 @@ export function uploadPage (typeList, submitBtn) {
                 })
                 elSelect.className = `${elSelect.className} cm-input-item-error`
                 return
-    
+
             }
             if (!elInput.value) {
                 new ConfirmDialog({
@@ -199,7 +199,7 @@ export function uploadPage (typeList, submitBtn) {
             const elInput = document.querySelector('input.cm-input-item')
             fetch('/bizyair/modelhost/model_upload', {
                 method: 'POST',
-                body: JSON.stringify({ 
+                body: JSON.stringify({
                     upload_id: this.uploadId,
                     name: elInput.value,
                     type: elSelect.value,
@@ -223,7 +223,7 @@ export function uploadPage (typeList, submitBtn) {
             .then(response => response.json())
             .then(data => {
                 console.log('Request successful', data);
-                
+
                 if (fn) {
                     fn(data)
                 }

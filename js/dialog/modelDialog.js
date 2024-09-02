@@ -10,15 +10,15 @@ export class ModelDialog extends ComfyDialog {
         let modelListData = listData
         let typeListData = typeData
         this.typeListData = typeListData
-        
-        const close_button = $el("button.comfy-bizyair-close", { 
-            type: "button", 
-            textContent: "Close", 
-            onclick: () => this.remove() 
+
+        const close_button = $el("button.comfy-bizyair-close", {
+            type: "button",
+            textContent: "Close",
+            onclick: () => this.remove()
         });
-        const submit_button = $el("button.comfy-bizyair-submit", { 
-            type: "button", 
-            textContent: "Submit", 
+        const submit_button = $el("button.comfy-bizyair-submit", {
+            type: "button",
+            textContent: "Submit",
             style: { display: 'none' },
             id: 'bizyair-upload-submit',
             onclick: () => initUpload.toSubmit() 
@@ -51,11 +51,11 @@ export class ModelDialog extends ComfyDialog {
                             }
                         }, ['Upload'])
                     ]),
-                    $el('div.bizyair-d-content-item', { 
+                    $el('div.bizyair-d-content-item', {
                         id: 'bizyair-d-model',
                         style: { display: 'block' }
                     }, [ modelList(modelListData, typeListData) ]),
-                    $el('div.bizyair-d-content-item', { 
+                    $el('div.bizyair-d-content-item', {
                         id: 'bizyair-d-upload',
                         style: { display: 'none' }
                     }, [
@@ -67,7 +67,7 @@ export class ModelDialog extends ComfyDialog {
         this.element = $el('div.bizyair-modal', {
             parent: document.body,
         }, [
-            $el("div.comfy-modal.bizyair-dialog", { 
+            $el("div.comfy-modal.bizyair-dialog", {
                 id: 'bizyair-model-dialog',
                 parent: document.body,
                 style: { display: 'block' }
@@ -80,7 +80,7 @@ export class ModelDialog extends ComfyDialog {
         fetch(`/bizyair/modelhost/models/files?type=bizyair/lora`, {method: 'GET'}).then(res => res.json()).then(res => {
             document.querySelector('#bizyair-d-model').innerHTML = ''
             document.querySelector('#bizyair-d-model').appendChild(modelList(res.data, this.typeListData))
-        })        
+        })
     }
     showUpload() {
         document.querySelector('#bizyair-d-model').style.display = 'none'

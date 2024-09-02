@@ -1,5 +1,6 @@
 # BizyAir
 
+- [2024/08/23] 🌩️ BizyAir now support ultimateSDupscale nodes [upscale workflow](./examples/bizyair_ultimate_sd_upscale.json)
 - [2024/08/14] 🌩️ BizyAir JoyCaption node has been released. [Try the example to recreate a image by JoyCaption and Flux](./examples/bizyair_flux_joycaption_img2img_workflow.json), thanks to [fancyfeast/joy-caption-pre-alpha](https://huggingface.co/spaces/fancyfeast/joy-caption-pre-alpha)
 - [2024/08/05] 🌩️ FLUX.1-dev has been supported. [FLUX.1-dev Text to Image](./examples/bizyair_flux_dev_workflow.json), [FLUX.1-dev Image to Image](./examples/bizyair_flux_img2img_workflow.json)
 - [2024/08/02] 🌩️ FLUX.1-schnell has been supported. [FLUX.1-schnell Text to Image](./examples/bizyair_flux_schnell_workflow.json)
@@ -43,7 +44,7 @@ Make sure to **set your API KEY** for the **first time** use!
 
 ## Installation
 
-You can install BizyAir through several methods: using the ComfyUI Manager, the Comfy CLI, downloading the standalone package for Windows, or by cloning the BizyAir repository into the custom_nodes subdirectory of ComfyUI. 
+You can install BizyAir through several methods: using the ComfyUI Manager, the Comfy CLI, downloading the standalone package for Windows, or by cloning the BizyAir repository into the custom_nodes subdirectory of ComfyUI.
 
 ### Method 1: Install via ComfyUI Manager
 
@@ -67,7 +68,7 @@ Then, restart ComfyUI.
 - Prerequisites
     - Ensure `pip install comfy-cli` is installed.
     - Installing ComfyUI `comfy install`
-  
+
 To install the `BizyAir`, use the following command:
 
 ```shell

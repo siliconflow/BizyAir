@@ -1,8 +1,9 @@
-import os
-import threading
-import logging
 import importlib
+import logging
 import warnings
+from functools import wraps
+
+from .nodes_io import BizyAirNodeIO, create_node_data
 
 try:
     comfy_nodes = importlib.import_module("nodes")
@@ -57,23 +58,78 @@ def register_node(cls, prefix):
     NODE_DISPLAY_NAME_MAPPINGS[class_name] = display_name
 
 
-class IDAllocator:
-    # TODO Change to using Comfyui system ID
-    _id_counter = 0
-    _lock = threading.Lock()
+def ensure_unique_id(org_func, original_has_unique_id=False):
+    @wraps(org_func)
+    def new_func(self, **kwargs):
+        if original_has_unique_id:
+            self._assigned_id = kwargs.get("unique_id", "UNIQUE_ID")
+        elif "unique_id" in kwargs:
+            self._assigned_id = kwargs.pop("unique_id")
+        return org_func(self, **kwargs)
 
-    def __init__(self):
-        with IDAllocator._lock:
-            self._assigned_id = IDAllocator._id_counter
-            IDAllocator._id_counter += 1
+    return new_func
+
+
+def ensure_hidden_unique_id(org_input_types_func):
+    original_has_unique_id = False
+
+    @wraps(org_input_types_func)
+    def new_input_types_func():
+        nonlocal original_has_unique_id
+
+        result = org_input_types_func()
+        if "hidden" not in result:
+            result["hidden"] = {"unique_id": "UNIQUE_ID"}
+        elif "unique_id" not in result["hidden"]:
+            result["hidden"]["unique_id"] = "UNIQUE_ID"
+        else:
+            original_has_unique_id = True
+        return result
+
+    # Ensure original_has_unique_id is correctly set before returning
+    new_input_types_func()
+    return new_input_types_func, original_has_unique_id
+
+
+class BizyAirBaseNode:
+    FUNCTION = "default_function"
+
+    def __init_subclass__(cls, **kwargs):
+        if not cls.CATEGORY.startswith(f"{LOGO}{PREFIX}"):
+            cls.CATEGORY = f"{LOGO}{PREFIX}/{cls.CATEGORY}"
+        register_node(cls, PREFIX)
+        cls.setup_input_types()
+
+    @classmethod
+    def setup_input_types(cls):
+        # https://docs.comfy.org/essentials/custom_node_more_on_inputs#hidden-inputs
+        new_input_types_func, original_has_unique_id = ensure_hidden_unique_id(
+            cls.INPUT_TYPES
+        )
+        cls.INPUT_TYPES = new_input_types_func
+        setattr(
+            cls,
+            cls.FUNCTION,
+            ensure_unique_id(getattr(cls, cls.FUNCTION), original_has_unique_id),
+        )
 
     @property
     def assigned_id(self):
+        assert self._assigned_id is not None and isinstance(self._assigned_id, str)
         return str(self._assigned_id)
 
-
-class BizyAirBaseNode(IDAllocator):
-    def __init_subclass__(cls, **kwargs):
-        if not cls.CATEGORY.startswith(f"{LOGO}{PREFIX}"):
-            cls.CATEGORY = os.path.join(f"{LOGO}{PREFIX}", cls.CATEGORY)
-        register_node(cls, PREFIX)
+    def default_function(self, **kwargs):
+        class_type = type(self).__name__
+        return tuple(
+            BizyAirNodeIO(
+                self.assigned_id,
+                {
+                    self.assigned_id: create_node_data(
+                        class_type=class_type,
+                        inputs=kwargs,
+                        outputs={"slot_index": slot_index},
+                    )
+                },
+            )
+            for slot_index in range(len(self.RETURN_TYPES))
+        )

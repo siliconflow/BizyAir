@@ -1,16 +1,18 @@
 import os
 import uuid
+
 import torch
+
+from bizyair import BizyAirBaseNode, BizyAirNodeIO, create_node_data
 from bizyair.data_types import CONDITIONING
-from bizyair import create_node_data, BizyAirNodeIO, BizyAirBaseNode
 from bizyair.image_utils import encode_data
+
 from .utils import (
     decode_and_deserialize,
+    get_api_key,
     send_post_request,
     serialize_and_encode,
-    get_api_key,
 )
-
 
 CATEGORY_NAME = "☁️BizyAir/Kolors"
 

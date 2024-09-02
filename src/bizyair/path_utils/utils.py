@@ -1,7 +1,8 @@
+import os
 from collections.abc import Collection
 from typing import Dict, Union
+
 import yaml
-import os
 
 
 def filter_files_extensions(
