@@ -1,5 +1,4 @@
 import { $el, ComfyDialog, } from "../../../scripts/ui.js";
-console.log(ComfyDialog)
 
 export class ConfirmDialog extends ComfyDialog {
     constructor(options) {
@@ -35,17 +34,25 @@ export class ConfirmDialog extends ComfyDialog {
             $el("div.comfy-modal.bizyair-dialog-confirm", { parent: document.body, style: { display: 'block' } }, [content])
         ])
         this.element.style.display = "block";
+        document.addEventListener('keydown', (e) => this.keyDown(e));
+    }
+    keyDown(e) {
+        if (e.key === "Escape") {
+            this.closeBtnClick();
+        }
     }
     closeBtnClick() {
         this.element.remove();
         if (this.options.onNo) {
             this.options.onNo();
         }
+        document.removeEventListener('keydown', (e) => this.keyDown(e));
     }
     submitBtnClick() {
         if (this.options.onYes) {
             this.options.onYes();
         }
         this.element.remove();
+        document.removeEventListener('keydown', (e) => this.keyDown(e));
     }
 }

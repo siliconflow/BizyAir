@@ -3,6 +3,9 @@ import { $el, ComfyDialog } from "../../../scripts/ui.js";
 // import { ConfirmDialog } from "../subassembly/confirm.js";
 import { modelList } from "./modelList.js";
 import { uploadPage } from "./uploadFile.js";
+import { models_files } from "../apis.js"
+
+
 export class ModelDialog extends ComfyDialog {
     constructor(listData, typeData) {
         super();
@@ -61,7 +64,7 @@ export class ModelDialog extends ComfyDialog {
                     }, [
                         initUpload.content
                     ]),
-                    $el('div.cm-bottom-footer', {}, [close_button, submit_button]),
+                    $el('div.cm-bottom-footer', {}, [submit_button, close_button]),
                 ]
             );
         this.element = $el('div.bizyair-modal', {
@@ -73,11 +76,12 @@ export class ModelDialog extends ComfyDialog {
                 style: { display: 'block' }
             }, [content])
         ])
+        document.addEventListener('keydown', (e) => this.keyDown(e));
     }
     showModel() {
-        document.querySelector('#bizyair-d-model').style.display = 'block'
-        document.querySelector('#bizyair-d-upload').style.display = 'none'
-        fetch(`/bizyair/modelhost/models/files?type=bizyair/lora`, {method: 'GET'}).then(res => res.json()).then(res => {
+        models_files('bizyair/lora').then(res => {
+            document.querySelector('#bizyair-d-model').style.display = 'block'
+            document.querySelector('#bizyair-d-upload').style.display = 'none'
             document.querySelector('#bizyair-d-model').innerHTML = ''
             document.querySelector('#bizyair-d-model').appendChild(modelList(res.data, this.typeListData))
         })
@@ -87,8 +91,14 @@ export class ModelDialog extends ComfyDialog {
         document.querySelector('#bizyair-d-upload').style.display = 'block'
         this.initUpload.redraw()
     }
+    keyDown(e) {
+        if (e.key === 'Escape') {
+            this.remove();
+        }
+    }
     remove() {
         this.element.remove()
+        document.removeEventListener('keydown', (e) => this.keyDown(e));
     }
     showDialog(listData, typeData) {
         this.element.style.display = "block";

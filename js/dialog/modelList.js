@@ -1,10 +1,12 @@
 import { $el } from "../../../scripts/ui.js";
 import { ConfirmDialog } from "../subassembly/confirm.js";
+import { delModels, models_files } from "../apis.js"
+
 export const modelList = (listData, typeList) => {
     const elDataItemChild = (list) => {
         return list.map(item => $el('div.bizyair-model-list-item-child.bizyair-model-list-item', {}, [
             $el('div.bizyair-flex-item', {}, ['']),
-            $el('div.bizyair-flex-item', {}, [item.label_path]),
+            $el('div.bizyair-flex-item', { title: item.label_path}, [item.label_path]),
             $el('div.bizyair-flex-item-avaulable', {}, [`${ item.available ? 'Available' : 'Unavailable' }`])
         ]))
     }
@@ -15,13 +17,10 @@ export const modelList = (listData, typeList) => {
             yesText: "Yes",
             noText: "No",
             onYes: () => {
-                fetch(`/bizyair/modelhost/models`, {
-                    method: 'DELETE',
-                    body: JSON.stringify({
-                        type: document.querySelector('#bizyair-model-filter').value,
-                        name,
-                    }),
-                }).then(res => res.json()).then(res => {
+                delModels({
+                    type: document.querySelector('#bizyair-model-filter').value,
+                    name,
+                }).then(res => {
                     if (res.code == 20000) {
                         ele.closest('.bizyair-model-list-item').remove()
                     }
@@ -42,7 +41,7 @@ export const modelList = (listData, typeList) => {
                     onclick: function() {
                         handleItemLis(this)
                     }
-                }, ['－']),
+                }, ['＋']),
                 $el('span', {}, [e.name]),
                 $el('span.bizyair-icon-delete', {
                     onclick: function() {
@@ -51,15 +50,15 @@ export const modelList = (listData, typeList) => {
                 }),
             ]),
             $el('div.bizyair-model-list-item-lis',
-                {},
+                { style: { display: 'none' } },
                 elDataItemChild(e.list)
-            ),
+            )
         ]))
     }
 
     const changeType = (e) => {
         const elItemBody = document.querySelector('#bizyair-model-list-item-body')
-        fetch(`/bizyair/modelhost/models/files?type=${e.target.value}`, {method: 'GET'}).then(res => res.json()).then(res => {
+        models_files(e.target.value).then(res => {
             if (res.code == 20000) {
                 elItemBody.innerHTML = ''
                 const elData = elDataItem(res.data)

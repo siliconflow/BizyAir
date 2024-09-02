@@ -2,6 +2,7 @@ import { app } from "../../../scripts/app.js";
 import { $el } from "../../../scripts/ui.js";
 // import { style } from "../subassembly/style.js";
 import { ConfirmDialog } from "../subassembly/confirm.js";
+import { check_model_exists, model_upload, file_upload } from "../apis.js"
 
 export function uploadPage (typeList, submitBtn) {
     const elOptions = typeList.map(item => $el("option", { value: item.value }, [item.label]))
@@ -50,13 +51,13 @@ export function uploadPage (typeList, submitBtn) {
                     $el("div.bizyair-form-item-subset", {
                         id: 'bizyair-input-file-box'
                     }, [
-                        $el('div.cm-input-file-box', {}, [
-                            $el("p.cm-word-file-modle", {}, ['select file']),
-                            $el("input.bizyair-input-file-modle", { 
-                                type: "file", 
-                                onchange: (e) => temp.onFileChange(e) 
-                            }),
-                        ]),
+                        // $el('div.cm-input-file-box', {}, [
+                        //     $el("p.cm-word-file-modle", {}, ['select file']),
+                        //     $el("input.bizyair-input-file-modle", { 
+                        //         type: "file", 
+                        //         onchange: (e) => temp.onFileChange(e) 
+                        //     }),
+                        // ]),
                         $el('div.cm-input-file-box', {}, [
                             $el("p.cm-word-file-modle", {}, ['select folder']),
                             $el("input.bizyair-input-file-modle", { 
@@ -94,10 +95,7 @@ export function uploadPage (typeList, submitBtn) {
         queryExists() {
             const type = document.querySelector('select.cm-input-item').value
             const name = document.querySelector('input.cm-input-item').value
-            fetch(`/bizyair/modelhost/check_model_exists`, {
-                method: 'POST',
-                body: JSON.stringify({ type, name })
-            }).then(response => response.json()).then(data => {
+            check_model_exists(type, name).then(data => {
                 if (data.code === 20000) {
                     if (data.data.exists) {
                         this.confirmExists()
@@ -172,7 +170,6 @@ export function uploadPage (typeList, submitBtn) {
             this.queryExists()
         },
         todoUpload() {
-            console.log(this.filesAry)
             if (this.filesAry.length === 0) {
                 this.modelUpload()
                 return;
@@ -197,16 +194,13 @@ export function uploadPage (typeList, submitBtn) {
         modelUpload() {
             const elSelect = document.querySelector('select.cm-input-item')
             const elInput = document.querySelector('input.cm-input-item')
-            fetch('/bizyair/modelhost/model_upload', {
-                method: 'POST',
-                body: JSON.stringify({
-                    upload_id: this.uploadId,
-                    name: elInput.value,
-                    type: elSelect.value,
-                    overwrite: true,
-                    files: this.signs
-                 })
-            }).then(response => response.json()).then(data => {
+            model_upload({
+                upload_id: this.uploadId,
+                name: elInput.value,
+                type: elSelect.value,
+                overwrite: true,
+                files: this.signs
+            }).then(data => {
                 console.log(data)
                 submitBtn.style.display = 'none'
             })
@@ -216,12 +210,7 @@ export function uploadPage (typeList, submitBtn) {
             formData.append('file', file);
             formData.append('filename', file.webkitRelativePath);
             formData.append("upload_id", this.uploadId);
-            fetch('/bizyair/modelhost/file_upload', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
+            file_upload(formData).then(data => {
                 console.log('Request successful', data);
 
                 if (fn) {
@@ -240,11 +229,7 @@ export function uploadPage (typeList, submitBtn) {
         },
         onFileChange(e) {
             const file = e.target.files[0];
-            // if (this.filesAry && this.filesAry.length > 0) {
-                console.log(this.filesAry.indexOf(file))
-            // }
             this.filesAry.push(file)
-            console.log(file)
             const bizyairInputFileBox = document.querySelector('#bizyair-input-file-box')
             bizyairInputFileBox.className = bizyairInputFileBox.className.replace(/cm-input-item-error/g, '')
             if (!this.uploadId) {

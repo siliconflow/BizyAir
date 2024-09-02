@@ -271,6 +271,10 @@ input.cm-input-item-error{
 }
 .bizyair-flex-item{
     flex: 1;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    padding-right: 60px;
 }
 .bizyair-flex-item-avaulable{
     width: 100px;

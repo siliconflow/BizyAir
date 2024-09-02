@@ -32,7 +32,7 @@ export class ApiKey extends ComfyDialog {
                         }
                     }),
                     $el('p.confirm-word', {}, ['To get your key, visit', $el('a.bizyair-link', { href: 'https://bizyair.com', target: '_blank' }, ['https://bizyair.com'])]),
-                    $el('div.cm-bottom-footer', {}, [close_button, submit_button]),
+                    $el('div.cm-bottom-footer', {}, [submit_button, close_button]),
                 ]
             );
         // this.element =;
@@ -45,6 +45,7 @@ export class ApiKey extends ComfyDialog {
                 style: { display: 'block' }
             }, [content])
         ])
+        document.addEventListener('keydown', (e) => this.keyDown(e));
     }
     async toSubmit() {
         const apiKey = document.querySelector('#bizyair-api-key');
@@ -83,8 +84,14 @@ export class ApiKey extends ComfyDialog {
         }
         document.cookie = name + "=" + (value || "") + expires + "; path=/";
     }
+    keyDown(e) {
+        if (e.key === 'Escape') {
+            this.remove();
+        }
+    }
     remove() {
         this.element.remove();
+        document.removeEventListener('keydown', (e) => this.keyDown(e));
     }
     showDialog() {
         this.element.style.display = "block";
