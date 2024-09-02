@@ -18,7 +18,6 @@ import bizyair.common
 
 from .cache import UploadCache
 from .errno import (
-    INVALID_API_KEY,
     CHECK_MODEL_EXISTS_ERR,
     CODE_NO_MODEL_FOUND,
     CODE_OK,
@@ -27,6 +26,7 @@ from .errno import (
     DELETE_MODEL_ERR,
     EMPTY_FILES_ERR,
     EMPTY_UPLOAD_ID_ERR,
+    INVALID_API_KEY,
     INVALID_FILENAME_ERR,
     INVALID_NAME,
     INVALID_TYPE,
@@ -162,7 +162,7 @@ async def file_upload(request):
             file_info["remote_key"] = file_record.get("object_key")
             file_info["progress"] = "100.00%"
         else:
-            print("need upload file")
+            print("start uploading file")
             file_storage = sign_data.get("storage")
             try:
 
@@ -278,7 +278,6 @@ async def list_model_files(request):
     try:
         resp = do_get(server_url, params=payload, headers=headers)
         ret = json.loads(resp)
-        print(ret)
         if ret["code"] != CODE_OK:
             if ret["code"] == CODE_NO_MODEL_FOUND:
                 return OKResponse([])
@@ -361,7 +360,6 @@ def check_model(type: str, name: str) -> (bool, ErrorNo):
     try:
         resp = do_get(server_url, params=payload, headers=headers)
         ret = json.loads(resp)
-        print(ret)
         if ret["code"] != CODE_OK:
             return ErrorNo(500, ret["code"], None, ret["message"])
 
@@ -418,7 +416,7 @@ def commit_file(signature: str, object_key: str) -> (dict, ErrorNo):
 
 
 def commit_model(
-        model_files, model_name: str, model_type: str, overwrite: bool
+    model_files, model_name: str, model_type: str, overwrite: bool
 ) -> (dict, ErrorNo):
     server_url = f"{BIZYAIR_SERVER_ADDRESS}/x/v1/models"
 
@@ -523,6 +521,8 @@ def auth_header():
         }
         return headers, None
     except ValueError as e:
+        error_message = e.args[0] if e.args else INVALID_API_KEY.message
+        INVALID_API_KEY.message = error_message
         return None, ErrResponse(INVALID_API_KEY)
 
 
@@ -543,7 +543,6 @@ def do_post(url, data=None, headers=None):
     if data:
         data = bytes(json.dumps(data), "utf-8")
 
-    print(data)
     # 创建请求对象
     request = urllib.request.Request(url, data=data, headers=headers, method="POST")
 
@@ -557,7 +556,6 @@ def do_delete(url, data=None, headers=None):
     if data:
         data = bytes(json.dumps(data), "utf-8")
 
-    print(data)
     # 创建请求对象
     request = urllib.request.Request(url, data=data, headers=headers, method="DELETE")
 

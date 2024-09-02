@@ -20,7 +20,7 @@ export function uploadPage (typeList, submitBtn) {
                     ]),
                     $el("i.bizyair-form-qa", {
                         onmouseover: function() {
-                            temp.showQA(this, 'This is the type of model')
+                            temp.showQA(this, 'Model types.')
                         },
                         onmouseout: function() {
                             temp.hideQA(this)
@@ -29,9 +29,9 @@ export function uploadPage (typeList, submitBtn) {
                 ]),
                 $el("div.bizyair-form-item", {}, [
                     $el("span.bizyair-form-label", {}, ['Name']),
-                    $el("input.cm-input-item", { 
-                        type: "text", 
-                        placeholder: "The name of the uploaded file", 
+                    $el("input.cm-input-item", {
+                        type: "text",
+                        placeholder: "The remote folder name",
                         id: 'bizyair-model-name',
                         onchange: function() {
                             this.className = this.className.replace(/cm-input-item-error/g, '')
@@ -39,7 +39,7 @@ export function uploadPage (typeList, submitBtn) {
                     }),
                     $el("i.bizyair-form-qa", {
                         onmouseover: function() {
-                            temp.showQA(this, 'That is the name of the model')
+                            temp.showQA(this, 'Remote folder name of the model')
                         },
                         onmouseout: function() {
                             temp.hideQA(this)
@@ -60,19 +60,19 @@ export function uploadPage (typeList, submitBtn) {
                         // ]),
                         $el('div.cm-input-file-box', {}, [
                             $el("p.cm-word-file-modle", {}, ['select folder']),
-                            $el("input.bizyair-input-file-modle", { 
-                                type: "file", 
-                                webkitdirectory: true, 
-                                mozdirectory: true, 
-                                odirectory: true, 
-                                msdirectory: true, 
-                                onchange: (e) => temp.onFileMultiChange(e) 
+                            $el("input.bizyair-input-file-modle", {
+                                type: "file",
+                                webkitdirectory: true,
+                                mozdirectory: true,
+                                odirectory: true,
+                                msdirectory: true,
+                                onchange: (e) => temp.onFileMultiChange(e)
                             }),
-                        ]) 
+                        ])
                     ]),
                     $el("i.bizyair-form-qa", {
                         onmouseover: function() {
-                            temp.showQA(this, 'This is the model file. You need to select a folder.')
+                            temp.showQA(this, 'All the files in the selected folder will be uploaded to the remote folder.')
                         },
                         onmouseout: function() {
                             temp.hideQA(this)
@@ -135,7 +135,7 @@ export function uploadPage (typeList, submitBtn) {
             const elInput = document.querySelector('input.cm-input-item')
             const cmFileList = document.querySelector('.bizyair-file-list')
             const bizyairInputFileBox = document.querySelector('#bizyair-input-file-box')
-            
+
             if (!elSelect.value) {
                 new ConfirmDialog({
                     title: "",

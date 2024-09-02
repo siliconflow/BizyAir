@@ -24,7 +24,7 @@ export class ModelDialog extends ComfyDialog {
             textContent: "Submit",
             style: { display: 'none' },
             id: 'bizyair-upload-submit',
-            onclick: () => initUpload.toSubmit() 
+            onclick: () => initUpload.toSubmit()
         });
         const handleTabItemClass = (ele) => {
             const tabItem = document.querySelectorAll('.bizyair-header-tab-item');
@@ -45,7 +45,7 @@ export class ModelDialog extends ComfyDialog {
                                 handleTabItemClass(this)
                                 document.querySelector('#bizyair-upload-submit').style.display = 'none'
                             }
-                        }, ['My Files']),
+                        }, ['Remote Folders']),
                         $el('div.bizyair-header-tab-item', {
                             onclick: function() {
                                 __this.showUpload()
