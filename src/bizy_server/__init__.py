@@ -162,7 +162,7 @@ async def file_upload(request):
             file_info["remote_key"] = file_record.get("object_key")
             file_info["progress"] = "100.00%"
         else:
-            print("need upload file")
+            print("start uploading file")
             file_storage = sign_data.get("storage")
             try:
 
@@ -278,7 +278,6 @@ async def list_model_files(request):
     try:
         resp = do_get(server_url, params=payload, headers=headers)
         ret = json.loads(resp)
-        print(ret)
         if ret["code"] != CODE_OK:
             if ret["code"] == CODE_NO_MODEL_FOUND:
                 return OKResponse([])
@@ -361,7 +360,6 @@ def check_model(type: str, name: str) -> (bool, ErrorNo):
     try:
         resp = do_get(server_url, params=payload, headers=headers)
         ret = json.loads(resp)
-        print(ret)
         if ret["code"] != CODE_OK:
             return ErrorNo(500, ret["code"], None, ret["message"])
 
@@ -545,7 +543,6 @@ def do_post(url, data=None, headers=None):
     if data:
         data = bytes(json.dumps(data), "utf-8")
 
-    print(data)
     # 创建请求对象
     request = urllib.request.Request(url, data=data, headers=headers, method="POST")
 
@@ -559,7 +556,6 @@ def do_delete(url, data=None, headers=None):
     if data:
         data = bytes(json.dumps(data), "utf-8")
 
-    print(data)
     # 创建请求对象
     request = urllib.request.Request(url, data=data, headers=headers, method="DELETE")
 
