@@ -32,7 +32,7 @@ export class ApiKey extends ComfyDialog {
                         }
                     }),
                     $el('p.confirm-word', {}, ['Please visit', $el('a.bizyair-link', { href: 'https://cloud.siliconflow.cn', target: '_blank' }, ['https://cloud.siliconflow.cn']), " to get your key."]),
-                    $el('div.cm-bottom-footer', {}, [close_button, submit_button]),
+                    $el('div.cm-bottom-footer', {}, [submit_button, close_button]),
                 ]
             );
         // this.element =;

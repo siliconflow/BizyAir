@@ -26,7 +26,7 @@ export const styleUploadFile = `
     border-bottom: 2px solid var(--border-color);
 }
 .bizyair-header-tab-item{
-    width: 160px;
+    width: 180px;
     height: 40px;
     line-height: 40px;
     font-size: 20px;
@@ -213,18 +213,33 @@ input.cm-input-item-error{
     color: var(--input-text);
     overflow-y: auto;
 }
+.bizyair-model-list-item{
+    line-height: 40px;
+    border-bottom: 1px solid var(--border-color);
+}
+.bizyair-model-list-item:last-child{
+    border-bottom: 0;
+}
 .bizyair-model-list-item-header{
     font-weight: bold;
-    font-size: 18px;
+    font-size: 14px;
     width: 100%;
     display: flex;
     line-height: 40px;
     height: 40px;
     justify-content: space-between;
+    border: 0;
+    font-size: 18px;
+    color: rgba(221, 221, 221, 0.6);
 }
-.bizyair-model-list-item{
-    line-height: 40px;
-    border-bottom: 1px solid var(--border-color);
+.bizyair-model-list-item-body{
+    border: 1px solid var(--border-color);
+    background-color: var(--comfy-input-bg);
+    padding: 0 20px;
+    border-radius: 8px;
+}
+.bizyair-model-list-item-body .bizyair-flex-item{
+    padding: 0 40px
 }
 .bizyair-model-list-item:hover .bizyair-icon-delete{
     display: block;
@@ -236,18 +251,20 @@ input.cm-input-item-error{
     display: flex;
     border-bottom: 1px solid var(--border-color);
 }
-.bizyair-icon-unfold{
-    width: 24px;
-    height: 24px;
-    line-height: 24px;
+.bizyair-icon-fold{
+    width: 18px;
+    height: 18px;
+    line-height: 18px;
     text-align: center;
     cursor: pointer;
-    font-size: 18px;
-    color: var(--input-text);
-    margin: 8px 8px 0 0;
-    background-color: var(--comfy-input-bg);
-    border: 1px solid var(--border-color);
-    border-redius: 4px;
+    transition: all 0.3s;
+    margin: 12px 8px 0 0;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1024 1024'%3E%3Cpath fill='%23fff' d='M765.7 486.8L314.9 134.7A7.97 7.97 0 0 0 302 141v77.3c0 4.9 2.3 9.6 6.1 12.6l360 281.1l-360 281.1c-3.9 3-6.1 7.7-6.1 12.6V883c0 6.7 7.7 10.4 12.9 6.3l450.8-352.1a31.96 31.96 0 0 0 0-50.4'/%3E%3C/svg%3E");
+}
+.bizyair-icon-fold.unfold{
+    transform: rotate(90deg);
 }
 .bizyair-icon-delete{
     width: 24px;
@@ -274,10 +291,14 @@ input.cm-input-item-error{
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
-    padding-right: 60px;
+    padding: 0 60px;
 }
 .bizyair-flex-item-avaulable{
     width: 100px;
+    text-align: center;
+}
+.bizyair-flex-item-avaulable .spinner-container{
+    margin-top: 14px;
 }
 .bizyair-form-item{
     display: flex;

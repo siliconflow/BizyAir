@@ -17,8 +17,9 @@ class FloatingButton {
             style: { top: app.menu.element.style.display == 'none' ? '': '60px' },
             onmousedown: (e) => this.startDrag(e),
         }, [
-            $el("h2.bizyair-logo", {}, ["BizyAir"]),
+            $el("h2.bizyair-logo"),
             $el("div.bizyair-menu", {}, [
+                $el('strong', {}, ['BizyAir']),
                 $el("div.bizyair-menu-item", {}, [
                     exampleBtn,
                     apiKeyBtn,
@@ -68,13 +69,16 @@ class FloatingButton {
 
     toggleVisibility(e) {
         e.stopPropagation();
+        const comfyFloatingButton = document.querySelector('.comfy-floating-button')
         const bizyairMenu = document.querySelector('.bizyair-menu')
         const bizyairMenuCloser = document.querySelector('.cmfy-floating-button-closer')
         console.log(bizyairMenu)
         if (this.visible) {
+            comfyFloatingButton.className = 'comfy-floating-button comfy-floating-button-hidden';
             bizyairMenu.className = 'bizyair-menu bizyair-menu-hidden';
             bizyairMenuCloser.className = 'cmfy-floating-button-closer cmfy-floating-button-closer-overturn'
         } else {
+            comfyFloatingButton.className = 'comfy-floating-button';
             bizyairMenu.className = 'bizyair-menu';
             bizyairMenuCloser.className = 'cmfy-floating-button-closer'
         }
