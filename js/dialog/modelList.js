@@ -12,7 +12,7 @@ export const modelList = (listData, typeList) => {
     }
     const del = (name, ele) => {
         new ConfirmDialog({
-            title: "This action cannot be undone.",
+            title: "This operation cannot be undone.",
             message: "Are you sure you want to delete it?",
             yesText: "Yes",
             noText: "No",
