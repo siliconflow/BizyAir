@@ -53,10 +53,7 @@ CACHE = UploadCache()
 logging.basicConfig(level=logging.DEBUG)
 
 TYPE_OPTIONS = {
-    "checkpoint": "bizyair/lora",
     "lora": "bizyair/lora",
-    "vae": "bizyair/vae",
-    "controlnet": "bizyair/controlnet",
     "other": "other",
 }
 ALLOW_TYPES = list(TYPE_OPTIONS.values())
