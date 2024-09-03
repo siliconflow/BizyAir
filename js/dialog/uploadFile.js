@@ -245,14 +245,17 @@ export function uploadPage (typeList, submitBtn) {
             )
         },
         onFileMultiChange(e) {
+            console.log(e)
             const bizyairInputFileBox = document.querySelector('#bizyair-input-file-box')
             bizyairInputFileBox.className = bizyairInputFileBox.className.replace(/cm-input-item-error/g, '')
             if (!this.uploadId) {
                 this.uploadId = this.generateUUID()
             }
             const files = [...e.srcElement.files]
-            files.forEach(file => {
-                this.filesAry.push(file)
+            this.filesAry = files.filter(file => file.webkitRelativePath.search('.git/') == -1)
+
+            this.filesAry.forEach(file => {
+                // this.filesAry.push(file)
                 document.querySelector('.bizyair-file-list').appendChild(
                     $el('li', {}, [
                         $el("span", {}, [`${ file.webkitRelativePath }`]),

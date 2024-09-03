@@ -17,9 +17,9 @@ export class ConfirmDialog extends ComfyDialog {
         const content =
             $el("div.comfy-modal-content",
                 [
-                    $el("p", {}, [
+                    (options.title ? $el("p", {}, [
                         $el("font", { size: 5, color: "white" }, [options.title]),]
-                    ),
+                    ): ''),
                     (options.warning ?
                         $el("p", {}, [options.message])
                         :

@@ -4,29 +4,27 @@ import { ConfirmDialog } from './subassembly/confirm.js';
 function customFetch(url, options = {}) {
     return window.fetch(url, options)
         .then(response => {
-            console.log(response)
-            if (!response.ok) {
-                // alert(`HTTP error! Status: ${response.status}`);
-                const status = response.status ? response.status : ''
-                const statusText = response.statusText ? response.statusText : ''
-                app.ui.dialog.show(`HTTP error! \n Status: ${status} \n message: ${statusText}`)
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            console.log(response.json)  
+            // if (!response.ok) {
+            //     const status = response.status ? response.status : ''
+            //     const statusText = response.statusText ? response.statusText : ''
+            //     app.ui.dialog.show(`HTTP error! \n Status: ${status} \n message: ${statusText}`)
+            //     throw new Error(`HTTP error! Status: ${response.status}`);
+            // }
             return response.json();
         })
         .then(data => {
             const { code, message } = data;
-            console.log(data)
+            // console.log(data)
             if (code !== 20000) {
-                if (code === 401000) {
-                    alert('You need to add the Api Key');
-                }
+                // if (code === 401000) {
+                //     alert('You need to add the Api Key');
+                // }
                 new ConfirmDialog({
-                    title: "",
+                    // title: "",
                     warning: true,
                     message
                 })
+                return
             }
             return data;
         })
