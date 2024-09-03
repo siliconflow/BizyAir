@@ -15,6 +15,7 @@ from server import PromptServer
 
 import bizyair
 import bizyair.common
+import requests
 
 from .cache import UploadCache
 from .errno import (
@@ -53,11 +54,8 @@ CACHE = UploadCache()
 logging.basicConfig(level=logging.DEBUG)
 
 TYPE_OPTIONS = {
-    "checkpoint": "bizyair/lora",
     "lora": "bizyair/lora",
-    "vae": "bizyair/vae",
-    "controlnet": "bizyair/controlnet",
-    "other": "other",
+    # "other": "other",
 }
 ALLOW_TYPES = list(TYPE_OPTIONS.values())
 
@@ -531,24 +529,17 @@ def do_get(url, params=None, headers=None):
     if params:
         query_string = urllib.parse.urlencode(params)
         url = f"{url}?{query_string}"
-
-    # 发送GET请求
-    request = urllib.request.Request(url, headers=headers, method="GET")
-    with urllib.request.urlopen(request) as response:
-        return response.read().decode("utf-8")
+    response = requests.get(url, params=params, headers=headers, timeout=3)
+    return response.text
 
 
 def do_post(url, data=None, headers=None):
     # 将字典转换为字节串
     if data:
-        data = bytes(json.dumps(data), "utf-8")
+        data = json.dumps(data)
 
-    # 创建请求对象
-    request = urllib.request.Request(url, data=data, headers=headers, method="POST")
-
-    # 发送POST请求
-    with urllib.request.urlopen(request) as response:
-        return response.read().decode("utf-8")
+    response = requests.post(url, data=data, headers=headers, timeout=3)
+    return response.text
 
 
 def do_delete(url, data=None, headers=None):
@@ -556,12 +547,8 @@ def do_delete(url, data=None, headers=None):
     if data:
         data = bytes(json.dumps(data), "utf-8")
 
-    # 创建请求对象
-    request = urllib.request.Request(url, data=data, headers=headers, method="DELETE")
-
-    # 发送POST请求
-    with urllib.request.urlopen(request) as response:
-        return response.read().decode("utf-8")
+    response = requests.delete(url, data=data, headers=headers, timeout=3)
+    return response.text
 
 
 def calculate_hash(file_path):
