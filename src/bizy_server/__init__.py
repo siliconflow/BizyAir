@@ -55,7 +55,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 TYPE_OPTIONS = {
     "lora": "bizyair/lora",
-    "other": "other",
+    # "other": "other",
 }
 ALLOW_TYPES = list(TYPE_OPTIONS.values())
 
