@@ -1,4 +1,3 @@
-import { app } from "../../scripts/app.js";
 import { ConfirmDialog } from './subassembly/confirm.js';
 
 function customFetch(url, options = {}) {
