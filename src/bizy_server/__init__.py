@@ -44,6 +44,8 @@ from .oss import AliOssStorageClient
 current_path = os.path.abspath(os.path.dirname(__file__))
 prompt_server = PromptServer.instance
 
+from comfy.cli_args import args
+
 BIZYAIR_SERVER_ADDRESS = os.getenv(
     "BIZYAIR_SERVER_ADDRESS", "https://bizyair-api.siliconflow.cn/x/v1"
 )
@@ -58,6 +60,12 @@ TYPE_OPTIONS = {
     # "other": "other",
 }
 ALLOW_TYPES = list(TYPE_OPTIONS.values())
+
+
+# 在应用中添加中间件
+@prompt_server.middleware
+async def error_middleware(request, handler):
+    return await error_middleware(request, handler)
 
 
 def get_html_content(filename: str):
@@ -414,7 +422,7 @@ def commit_file(signature: str, object_key: str) -> (dict, ErrorNo):
 
 
 def commit_model(
-    model_files, model_name: str, model_type: str, overwrite: bool
+        model_files, model_name: str, model_type: str, overwrite: bool
 ) -> (dict, ErrorNo):
     server_url = f"{BIZYAIR_SERVER_ADDRESS}/models"
 
