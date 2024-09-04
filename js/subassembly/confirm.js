@@ -3,6 +3,7 @@ import { $el, ComfyDialog, } from "../../../scripts/ui.js";
 export class ConfirmDialog extends ComfyDialog {
     constructor(options) {
         super();
+        this.listeners = [];
         this.options = options;
         const close_button = $el("button.comfy-bizyair-close", {
             type: "button",
@@ -42,6 +43,7 @@ export class ConfirmDialog extends ComfyDialog {
         }
     }
     closeBtnClick() {
+        this.triggerListeners({ behavior: 'close' });
         this.element.remove();
         if (this.options.onNo) {
             this.options.onNo();
@@ -49,10 +51,21 @@ export class ConfirmDialog extends ComfyDialog {
         document.removeEventListener('keydown', (e) => this.keyDown(e));
     }
     submitBtnClick() {
+        this.triggerListeners({ behavior: 'submit' });
         if (this.options.onYes) {
             this.options.onYes();
         }
         this.element.remove();
         document.removeEventListener('keydown', (e) => this.keyDown(e));
+    }
+    listen(callback) {
+        if (typeof callback === 'function') {
+            this.listeners.push(callback);
+        }
+    }
+    triggerListeners(e) {
+        this.listeners.forEach(listener => {
+            listener(e);
+        });
     }
 }

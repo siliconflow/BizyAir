@@ -16,6 +16,6 @@ function showModel() {
         new ModelDialog(data[0].data, data[1].data).showDialog(data[0].data, data[1].data);
         // new ModelDialog([], []).showDialog([], []);
     }).catch(error => {
-        console.error('请求失败:', error);
+        // console.error('请求失败:', error);
     });
 }

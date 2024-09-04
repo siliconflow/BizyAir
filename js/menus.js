@@ -103,5 +103,15 @@ app.registerExtension({
         });
 
         new FloatingButton();
+
+        // const comfyuiButtonGroup = document.createElement('div');
+        // comfyuiButtonGroup.className = 'comfyui-button-group';
+        // comfyuiButtonGroup.append($el('button.comfyui-button.comfyui-menu-mobile-collapse.primary', {
+
+        // }, [
+        //     $el('i.icon.icon-menu'),
+        //     'BizyAir'
+        // ]))
+        // document.querySelector('.comfyui-menu-push').after(comfyuiButtonGroup);
     },
 });

@@ -32,6 +32,18 @@ export class ApiKey extends ComfyDialog {
                         }
                     }),
                     $el('p.confirm-word', {}, ['Please visit', $el('a.bizyair-link', { href: 'https://cloud.siliconflow.cn', target: '_blank' }, ['https://cloud.siliconflow.cn']), " to get your key."]),
+                    $el('p.confirm-word', {}, [
+                        "Setting the API Key signifies agreement to the",
+                        $el('a.bizyair-link', { 
+                            href: 'https://docs.siliconflow.cn/docs/user-agreement', 
+                            target: '_blank' 
+                        }, ['User Agreement']), 
+                        " and",
+                        $el('a.bizyair-link', { 
+                            href: 'https://docs.siliconflow.cn/docs/privacy-policy', 
+                            target: '_blank' 
+                        }, ['Privacy Policy.']), 
+                    ]),
                     $el('div.cm-bottom-footer', {}, [submit_button, close_button]),
                 ]
             );

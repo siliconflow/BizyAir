@@ -17,8 +17,8 @@ export const styleUploadFile = `
 	overflow-y: auto;
 }
 .bizyair-dialog-sml{
-    width: 600px;
-    height: 240px;
+    width: 640px;
+    height: 300px;
 }
 
 .bizyair-header-tab{

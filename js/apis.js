@@ -16,13 +16,18 @@ function customFetch(url, options = {}) {
             const { code, message } = data;
             // console.log(data)
             if (code !== 20000) {
-                // if (code === 401000) {
-                //     alert('You need to add the Api Key');
-                // }
-                new ConfirmDialog({
+                const warning = new ConfirmDialog({
                     // title: "",
                     warning: true,
                     message
+                })
+                warning.listen(e => {
+                    console.log(e)
+                    if (e.behavior === 'close') {
+                        if (code === 401000) {
+                            document.querySelector('.menus-item-key').click()
+                        }
+                    }
                 })
                 return
             }
