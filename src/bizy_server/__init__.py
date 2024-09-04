@@ -27,7 +27,7 @@ from .errno import (
     DELETE_MODEL_ERR,
     EMPTY_FILES_ERR,
     EMPTY_UPLOAD_ID_ERR,
-    INVALID_API_KEY,
+    INVALID_API_KEY_ERR,
     INVALID_FILENAME_ERR,
     INVALID_NAME,
     INVALID_TYPE,
@@ -37,12 +37,16 @@ from .errno import (
     NO_FILE_UPLOAD_ERR,
     SIGN_FILE_ERR,
     UPLOAD_ERR,
+    FILE_UPLOAD_SIZE_LIMIT_ERR,
     ErrorNo,
 )
 from .oss import AliOssStorageClient
 
 current_path = os.path.abspath(os.path.dirname(__file__))
 prompt_server = PromptServer.instance
+
+from comfy.cli_args import args
+MAX_UPLOAD_FILE_SIZE = round(args.max_upload_size * 1024 * 1024)
 
 BIZYAIR_SERVER_ADDRESS = os.getenv(
     "BIZYAIR_SERVER_ADDRESS", "https://bizyair-api.siliconflow.cn/x/v1"
@@ -110,6 +114,10 @@ async def check_model_exists(request):
 
 @prompt_server.routes.post(f"/{API_PREFIX}/file_upload")
 async def file_upload(request):
+    if request.content_length and request.content_length > MAX_UPLOAD_FILE_SIZE:
+        return ErrResponse(FILE_UPLOAD_SIZE_LIMIT_ERR)
+
+    print("request.content_length:", request.content_length)
     post = await request.post()
     upload_id = post.get("upload_id")
     if not is_string_valid(upload_id):
@@ -414,7 +422,7 @@ def commit_file(signature: str, object_key: str) -> (dict, ErrorNo):
 
 
 def commit_model(
-    model_files, model_name: str, model_type: str, overwrite: bool
+        model_files, model_name: str, model_type: str, overwrite: bool
 ) -> (dict, ErrorNo):
     server_url = f"{BIZYAIR_SERVER_ADDRESS}/models"
 
@@ -519,9 +527,9 @@ def auth_header():
         }
         return headers, None
     except ValueError as e:
-        error_message = e.args[0] if e.args else INVALID_API_KEY.message
-        INVALID_API_KEY.message = error_message
-        return None, ErrResponse(INVALID_API_KEY)
+        error_message = e.args[0] if e.args else INVALID_API_KEY_ERR.message
+        INVALID_API_KEY_ERR.message = error_message
+        return None, ErrResponse(INVALID_API_KEY_ERR)
 
 
 def do_get(url, params=None, headers=None):
