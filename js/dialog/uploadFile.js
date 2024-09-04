@@ -53,9 +53,9 @@ export function uploadPage (typeList, submitBtn) {
                     }, [
                         // $el('div.cm-input-file-box', {}, [
                         //     $el("p.cm-word-file-modle", {}, ['select file']),
-                        //     $el("input.bizyair-input-file-modle", { 
-                        //         type: "file", 
-                        //         onchange: (e) => temp.onFileChange(e) 
+                        //     $el("input.bizyair-input-file-modle", {
+                        //         type: "file",
+                        //         onchange: (e) => temp.onFileChange(e)
                         //     }),
                         // ]),
                         $el('div.cm-input-file-box', {}, [

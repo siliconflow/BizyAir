@@ -10,12 +10,12 @@ from pathlib import Path
 
 import crcmod
 import oss2
+import requests
 from aiohttp import web
 from server import PromptServer
 
 import bizyair
 import bizyair.common
-import requests
 
 from .cache import UploadCache
 from .errno import (

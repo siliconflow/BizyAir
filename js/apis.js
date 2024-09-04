@@ -34,7 +34,7 @@ function customFetch(url, options = {}) {
         })
         .catch(error => {
             console.error('Fetch error:', error);
-            throw error; 
+            throw error;
         });
 }
 
