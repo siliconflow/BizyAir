@@ -267,9 +267,15 @@ export function uploadPage (typeList, submitBtn) {
             })
         },
         redraw() {
+            console.log(document.querySelector('#bizyair-model-name'))
+            console.log(document.querySelector('.bizyair-file-list'))
+            console.log(document.querySelector('.bizyair-input-file-modle'))
+
             document.querySelector('#bizyair-model-name').value = ''
             document.querySelector('.bizyair-file-list').innerHTML = ''
-            document.querySelector('.bizyair-input-file-modle').innerHTML = ''
+            document.querySelector('.bizyair-input-file-modle').value = ''
+            submitBtn.disabled = false
+            submitBtn.innerText = 'Submit'
         }
     }
     return temp
