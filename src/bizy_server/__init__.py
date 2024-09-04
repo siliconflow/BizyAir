@@ -62,12 +62,6 @@ TYPE_OPTIONS = {
 ALLOW_TYPES = list(TYPE_OPTIONS.values())
 
 
-# 在应用中添加中间件
-@prompt_server.middleware
-async def error_middleware(request, handler):
-    return await error_middleware(request, handler)
-
-
 def get_html_content(filename: str):
     html_file_path = Path(current_path) / filename
     with open(html_file_path, "r", encoding="utf-8") as htmlfile:
@@ -118,6 +112,7 @@ async def check_model_exists(request):
 
 @prompt_server.routes.post(f"/{API_PREFIX}/file_upload")
 async def file_upload(request):
+    print("request.content_length:", request.content_length)
     post = await request.post()
     upload_id = post.get("upload_id")
     if not is_string_valid(upload_id):
