@@ -11,7 +11,7 @@ from .utils import (
 )
 
 BIZYAIR_SERVER_ADDRESS = os.getenv(
-    "BIZYAIR_SERVER_ADDRESS", "https://api.siliconflow.cn"
+    "BIZYAIR_SERVER_ADDRESS", "https://bizyair-api.siliconflow.cn/x/v1"
 )
 
 # Sync with theoritical limit from Comfy base
