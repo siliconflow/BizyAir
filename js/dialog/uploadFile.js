@@ -1,6 +1,5 @@
 import { app } from "../../../scripts/app.js";
 import { $el } from "../../../scripts/ui.js";
-// import { style } from "../subassembly/style.js";
 import { ConfirmDialog } from "../subassembly/confirm.js";
 import { check_model_exists, model_upload, file_upload } from "../apis.js"
 
@@ -238,14 +237,11 @@ export function uploadPage (typeList, submitBtn) {
             document.querySelector('.bizyair-file-list').appendChild(
                 $el('li', {}, [
                     $el("span", {}, [`${ file.name }`]),
-                    $el("span.spinner-container", {}, [
-                        // $el("span.spinner", {}, [])
-                    ]),
+                    $el("span.spinner-container", {}, []),
                 ])
             )
         },
         onFileMultiChange(e) {
-            console.log(e)
             const bizyairInputFileBox = document.querySelector('#bizyair-input-file-box')
             bizyairInputFileBox.className = bizyairInputFileBox.className.replace(/cm-input-item-error/g, '')
             if (!this.uploadId) {
@@ -253,24 +249,16 @@ export function uploadPage (typeList, submitBtn) {
             }
             const files = [...e.srcElement.files]
             this.filesAry = files.filter(file => file.webkitRelativePath.search('.git/') == -1)
-
             this.filesAry.forEach(file => {
-                // this.filesAry.push(file)
                 document.querySelector('.bizyair-file-list').appendChild(
                     $el('li', {}, [
                         $el("span", {}, [`${ file.webkitRelativePath }`]),
-                        $el("span.spinner-container", {}, [
-                            // $el("span.spinner", {}, [])
-                        ]),
+                        $el("span.spinner-container", {}, []),
                     ])
                 )
             })
         },
         redraw() {
-            console.log(document.querySelector('#bizyair-model-name'))
-            console.log(document.querySelector('.bizyair-file-list'))
-            console.log(document.querySelector('.bizyair-input-file-modle'))
-
             document.querySelector('#bizyair-model-name').value = ''
             document.querySelector('.bizyair-file-list').innerHTML = ''
             document.querySelector('.bizyair-input-file-modle').value = ''
