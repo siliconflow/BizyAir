@@ -50,7 +50,7 @@ jobs:
       with:
         repository: comfyanonymous/ComfyUI
         path: ComfyUI
-        ref: v0.0.4
+        ref: v0.2.1
 
     - name: Checkout plugin repository
       uses: actions/checkout@v4
