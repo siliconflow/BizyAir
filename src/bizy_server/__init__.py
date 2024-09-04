@@ -45,7 +45,7 @@ current_path = os.path.abspath(os.path.dirname(__file__))
 prompt_server = PromptServer.instance
 
 BIZYAIR_SERVER_ADDRESS = os.getenv(
-    "BIZYAIR_SERVER_ADDRESS", "https://uat-bizyair-api.siliconflow.cn"
+    "BIZYAIR_SERVER_ADDRESS", "https://bizyair-api.siliconflow.cn/x/v1"
 )
 
 API_PREFIX = "bizyair/modelhost"
@@ -271,7 +271,7 @@ async def list_model_files(request):
     if err is not None:
         return err
 
-    server_url = f"{BIZYAIR_SERVER_ADDRESS}/x/v1/models/files"
+    server_url = f"{BIZYAIR_SERVER_ADDRESS}/models/files"
 
     try:
         resp = do_get(server_url, params=payload, headers=headers)
@@ -345,7 +345,7 @@ async def delete_model(request):
 
 
 def check_model(type: str, name: str) -> (bool, ErrorNo):
-    server_url = f"{BIZYAIR_SERVER_ADDRESS}/x/v1/models/check"
+    server_url = f"{BIZYAIR_SERVER_ADDRESS}/models/check"
 
     payload = {
         "name": name,
@@ -372,7 +372,7 @@ def check_model(type: str, name: str) -> (bool, ErrorNo):
 
 
 def sign(signature: str) -> (dict, ErrorNo):
-    server_url = f"{BIZYAIR_SERVER_ADDRESS}/x/v1/files/{signature}"
+    server_url = f"{BIZYAIR_SERVER_ADDRESS}/files/{signature}"
     headers, err = auth_header()
     if err is not None:
         return err
@@ -391,7 +391,7 @@ def sign(signature: str) -> (dict, ErrorNo):
 
 
 def commit_file(signature: str, object_key: str) -> (dict, ErrorNo):
-    server_url = f"{BIZYAIR_SERVER_ADDRESS}/x/v1/files"
+    server_url = f"{BIZYAIR_SERVER_ADDRESS}/files"
 
     payload = {
         "sign": signature,
@@ -416,7 +416,7 @@ def commit_file(signature: str, object_key: str) -> (dict, ErrorNo):
 def commit_model(
     model_files, model_name: str, model_type: str, overwrite: bool
 ) -> (dict, ErrorNo):
-    server_url = f"{BIZYAIR_SERVER_ADDRESS}/x/v1/models"
+    server_url = f"{BIZYAIR_SERVER_ADDRESS}/models"
 
     payload = {
         "name": model_name,
@@ -441,7 +441,7 @@ def commit_model(
 
 
 def remove_model(model_name: str, model_type: str) -> (dict, ErrorNo):
-    server_url = f"{BIZYAIR_SERVER_ADDRESS}/x/v1/models"
+    server_url = f"{BIZYAIR_SERVER_ADDRESS}/models"
 
     payload = {
         "name": model_name,
