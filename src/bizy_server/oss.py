@@ -53,7 +53,7 @@ class AliOssStorageClient:
                 self.onUploading(bytes_sent, total_bytes)
 
         try:
-            loop = asyncio.get_event_loop()
+            loop = asyncio.get_running_loop()
             await loop.run_in_executor(
                 None,
                 self.bucket.put_object_from_file,
@@ -75,7 +75,7 @@ class AliOssStorageClient:
         upload_id = self.bucket.init_multipart_upload(object_name).upload_id
 
         parts = []
-        loop = asyncio.get_event_loop()
+        loop = asyncio.get_running_loop()
         with open(file_path, "rb") as f:
             for part_number in range(1, (total_size + part_size - 1) // part_size + 1):
                 offset = (part_number - 1) * part_size
