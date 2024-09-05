@@ -59,6 +59,7 @@ class AliOssStorageClient:
                 self.bucket.put_object_from_file,
                 object_name,
                 file_path,
+                None,
                 progress_callback,
             )
         except oss2.exceptions.OssError as e:
