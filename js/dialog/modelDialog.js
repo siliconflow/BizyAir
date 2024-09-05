@@ -1,6 +1,4 @@
-// import { app } from "../../../scripts/app.js";
 import { $el, ComfyDialog } from "../../../scripts/ui.js";
-// import { ConfirmDialog } from "../subassembly/confirm.js";
 import { modelList } from "./modelList.js";
 import { uploadPage } from "./uploadFile.js";
 import { models_files } from "../apis.js"
@@ -62,7 +60,6 @@ export class ModelDialog extends ComfyDialog {
                         id: 'bizyair-d-upload',
                         style: { display: 'none' }
                     }, [
-                        $el('p.upload-size-hint', { }, ['File size exceeds the allowed limit. Please use the \"--client_max_size option\" to specify the upload file size limit, default is 10MB."']),
                         initUpload.content
                     ]),
                     $el('div.cm-bottom-footer', {}, [submit_button, close_button]),

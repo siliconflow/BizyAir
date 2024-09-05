@@ -133,6 +133,7 @@ class ModelHostServer:
                 if not os.path.exists(parent_folder):
                     os.makedirs(parent_folder)
 
+                print(f"uploading file to localstore: {filename}")
                 with open(filepath, "wb") as f:
                     f.write(file.file.read())
 
