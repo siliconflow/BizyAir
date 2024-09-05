@@ -9,7 +9,6 @@ from nodes import LoadImage
 
 
 class LoadImageURL(BizyAirBaseNode):
-    # https://mei-xia.imgbb.com
     @classmethod
     def INPUT_TYPES(s):
         return {
