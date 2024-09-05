@@ -7,6 +7,7 @@ import urllib.parse
 import urllib.request
 from collections import defaultdict
 from pathlib import Path
+import shutil
 
 import crcmod
 import oss2
@@ -260,6 +261,16 @@ class ModelHostServer:
                 model_type=json_data["type"],
                 overwrite=json_data["overwrite"],
             )
+
+            full_output_folder = os.path.join(
+                os.path.normpath("bizy_air"),
+                os.path.normpath("localstore"),
+                json_data["upload_id"],
+            )
+            if os.path.exists(full_output_folder):
+                # 删除文件
+                shutil.rmtree(full_output_folder)
+
             if err is not None:
                 return ErrResponse(err)
 
