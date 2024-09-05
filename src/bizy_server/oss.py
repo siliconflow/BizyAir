@@ -41,8 +41,14 @@ class AliOssStorageClient:
             desc=f"Uploading {os.path.basename(file_path)}",
         )
 
+        # 维护累计发送的字节数
+        bytes_uploaded = 0
+
         def progress_callback(bytes_sent, total_bytes):
-            progress_bar.update(bytes_sent)
+            nonlocal bytes_uploaded
+            progress_increment = bytes_sent - bytes_uploaded
+            progress_bar.update(progress_increment)
+            bytes_uploaded = bytes_sent  # 更新累计已发送的字节数
             if self.onUploading:
                 self.onUploading(bytes_sent, total_bytes)
 
