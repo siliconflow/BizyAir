@@ -3,21 +3,13 @@ import { ConfirmDialog } from './subassembly/confirm.js';
 function customFetch(url, options = {}) {
     return window.fetch(url, options)
         .then(response => {
-            // if (!response.ok) {
-            //     const status = response.status ? response.status : ''
-            //     const statusText = response.statusText ? response.statusText : ''
-            //     app.ui.dialog.show(`HTTP error! \n Status: ${status} \n message: ${statusText}`)
-            //     throw new Error(`HTTP error! Status: ${response.status}`);
-            // }
             console.log(response)
             return response.json();
         })
         .then(data => {
             const { code, message } = data;
-            // console.log(data)
             if (code !== 20000) {
                 const warning = new ConfirmDialog({
-                    // title: "",
                     warning: true,
                     message
                 })
@@ -47,21 +39,21 @@ export function check_model_exists ( type, name ) {
 }
 
 export function model_upload ( data ) {
-    return customFetch('/bizyair/modelhost/model_upload', {
+    return customFetch(`/bizyair/modelhost/model_upload`, {
         method: 'POST',
         body: JSON.stringify(data)
     })
 }
 
 export function file_upload ( data ) {
-    return customFetch('/bizyair/modelhost/file_upload', {
+    return customFetch(`/bizyair/modelhost/file_upload`, {
         method: 'POST',
         body: data
     })
 }
 
 export function set_api_key ( data ) {
-    return customFetch('/bizyair/set_api_key', {
+    return customFetch(`/bizyair/set_api_key`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
@@ -75,7 +67,7 @@ export function models_files ( data ) {
 }
 
 export function model_types () {
-    return customFetch('/bizyair/modelhost/model_types', {method: 'GET'})
+    return customFetch(`/bizyair/modelhost/model_types`, {method: 'GET'})
 }
 
 export function delModels ( data ) {
