@@ -190,7 +190,9 @@ class ModelHostServer:
                             security_token=file_record.get("security_token"),
                             onUploading=updateProgress,
                         )
-                        oss_client.upload_file(filepath, file_record.get("object_key"))
+                        await oss_client.upload_file(
+                            filepath, file_record.get("object_key")
+                        )
                     except oss2.exceptions.OssError as e:
                         print(f"OSS err:{str(e)}")
                         return ErrResponse(UPLOAD_ERR)
