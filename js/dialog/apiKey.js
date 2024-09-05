@@ -47,7 +47,6 @@ export class ApiKey extends ComfyDialog {
                     $el('div.cm-bottom-footer', {}, [submit_button, close_button]),
                 ]
             );
-        // this.element =;
         this.element = $el('div.bizyair-modal', {
             parent: document.body
         }, [
