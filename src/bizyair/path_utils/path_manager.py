@@ -55,7 +55,7 @@ def guess_url_from_node(
                         if len(node_usage_state.loras) > 0 and config_key == "flux-dev":
                             return (
                                 configs["service_address"]
-                                + "/x/v1/supernode/test-flux-dev-bizyair-comfy-ksampler"
+                                + "/supernode/test-flux-dev-bizyair-comfy-ksampler"
                             )
                         return configs["service_address"] + configs["route"]
 
