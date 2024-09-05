@@ -52,11 +52,12 @@ def guess_url_from_node(
                         config_key = rule["config"]
                         configs = routing_configs[config_key]
                         # TODO fix
-                        if len(node_usage_state.loras) > 0 and config_key == "flux-dev":
-                            return (
-                                configs["service_address"]
-                                + "/supernode/test-flux-dev-bizyair-comfy-ksampler"
-                            )
+                        if config_key == "flux-dev":
+                            if node["inputs"]["weight_dtype"] == "fp8_e4m3fn":
+                                return (
+                                    configs["service_address"]
+                                    + "/x/v1/supernode/flux-dev-bizyair-comfy-ksampler-fp8-v2"
+                                )
                         return configs["service_address"] + configs["route"]
 
 
