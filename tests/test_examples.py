@@ -76,11 +76,8 @@ def wait_until_queue_finished(driver, timeout=100):
 
 
 def wait_until_app_ready(driver):
-    WebDriverWait(driver, 5).until(
-        EC.presence_of_element_located((By.ID, "comfy-clear-button"))
-    )
-    WebDriverWait(driver, 5).until(
-        EC.presence_of_element_located((By.ID, "graph-canvas"))
+    WebDriverWait(driver, 30).until(
+        EC.presence_of_element_located((By.CLASS_NAME, "bizyair-logo"))
     )
 
 
