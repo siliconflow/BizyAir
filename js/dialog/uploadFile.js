@@ -74,6 +74,10 @@ export function uploadPage (typeList, submitBtn) {
                 ]),
                 $el("br", {}, []),
                 $el('ul.bizyair-file-list', {}, []),
+                $el("p.tips-in-upload", {
+                    id: 'tips-in-upload',
+                    // style: { display: 'none' }
+                }, ["Please do not close this dialog box or perform any other operations while the file is uploading."]),
             ]
         ),
         showQA(ele, text) {
@@ -176,6 +180,7 @@ export function uploadPage (typeList, submitBtn) {
         },
         todoUpload() {
             this.disabledInput()
+            document.querySelector('#tips-in-upload').style.display = 'block'
             if (this.filesAry.length === 0) {
                 this.modelUpload()
                 return;
@@ -210,6 +215,10 @@ export function uploadPage (typeList, submitBtn) {
                 console.log(data)
                 submitBtn.style.display = 'none'
                 this.unDisabledInput()
+                document.querySelector('#tips-in-upload').style.display = 'none'
+                new ConfirmDialog({
+                    message: "The model has been uploaded successfully."
+                })
             })
         },
         fetchApiToUpload(file, fn) {

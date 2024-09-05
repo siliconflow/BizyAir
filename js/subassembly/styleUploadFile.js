@@ -115,7 +115,7 @@ p.cm-word-file-modle{
 .bizyair-file-list{
     width: 100%;
     box-sizing: border-box;
-    height: 250px;
+    height: 220px;
     overflow-y: auto;
     padding: 10px;
     margin: 0;
@@ -354,6 +354,10 @@ input.cm-input-item-error{
     bottom: -40px;
     margin: 0;
     padding: 0;
+    color: #e6a23c;
+}
+p.tips-in-upload{
+    margin: 4px 0 0 0;
     color: #e6a23c;
 }
 `
