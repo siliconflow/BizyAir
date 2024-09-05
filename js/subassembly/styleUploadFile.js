@@ -347,4 +347,11 @@ input.cm-input-item-error{
     font-size: 18px;
     font-weight: bold;
 }
+.upload-size-hint{
+    color: var(--error-text);
+    width: 600px;
+    position: absolute;
+    top: 18px;
+    left: 400px;
+}
 `
