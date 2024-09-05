@@ -9,8 +9,11 @@ async def error_middleware(app, handler):
             return response
         except web.HTTPRequestEntityTooLarge:
             return web.json_response(
-                {"error": "File size exceeds the allowed limit. Please use the \"--client_max_size\" option to "
-                          "specify the upload file size limit, default is 10MB."}, status=413
+                {
+                    "error": 'File size exceeds the allowed limit. Please use the "--client_max_size" option to '
+                    "specify the upload file size limit, default is 10MB."
+                },
+                status=413,
             )
         except Exception as e:
             return web.json_response({"error": str(e)}, status=500)

@@ -27,6 +27,7 @@ from .errno import (
     DELETE_MODEL_ERR,
     EMPTY_FILES_ERR,
     EMPTY_UPLOAD_ID_ERR,
+    FILE_UPLOAD_SIZE_LIMIT_ERR,
     INVALID_API_KEY_ERR,
     INVALID_FILENAME_ERR,
     INVALID_NAME,
@@ -37,7 +38,6 @@ from .errno import (
     NO_FILE_UPLOAD_ERR,
     SIGN_FILE_ERR,
     UPLOAD_ERR,
-    FILE_UPLOAD_SIZE_LIMIT_ERR,
     ErrorNo,
 )
 from .oss import AliOssStorageClient
@@ -46,6 +46,7 @@ current_path = os.path.abspath(os.path.dirname(__file__))
 prompt_server = PromptServer.instance
 
 from comfy.cli_args import args
+
 MAX_UPLOAD_FILE_SIZE = round(args.max_upload_size * 1024 * 1024)
 
 BIZYAIR_SERVER_ADDRESS = os.getenv(
@@ -422,7 +423,7 @@ def commit_file(signature: str, object_key: str) -> (dict, ErrorNo):
 
 
 def commit_model(
-        model_files, model_name: str, model_type: str, overwrite: bool
+    model_files, model_name: str, model_type: str, overwrite: bool
 ) -> (dict, ErrorNo):
     server_url = f"{BIZYAIR_SERVER_ADDRESS}/models"
 
