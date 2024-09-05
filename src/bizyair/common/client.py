@@ -78,18 +78,19 @@ def send_request(
         pprint.pprint(response_data)
 
 
-def fetch_models_by_type(url: str, model_type: str, *, verbose=False) -> dict:
+def fetch_models_by_type(
+    url: str, model_type: str, *, method="GET", verbose=False
+) -> dict:
     if not validate_api_key(BIZYAIR_API_KEY):
         return {}
 
-    payload = {
-        "api_key": get_api_key(),
-        "model_type": model_type,
-        "secret": "6x7=42",
-    }
+    payload = {"type": model_type}
     if BIZYAIR_DEBUG:
         pprint.pprint(payload)
     msg = send_request(
-        url=url, data=json.dumps(payload).encode("utf-8"), verbose=verbose
+        method=method,
+        url=url,
+        data=json.dumps(payload).encode("utf-8"),
+        verbose=verbose,
     )
     return msg
