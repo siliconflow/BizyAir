@@ -68,7 +68,9 @@
   "clip":[
     "clip_l.safetensors",
     "t5xxl_fp16.safetensors",
-    "t5xxl_fp8_e4m3fn.safetensors"
+    "t5xxl_fp8_e4m3fn.safetensors",
+    "ViT-L-14-TEXT-detail-improved-hiT-GmP-TE-only-HF.safetensors"
+
   ],
   "upscale_models":[
     "4x_NMKD-Siax_200k.pth"
