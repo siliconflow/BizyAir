@@ -70,7 +70,7 @@ export function uploadPage (typeList, submitBtn) {
                             temp.hideQA(this)
                         }
                     }, ['?']),
-                    $el('p.upload-size-hint', { }, ['You can specify the file upload limit as needed (in MB), for example: python main.py --max-upload-size 1024"']),
+                    $el('p.upload-size-hint', { }, ['You can specify the file upload limit as needed (in MB), for example: python main.py --max-upload-size 1024']),
                 ]),
                 $el("br", {}, []),
                 $el('ul.bizyair-file-list', {}, []),
