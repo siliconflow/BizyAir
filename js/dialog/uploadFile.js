@@ -168,7 +168,18 @@ export function uploadPage (typeList, submitBtn) {
             this.signs = []
             this.queryExists()
         },
+        disabledInput() {
+            document.querySelector('input.cm-input-item').disabled = true
+            document.querySelector('select.cm-input-item').disabled = true
+            document.querySelector('input.bizyair-input-file-modle').disabled = true
+        },
+        unDisabledInput() {
+            document.querySelector('input.cm-input-item').disabled = false
+            document.querySelector('select.cm-input-item').disabled = false
+            document.querySelector('input.bizyair-input-file-modle').disabled = false
+        },
         todoUpload() {
+            this.disabledInput()
             if (this.filesAry.length === 0) {
                 this.modelUpload()
                 return;
@@ -202,6 +213,7 @@ export function uploadPage (typeList, submitBtn) {
             }).then(data => {
                 console.log(data)
                 submitBtn.style.display = 'none'
+                this.unDisabledInput()
             })
         },
         fetchApiToUpload(file, fn) {
@@ -247,6 +259,7 @@ export function uploadPage (typeList, submitBtn) {
             if (!this.uploadId) {
                 this.uploadId = this.generateUUID()
             }
+            document.querySelector('.bizyair-file-list').innerHTML = ''
             const files = [...e.srcElement.files]
             this.filesAry = files.filter(file => file.webkitRelativePath.search('.git/') == -1)
             this.filesAry.forEach(file => {
