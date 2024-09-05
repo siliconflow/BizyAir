@@ -47,9 +47,15 @@ def load_workflow_graph(driver, workflow: str):
 
 
 def click_queue_prompt_button(driver):
-    wait = WebDriverWait(driver, 1)
-    queue_button = wait.until(EC.presence_of_element_located((By.ID, "queue-button")))
-    queue_button.click()
+    try:
+        wait = WebDriverWait(driver, 1)
+        queue_button = wait.until(
+            EC.presence_of_element_located((By.ID, "comfyui-queue-button"))
+        )
+        queue_button.click()
+    except Exception as e:
+        print(str(e))
+        raise Exception("Error: click queue button failed.")
 
 
 def clear_curernt_workflow(driver):
