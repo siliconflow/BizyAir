@@ -486,12 +486,12 @@ class ModelHostServer:
             resp = self.do_delete(server_url, data=payload, headers=headers)
             ret = json.loads(resp)
             if ret["code"] != CODE_OK:
-                return ErrorNo(500, ret["code"], None, ret["message"])
+                return ErrResponse(ErrorNo(500, ret["code"], None, ret["message"]))
 
             return None
         except Exception as e:
             print(f"fail to remove model: {str(e)}")
-            return DELETE_MODEL_ERR
+            return ErrResponse(DELETE_MODEL_ERR)
 
     def is_string_valid(self, s):
         # 检查s是否已经被定义（即不是None）且不是空字符串
