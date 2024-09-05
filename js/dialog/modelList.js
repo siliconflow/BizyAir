@@ -5,7 +5,6 @@ import { delModels, models_files } from "../apis.js"
 export const modelList = (listData, typeList) => {
     const elDataItemChild = (list) => {
         return list.map(item => $el('div.bizyair-model-list-item-child.bizyair-model-list-item', {}, [
-            // $el('div.bizyair-flex-item', {}, ['']),
             $el('div.bizyair-flex-item', { title: item.label_path}, [item.label_path]),
             $el('div.bizyair-flex-item-avaulable', {}, [
                 item.available ? 'Available' : $el('span.spinner-container', {}, [$el('span.spinner')])
@@ -31,7 +30,6 @@ export const modelList = (listData, typeList) => {
         })
     }
     const handleItemLis = (ele) => {
-        // ele.textContent = ele.textContent == '－' ? '＋' : '－';
         ele.className = ele.className == 'bizyair-icon-fold' ? 'bizyair-icon-fold unfold' : 'bizyair-icon-fold';
         ele.closest('.bizyair-model-list-item').querySelector('.bizyair-model-list-item-lis').style.display = ele.closest('.bizyair-model-list-item').querySelector('.bizyair-model-list-item-lis').style.display == 'none' ? 'block' : 'none'
     }
@@ -85,7 +83,6 @@ export const modelList = (listData, typeList) => {
         ]),
 
         $el('div.bizyair-model-list-item.bizyair-model-list-item-header', {}, [
-            // $el('div.bizyair-flex-item', {}, ['Folder']),
             $el('div.bizyair-flex-item', {}, ['File Name']),
             $el('div.bizyair-flex-item-avaulable', {}, ['Status']),
         ]),

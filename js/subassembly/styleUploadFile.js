@@ -304,6 +304,7 @@ input.cm-input-item-error{
     display: flex;
     margin-bottom: 10px;
     width: 100%;
+    position: relative;
 }
 .bizyair-form-label{
     width: 100px;
@@ -348,10 +349,11 @@ input.cm-input-item-error{
     font-weight: bold;
 }
 .upload-size-hint{
-    color: var(--error-text);
-    width: 600px;
     position: absolute;
-    top: 18px;
-    left: 400px;
+    left: 104px;
+    bottom: -40px;
+    margin: 0;
+    padding: 0;
+    color: #e6a23c;
 }
 `

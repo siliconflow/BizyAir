@@ -50,13 +50,6 @@ export function uploadPage (typeList, submitBtn) {
                     $el("div.bizyair-form-item-subset", {
                         id: 'bizyair-input-file-box'
                     }, [
-                        // $el('div.cm-input-file-box', {}, [
-                        //     $el("p.cm-word-file-modle", {}, ['select file']),
-                        //     $el("input.bizyair-input-file-modle", {
-                        //         type: "file",
-                        //         onchange: (e) => temp.onFileChange(e)
-                        //     }),
-                        // ]),
                         $el('div.cm-input-file-box', {}, [
                             $el("p.cm-word-file-modle", {}, ['select folder']),
                             $el("input.bizyair-input-file-modle", {
@@ -67,7 +60,7 @@ export function uploadPage (typeList, submitBtn) {
                                 msdirectory: true,
                                 onchange: (e) => temp.onFileMultiChange(e)
                             }),
-                        ])
+                        ]),
                     ]),
                     $el("i.bizyair-form-qa", {
                         onmouseover: function() {
@@ -77,10 +70,10 @@ export function uploadPage (typeList, submitBtn) {
                             temp.hideQA(this)
                         }
                     }, ['?']),
+                    $el('p.upload-size-hint', { }, ['You can specify the file upload limit as needed (in MB), for example: python main.py --max-upload-size 1024"']),
                 ]),
                 $el("br", {}, []),
                 $el('ul.bizyair-file-list', {}, []),
-                // $el('div.cm-bottom-footer', {}, [close_button, submit_button]),
             ]
         ),
         showQA(ele, text) {
