@@ -47,9 +47,15 @@ def load_workflow_graph(driver, workflow: str):
 
 
 def click_queue_prompt_button(driver):
-    wait = WebDriverWait(driver, 1)
-    queue_button = wait.until(EC.presence_of_element_located((By.ID, "queue-button")))
-    queue_button.click()
+    try:
+        wait = WebDriverWait(driver, 1)
+        queue_button = wait.until(
+            EC.presence_of_element_located((By.CLASS_NAME, "comfyui-queue-button"))
+        )
+        queue_button.click()
+    except Exception as e:
+        print(str(e))
+        raise Exception("Error: click queue button failed.")
 
 
 def clear_curernt_workflow(driver):
@@ -76,11 +82,8 @@ def wait_until_queue_finished(driver, timeout=100):
 
 
 def wait_until_app_ready(driver):
-    WebDriverWait(driver, 5).until(
-        EC.presence_of_element_located((By.ID, "comfy-clear-button"))
-    )
-    WebDriverWait(driver, 5).until(
-        EC.presence_of_element_located((By.ID, "graph-canvas"))
+    WebDriverWait(driver, 30).until(
+        EC.presence_of_element_located((By.CLASS_NAME, "bizyair-logo"))
     )
 
 

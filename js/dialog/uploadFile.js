@@ -122,7 +122,7 @@ export function uploadPage (typeList, submitBtn) {
                 },
                 onNo: () => {
                     submitBtn.disabled = false
-                    submitBtn.innerText = 'submit'
+                    submitBtn.innerText = 'Submit'
                     document.querySelectorAll('.spinner-container').forEach(e => {
                         e.innerHTML = ''
                     })
@@ -177,6 +177,9 @@ export function uploadPage (typeList, submitBtn) {
             document.querySelector('input.cm-input-item').disabled = false
             document.querySelector('select.cm-input-item').disabled = false
             document.querySelector('input.bizyair-input-file-modle').disabled = false
+            
+            submitBtn.disabled = false
+            submitBtn.innerText = 'Submit'
         },
         todoUpload() {
             this.disabledInput()
@@ -229,6 +232,8 @@ export function uploadPage (typeList, submitBtn) {
                 }
             })
             .catch(error => {
+                this.unDisabledInput()
+                console.log(this.unDisabledInput)
                 console.error('Error during AJAX request', error);
             });
         },
