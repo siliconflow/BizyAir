@@ -18,7 +18,7 @@ FILE_UPLOAD_SIZE_LIMIT_ERR = ErrorNo(
     413,
     413000,
     None,
-    'File size exceeds the allowed limit. Please use the "--client_max_size option" to specify the upload file size limit, default is 100MB.',
+    'File size exceeds the allowed limit. Please use the "--max-upload-size" to specify the upload file size limit, default is 100MB.',
 )
 
 CHECK_MODEL_EXISTS_ERR = ErrorNo(500, 500100, None, "failed to check model")

@@ -87,6 +87,7 @@ jobs:
 
         cd custom_nodes/BizyAir
         echo "Current directory: $(pwd)"
+        python3 tests/write_api_ini_file.py
         python3 tests/test_examples.py
       env:
         BIZYAIR_KEY: ${{ secrets.BIZYAIR_KEY }}
@@ -99,6 +100,7 @@ jobs:
         Start-Process -FilePath "python3" -ArgumentList "main.py --port 8188 --cpu" -NoNewWindow
         cd custom_nodes/BizyAir
         Write-Output "Current directory: $(Get-Location)"
+        python3 tests/write_api_ini_file.py
         python3 tests/test_examples.py
       env:
         BIZYAIR_KEY: ${{ secrets.BIZYAIR_KEY }}
