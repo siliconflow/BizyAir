@@ -177,7 +177,7 @@ export function uploadPage (typeList, submitBtn) {
             document.querySelector('input.cm-input-item').disabled = false
             document.querySelector('select.cm-input-item').disabled = false
             document.querySelector('input.bizyair-input-file-modle').disabled = false
-            
+
             submitBtn.disabled = false
             submitBtn.innerText = 'Submit'
         },
