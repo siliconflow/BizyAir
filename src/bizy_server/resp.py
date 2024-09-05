@@ -1,10 +1,13 @@
-from .errno import ErrorNo, CODE_OK
 from aiohttp import web
+
+from .errno import CODE_OK, ErrorNo
 
 
 def JsonResponse(http_status_code, data):
     return web.json_response(
-        data, status=http_status_code, content_type="application/json",
+        data,
+        status=http_status_code,
+        content_type="application/json",
     )
 
 

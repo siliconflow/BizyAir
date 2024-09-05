@@ -50,7 +50,7 @@ def click_queue_prompt_button(driver):
     try:
         wait = WebDriverWait(driver, 1)
         queue_button = wait.until(
-            EC.presence_of_element_located((By.ID, "comfyui-queue-button"))
+            EC.presence_of_element_located((By.CLASS_NAME, "comfyui-queue-button"))
         )
         queue_button.click()
     except Exception as e:

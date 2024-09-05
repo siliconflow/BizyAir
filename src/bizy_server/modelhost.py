@@ -18,7 +18,6 @@ import bizyair
 import bizyair.common
 
 from .cache import UploadCache
-from .resp import ErrResponse, JsonResponse, OKResponse
 from .errno import (
     CHECK_MODEL_EXISTS_ERR,
     CODE_NO_MODEL_FOUND,
@@ -28,6 +27,7 @@ from .errno import (
     DELETE_MODEL_ERR,
     EMPTY_FILES_ERR,
     EMPTY_UPLOAD_ID_ERR,
+    FILE_UPLOAD_SIZE_LIMIT_ERR,
     INVALID_API_KEY_ERR,
     INVALID_FILENAME_ERR,
     INVALID_NAME,
@@ -38,10 +38,10 @@ from .errno import (
     NO_FILE_UPLOAD_ERR,
     SIGN_FILE_ERR,
     UPLOAD_ERR,
-    FILE_UPLOAD_SIZE_LIMIT_ERR,
     ErrorNo,
 )
 from .oss import AliOssStorageClient
+from .resp import ErrResponse, JsonResponse, OKResponse
 
 current_path = os.path.abspath(os.path.dirname(__file__))
 prompt_server = PromptServer.instance
@@ -99,7 +99,9 @@ class ModelHostServer:
             if err is not None:
                 return err
 
-            exists, err = self.check_model(name=json_data["name"], type=json_data["type"])
+            exists, err = self.check_model(
+                name=json_data["name"], type=json_data["type"]
+            )
             if err is not None:
                 return ErrResponse(err)
 
@@ -122,7 +124,9 @@ class ModelHostServer:
                 if not filename:
                     return ErrResponse(NO_FILE_UPLOAD_ERR)
                 full_output_folder = os.path.join(
-                    os.path.normpath("bizy_air"), os.path.normpath("localstore"), upload_id
+                    os.path.normpath("bizy_air"),
+                    os.path.normpath("localstore"),
+                    upload_id,
                 )
                 filepath = os.path.abspath(os.path.join(full_output_folder, filename))
                 parent_folder = os.path.dirname(filepath)
@@ -156,7 +160,9 @@ class ModelHostServer:
                     return ErrResponse(err)
 
                 if self.is_string_valid(file_record.get("id")):
-                    file_info = CACHE.get_file_info(upload_id=upload_id, filename=filename)
+                    file_info = CACHE.get_file_info(
+                        upload_id=upload_id, filename=filename
+                    )
                     file_info["id"] = file_record.get("id")
                     file_info["remote_key"] = file_record.get("object_key")
                     file_info["progress"] = "100.00%"
@@ -166,7 +172,9 @@ class ModelHostServer:
                     try:
 
                         def updateProgress(consume_bytes, total_bytes):
-                            fi = CACHE.get_file_info(upload_id=upload_id, filename=filename)
+                            fi = CACHE.get_file_info(
+                                upload_id=upload_id, filename=filename
+                            )
                             if fi is not None:
                                 fi["progress"] = "{:.2f}%".format(
                                     consume_bytes / total_bytes * 100
@@ -191,7 +199,9 @@ class ModelHostServer:
                     if err is not None:
                         return ErrResponse(err)
                     new_file_record = commit_data.get("file")
-                    file_info = CACHE.get_file_info(upload_id=upload_id, filename=filename)
+                    file_info = CACHE.get_file_info(
+                        upload_id=upload_id, filename=filename
+                    )
                     file_info["id"] = new_file_record.get("id")
                     file_info["remote_key"] = new_file_record.get("object_key")
                     print(f"{file_info['relPath']} Already Uploaded")
@@ -223,11 +233,17 @@ class ModelHostServer:
             if err is not None:
                 return err
 
-            exists, err = self.check_model(type=json_data["type"], name=json_data["name"])
+            exists, err = self.check_model(
+                type=json_data["type"], name=json_data["name"]
+            )
             if err is not None:
                 return err
 
-            if exists and "overwrite" not in json_data or json_data["overwrite"] is not True:
+            if (
+                exists
+                and "overwrite" not in json_data
+                or json_data["overwrite"] is not True
+            ):
                 return ErrResponse(MODEL_ALREADY_EXISTS_ERR)
 
             if "files" not in json_data or len(json_data["files"]) < 1:
@@ -278,7 +294,9 @@ class ModelHostServer:
                     if ret["code"] == CODE_NO_MODEL_FOUND:
                         return OKResponse([])
                     else:
-                        return ErrResponse(ErrorNo(500, ret["code"], None, ret["message"]))
+                        return ErrResponse(
+                            ErrorNo(500, ret["code"], None, ret["message"])
+                        )
 
                 if not ret["data"]:
                     return OKResponse([])
@@ -332,7 +350,9 @@ class ModelHostServer:
             if err is not None:
                 return err
 
-            err = self.remove_model(model_type=json_data["type"], model_name=json_data["name"])
+            err = self.remove_model(
+                model_type=json_data["type"], model_name=json_data["name"]
+            )
             if err is not None:
                 return err
 
@@ -411,8 +431,8 @@ class ModelHostServer:
             print(f"fail to commit file: {str(e)}")
             return None, COMMIT_FILE_ERR
 
-    def commit_model(self,
-            model_files, model_name: str, model_type: str, overwrite: bool
+    def commit_model(
+        self, model_files, model_name: str, model_type: str, overwrite: bool
     ) -> (dict, ErrorNo):
         server_url = f"{BIZYAIR_SERVER_ADDRESS}/models"
 
@@ -479,7 +499,10 @@ class ModelHostServer:
     def check_type(self, json_data):
         if "type" not in json_data:
             return ErrResponse(INVALID_TYPE)
-        if not self.is_string_valid(json_data["type"]) or json_data["type"] not in ALLOW_TYPES:
+        if (
+            not self.is_string_valid(json_data["type"])
+            or json_data["type"] not in ALLOW_TYPES
+        ):
             return ErrResponse(INVALID_TYPE)
         return None
 
@@ -554,9 +577,3 @@ class ModelHostServer:
         )
 
         return hash_string
-
-
-
-
-
-
