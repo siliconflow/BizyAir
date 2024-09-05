@@ -1,7 +1,7 @@
-service_config:
-  service_address: https://bizyair-api.siliconflow.cn
-  route: /x/v1/supernode/listmodelserver
-  service_route: "{{ service_config.service_address }}{{ service_config.route }}"
+model_hub:
+  find_model:
+    service_address: https://bizyair-api.siliconflow.cn
+    route: /x/v1/models/files
 
 model_types:
   loras: bizyair/lora
