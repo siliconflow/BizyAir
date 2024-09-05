@@ -76,7 +76,7 @@ export function uploadPage (typeList, submitBtn) {
                 $el('ul.bizyair-file-list', {}, []),
                 $el("p.tips-in-upload", {
                     id: 'tips-in-upload',
-                    // style: { display: 'none' }
+                    style: { display: 'none' }
                 }, ["Please do not close this dialog box or perform any other operations while the file is uploading."]),
             ]
         ),
