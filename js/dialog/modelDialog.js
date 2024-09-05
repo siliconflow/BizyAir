@@ -62,6 +62,7 @@ export class ModelDialog extends ComfyDialog {
                         id: 'bizyair-d-upload',
                         style: { display: 'none' }
                     }, [
+                        $el('p.upload-size-hint', { }, ['File size exceeds the allowed limit. Please use the \"--client_max_size option\" to specify the upload file size limit, default is 10MB."']),
                         initUpload.content
                     ]),
                     $el('div.cm-bottom-footer', {}, [submit_button, close_button]),

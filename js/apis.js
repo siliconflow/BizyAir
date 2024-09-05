@@ -9,6 +9,7 @@ function customFetch(url, options = {}) {
             //     app.ui.dialog.show(`HTTP error! \n Status: ${status} \n message: ${statusText}`)
             //     throw new Error(`HTTP error! Status: ${response.status}`);
             // }
+            console.log(response)
             return response.json();
         })
         .then(data => {
