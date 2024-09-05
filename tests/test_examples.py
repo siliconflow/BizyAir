@@ -67,7 +67,7 @@ def wait_until_queue_finished(driver, timeout=100):
     try:
         wait = WebDriverWait(driver, timeout)
 
-        def queue_size_is_zero():
+        def queue_size_is_zero(driver):
             return driver.execute_script(
                 "return window.app.ui.queueSize.textContent === 'Queue size: 0';"
             )
@@ -77,7 +77,7 @@ def wait_until_queue_finished(driver, timeout=100):
         print("Timeout: Queue prompt not finished.")
         raise
     except Exception as e:
-        print(str(e))
+        print(e)
         raise Exception("Error: wait queue finished failed.")
 
 
