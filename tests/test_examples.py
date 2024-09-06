@@ -47,9 +47,11 @@ def load_workflow_graph(driver, workflow: str):
 
 
 def click_queue_prompt_button(driver):
-    wait = WebDriverWait(driver, 1)
-    queue_button = wait.until(EC.presence_of_element_located((By.ID, "queue-button")))
-    queue_button.click()
+    try:
+        driver.execute_script(f"window.app.queuePrompt()")
+    except Exception as e:
+        print(str(e))
+        raise Exception("Error: app.queuePrompt() failed.")
 
 
 def clear_curernt_workflow(driver):
@@ -62,25 +64,26 @@ def clear_curernt_workflow(driver):
 
 def wait_until_queue_finished(driver, timeout=100):
     time.sleep(0.3)
-    wait = WebDriverWait(driver, timeout)
-    # element = wait.until(
-    #     EC.presence_of_element_located(
-    #         (By.XPATH, f'//*[contains(text(), "Queue size: 0")]')
-    #     )
-    # )
-    wait.until(
-        EC.presence_of_element_located(
-            (By.XPATH, f'//*[contains(text(), "Queue size: 0")]')
-        )
-    )
+    try:
+        wait = WebDriverWait(driver, timeout)
+
+        def queue_size_is_zero(driver):
+            return driver.execute_script(
+                "return window.app.ui.queueSize.textContent === 'Queue size: 0';"
+            )
+
+        wait.until(queue_size_is_zero)
+    except TimeoutException:
+        print("Timeout: Queue prompt not finished.")
+        raise
+    except Exception as e:
+        print(e)
+        raise Exception("Error: wait queue finished failed.")
 
 
 def wait_until_app_ready(driver):
-    WebDriverWait(driver, 5).until(
-        EC.presence_of_element_located((By.ID, "comfy-clear-button"))
-    )
-    WebDriverWait(driver, 5).until(
-        EC.presence_of_element_located((By.ID, "graph-canvas"))
+    WebDriverWait(driver, 30).until(
+        EC.presence_of_element_located((By.CLASS_NAME, "bizyair-logo"))
     )
 
 

@@ -13,7 +13,7 @@ SHOW_CASES = {}
 
 
 def get_bizyair_news(base_url="https://bizyair.siliconflow.cn"):
-    url = f"{base_url}/news.json"
+    url = f"{base_url}/bznews.json"
     try:
         response = urllib.request.urlopen(url, timeout=5)
         if response.getcode() == 200:
@@ -30,7 +30,7 @@ def get_bizyair_news(base_url="https://bizyair.siliconflow.cn"):
         return {}
 
 
-SHOW_CASES.update(get_bizyair_news())
+SHOW_CASES.update()
 
 with open(os.path.join(CURRENT_DIR, "bizyair_example_menu.json"), "r") as file:
     SHOW_CASES.update(json.load(file))
@@ -55,6 +55,14 @@ from server import PromptServer
 async def set_api_key_page(request):
     return web.Response(
         text=json.dumps(SHOW_CASES, ensure_ascii=False), content_type="application/json"
+    )
+
+
+@PromptServer.instance.routes.get("/bizyair/news")
+async def list_news(request):
+    return web.Response(
+        text=json.dumps(get_bizyair_news(), ensure_ascii=False),
+        content_type="application/json",
     )
 
 
