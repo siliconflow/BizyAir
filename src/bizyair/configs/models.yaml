@@ -12,7 +12,7 @@ model_types:
 routing_configs:
   sdxl:
     service_address: https://bizyair-api.siliconflow.cn/x/v1
-    route: /supernode/bizyair-sdxl-comfy-ksampler
+    route: /supernode/bizyair-sdxl-comfy-ksampler-v2
   kolors:
     service_address: https://bizyair-api.siliconflow.cn/x/v1
     route: /supernode/kolors-bizyair-sdxl-comfy-ksampler
