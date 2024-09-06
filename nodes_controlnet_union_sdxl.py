@@ -14,7 +14,7 @@ from bizyair.image_utils import decode_comfy_image, encode_comfy_image
 from .utils import get_api_key
 
 BIZYAIR_SERVER_ADDRESS = os.getenv(
-    "BIZYAIR_SERVER_ADDRESS", "https://api.siliconflow.cn"
+    "BIZYAIR_SERVER_ADDRESS", "https://bizyair-api.siliconflow.cn/x/v1"
 )
 
 

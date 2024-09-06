@@ -1,5 +1,6 @@
 # BizyAir
 
+- [2024/09/05] 🌩️ BizyAir supports users in running custom LoRA models, including SDXL and Flux LoRA. [How to upload and run custom model](https://siliconflow.github.io/BizyAir/model-host/introduce.html)
 - [2024/08/23] 🌩️ BizyAir now support ultimateSDupscale nodes [upscale workflow](./examples/bizyair_ultimate_sd_upscale.json)
 - [2024/08/14] 🌩️ BizyAir JoyCaption node has been released. [Try the example to recreate a image by JoyCaption and Flux](./examples/bizyair_flux_joycaption_img2img_workflow.json), thanks to [fancyfeast/joy-caption-pre-alpha](https://huggingface.co/spaces/fancyfeast/joy-caption-pre-alpha)
 - [2024/08/05] 🌩️ FLUX.1-dev has been supported. [FLUX.1-dev Text to Image](./examples/bizyair_flux_dev_workflow.json), [FLUX.1-dev Image to Image](./examples/bizyair_flux_img2img_workflow.json)
