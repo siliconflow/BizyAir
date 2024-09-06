@@ -56,7 +56,7 @@ def guess_url_from_node(
                             if node["inputs"]["weight_dtype"] == "fp8_e4m3fn":
                                 return (
                                     configs["service_address"]
-                                    + "/x/v1/supernode/flux-dev-bizyair-comfy-ksampler-fp8-v2"
+                                    + "/supernode/flux-dev-bizyair-comfy-ksampler-fp8-v2"
                                 )
                         return configs["service_address"] + configs["route"]
 
