@@ -34,6 +34,9 @@
     ],
     "sd15":[
       "control_v11f1e_sd15_tile.pth"
+    ],
+    "instantid": [
+      "diffusion_pytorch_model.safetensors"
     ]
   },
   "ipadapter": {
@@ -74,5 +77,6 @@
   ],
   "upscale_models":[
     "4x_NMKD-Siax_200k.pth"
-  ]
+  ],
+  "instantid":["ip-adapter.bin"]
 }
