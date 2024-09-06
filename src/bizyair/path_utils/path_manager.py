@@ -52,11 +52,12 @@ def guess_url_from_node(
                         config_key = rule["config"]
                         configs = routing_configs[config_key]
                         # TODO fix
-                        if len(node_usage_state.loras) > 0 and config_key == "flux-dev":
-                            return (
-                                configs["service_address"]
-                                + "/supernode/test-flux-dev-bizyair-comfy-ksampler"
-                            )
+                        if config_key == "flux-dev":
+                            if node["inputs"]["weight_dtype"] == "fp8_e4m3fn":
+                                return (
+                                    configs["service_address"]
+                                    + "/supernode/flux-dev-bizyair-comfy-ksampler-fp8-v2"
+                                )
                         return configs["service_address"] + configs["route"]
 
 
@@ -84,43 +85,26 @@ def get_config_file_list(base_path=None) -> list:
     return config_files
 
 
-def cached_filename_list(folder_name: str, verbose=True) -> list[str]:
-    global filename_path_mapping
-    if folder_name not in filename_path_mapping:
-        url = get_service_route(models_config["service_config"])
-        model_types: Dict[str, str] = models_config["model_types"]
-        msg = fetch_models_by_type(url=url, model_type=model_types[folder_name])
-        if not msg or "data" not in msg:
-            return []
-
-        filename_path_mapping[folder_name] = {
-            x["label_path"]: x["real_path"] for x in msg["data"] if x["label_path"]
-        }
-
-    return list(
-        filter_files_extensions(
-            filename_path_mapping[folder_name].keys(),
-            extensions=supported_pt_extensions,
-        )
-    )
-
-
 def cached_filename_list(
     folder_name: str, *, verbose=False, refresh=False
 ) -> list[str]:
     global filename_path_mapping
     if refresh or folder_name not in filename_path_mapping:
-        url = get_service_route(models_config["service_config"])
         model_types: Dict[str, str] = models_config["model_types"]
-        msg = fetch_models_by_type(url=url, model_type=model_types[folder_name])
+        url = get_service_route(models_config["model_hub"]["find_model"])
+        msg = fetch_models_by_type(
+            url=url, method="GET", model_type=model_types[folder_name]
+        )
         if verbose:
             pprint.pprint({"cached_filename_list": msg})
 
-        if not msg or "data" not in msg:
+        if not msg or "data" not in msg or msg["data"] is None:
             return []
 
         filename_path_mapping[folder_name] = {
-            x["label_path"]: x["real_path"] for x in msg["data"] if x["label_path"]
+            x["label_path"]: x["real_path"]
+            for x in msg["data"]["files"]
+            if x["label_path"]
         }
 
     return list(
