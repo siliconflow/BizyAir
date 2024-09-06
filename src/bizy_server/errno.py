@@ -9,11 +9,17 @@ class ErrorNo:
 CODE_OK = 20000
 CODE_NO_MODEL_FOUND = 20226
 
-INVALID_TYPE = ErrorNo(400, 400100, None, "type is invalid")
-INVALID_NAME = ErrorNo(400, 400101, None, "name is invalid")
-NO_FILE_UPLOAD_ERR = ErrorNo(400, 400102, None, "no file uploaded")
-EMPTY_UPLOAD_ID_ERR = ErrorNo(400, 400103, None, "empty upload id")
-INVALID_API_KEY_ERR = ErrorNo(401, 401000, None, "invalid API key")
+INVALID_TYPE = ErrorNo(400, 400100, None, "Invalid type")
+INVALID_NAME = ErrorNo(400, 400101, None, "Invalid name")
+NO_FILE_UPLOAD_ERR = ErrorNo(400, 400102, None, "No file to upload")
+EMPTY_UPLOAD_ID_ERR = ErrorNo(400, 400103, None, "Upload id is Empty")
+EMPTY_ABS_FOLDER_ERR = ErrorNo(400, 400111, None, "The upload path cannot be empty.")
+NO_ABS_PATH_ERR = ErrorNo(400, 400112, None, "The upload path is not an absolute path.")
+PATH_NOT_EXISTS_ERR = ErrorNo(400, 400113, None, "The upload path does not exist.")
+FILE_NOT_EXISTS_ERR = ErrorNo(400, 400114, None, "The file does not exist.")
+INVALID_CLIENT_ID_ERR = ErrorNo(400, 400114, None, "Invalid client id")
+INVALID_API_KEY_ERR = ErrorNo(401, 401000, None, "Invalid API key")
+
 FILE_UPLOAD_SIZE_LIMIT_ERR = ErrorNo(
     413,
     413000,
@@ -32,3 +38,4 @@ EMPTY_FILES_ERR = ErrorNo(500, 500107, None, "empty files to make a model")
 LIST_MODEL_FILE_ERR = ErrorNo(500, 500108, None, "failed to list model file")
 INVALID_FILENAME_ERR = ErrorNo(500, 500109, None, "invalid filename")
 DELETE_MODEL_ERR = ErrorNo(500, 500110, None, "failed to delete model")
+

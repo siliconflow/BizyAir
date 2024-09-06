@@ -1,18 +1,21 @@
+import asyncio
 import base64
 import hashlib
 import json
 import logging
 import os
 import shutil
+import threading
 import urllib.parse
 import urllib.request
 from collections import defaultdict
 from pathlib import Path
 
+import aiohttp
 import crcmod
 import oss2
 import requests
-from aiohttp import web
+import uuid
 from server import PromptServer
 
 import bizyair
@@ -39,10 +42,17 @@ from .errno import (
     NO_FILE_UPLOAD_ERR,
     SIGN_FILE_ERR,
     UPLOAD_ERR,
+    EMPTY_ABS_FOLDER_ERR,
+    NO_ABS_PATH_ERR,
+    PATH_NOT_EXISTS_ERR,
+    INVALID_CLIENT_ID_ERR,
+    FILE_NOT_EXISTS_ERR,
     ErrorNo,
 )
+from .execution import UploadQueue
 from .oss import AliOssStorageClient
 from .resp import ErrResponse, JsonResponse, OKResponse
+from .utils import DebounceTimer
 
 current_path = os.path.abspath(os.path.dirname(__file__))
 prompt_server = PromptServer.instance
@@ -72,14 +82,18 @@ class ModelHostServer:
         ModelHostServer.instance = self
         list_model_html = self.get_html_content("templates/list_model.html")
         upload_model_html = self.get_html_content("templates/upload_model.html")
+        self.sockets = dict()
+        self.uploads = dict()
+        self.upload_queue = UploadQueue()
+        self.loop = asyncio.get_event_loop()
 
         @prompt_server.routes.get(f"/{API_PREFIX}/list")
         async def forward_list_model_html(request):
-            return web.Response(text=list_model_html, content_type="text/html")
+            return aiohttp.web.Response(text=list_model_html, content_type="text/html")
 
         @prompt_server.routes.get(f"/{API_PREFIX}/upload")
         async def forward_upload_model_html(request):
-            return web.Response(text=upload_model_html, content_type="text/html")
+            return aiohttp.web.Response(text=upload_model_html, content_type="text/html")
 
         @prompt_server.routes.get(f"/{API_PREFIX}/model_types")
         async def list_model_types(request):
@@ -107,6 +121,102 @@ class ModelHostServer:
                 return ErrResponse(err)
 
             return OKResponse({"exists": exists})
+
+        @prompt_server.routes.get(f"/{API_PREFIX}/ws")
+        async def websocket_handler(request):
+            ws = aiohttp.web.WebSocketResponse()
+            await ws.prepare(request)
+            sid = request.rel_url.query.get('clientId', '')
+            if sid:
+                # Reusing existing session, remove old
+                self.sockets.pop(sid, None)
+            else:
+                sid = uuid.uuid4().hex
+
+            self.sockets[sid] = ws
+
+            try:
+                # Send initial state to the new client
+                await self.send_json(event="status", data={"status": "connected"}, sid=sid)
+
+                async for msg in ws:
+                    if msg.type == aiohttp.WSMsgType.ERROR:
+                        logging.warning('ws connection closed with exception %s' % ws.exception())
+            finally:
+                self.sockets.pop(sid, None)
+            return ws
+
+        @prompt_server.routes.get(f"/{API_PREFIX}/check_folder")
+        async def check_folder(request):
+            absolute_path = request.rel_url.query.get("absolute_path")
+
+            if not self.is_string_valid(absolute_path):
+                return ErrResponse(EMPTY_ABS_FOLDER_ERR)
+
+            if not os.path.isabs(absolute_path):
+                return ErrResponse(NO_ABS_PATH_ERR)
+
+            if not os.path.exists(absolute_path):
+                return ErrResponse(PATH_NOT_EXISTS_ERR)
+
+            relative_paths = []
+            for root, dirs, files in os.walk(absolute_path):
+                # Skip the .git directory
+                if '.git' in dirs:
+                    dirs.remove('.git')
+
+                for file in files:
+                    file_path = os.path.join(root, file)
+                    relative_path = os.path.relpath(file_path, absolute_path)
+                    file_size = os.path.getsize(file_path)
+                    relative_paths.append({"path": self.to_slash(relative_path), "size": file_size})
+
+            if len(relative_paths) < 1:
+                return ErrResponse(EMPTY_FILES_ERR)
+
+            upload_id = uuid.uuid4().hex
+            data = {"upload_id": upload_id, "root": absolute_path, "files": relative_paths}
+            self.uploads[upload_id] = data
+
+            return OKResponse(data)
+
+        @prompt_server.routes.post(f"/{API_PREFIX}/submit_upload")
+        async def submit_upload(request):
+            sid = request.rel_url.query.get('clientId', '')
+            if not self.is_string_valid(sid):
+                return ErrResponse(INVALID_CLIENT_ID_ERR)
+
+            json_data = await request.json()
+            err = self.check_str_param(json_data, "upload_id", EMPTY_UPLOAD_ID_ERR)
+            if err is not None:
+                return err
+
+            upload_id = json_data.get("upload_id")
+            if upload_id not in self.uploads:
+                return ErrResponse(INVALID_UPLOAD_ID_ERR)
+
+            err = self.check_type(json_data)
+            if err is not None:
+                return err
+
+            err = self.check_str_param(json_data, "name", INVALID_NAME)
+            if err is not None:
+                return err
+
+            exists, err = self.check_model(
+                type=json_data["type"], name=json_data["name"]
+            )
+            if err is not None:
+                return err
+
+            if exists and "overwrite" not in json_data or json_data["overwrite"] is not True:
+                return ErrResponse(MODEL_ALREADY_EXISTS_ERR)
+
+            self.uploads[upload_id]["sid"] = sid
+            self.uploads[upload_id]["type"] = json_data["type"]
+            self.uploads[upload_id]["name"] = json_data["name"]
+            self.upload_queue.put(self.uploads[upload_id])
+            return OKResponse(None)
 
         @prompt_server.routes.post(f"/{API_PREFIX}/file_upload")
         async def file_upload(request):
@@ -244,9 +354,9 @@ class ModelHostServer:
                 return err
 
             if (
-                exists
-                and "overwrite" not in json_data
-                or json_data["overwrite"] is not True
+                    exists
+                    and "overwrite" not in json_data
+                    or json_data["overwrite"] is not True
             ):
                 return ErrResponse(MODEL_ALREADY_EXISTS_ERR)
 
@@ -446,7 +556,7 @@ class ModelHostServer:
             return None, COMMIT_FILE_ERR
 
     def commit_model(
-        self, model_files, model_name: str, model_type: str, overwrite: bool
+            self, model_files, model_name: str, model_type: str, overwrite: bool
     ) -> (dict, ErrorNo):
         server_url = f"{BIZYAIR_SERVER_ADDRESS}/models"
 
@@ -514,8 +624,8 @@ class ModelHostServer:
         if "type" not in json_data:
             return ErrResponse(INVALID_TYPE)
         if (
-            not self.is_string_valid(json_data["type"])
-            or json_data["type"] not in ALLOW_TYPES
+                not self.is_string_valid(json_data["type"])
+                or json_data["type"] not in ALLOW_TYPES
         ):
             return ErrResponse(INVALID_TYPE)
         return None
@@ -591,3 +701,137 @@ class ModelHostServer:
         )
 
         return hash_string
+
+    async def send_json(self, event, data, sid=None):
+        message = {"type": event, "data": data}
+
+        if sid is None:
+            sockets = list(self.sockets.values())
+            for ws in sockets:
+                await self.send_socket_catch_exception(ws.send_json, message)
+        elif sid in self.sockets:
+            await self.send_socket_catch_exception(self.sockets[sid].send_json, message)
+
+    async def send_error(self, err: ErrorNo, sid=None):
+        await self.send_json("error", {"message": err.message, "code": err.code, "data": err.data}, sid)
+
+    async def send_socket_catch_exception(self, function, message):
+        try:
+            await function(message)
+        except (aiohttp.ClientError, aiohttp.ClientPayloadError, ConnectionResetError) as err:
+            logging.warning("send error: {}".format(err))
+
+    def send_sync(self, event, data, sid=None):
+        asyncio.run_coroutine_threadsafe(self.send_json(event, data, sid), self.loop)
+
+    def send_sync_error(self, err: ErrorNo, sid=None):
+        self.send_sync(event="errors", data={"message": err.message, "code": err.code, "data": err.data}, sid=sid)
+
+    def do_upload(self, item):
+        sid = item["sid"]
+        upload_id = item["upload_id"]
+        self.send_sync(event="status", data={"status": "starting", "message": f"{upload_id} start uploading"},
+                       sid=sid)
+
+        root_dir = item["root"]
+        model_files = []
+        for file in item["files"]:
+            filename = file["path"]
+            filepath = os.path.abspath(os.path.join(root_dir, filename))
+            if not os.path.exists(filepath):
+                self.send_sync_error(err=FILE_NOT_EXISTS_ERR, sid=sid)
+                return
+
+            sha256sum = self.calculate_hash(filepath)
+            if not CACHE.upload_id_exists(upload_id=upload_id):
+                CACHE.set_valuemap(upload_id=upload_id, valuemap={})
+
+            CACHE.set_file_info(
+                upload_id=upload_id,
+                filename=filename,
+                info={
+                    "relPath": self.to_slash(filename),
+                    "size": os.path.getsize(filepath),
+                    "signature": sha256sum,
+                },
+            )
+
+            sign_data, err = self.sign(sha256sum)
+            file_record = sign_data.get("file")
+            if err is not None:
+                self.send_sync_error(err=err, sid=sid)
+                return
+
+            if self.is_string_valid(file_record.get("id")):
+                file_info = CACHE.get_file_info(
+                    upload_id=upload_id, filename=filename
+                )
+                file_info["id"] = file_record.get("id")
+                file_info["remote_key"] = file_record.get("object_key")
+            else:
+                print("start uploading file")
+                file_storage = sign_data.get("storage")
+                try:
+                    debounce_timer = DebounceTimer(2)
+
+                    def updateProgress(consume_bytes, total_bytes):
+                        def debounced_update():
+                            fi = CACHE.get_file_info(
+                                upload_id=upload_id, filename=filename
+                            )
+                            if fi is not None:
+                                progress = "{:.2f}%".format(
+                                    consume_bytes / total_bytes * 100
+                                )
+                                self.send_sync(event="progress", data={"path": filename, "progress": progress}, sid=sid)
+
+                        debounce_timer.debounce(debounced_update)
+
+                    oss_client = AliOssStorageClient(
+                        endpoint=file_storage.get("endpoint"),
+                        bucket_name=file_storage.get("bucket"),
+                        access_key=file_record.get("access_key_id"),
+                        secret_key=file_record.get("access_key_secret"),
+                        security_token=file_record.get("security_token"),
+                        onUploading=updateProgress,
+                    )
+                    oss_client.sync_upload_file(
+                        filepath, file_record.get("object_key")
+                    )
+                except oss2.exceptions.OssError as e:
+                    print(f"OSS err:{str(e)}")
+                    self.send_sync_error(UPLOAD_ERR, sid)
+                    return
+
+                commit_data, err = self.commit_file(
+                    signature=sha256sum, object_key=file_record.get("object_key")
+                )
+                if err is not None:
+                    self.send_sync_error(err)
+                    return
+
+                new_file_record = commit_data.get("file")
+                file_info = CACHE.get_file_info(
+                    upload_id=upload_id, filename=filename
+                )
+                file_info["id"] = new_file_record.get("id")
+                file_info["remote_key"] = new_file_record.get("object_key")
+                print(f"{file_info['relPath']} Already Uploaded")
+                self.send_sync(event="progress", data={"path": filename, "progress": "100%"}, sid=sid)
+
+            model_files.append({"sign": sha256sum, "path": filename})
+
+        commit_ret, err = self.commit_model(
+            model_files=model_files,
+            model_name=item["name"],
+            model_type=item["type"],
+            overwrite=True,
+        )
+        if err is not None:
+            self.send_sync_error(err, sid)
+            return
+
+        print("Uploaded successfully")
+
+        self.send_sync(event="status",
+                       data={"status": "finish", "message": f"{upload_id} uploading finished"}, sid=sid)
