@@ -38,7 +38,7 @@
 !!! note
     如果你不熟悉命令行，请改用 [ComfyUI 中上传模型](#comfyui) 的方法。
 
-为了上传模型，需要下载命令行工具：https://github.com/siliconflow/siliconcloud-cli/releases/tag/v0.1.0
+为了上传模型，需要下载命令行工具：https://github.com/siliconflow/siliconcloud-cli/releases/tag/v0.1.1
 
 请根据自己的 操作系统 和 芯片类型 选择正确的客户端下载。
 
@@ -64,10 +64,7 @@ siliconcloud login --api_key $APIKEY
 ### 上传模型
 
 ```bash
-siliconcloud  upload \
-              --type "bizyair/lora" \
-              --path /localpath/XLabs-AI/flux-lora-collection \
-              --name myflux-lora
+siliconcloud  upload --type "bizyair/lora" --path /localpath/XLabs-AI/flux-lora-collection --name myflux-lora
 ```
 
 参数解释：
