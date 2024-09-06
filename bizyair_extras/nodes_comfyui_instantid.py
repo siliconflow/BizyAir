@@ -79,6 +79,8 @@ class ApplyInstantID(BizyAirBaseNode):
 
 
 class ApplyInstantIDAdvanced(ApplyInstantID):
+    NODE_DISPLAY_NAME = "Apply InstantID Adavanced"
+
     @classmethod
     def INPUT_TYPES(s):
         return {
