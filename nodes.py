@@ -780,18 +780,20 @@ class FluxGuidance(BizyAirBaseNode):
         return (new_conditioning,)
 
 
-
 class InpaintModelConditioning(BizyAirBaseNode):
     @classmethod
     def INPUT_TYPES(s):
-        return {"required": {"positive": (data_types.CONDITIONING, ),
-                             "negative": (data_types.CONDITIONING, ),
-                             "vae": (data_types.VAE, ),
-                             "pixels": ("IMAGE", ),
-                             "mask": ("MASK", ),
-                             }}
+        return {
+            "required": {
+                "positive": (data_types.CONDITIONING,),
+                "negative": (data_types.CONDITIONING,),
+                "vae": (data_types.VAE,),
+                "pixels": ("IMAGE",),
+                "mask": ("MASK",),
+            }
+        }
 
-    RETURN_TYPES = (data_types.CONDITIONING,data_types.CONDITIONING,"LATENT")
+    RETURN_TYPES = (data_types.CONDITIONING, data_types.CONDITIONING, "LATENT")
     RETURN_NAMES = ("positive", "negative", "latent")
     # FUNCTION = "encode"
 
