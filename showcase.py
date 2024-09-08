@@ -22,7 +22,7 @@ async def get_bizyair_news(base_url="https://bizyair.siliconflow.cn"):
                     data = await response.text()
                     return json.loads(data)
                 else:
-                    print(f"Failed to fetch news.json: HTTP Status {response.status}")
+                    print(f"Failed to fetch bznews.json: HTTP Status {response.status}")
                     return {}
     except aiohttp.ClientError as e:
         print(f"Error fetching news.json: {e}")
