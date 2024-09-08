@@ -3,6 +3,7 @@ import os
 import urllib.error
 import urllib.request
 
+import aiohttp
 import server
 from aiohttp import web
 
@@ -12,18 +13,19 @@ CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 SHOW_CASES = {}
 
 
-def get_bizyair_news(base_url="https://bizyair.siliconflow.cn"):
+async def get_bizyair_news(base_url="https://bizyair.siliconflow.cn"):
     url = f"{base_url}/bznews.json"
     try:
-        response = urllib.request.urlopen(url, timeout=5)
-        if response.getcode() == 200:
-            data = response.read()
-            return json.loads(data)
-        else:
-            print(f"Failed to fetch news.json: HTTP Status {response.getcode()}")
-            return {}
-    except urllib.error.URLError as e:
-        print(f"Error fetching news.json: {e.reason}")
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, timeout=5) as response:
+                if response.status == 200:
+                    data = await response.text()
+                    return json.loads(data)
+                else:
+                    print(f"Failed to fetch news.json: HTTP Status {response.status}")
+                    return {}
+    except aiohttp.ClientError as e:
+        print(f"Error fetching news.json: {e}")
         return {}
     except Exception as e:
         print(f"Error fetching BizyAir news.json: {str(e)}")
@@ -61,7 +63,7 @@ async def set_api_key_page(request):
 @PromptServer.instance.routes.get("/bizyair/news")
 async def list_news(request):
     return web.Response(
-        text=json.dumps(get_bizyair_news(), ensure_ascii=False),
+        text=json.dumps(await get_bizyair_news(), ensure_ascii=False),
         content_type="application/json",
     )
 
