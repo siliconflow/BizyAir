@@ -28,11 +28,9 @@ async def get_bizyair_news(base_url="https://bizyair.siliconflow.cn"):
         print(f"Error fetching news.json: {e}")
         return {}
     except Exception as e:
-        print(f"Error fetching BizyAir news.json: {str(e)}")
+        print(f"Error fetching BizyAir bznews.json: {str(e)}")
         return {}
 
-
-SHOW_CASES.update()
 
 with open(os.path.join(CURRENT_DIR, "bizyair_example_menu.json"), "r") as file:
     SHOW_CASES.update(json.load(file))
