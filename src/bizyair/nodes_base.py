@@ -120,16 +120,11 @@ class BizyAirBaseNode:
 
     def default_function(self, **kwargs):
         class_type = type(self).__name__
-        return tuple(
-            BizyAirNodeIO(
-                self.assigned_id,
-                {
-                    self.assigned_id: create_node_data(
-                        class_type=class_type,
-                        inputs=kwargs,
-                        outputs={"slot_index": slot_index},
-                    )
-                },
+        outs = []
+        for slot_index in range(len(self.RETURN_TYPES)):
+            node = BizyAirNodeIO(node_id=self.assigned_id, nodes={})
+            node.add_node_data(
+                class_type=class_type, inputs=kwargs, outputs={"slot_index": slot_index}
             )
-            for slot_index in range(len(self.RETURN_TYPES))
-        )
+            outs.append(node)
+        return tuple(outs)
