@@ -1,12 +1,9 @@
 import { app } from "../../../scripts/app.js";
 import { $el } from "../../../scripts/ui.js";
 import { ConfirmDialog } from "../subassembly/confirm.js";
-import { check_model_exists, model_upload, file_upload, model_types } from "../apis.js"
-import { dialog } from '../subassembly/dialog.js';
+import { check_model_exists, model_upload, file_upload } from "../apis.js"
 
-export const uploadPage = async () => {
-    const resType = await model_types();
-    const typeList = resType.data;
+export function uploadPage (typeList, submitBtn) {
     const elOptions = typeList.map(item => $el("option", { value: item.value }, [item.label]))
     const temp = {
         filesAry: [],
@@ -289,13 +286,5 @@ export const uploadPage = async () => {
             submitBtn.innerText = 'Submit'
         }
     }
-    dialog({
-        content: temp.content,
-        yesText: 'Submit',
-        noText: 'Close',
-        onYes: () => {
-            temp.toSubmit()
-            return true
-        },
-    })
+    return temp
 }

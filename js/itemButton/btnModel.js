@@ -5,11 +5,11 @@ import { models_files, model_types } from "../apis.js";
 import { showMenu } from "../subassembly/btnMenuFn.js";
 import { modelList } from "../dialog/modelList.js";
 import { uploadPage } from "../dialog/uploadFile.js";
-import { dialog } from "../subassembly/dialog.js";
+
 
 const show_cases = {
     "Remote Folders": modelList,
-    "Upload": () => console.log('Upload')
+    "Upload": uploadPage
 }
 export const modelBtn = $el('div.menus-item.menus-item-model', {
     onclick: (e) => showMenu(e, show_cases),

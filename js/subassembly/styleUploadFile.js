@@ -63,7 +63,7 @@ export const styleUploadFile = `
     margin-top: 40px;
 }
 .comfy-modal-content{
-    width: 100%;
+    width: 1200px;
     height: 100%;
 }
 .cm-bottom-footer {
@@ -207,7 +207,7 @@ input.cm-input-item-error{
     margin-left: 10px;
 }
 .bizyair-model-list{
-    width: 100%;
+    width: 1200px;
     height: 360px;
     margin-top: 40px;
     color: var(--input-text);

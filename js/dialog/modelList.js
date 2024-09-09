@@ -1,8 +1,12 @@
 import { dialog } from '../subassembly/dialog.js';
 import { $el } from "../../../scripts/ui.js";
-import { delModels, models_files } from "../apis.js"
-
-export function modelList() {
+import { delModels, models_files, model_types } from "../apis.js"
+export const modelList = async () => {
+    
+    const resList = await models_files('bizyair/lora');
+    const resType = await model_types();
+    const listData = resList.data;
+    const typeList = resType.data;
     const elDataItemChild = (list) => {
         return list.map(item => $el('div.bizyair-model-list-item-child.bizyair-model-list-item', {}, [
             $el('div.bizyair-flex-item', { title: item.label_path}, [item.label_path]),
@@ -14,7 +18,7 @@ export function modelList() {
     const del = (name, ele) => {
         dialog({
             title: "This operation cannot be undone.",
-            message: "Are you sure you want to delete it?",
+            content: "Are you sure you want to delete it?",
             yesText: "Yes",
             noText: "No",
             onYes: () => {
@@ -26,6 +30,7 @@ export function modelList() {
                         ele.closest('.bizyair-model-list-item').remove()
                     }
                 })
+                return true
             }
         })
     }
@@ -92,7 +97,6 @@ export function modelList() {
     ]);
 
     dialog({
-        title: 'Model List',
         content: content,
         noText: 'Close',
     })

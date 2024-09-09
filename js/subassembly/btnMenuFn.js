@@ -56,6 +56,7 @@ export function mapHtmls(item, key) {
 export async function get_workflow_graph(file) {
     if (typeof file === 'function') {
         file()
+        return
     }
     if (file.startsWith("https://")) {
         console.log("open BizyAir NEWS:", file);
