@@ -114,7 +114,7 @@ class ModelHostServer:
             if err is not None:
                 return err
 
-            exists, err = self.check_model(
+            exists, err = await self.check_model(
                 name=json_data["name"], type=json_data["type"]
             )
             if err is not None:
@@ -203,11 +203,11 @@ class ModelHostServer:
             if err is not None:
                 return err
 
-            exists, err = self.check_model(
+            exists, err = await self.check_model(
                 type=json_data["type"], name=json_data["name"]
             )
             if err is not None:
-                return err
+                return ErrResponse(err)
 
             if exists and "overwrite" not in json_data or json_data["overwrite"] is not True:
                 return ErrResponse(MODEL_ALREADY_EXISTS_ERR)
@@ -248,7 +248,7 @@ class ModelHostServer:
                 with open(filepath, "wb") as f:
                     f.write(file.file.read())
 
-                sha256sum = self.calculate_hash(filepath)
+                sha256sum = await self.calculate_hash(filepath)
                 print(
                     f"write file to localstore: upload_id={upload_id}, filepath={filepath}, signature={sha256sum}"
                 )
@@ -266,7 +266,7 @@ class ModelHostServer:
                     },
                 )
 
-                sign_data, err = self.sign(sha256sum)
+                sign_data, err = await self.sign(sha256sum)
                 file_record = sign_data.get("file")
                 if err is not None:
                     return ErrResponse(err)
@@ -307,7 +307,7 @@ class ModelHostServer:
                         print(f"OSS err:{str(e)}")
                         return ErrResponse(UPLOAD_ERR)
 
-                    commit_data, err = self.commit_file(
+                    commit_data, err = await self.commit_file(
                         signature=sha256sum, object_key=file_record.get("object_key")
                     )
                     if err is not None:
@@ -347,11 +347,11 @@ class ModelHostServer:
             if err is not None:
                 return err
 
-            exists, err = self.check_model(
+            exists, err = await self.check_model(
                 type=json_data["type"], name=json_data["name"]
             )
             if err is not None:
-                return err
+                return ErrResponse(err)
 
             if (
                     exists
@@ -367,7 +367,7 @@ class ModelHostServer:
             for file in files:
                 file["path"] = self.to_slash(file["path"])
 
-            commit_ret, err = self.commit_model(
+            commit_ret, err = await self.commit_model(
                 model_files=files,
                 model_name=json_data["name"],
                 model_type=json_data["type"],
@@ -405,62 +405,10 @@ class ModelHostServer:
             if "ext_name" in request.rel_url.query:
                 payload["ext_name"] = request.rel_url.query["ext_name"]
 
-            headers, err = self.auth_header()
+            model_files, err = await self.get_model_files(payload)
             if err is not None:
-                return err
-
-            server_url = f"{BIZYAIR_SERVER_ADDRESS}/models/files"
-
-            try:
-                resp = self.do_get(server_url, params=payload, headers=headers)
-                ret = json.loads(resp)
-                if ret["code"] != CODE_OK:
-                    if ret["code"] == CODE_NO_MODEL_FOUND:
-                        return OKResponse([])
-                    else:
-                        return ErrResponse(
-                            ErrorNo(500, ret["code"], None, ret["message"])
-                        )
-
-                if not ret["data"]:
-                    return OKResponse([])
-
-                files = ret["data"]["files"]
-                result = []
-                if len(files) > 0:
-                    tree = defaultdict(lambda: {"name": "", "list": []})
-
-                    for item in files:
-                        parts = item["label_path"].split("/")
-                        model_name = parts[0]
-                        if model_name not in tree:
-                            tree[model_name] = {"name": model_name, "list": [item]}
-                        else:
-                            tree[model_name]["list"].append(item)
-                    result = list(tree.values())
-
-                return OKResponse(result)
-
-            except Exception as e:
-                print(f"fail to list model files: {str(e)}")
-                return ErrResponse(LIST_MODEL_FILE_ERR)
-
-        @prompt_server.routes.get(f"/{API_PREFIX}/file_upload/progress")
-        async def file_upload_progress(request):
-            if "upload_id" not in request.rel_url.query:
-                return ErrResponse(INVALID_UPLOAD_ID_ERR)
-            if "filename" not in request.rel_url.query:
-                return ErrResponse(INVALID_FILENAME_ERR)
-
-            upload_id = request.rel_url.query["upload_id"]
-            filename = request.rel_url.query["filename"]
-
-            file_info = CACHE.get_file_info(upload_id=upload_id, filename=filename)
-            if file_info is not None:
-                if "progress" in file_info:
-                    return JsonResponse({"progress": file_info["progress"]})
-
-            return JsonResponse({"progress": "0.00%"})
+                return ErrResponse(err)
+            return OKResponse(model_files)
 
         @prompt_server.routes.delete(f"/{API_PREFIX}/models")
         async def delete_model(request):
@@ -474,11 +422,11 @@ class ModelHostServer:
             if err is not None:
                 return err
 
-            err = self.remove_model(
+            err = await self.remove_model(
                 model_type=json_data["type"], model_name=json_data["name"]
             )
             if err is not None:
-                return err
+                return ErrResponse(err)
 
             print("Delete successfully")
             return OKResponse(None)
@@ -489,7 +437,7 @@ class ModelHostServer:
             html_content = htmlfile.read()
         return html_content
 
-    def check_model(self, type: str, name: str) -> (bool, ErrorNo):
+    async def check_model(self, type: str, name: str) -> (bool, ErrorNo):
         server_url = f"{BIZYAIR_SERVER_ADDRESS}/models/check"
 
         payload = {
@@ -515,7 +463,7 @@ class ModelHostServer:
             print(f"fail to check model: {str(e)}")
             return None, CHECK_MODEL_EXISTS_ERR
 
-    def sign(self, signature: str) -> (dict, ErrorNo):
+    async def sign(self, signature: str) -> (dict, ErrorNo):
         server_url = f"{BIZYAIR_SERVER_ADDRESS}/files/{signature}"
         headers, err = self.auth_header()
         if err is not None:
@@ -533,7 +481,7 @@ class ModelHostServer:
             print(f"fail to sign model: {str(e)}")
             return None, SIGN_FILE_ERR
 
-    def commit_file(self, signature: str, object_key: str) -> (dict, ErrorNo):
+    async def commit_file(self, signature: str, object_key: str) -> (dict, ErrorNo):
         server_url = f"{BIZYAIR_SERVER_ADDRESS}/files"
 
         payload = {
@@ -555,7 +503,7 @@ class ModelHostServer:
             print(f"fail to commit file: {str(e)}")
             return None, COMMIT_FILE_ERR
 
-    def commit_model(
+    async def commit_model(
             self, model_files, model_name: str, model_type: str, overwrite: bool
     ) -> (dict, ErrorNo):
         server_url = f"{BIZYAIR_SERVER_ADDRESS}/models"
@@ -581,7 +529,7 @@ class ModelHostServer:
             print(f"fail to commit model: {str(e)}")
             return None, COMMIT_MODEL_ERR
 
-    def remove_model(self, model_name: str, model_type: str) -> (dict, ErrorNo):
+    async def remove_model(self, model_name: str, model_type: str) -> ErrorNo:
         server_url = f"{BIZYAIR_SERVER_ADDRESS}/models"
 
         payload = {
@@ -596,12 +544,49 @@ class ModelHostServer:
             resp = self.do_delete(server_url, data=payload, headers=headers)
             ret = json.loads(resp)
             if ret["code"] != CODE_OK:
-                return ErrResponse(ErrorNo(500, ret["code"], None, ret["message"]))
+                return ErrorNo(500, ret["code"], None, ret["message"])
 
             return None
         except Exception as e:
             print(f"fail to remove model: {str(e)}")
-            return ErrResponse(DELETE_MODEL_ERR)
+            return DELETE_MODEL_ERR
+
+    async def get_model_files(self, payload) -> (dict, ErrorNo):
+        headers, err = self.auth_header()
+        if err is not None:
+            return None, err
+
+        server_url = f"{BIZYAIR_SERVER_ADDRESS}/models/files"
+        try:
+            resp = self.do_get(server_url, params=payload, headers=headers)
+            ret = json.loads(resp)
+            if ret["code"] != CODE_OK:
+                if ret["code"] == CODE_NO_MODEL_FOUND:
+                    return [], None
+                else:
+                    return None, ErrorNo(500, ret["code"], None, ret["message"])
+
+            if not ret["data"]:
+                return [], None
+        except Exception as e:
+            print(f"fail to remove model: {str(e)}")
+            return None, LIST_MODEL_FILE_ERR
+
+        files = ret["data"]["files"]
+        result = []
+        if len(files) > 0:
+            tree = defaultdict(lambda: {"name": "", "list": []})
+
+            for item in files:
+                parts = item["label_path"].split("/")
+                model_name = parts[0]
+                if model_name not in tree:
+                    tree[model_name] = {"name": model_name, "list": [item]}
+                else:
+                    tree[model_name]["list"].append(item)
+            result = list(tree.values())
+
+        return result, None
 
     def is_string_valid(self, s):
         # 检查s是否已经被定义（即不是None）且不是空字符串
@@ -643,7 +628,7 @@ class ModelHostServer:
         except ValueError as e:
             error_message = e.args[0] if e.args else INVALID_API_KEY_ERR.message
             INVALID_API_KEY_ERR.message = error_message
-            return None, ErrResponse(INVALID_API_KEY_ERR)
+            return None, INVALID_API_KEY_ERR
 
     def do_get(self, url, params=None, headers=None):
         # 将字典编码为URL参数字符串
@@ -669,7 +654,7 @@ class ModelHostServer:
         response = requests.delete(url, data=data, headers=headers, timeout=3)
         return response.text
 
-    def calculate_hash(self, file_path):
+    async def calculate_hash(self, file_path):
         # 读取文件并计算 CRC64
         # 创建CRC64校验函数。
         do_crc64 = crcmod.mkCrcFun(
@@ -727,10 +712,11 @@ class ModelHostServer:
     def send_sync_error(self, err: ErrorNo, sid=None):
         self.send_sync(event="errors", data={"message": err.message, "code": err.code, "data": err.data}, sid=sid)
 
-    def do_upload(self, item):
+    async def do_upload(self, item):
         sid = item["sid"]
         upload_id = item["upload_id"]
-        self.send_sync(event="status", data={"status": "starting", "message": f"{upload_id} start uploading"},
+        self.send_sync(event="status",
+                       data={"status": "starting", "upload_id": upload_id, "message": f"start uploading"},
                        sid=sid)
 
         root_dir = item["root"]
@@ -742,33 +728,15 @@ class ModelHostServer:
                 self.send_sync_error(err=FILE_NOT_EXISTS_ERR, sid=sid)
                 return
 
-            sha256sum = self.calculate_hash(filepath)
-            if not CACHE.upload_id_exists(upload_id=upload_id):
-                CACHE.set_valuemap(upload_id=upload_id, valuemap={})
+            sha256sum = await self.calculate_hash(filepath)
 
-            CACHE.set_file_info(
-                upload_id=upload_id,
-                filename=filename,
-                info={
-                    "relPath": self.to_slash(filename),
-                    "size": os.path.getsize(filepath),
-                    "signature": sha256sum,
-                },
-            )
-
-            sign_data, err = self.sign(sha256sum)
+            sign_data, err = await self.sign(sha256sum)
             file_record = sign_data.get("file")
             if err is not None:
                 self.send_sync_error(err=err, sid=sid)
                 return
 
-            if self.is_string_valid(file_record.get("id")):
-                file_info = CACHE.get_file_info(
-                    upload_id=upload_id, filename=filename
-                )
-                file_info["id"] = file_record.get("id")
-                file_info["remote_key"] = file_record.get("object_key")
-            else:
+            if not self.is_string_valid(file_record.get("id")):
                 print("start uploading file")
                 file_storage = sign_data.get("storage")
                 try:
@@ -776,14 +744,10 @@ class ModelHostServer:
 
                     def updateProgress(consume_bytes, total_bytes):
                         def debounced_update():
-                            fi = CACHE.get_file_info(
-                                upload_id=upload_id, filename=filename
+                            progress = "{:.2f}%".format(
+                                consume_bytes / total_bytes * 100
                             )
-                            if fi is not None:
-                                progress = "{:.2f}%".format(
-                                    consume_bytes / total_bytes * 100
-                                )
-                                self.send_sync(event="progress", data={"path": filename, "progress": progress}, sid=sid)
+                            self.send_sync(event="progress", data={"path": filename, "progress": progress}, sid=sid)
 
                         debounce_timer.debounce(debounced_update)
 
@@ -795,7 +759,7 @@ class ModelHostServer:
                         security_token=file_record.get("security_token"),
                         onUploading=updateProgress,
                     )
-                    oss_client.sync_upload_file(
+                    await oss_client.upload_file(
                         filepath, file_record.get("object_key")
                     )
                 except oss2.exceptions.OssError as e:
@@ -803,25 +767,19 @@ class ModelHostServer:
                     self.send_sync_error(UPLOAD_ERR, sid)
                     return
 
-                commit_data, err = self.commit_file(
+                commit_data, err = await self.commit_file(
                     signature=sha256sum, object_key=file_record.get("object_key")
                 )
                 if err is not None:
                     self.send_sync_error(err)
                     return
 
-                new_file_record = commit_data.get("file")
-                file_info = CACHE.get_file_info(
-                    upload_id=upload_id, filename=filename
-                )
-                file_info["id"] = new_file_record.get("id")
-                file_info["remote_key"] = new_file_record.get("object_key")
-                print(f"{file_info['relPath']} Already Uploaded")
-                self.send_sync(event="progress", data={"path": filename, "progress": "100%"}, sid=sid)
+                print(f"{filename} Already Uploaded")
+            self.send_sync(event="progress", data={"path": filename, "progress": "100%"}, sid=sid)
 
             model_files.append({"sign": sha256sum, "path": filename})
 
-        commit_ret, err = self.commit_model(
+        commit_ret, err = await self.commit_model(
             model_files=model_files,
             model_name=item["name"],
             model_type=item["type"],
@@ -834,4 +792,4 @@ class ModelHostServer:
         print("Uploaded successfully")
 
         self.send_sync(event="status",
-                       data={"status": "finish", "message": f"{upload_id} uploading finished"}, sid=sid)
+                       data={"status": "finish", "upload_id": upload_id, "message": f"uploading finished"}, sid=sid)

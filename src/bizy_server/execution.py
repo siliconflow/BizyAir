@@ -1,3 +1,4 @@
+import asyncio
 import copy
 import heapq
 import logging
@@ -36,12 +37,16 @@ class UploadQueue:
 
 def upload_worker(server, q):
     timeout = 1000.0
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+
     while True:
         try:
             queue_item = q.get(timeout=timeout)
             if queue_item is not None:
                 item, item_id = queue_item
-                server.do_upload(item)
+                loop = asyncio.get_event_loop()
+                loop.run_until_complete(server.do_upload(item))
                 q.task_done(item_id)
             else:
                 break
