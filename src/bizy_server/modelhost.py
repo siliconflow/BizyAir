@@ -747,7 +747,7 @@ class ModelHostServer:
                             progress = "{:.2f}%".format(
                                 consume_bytes / total_bytes * 100
                             )
-                            self.send_sync(event="progress", data={"path": filename, "progress": progress}, sid=sid)
+                            self.send_sync(event="progress", data={"upload_id": upload_id, "path": filename, "progress": progress}, sid=sid)
 
                         debounce_timer.debounce(debounced_update)
 
@@ -775,7 +775,7 @@ class ModelHostServer:
                     return
 
                 print(f"{filename} Already Uploaded")
-            self.send_sync(event="progress", data={"path": filename, "progress": "100%"}, sid=sid)
+            self.send_sync(event="progress", data={"upload_id": upload_id, "path": filename, "progress": "100%"}, sid=sid)
 
             model_files.append({"sign": sha256sum, "path": filename})
 
