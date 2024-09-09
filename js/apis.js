@@ -13,7 +13,6 @@ function customFetch(url, options = {}) {
         })
         .then(data => {
             const { code, message } = data;
-            alert(code)
             if (code !== 20000) {
                 const warning = new ConfirmDialog({
                     warning: true,
