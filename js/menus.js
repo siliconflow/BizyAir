@@ -7,7 +7,7 @@ import { newsBtn } from "./itemButton/btnNews.js";
 import { styleExample } from "./subassembly/styleExample.js";
 import { styleMenus } from "./subassembly/styleMenus.js";
 import { styleUploadFile } from "./subassembly/styleUploadFile.js";
-
+import { styleDialog } from './subassembly/styleDialog.js';
 
 class FloatingButton {
     constructor(show_cases) {
@@ -101,6 +101,17 @@ app.registerExtension({
             textContent: styleUploadFile,
             parent: document.head,
         });
+        $el("style", {
+            textContent: styleDialog,
+            parent: document.head,
+        });
         new FloatingButton();
+        const socket = new WebSocket(`ws://localhost:8080/bizyair/modelhost/ws?clientId=${sessionStorage.getItem('clientId')}`);
+        socket.onopen = function() {
+            console.log('WebSocket open');
+        };
+        socket.onmessage = function(e) {
+            console.log('WebSocket message', e.data);
+        };
     },
 });

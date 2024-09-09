@@ -1,8 +1,8 @@
-import { dialog } from '../subassembly/dialog.js';
 import { $el } from "../../../scripts/ui.js";
+import { ConfirmDialog } from "../subassembly/confirm.js";
 import { delModels, models_files } from "../apis.js"
 
-export function modelList() {
+export const modelList = (listData, typeList) => {
     const elDataItemChild = (list) => {
         return list.map(item => $el('div.bizyair-model-list-item-child.bizyair-model-list-item', {}, [
             $el('div.bizyair-flex-item', { title: item.label_path}, [item.label_path]),
@@ -12,7 +12,7 @@ export function modelList() {
         ]))
     }
     const del = (name, ele) => {
-        dialog({
+        new ConfirmDialog({
             title: "This operation cannot be undone.",
             message: "Are you sure you want to delete it?",
             yesText: "Yes",
@@ -70,7 +70,8 @@ export function modelList() {
         })
     }
 
-    const content = $el('div.bizyair-model-list', {}, [
+
+    return $el('div.bizyair-model-list', {}, [
         $el('div.bizyair-model-filter-item', {}, [
             $el("span.bizyair-filter-label", {}, ['Filter']),
             $el("select.cm-input-item", {
@@ -89,11 +90,5 @@ export function modelList() {
             { id: 'bizyair-model-list-item-body' },
             elDataItem(listData)
         )
-    ]);
-
-    dialog({
-        title: 'Model List',
-        content: content,
-        noText: 'Close',
-    })
-}
+    ])
+};
