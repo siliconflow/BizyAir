@@ -8,6 +8,8 @@ import { styleExample } from "./subassembly/styleExample.js";
 import { styleMenus } from "./subassembly/styleMenus.js";
 import { styleUploadFile } from "./subassembly/styleUploadFile.js";
 import { styleDialog } from './subassembly/styleDialog.js';
+import { notifySubscribers } from './subassembly/subscribers.js'
+import { WebSocketClient } from './subassembly/socket.js'
 
 class FloatingButton {
     constructor(show_cases) {
@@ -106,12 +108,17 @@ app.registerExtension({
             parent: document.head,
         });
         new FloatingButton();
-        const socket = new WebSocket(`ws://localhost:8080/bizyair/modelhost/ws?clientId=${sessionStorage.getItem('clientId')}`);
-        socket.onopen = function() {
-            console.log('WebSocket open');
-        };
-        socket.onmessage = function(e) {
-            console.log('WebSocket message', e.data);
-        };
+
+        const wsClient = new WebSocketClient(`ws://localhost:8188/bizyair/modelhost/ws?clientId=${sessionStorage.getItem('clientId')}`);
+        wsClient.onMessage = function(message) {
+            notifySubscribers('socketMessage', message);
+        }
+        
+        // socket.onmessage = function(e) {
+        //     notifySubscribers('socketMessage', e.data);
+        // };
+        // socket.onclose = function(e) {
+        //     console.log('WebSocket close', e);
+        // };
     },
 });

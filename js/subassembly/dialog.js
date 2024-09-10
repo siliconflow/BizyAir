@@ -62,6 +62,7 @@ export function dialog(params) {
                 (params.yesText ? $el("button.bizyair-new-dialog-btn", {
                     type: "button",
                     textContent: params.yesText,
+                    id: params.yesId ? params.yesId : '',
                     onclick: async () => {
                         if (params.onYes) {
                             const res = await params.onYes();

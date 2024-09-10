@@ -70,6 +70,17 @@ export function model_types () {
     return customFetch(`/bizyair/modelhost/model_types`, {method: 'GET'})
 }
 
+export function check_folder (url) {
+    return customFetch(`/bizyair/modelhost/check_folder?absolute_path=${encodeURIComponent(url)}`, {method: 'GET'})
+}
+
+export function submit_upload (data) {
+    return customFetch(`/bizyair/modelhost/submit_upload?clientId=${sessionStorage.getItem('clientId')}`, {
+        method: 'POST',
+        body: JSON.stringify(data)
+    })
+}
+
 export function delModels ( data ) {
     return customFetch(`/bizyair/modelhost/models`, {
         method: 'DELETE',

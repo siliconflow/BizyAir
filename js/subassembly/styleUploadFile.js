@@ -10,7 +10,7 @@ export const styleUploadFile = `
     z-index: 10000000;
 }
 .bizyair-dialog{
-	width: 1000px;
+	width: 1200px;
 	height: 520px;
 	box-sizing: content-box;
 	z-index: 10000;
@@ -63,7 +63,7 @@ export const styleUploadFile = `
     margin-top: 40px;
 }
 .comfy-modal-content{
-    width: 1200px;
+    width: 1000px;
     height: 100%;
 }
 .cm-bottom-footer {
@@ -207,7 +207,7 @@ input.cm-input-item-error{
     margin-left: 10px;
 }
 .bizyair-model-list{
-    width: 1200px;
+    width: 1000px;
     height: 360px;
     margin-top: 40px;
     color: var(--input-text);
@@ -351,10 +351,12 @@ input.cm-input-item-error{
 .upload-size-hint{
     position: absolute;
     left: 104px;
-    bottom: -40px;
+    bottom: -30px;
     margin: 0;
     padding: 0;
     color: #e6a23c;
+    height: 30px;
+    line-height: 30px;
 }
 p.tips-in-upload{
     margin: 4px 0 0 0;

@@ -1,10 +1,11 @@
 import { app } from "../../../scripts/app.js";
 import { $el } from "../../../scripts/ui.js";
 import { ConfirmDialog } from "../subassembly/confirm.js";
-import { check_model_exists, model_upload, file_upload, model_types } from "../apis.js"
+import { check_model_exists, model_upload, file_upload, model_types, check_folder, submit_upload } from "../apis.js"
 import { dialog } from '../subassembly/dialog.js';
+import { subscribe } from '../subassembly/subscribers.js'
 
-export const uploadPage = async () => {
+export const uploadWithInputPage = async () => {
     const resType = await model_types();
     const typeList = resType.data;
     const elOptions = typeList.map(item => $el("option", { value: item.value }, [item.label]))
@@ -50,21 +51,15 @@ export const uploadPage = async () => {
                 ]),
                 $el("div.bizyair-form-item", {}, [
                     $el("span.bizyair-form-label", {}, ['Purpose']),
-                    $el("div.bizyair-form-item-subset", {
-                        id: 'bizyair-input-file-box'
-                    }, [
-                        $el('div.cm-input-file-box', {}, [
-                            $el("p.cm-word-file-modle", {}, ['select folder']),
-                            $el("input.bizyair-input-file-modle", {
-                                type: "file",
-                                webkitdirectory: true,
-                                mozdirectory: true,
-                                odirectory: true,
-                                msdirectory: true,
-                                onchange: (e) => temp.onFileMultiChange(e)
-                            }),
-                        ]),
-                    ]),
+                    $el("input.cm-input-item", {
+                        type: "text",
+                        placeholder: "Please enter the local file path.",
+                        id: 'bizyair-input-file-box',
+                        onchange: function(e) {
+                            this.className = this.className.replace(/cm-input-item-error/g, '');
+                            temp.onFileMultiChange(e)
+                        }
+                    }),
                     $el("i.bizyair-form-qa", {
                         onmouseover: function() {
                             temp.showQA(this, 'All the files in the selected folder will be uploaded to the remote folder.')
@@ -163,24 +158,39 @@ export const uploadPage = async () => {
                 return
             }
             this.disabledSubmit()
-            this.signs = []
+            // this.signs = []
             this.queryExists()
+
         },
         disabledInput() {
             document.querySelector('input.cm-input-item').disabled = true
             document.querySelector('select.cm-input-item').disabled = true
-            document.querySelector('input.bizyair-input-file-modle').disabled = true
+            document.querySelector('#bizyair-input-file-box').disabled = true
         },
         unDisabledInput() {
             document.querySelector('input.cm-input-item').disabled = false
             document.querySelector('select.cm-input-item').disabled = false
-            document.querySelector('input.bizyair-input-file-modle').disabled = false
+            document.querySelector('#bizyair-input-file-box').disabled = false
 
             document.querySelector('#bizyair-upload-submit').disabled = false
             document.querySelector('#bizyair-upload-submit').innerText = 'Submit'
         },
         todoUpload() {
+            
+            const elSelect = document.querySelector('select.cm-input-item')
+            const elInput = document.querySelector('input.cm-input-item')
+
+            submit_upload({
+                upload_id: this.uploadId,
+                name: elInput.value,
+                type: elSelect.value,
+                overwrite: true
+            });
+            document.querySelector('#tips-in-upload').style.display = 'block'
+            
             this.disabledInput()
+
+            if (document.querySelector('#tips-in-upload')) return
             document.querySelector('#tips-in-upload').style.display = 'block'
             if (this.filesAry.length === 0) {
                 this.modelUpload()
@@ -261,21 +271,24 @@ export const uploadPage = async () => {
             )
         },
         onFileMultiChange(e) {
-            const bizyairInputFileBox = document.querySelector('#bizyair-input-file-box')
-            bizyairInputFileBox.className = bizyairInputFileBox.className.replace(/cm-input-item-error/g, '')
+            console.log(e.target.value)
+            
             if (!this.uploadId) {
                 this.uploadId = this.generateUUID()
             }
             document.querySelector('.bizyair-file-list').innerHTML = ''
-            const files = [...e.srcElement.files]
-            this.filesAry = files.filter(file => file.webkitRelativePath.search('.git/') == -1)
-            this.filesAry.forEach(file => {
-                document.querySelector('.bizyair-file-list').appendChild(
-                    $el('li', {}, [
-                        $el("span", {}, [`${ file.webkitRelativePath }`]),
-                        $el("span.spinner-container", {}, []),
-                    ])
-                )
+            check_folder(e.target.value).then(data => {
+                this.filesAry = data.data.files
+                this.uploadId = data.data.upload_id
+                data.data.files.forEach(file => {
+                    document.querySelector('.bizyair-file-list').appendChild(
+                        $el('li', {}, [
+                            $el("span", {}, [`${ file.path }`]),
+                            // $el("span", {}, [`${ file.size }`]),
+                            $el("span.spinner-container", {}, []),
+                        ])
+                    )
+                })
             })
         },
         disabledSubmit() {
@@ -289,9 +302,38 @@ export const uploadPage = async () => {
         redraw() {
             document.querySelector('#bizyair-model-name').value = ''
             document.querySelector('.bizyair-file-list').innerHTML = ''
-            document.querySelector('.bizyair-input-file-modle').value = ''
+            document.querySelector('#bizyair-input-file-box').value = ''
         }
     }
+    subscribe('socketMessage', (data) => {
+        const res = JSON.parse(data.data);
+        console.log(res)
+        if (res.type == "progress") {
+            console.log(res.data)
+            const cmFileList = document.querySelectorAll('.bizyair-file-list li');
+            const index = temp.filesAry.map(e => e.path).indexOf(res.data.path)
+            if (index != -1) {
+                cmFileList[index].querySelector('.spinner-container').innerHTML = `${res.data.progress}`;
+                document.querySelector('.bizyair-file-list').scrollTop = cmFileList[index].offsetTop - 134;
+            }
+
+            // const i = cmFileList.length - temp.filesAry.length - 1;
+            // cmFileList[i].querySelector('.spinner-container').innerHTML = `<span class="bubble"></span>`;
+            // document.querySelector('.bizyair-file-list').scrollTop = cmFileList[i].offsetTop - 134;
+        }
+        if (res.type == "status") {
+            console.log(res.data)
+            if (res.data.status == "finish") {
+                document.querySelector('#bizyair-upload-submit').style.display = 'none'
+                temp.unDisabledInput()
+                document.querySelector('#tips-in-upload').style.display = 'none'
+                new ConfirmDialog({
+                    message: "The model has been uploaded successfully."
+                });
+            }
+        }
+    });
+
     dialog({
         content: temp.content,
         yesText: 'Submit',
