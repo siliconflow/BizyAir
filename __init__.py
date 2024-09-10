@@ -44,7 +44,7 @@ except ImportError:
     bizyair_adv_is_not_installed = True
     print(
         "\n\n\033[91m[BizyAir]\033[0m Please run"
-        " 'pip install -r requirements_adv.txt' to install depencies for modelhost.py feature.\n\n"
+        " 'pip install -r requirements.txt' to install depencies for model host feature.\n\n"
     )
 
 if not bizyair_adv_is_not_installed:

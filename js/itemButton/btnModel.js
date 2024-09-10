@@ -13,5 +13,6 @@ function showModel() {
     ]).then(data => {
         new ModelDialog(data[0].data, data[1].data).showDialog(data[0].data, data[1].data);
     }).catch(error => {
+        console.log(error)
     });
 }

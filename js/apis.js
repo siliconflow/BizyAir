@@ -3,7 +3,12 @@ import { ConfirmDialog } from './subassembly/confirm.js';
 function customFetch(url, options = {}) {
     return window.fetch(url, options)
         .then(response => {
-            console.log(response)
+            if (response.status == 404) {
+                new ConfirmDialog({
+                    warning: true,
+                    message: "You may be missing dependencies at the moment. For details, please refer to the ComfyUI logs."
+                })
+            }
             return response.json();
         })
         .then(data => {
