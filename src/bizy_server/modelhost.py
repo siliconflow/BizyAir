@@ -6,12 +6,14 @@ import logging
 import os
 import shutil
 import threading
+import time
 import urllib.parse
 import urllib.request
 from collections import defaultdict
 from pathlib import Path
 
 import aiohttp
+import aiofiles
 import crcmod
 import oss2
 import requests
@@ -86,6 +88,7 @@ class ModelHostServer:
         self.uploads = dict()
         self.upload_queue = UploadQueue()
         self.loop = asyncio.get_event_loop()
+        self.upload_progresses_updated_at = dict()
 
         @prompt_server.routes.get(f"/{API_PREFIX}/list")
         async def forward_list_model_html(request):
@@ -661,17 +664,17 @@ class ModelHostServer:
             0x142F0E1EBA9EA3693, initCrc=0, xorOut=0xFFFFFFFFFFFFFFFF, rev=True
         )
         crc64_signature = 0
-        buf_size = 65536  # 缓冲区大小为64KB
+        buf_size = 65536 * 4  # 缓冲区大小为256KB
 
-        # 打开文件并读取内容
-        with open(file_path, "rb") as f:
-            while chunk := f.read(buf_size):
+        # 使用 aiofiles 异步读取文件计算 CRC64
+        async with aiofiles.open(file_path, "rb") as f:
+            while chunk := await f.read(buf_size):
                 crc64_signature = do_crc64(chunk, crc64_signature)
 
         # 重新读取文件计算 MD5
         md5_hash = hashlib.md5()
-        with open(file_path, "rb") as file:
-            while chunk := file.read(buf_size):
+        async with aiofiles.open(file_path, "rb") as file:
+            while chunk := await file.read(buf_size):
                 md5_hash.update(chunk)
         md5_str = base64.b64encode(md5_hash.digest()).decode("utf-8")
 
@@ -715,6 +718,7 @@ class ModelHostServer:
     async def do_upload(self, item):
         sid = item["sid"]
         upload_id = item["upload_id"]
+        print("do_upload: ", upload_id)
         self.send_sync(event="status",
                        data={"status": "starting", "upload_id": upload_id, "message": f"start uploading"},
                        sid=sid)
@@ -740,16 +744,19 @@ class ModelHostServer:
                 print("start uploading file")
                 file_storage = sign_data.get("storage")
                 try:
-                    debounce_timer = DebounceTimer(2)
+                    self.upload_progresses_updated_at[upload_id] = 0
 
                     def updateProgress(consume_bytes, total_bytes):
-                        def debounced_update():
+                        current_time = time.time()
+                        if current_time - self.upload_progresses_updated_at[upload_id] >= 1:
+                            self.upload_progresses_updated_at[upload_id] = current_time
+
                             progress = "{:.2f}%".format(
                                 consume_bytes / total_bytes * 100
                             )
-                            self.send_sync(event="progress", data={"upload_id": upload_id, "path": filename, "progress": progress}, sid=sid)
-
-                        debounce_timer.debounce(debounced_update)
+                            self.send_sync(event="progress",
+                                           data={"upload_id": upload_id, "path": filename, "progress": progress},
+                                           sid=sid)
 
                     oss_client = AliOssStorageClient(
                         endpoint=file_storage.get("endpoint"),
@@ -775,7 +782,8 @@ class ModelHostServer:
                     return
 
                 print(f"{filename} Already Uploaded")
-            self.send_sync(event="progress", data={"upload_id": upload_id, "path": filename, "progress": "100%"}, sid=sid)
+            self.send_sync(event="progress", data={"upload_id": upload_id, "path": filename, "progress": "100%"},
+                           sid=sid)
 
             model_files.append({"sign": sha256sum, "path": filename})
 
