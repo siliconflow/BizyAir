@@ -448,13 +448,13 @@ class ModelHostServer:
         }
         headers, err = self.auth_header()
         if err is not None:
-            return err
+            return None, err
 
         try:
             resp = self.do_get(server_url, params=payload, headers=headers)
             ret = json.loads(resp)
             if ret["code"] != CODE_OK:
-                return ErrorNo(500, ret["code"], None, ret["message"])
+                return None, ErrorNo(500, ret["code"], None, ret["message"])
 
             if "exists" not in ret["data"]:
                 return False, None
@@ -469,7 +469,7 @@ class ModelHostServer:
         server_url = f"{BIZYAIR_SERVER_ADDRESS}/files/{signature}"
         headers, err = self.auth_header()
         if err is not None:
-            return err
+            return None, err
 
         try:
             resp = self.do_get(server_url, params=None, headers=headers)
@@ -492,7 +492,7 @@ class ModelHostServer:
         }
         headers, err = self.auth_header()
         if err is not None:
-            return err
+            return None, err
 
         try:
             resp = self.do_post(server_url, data=payload, headers=headers)
@@ -518,7 +518,7 @@ class ModelHostServer:
         }
         headers, err = self.auth_header()
         if err is not None:
-            return err
+            return None, err
 
         try:
             resp = self.do_post(server_url, data=payload, headers=headers)
