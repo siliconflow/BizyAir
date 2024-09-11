@@ -5,7 +5,6 @@ import json
 import logging
 import os
 import shutil
-import threading
 import time
 import urllib.parse
 import urllib.request
