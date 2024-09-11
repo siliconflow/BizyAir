@@ -18,7 +18,7 @@ export const styleUploadFile = `
 }
 .bizyair-dialog-sml{
     width: 640px;
-    height: 300px;
+    height: 350px;
 }
 
 .bizyair-header-tab{

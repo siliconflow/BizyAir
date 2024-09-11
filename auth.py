@@ -2,6 +2,8 @@ import os
 import uuid
 from pathlib import Path
 
+import requests
+
 import server
 from aiohttp import web
 
@@ -72,6 +74,48 @@ async def get_api_key(request):
 
     except Exception as e:
         return web.Response(text=str(e), status=500)
+
+
+@server.PromptServer.instance.routes.post(f"/bizyair/fetch_api_key")
+async def fetch_api_key(request):
+    json_data = await request.json()
+    ACCOUNT_ENDPOINT = "https://account.siliconflow.cn"
+    CLOUD_ENDPOINT = "https://cloud.siliconflow.cn"
+    client_id = "SFaJLLq0y6CAMoyDm81aMu"
+    secret = "wcc4pJXTL9oD9Ub1SpeZNtfFlMwRkYdWKlDnz3gK"
+
+    code = json_data["code"]
+
+    token_fetch_url = f"{ACCOUNT_ENDPOINT}/api/open/oauth"
+
+    # Prepare the payload
+    payload = {"clientId": client_id, "secret": secret, "code": code}
+
+    # Make the first POST request to fetch the token
+    response = requests.post(token_fetch_url, json=payload)
+
+    if not response.ok:
+        return web.Response(text="fail to fetch access token", status=500)
+
+    token_json = response.json()
+    access_token = (
+        token_json["data"]["access_token"] if token_json.get("status") else None
+    )
+    print("access_token", access_token)
+
+    api_key_url = f"{CLOUD_ENDPOINT}/api/oauth/apikeys"
+    headers = {"Authorization": f"token {access_token}"}
+
+    # Make the second POST request to fetch API keys
+    api_key_response = requests.post(api_key_url, headers=headers)
+    api_keys_data = api_key_response.json()
+    print("apiKeysData", api_keys_data)
+
+    return (
+        web.json_response({"api_key": api_keys_data["data"][0]["secretKey"]})
+        if api_keys_data.get("data")
+        else web.Response(text="fail to fetch API key", status=500)
+    )
 
 
 NODE_CLASS_MAPPINGS = {}
