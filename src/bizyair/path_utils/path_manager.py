@@ -7,7 +7,7 @@ import warnings
 from typing import Any, Dict, List, Union
 
 from ..common import fetch_models_by_type
-from ..common.env_var import BIZYAIR_DEBUG
+from ..common.env_var import BIZYAIR_DEBUG, BIZYAIR_SERVER_ADDRESS
 from .utils import filter_files_extensions, get_service_route, load_yaml_config
 
 supported_pt_extensions: set[str] = {
@@ -55,10 +55,12 @@ def guess_url_from_node(
                         if config_key == "flux-dev":
                             if node["inputs"]["weight_dtype"] == "fp8_e4m3fn":
                                 return (
-                                    configs["service_address"]
+                                    configs.get(
+                                        "service_address", BIZYAIR_SERVER_ADDRESS
+                                    )
                                     + "/supernode/flux-dev-bizyair-comfy-ksampler-fp8-v2"
                                 )
-                        return configs["service_address"] + configs["route"]
+                        return get_service_route(configs)
 
 
 def guess_config(

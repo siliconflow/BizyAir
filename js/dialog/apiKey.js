@@ -5,11 +5,6 @@ export function apiKey() {
         const apiKey = document.querySelector('#bizyair-api-key');
         console.log(apiKey.value)
         if (!apiKey.value) {
-            // new ConfirmDialog({
-            //     title: "",
-            //     warning: true,
-            //     message: "Please input API Key",
-            // })
             dialog({
                 content: "Please input API Key",
                 noText: 'Close',
