@@ -19,7 +19,9 @@ export class WebSocketClient {
     };
 
     this.ws.onmessage = (message) => {
-      this.onMessage(message);
+      if (message.data != 'pong') {
+        this.onMessage(message);
+      };
     };
 
    
@@ -42,7 +44,7 @@ export class WebSocketClient {
     this.keepAliveTimer = setInterval(() => {
       if (this.ws && this.ws.readyState === WebSocket.OPEN) {
         // console.log('send ❤');
-        this.ws.send(JSON.stringify({ type: 'ping' }));
+        this.ws.send('ping');
       }
     }, this.keepAliveInterval);
   }
@@ -76,7 +78,7 @@ export class WebSocketClient {
   onMessage(message) {
    
     const data = JSON.parse(message.data);
-    if (data.type === 'pong') {
+    if (data === 'pong') {
       // console.log('❤');
     } else {
       console.log('message:', data);
