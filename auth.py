@@ -2,9 +2,9 @@ import os
 import uuid
 from pathlib import Path
 
+import requests
 import server
 from aiohttp import web
-import requests
 
 import bizyair
 from bizyair.common import create_api_key_file, load_api_key
