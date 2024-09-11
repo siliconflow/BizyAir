@@ -4,7 +4,7 @@ export class WebSocketClient {
     this.protocols = protocols;
     this.reconnectDelay = 1000;
     this.maxReconnectDelay = 30000;
-    this.keepAliveInterval = 5000;
+    this.keepAliveInterval = 10000;
     this.ws = null;
     this.keepAliveTimer = null;
     this.reconnectTimer = null;
@@ -41,7 +41,7 @@ export class WebSocketClient {
 
     this.keepAliveTimer = setInterval(() => {
       if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-        console.log('send ❤');
+        // console.log('send ❤');
         this.ws.send(JSON.stringify({ type: 'ping' }));
       }
     }, this.keepAliveInterval);
@@ -77,7 +77,7 @@ export class WebSocketClient {
    
     const data = JSON.parse(message.data);
     if (data.type === 'pong') {
-      console.log('❤');
+      // console.log('❤');
     } else {
       console.log('message:', data);
     }

@@ -1,11 +1,11 @@
-import { app } from "../../../scripts/app.js";
 import { $el } from "../../../scripts/ui.js";
-import { ConfirmDialog } from "../subassembly/confirm.js";
-import { check_model_exists, model_upload, file_upload, model_types, check_folder, submit_upload } from "../apis.js"
+import { check_model_exists, model_types, check_folder, submit_upload } from "../apis.js"
 import { dialog } from '../subassembly/dialog.js';
-import { subscribe } from '../subassembly/subscribers.js'
+import { subscribe, unsubscribe } from '../subassembly/subscribers.js'
 
 export const uploadWithInputPage = async () => {
+    const Q = (selector) => document.querySelector(selector);
+    const QAll = (selector) => document.querySelectorAll(selector);
     const resType = await model_types();
     const typeList = resType.data;
     const elOptions = typeList.map(item => $el("option", { value: item.value }, [item.label]))
@@ -68,7 +68,7 @@ export const uploadWithInputPage = async () => {
                             temp.hideQA(this)
                         }
                     }, ['?']),
-                    $el('p.upload-size-hint', { }, ['You can specify the file upload limit as needed (in MB), for example: python main.py --max-upload-size 1024']),
+                    // $el('p.upload-size-hint', { }, ['You can specify the file upload limit as needed (in MB), for example: python main.py --max-upload-size 1024']),
                 ]),
                 $el("br", {}, []),
                 $el('ul.bizyair-file-list', {}, []),
@@ -87,14 +87,14 @@ export const uploadWithInputPage = async () => {
             ele.querySelector('.bizyair-form-qa-hint').remove()
         },
         queryExists() {
-            const type = document.querySelector('select.cm-input-item').value
-            const name = document.querySelector('input.cm-input-item').value
+            const type = Q('select.cm-input-item').value
+            const name = Q('input.cm-input-item').value
             check_model_exists(type, name).then(data => {
                 if (data.code === 20000) {
                     if (data.data.exists) {
                         this.confirmExists()
                     } else {
-                        document.querySelectorAll('.spinner-container').forEach(e => {
+                        QAll('.spinner-container').forEach(e => {
                             e.innerHTML = `<span class="spinner"></span>`
                         })
                         this.todoUpload()
@@ -104,81 +104,86 @@ export const uploadWithInputPage = async () => {
             });
         },
         confirmExists() {
-            new ConfirmDialog({
+            dialog({
                 title: "The model already exists",
-                message: "Do you want to overwrite it?",
+                content: "Do you want to overwrite it?",
                 yesText: "Yes",
                 noText: "No",
                 onYes: () => {
-                    document.querySelectorAll('.spinner-container').forEach(e => {
+                    QAll('.spinner-container').forEach(e => {
                         e.innerHTML = `<span class="spinner"></span>`
                     })
-                    this.todoUpload()
+                    this.todoUpload();
+                    return true
                 },
                 onNo: () => {
-                    this.unDisabledSubmit()
-                    document.querySelectorAll('.spinner-container').forEach(e => {
+                    this.unDisabledInput()
+                    QAll('.spinner-container').forEach(e => {
                         e.innerHTML = ''
                     })
                 }
-            })
+            })            
         },
         toSubmit() {
-            const elSelect = document.querySelector('select.cm-input-item')
-            const elInput = document.querySelector('input.cm-input-item')
-            const cmFileList = document.querySelector('.bizyair-file-list')
-            const bizyairInputFileBox = document.querySelector('#bizyair-input-file-box')
+            const elSelect = Q('select.cm-input-item')
+            const elInput = Q('input.cm-input-item')
+            const cmFileList = Q('.bizyair-file-list')
+            const bizyairInputFileBox = Q('#bizyair-input-file-box')
 
             if (!elSelect.value) {
-                new ConfirmDialog({
-                    title: "",
+                dialog({
                     warning: true,
-                    message: "Please select model type"
+                    content: "Please select model type",
+                    noText: 'Close'
                 })
                 elSelect.className = `${elSelect.className} cm-input-item-error`
                 return
 
             }
             if (!elInput.value) {
-                new ConfirmDialog({
-                    title: "",
+                dialog({
                     warning: true,
-                    message: "Please input model name"
+                    content: "Please input model name",
+                    noText: 'Close'
                 })
                 elInput.className = `${elInput.className} cm-input-item-error`
                 return
             }
             if (cmFileList.querySelectorAll('li').length == 0) {
-                new ConfirmDialog({
-                    title: "",
+                dialog({
                     warning: true,
-                    message: "Please select files"
+                    content: "Please select files",
+                    noText: 'Close'
                 })
                 bizyairInputFileBox.className = `${bizyairInputFileBox.className} cm-input-item-error`
                 return
             }
-            this.disabledSubmit()
-            // this.signs = []
             this.queryExists()
 
         },
         disabledInput() {
-            document.querySelector('input.cm-input-item').disabled = true
-            document.querySelector('select.cm-input-item').disabled = true
-            document.querySelector('#bizyair-input-file-box').disabled = true
+            Q('input.cm-input-item').disabled = true
+            Q('select.cm-input-item').disabled = true
+            Q('#bizyair-input-file-box').disabled = true
+            
+            Q('#bizyair-upload-submit').disabled = true
+            Q('#bizyair-upload-reset').disabled = true
+            Q('#bizyair-upload-submit').innerText = 'Waiting...'
+            Q('#bizyair-upload-reset').innerText = 'Waiting...'
         },
         unDisabledInput() {
-            document.querySelector('input.cm-input-item').disabled = false
-            document.querySelector('select.cm-input-item').disabled = false
-            document.querySelector('#bizyair-input-file-box').disabled = false
+            Q('input.cm-input-item').disabled = false
+            Q('select.cm-input-item').disabled = false
+            Q('#bizyair-input-file-box').disabled = false
 
-            document.querySelector('#bizyair-upload-submit').disabled = false
-            document.querySelector('#bizyair-upload-submit').innerText = 'Submit'
+            Q('#bizyair-upload-submit').disabled = false
+            Q('#bizyair-upload-reset').disabled = false
+            Q('#bizyair-upload-submit').innerText = 'Submit'
+            Q('#bizyair-upload-reset').innerText = 'Reset'
         },
         todoUpload() {
-            
-            const elSelect = document.querySelector('select.cm-input-item')
-            const elInput = document.querySelector('input.cm-input-item')
+            const elSelect = Q('select.cm-input-item')
+            const elInput = Q('input.cm-input-item')
 
             submit_upload({
                 upload_id: this.uploadId,
@@ -186,102 +191,16 @@ export const uploadWithInputPage = async () => {
                 type: elSelect.value,
                 overwrite: true
             });
-            document.querySelector('#tips-in-upload').style.display = 'block'
-            
+            Q('#tips-in-upload').style.display = 'block'
             this.disabledInput()
-
-            if (document.querySelector('#tips-in-upload')) return
-            document.querySelector('#tips-in-upload').style.display = 'block'
-            if (this.filesAry.length === 0) {
-                this.modelUpload()
-                return;
-            }
-            const file = this.filesAry.shift();
-            this.fetchApiToUpload(file, (data) => {
-                if (data.code === 20000) {
-                    const cmFileList = document.querySelectorAll('.bizyair-file-list li');
-                    const i = cmFileList.length - this.filesAry.length - 1;
-                    cmFileList[i].querySelector('.spinner-container').innerHTML = `<span class="bubble"></span>`;
-                    document.querySelector('.bizyair-file-list').scrollTop = cmFileList[i].offsetTop - 134;
-                    this.signs.push({
-                        sign: data.data.sign,
-                        path: file.webkitRelativePath || file.name
-                    });
-                    this.todoUpload();
-                } else {
-                    app.ui.dialog.show(`${data.message}`);
-                }
-            });
-        },
-        modelUpload() {
-            const elSelect = document.querySelector('select.cm-input-item')
-            const elInput = document.querySelector('input.cm-input-item')
-            model_upload({
-                upload_id: this.uploadId,
-                name: elInput.value,
-                type: elSelect.value,
-                overwrite: true,
-                files: this.signs
-            }).then(data => {
-                document.querySelector('#bizyair-upload-submit').style.display = 'none'
-                this.unDisabledInput()
-                document.querySelector('#tips-in-upload').style.display = 'none'
-                new ConfirmDialog({
-                    message: "The model has been uploaded successfully."
-                })
-            })
-        },
-        fetchApiToUpload(file, fn) {
-            const formData = new FormData();
-            formData.append('file', file);
-            formData.append('filename', file.webkitRelativePath);
-            formData.append("upload_id", this.uploadId);
-            file_upload(formData).then(data => {
-                console.log('Request successful', data);
-
-                if (fn) {
-                    fn(data)
-                }
-            })
-            .catch(error => {
-                this.unDisabledInput()
-                console.log(this.unDisabledInput)
-                console.error('Error during AJAX request', error);
-            });
-        },
-        generateUUID() {
-            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-                var r = window.crypto.getRandomValues(new Uint8Array(1))[0] % 16 | (c === 'x' ? 0 : 8);
-                return r.toString(16);
-            });
-        },
-        onFileChange(e) {
-            const file = e.target.files[0];
-            this.filesAry.push(file)
-            const bizyairInputFileBox = document.querySelector('#bizyair-input-file-box')
-            bizyairInputFileBox.className = bizyairInputFileBox.className.replace(/cm-input-item-error/g, '')
-            if (!this.uploadId) {
-                this.uploadId = this.generateUUID()
-            }
-            document.querySelector('.bizyair-file-list').appendChild(
-                $el('li', {}, [
-                    $el("span", {}, [`${ file.name }`]),
-                    $el("span.spinner-container", {}, []),
-                ])
-            )
         },
         onFileMultiChange(e) {
-            console.log(e.target.value)
-            
-            if (!this.uploadId) {
-                this.uploadId = this.generateUUID()
-            }
-            document.querySelector('.bizyair-file-list').innerHTML = ''
+            Q('.bizyair-file-list').innerHTML = ''
             check_folder(e.target.value).then(data => {
                 this.filesAry = data.data.files
                 this.uploadId = data.data.upload_id
                 data.data.files.forEach(file => {
-                    document.querySelector('.bizyair-file-list').appendChild(
+                    Q('.bizyair-file-list').appendChild(
                         $el('li', {}, [
                             $el("span", {}, [`${ file.path }`]),
                             // $el("span", {}, [`${ file.size }`]),
@@ -291,57 +210,58 @@ export const uploadWithInputPage = async () => {
                 })
             })
         },
-        disabledSubmit() {
-            document.querySelector('#bizyair-upload-submit').disabled = true
-            document.querySelector('#bizyair-upload-submit').innerText = 'Waiting...'
-        },
-        unDisabledSubmit() {
-            document.querySelector('#bizyair-upload-submit').disabled = false
-            document.querySelector('#bizyair-upload-submit').innerText = 'Submit'
-        },
         redraw() {
-            document.querySelector('#bizyair-model-name').value = ''
-            document.querySelector('.bizyair-file-list').innerHTML = ''
-            document.querySelector('#bizyair-input-file-box').value = ''
+            Q('#bizyair-model-name').value = ''
+            Q('.bizyair-file-list').innerHTML = ''
+            Q('#bizyair-input-file-box').value = ''
         }
     }
-    subscribe('socketMessage', (data) => {
+    const fnMessage = (data) => {
         const res = JSON.parse(data.data);
-        console.log(res)
         if (res.type == "progress") {
             console.log(res.data)
-            const cmFileList = document.querySelectorAll('.bizyair-file-list li');
+            const cmFileList = QAll('.bizyair-file-list li');
             const index = temp.filesAry.map(e => e.path).indexOf(res.data.path)
             if (index != -1) {
                 cmFileList[index].querySelector('.spinner-container').innerHTML = `${res.data.progress}`;
-                document.querySelector('.bizyair-file-list').scrollTop = cmFileList[index].offsetTop - 134;
+                Q('.bizyair-file-list').scrollTop = cmFileList[index].offsetTop - 134;
             }
-
-            // const i = cmFileList.length - temp.filesAry.length - 1;
-            // cmFileList[i].querySelector('.spinner-container').innerHTML = `<span class="bubble"></span>`;
-            // document.querySelector('.bizyair-file-list').scrollTop = cmFileList[i].offsetTop - 134;
         }
         if (res.type == "status") {
             console.log(res.data)
             if (res.data.status == "finish") {
-                document.querySelector('#bizyair-upload-submit').style.display = 'none'
+                Q('#bizyair-upload-submit').style.display = 'none'
                 temp.unDisabledInput()
-                document.querySelector('#tips-in-upload').style.display = 'none'
-                new ConfirmDialog({
-                    message: "The model has been uploaded successfully."
+                Q('#tips-in-upload').style.display = 'none'
+                dialog({
+                    succeed: true,
+                    content: "The model has been uploaded successfully.",
+                    noText: 'Close'
                 });
+                
             }
         }
-    });
+    };
+    subscribe('socketMessage', fnMessage);
 
     dialog({
         content: temp.content,
         yesText: 'Submit',
         yesId: 'bizyair-upload-submit',
+        neutralId: 'bizyair-upload-reset',
         noText: 'Close',
+        neutralText: 'Reset',
         onYes: () => {
             temp.toSubmit()
             // return true
         },
+        onNeutral: () => {
+            Q('#bizyair-upload-submit').style.display = 'block';
+            temp.redraw()
+        },
+        onNo: () => {
+            unsubscribe('socketMessage', fnMessage)
+            temp.redraw()
+        }
     })
 }

@@ -44,7 +44,7 @@ export function apiKey() {
         document.cookie = name + "=" + (value || "") + expires + "; path=/";
     }
     const content =
-        $el("div.comfy-modal-content",
+        $el("div.comfy-modal-content-sml",
             [
                 $el('input.cm-input-item', {
                     id: 'bizyair-api-key',

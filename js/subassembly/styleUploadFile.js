@@ -66,6 +66,12 @@ export const styleUploadFile = `
     width: 1000px;
     height: 100%;
 }
+.comfy-modal-content-sml{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
 .cm-bottom-footer {
     width: calc(100% - 64px);
     bottom: 10px;

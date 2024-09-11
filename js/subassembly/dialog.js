@@ -21,7 +21,7 @@ export function dialog(params) {
     const id = 'bizyair-dialog' + generateUUID();
     const style = {}
     let h = 'calc(80vh - 40px - 40px)';
-    if (params.yesText || params.noText) {
+    if (params.yesText || params.noText || params.neutralText) {
         h = 'calc(80vh - 40px - 40px - 34px)'
     }
     if (params.title) {
@@ -73,6 +73,20 @@ export function dialog(params) {
                         removeDialog(document.getElementById(id))
                     }
                 }): ''),
+                (params.neutralText ? $el("button.bizyair-new-dialog-btn", {
+                    type: "button",
+                    textContent: params.neutralText,
+                    id: params.neutralId ? params.neutralId : '',
+                    onclick: async () => {
+                        if (params.onNeutral) {
+                            const res = await params.onNeutral();
+                            if (!res) {
+                                return false
+                            }
+                        }
+                        removeDialog(document.getElementById(id))
+                    }
+                }): ''),
                 (params.noText ? $el("button.bizyair-new-dialog-btn", {
                     type: "button",
                     textContent: params.noText,
@@ -90,7 +104,6 @@ export function dialog(params) {
 
     if (!params.onEsape && !keydownListenerAdded) {
         document.addEventListener("keydown", function (e) {
-            console.log(e.key, document.querySelectorAll('.bizyair-new-dialog').length);
             if (e.key === "Escape") {
                 const dialogs = document.querySelectorAll('.bizyair-new-dialog');
                 if (dialogs.length > 0) {
