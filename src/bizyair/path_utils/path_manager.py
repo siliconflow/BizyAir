@@ -60,7 +60,7 @@ def guess_url_from_node(
                                     )
                                     + "/supernode/flux-dev-bizyair-comfy-ksampler-fp8-v2"
                                 )
-                    return get_service_route(configs)
+                        return get_service_route(configs)
 
 
 def guess_config(
