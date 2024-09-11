@@ -56,6 +56,13 @@ def create_api_key_file(api_key):
         raise Exception(f"An error occurred when save the key: {e}")
 
 
+#   production:
+#     service_address: https://bizyair-api.siliconflow.cn/x/v1
+#   uat:
+#     service_address: https://uat-bizyair-api.siliconflow.cn/x/v1
+BIZYAIR_SERVER_ADDRESS = os.getenv(
+    "BIZYAIR_SERVER_ADDRESS", "https://bizyair-api.siliconflow.cn/x/v1"
+)
 BIZYAIR_API_KEY = env("BIZYAIR_API_KEY", str, load_api_key()[1])
 # Development Settings
 BIZYAIR_DEV_REQUEST_URL = env("BIZYAIR_DEV_REQUEST_URL", str, None)
