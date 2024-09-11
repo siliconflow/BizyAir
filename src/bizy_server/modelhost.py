@@ -35,7 +35,6 @@ from .errno import (
     EMPTY_UPLOAD_ID_ERR,
     FILE_UPLOAD_SIZE_LIMIT_ERR,
     INVALID_API_KEY_ERR,
-    INVALID_FILENAME_ERR,
     INVALID_NAME,
     INVALID_TYPE,
     INVALID_UPLOAD_ID_ERR,
@@ -53,7 +52,7 @@ from .errno import (
 )
 from .execution import UploadQueue
 from .oss import AliOssStorageClient
-from .resp import ErrResponse, JsonResponse, OKResponse
+from .resp import ErrResponse, OKResponse
 
 current_path = os.path.abspath(os.path.dirname(__file__))
 prompt_server = PromptServer.instance
