@@ -49,7 +49,7 @@ def upload_worker(server, q):
                 loop.run_until_complete(server.do_upload(item))
                 q.task_done(item_id)
             else:
-                break
+                continue
         except Exception as e:
             logging.error(f"Failed to upload file: {e}")
 
