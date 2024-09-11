@@ -142,6 +142,9 @@ class ModelHostServer:
                 await self.send_json(event="status", data={"status": "connected"}, sid=sid)
 
                 async for msg in ws:
+                    if msg.type == aiohttp.WSMsgType.TEXT:
+                        if msg.data == "ping":
+                            await ws.send_str("pong")
                     if msg.type == aiohttp.WSMsgType.ERROR:
                         logging.warning('ws connection closed with exception %s' % ws.exception())
             finally:
