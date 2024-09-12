@@ -120,7 +120,7 @@ async def fetch_api_key(request):
 <body>
     <h1>Just a moment...</h1>
     <script>
-        window.opener.postMessage("{api_keys_data["data"][0]["secretKey"]}", "http://127.0.0.1:8188");
+        window.opener.postMessage("{api_keys_data["data"][0]["secretKey"]}", window.location.origin);
     </script>
 </body>
 </html>

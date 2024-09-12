@@ -73,7 +73,7 @@ export class ApiKey extends ComfyDialog {
         // Open a new window for the OAuth
         const popup = window.open(authUrl, 'oauthPopup', 'width=600,height=600');
         window.addEventListener('message', (event) => {
-            if (event.origin === "http://127.0.0.1:8188") {
+            if (event.origin === window.location.origin) {
                 console.log('using API key from OAuth', event.data);
                 document.querySelector('#bizyair-api-key').value = event.data;
             } else {
