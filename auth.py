@@ -75,7 +75,7 @@ async def get_api_key(request):
         return web.Response(text=str(e), status=500)
 
 
-@server.PromptServer.instance.routes.get(f"/bizyair/oauth_callback")
+@server.PromptServer.instance.routes.get("/bizyair/oauth_callback")
 async def fetch_api_key(request):
     ACCOUNT_ENDPOINT = "https://account.siliconflow.cn"
     CLOUD_ENDPOINT = "https://cloud.siliconflow.cn"
