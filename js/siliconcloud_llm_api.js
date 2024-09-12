@@ -5,6 +5,34 @@ app.registerExtension({
     name: "bizyair.siliconcloud.llm.api",
     async beforeRegisterNodeDef(nodeType, nodeData, app) {
         if (nodeData.name === "BizyAirSiliconCloudLLMAPI") {
+            const onNodeCreated = nodeType.prototype.onNodeCreated;
+            nodeType.prototype.onNodeCreated = function() {
+                onNodeCreated?.apply(this, arguments);
+
+                const modelWidget = this.widgets.find(w => w.name === "model");
+                if (modelWidget) {
+                    modelWidget.options.values = ["Loading..."];
+                    fetch('/bizyair/get_silicon_cloud_models', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({}),
+                    })
+                    .then(response => response.json())
+                    .then(models => {
+                        modelWidget.options.values = models;
+                        modelWidget.value = models[0];
+                        app.graph.setDirtyCanvas(true);
+                    })
+                    .catch(error => {
+                        console.error('Error fetching models:', error);
+                        modelWidget.options.values = ["Error fetching models"];
+                        app.graph.setDirtyCanvas(true);
+                    });
+                }
+            };
+
             function populate(text) {
                 if (this.widgets) {
                     const pos = this.widgets.findIndex((w) => w.name === "showtext");
