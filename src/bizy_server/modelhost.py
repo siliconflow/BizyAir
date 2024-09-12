@@ -47,6 +47,8 @@ from .errno import (
     PATH_NOT_EXISTS_ERR,
     INVALID_CLIENT_ID_ERR,
     FILE_NOT_EXISTS_ERR,
+    INVALID_USER_ERR,
+    GET_USER_INFO_ERR,
     ErrorNo,
 )
 from .execution import UploadQueue
@@ -590,6 +592,27 @@ class ModelHostServer:
             result = list(tree.values())
 
         return result, None
+
+    async def valid_user_info(self) -> (bool, ErrorNo):
+        headers, err = self.auth_header()
+        if err is not None:
+            return None, err
+
+        server_url = f"https://api.siliconflow.cn/v1/user/info"
+        try:
+            resp = self.do_get(server_url, headers=headers)
+            ret = json.loads(resp)
+            if ret["code"] != CODE_OK:
+                if ret["code"] == 401:
+                    return False, None
+                else:
+                    return None, ErrorNo(500, ret["code"], None, ret["message"])
+
+            return True, None
+        except Exception as e:
+            print(f"fail to get user info: {str(e)}")
+            return None, GET_USER_INFO_ERR
+
 
     def is_string_valid(self, s):
         # 检查s是否已经被定义（即不是None）且不是空字符串

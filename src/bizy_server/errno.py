@@ -19,6 +19,7 @@ PATH_NOT_EXISTS_ERR = ErrorNo(400, 400113, None, "The upload path does not exist
 FILE_NOT_EXISTS_ERR = ErrorNo(400, 400114, None, "The file does not exist.")
 INVALID_CLIENT_ID_ERR = ErrorNo(400, 400114, None, "Invalid client id")
 INVALID_API_KEY_ERR = ErrorNo(401, 401000, None, "Invalid API key")
+INVALID_USER_ERR = ErrorNo(401, 401001, None, "Invalid user")
 
 FILE_UPLOAD_SIZE_LIMIT_ERR = ErrorNo(
     413,
@@ -38,4 +39,5 @@ EMPTY_FILES_ERR = ErrorNo(500, 500107, None, "Empty files to make a model")
 LIST_MODEL_FILE_ERR = ErrorNo(500, 500108, None, "Failed to list model file")
 INVALID_FILENAME_ERR = ErrorNo(500, 500109, None, "Invalid filename")
 DELETE_MODEL_ERR = ErrorNo(500, 500110, None, "Failed to delete model")
+GET_USER_INFO_ERR = ErrorNo(500, 500111, None, "Failed to get user info")
 
