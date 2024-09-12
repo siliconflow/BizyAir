@@ -75,7 +75,7 @@ export class ApiKey extends ComfyDialog {
         window.addEventListener('message', (event) => {
             if (event.origin === "http://127.0.0.1:8188") {
                 console.log('Received from child:', event.data);
-                document.getElementById('bizyair-api-key').value = event.data;
+                document.querySelector('#bizyair-api-key').value = event.data;
             } else {
                 console.error('Received message from an unauthorized origin:', event.origin);
             }
