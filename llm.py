@@ -1,6 +1,8 @@
 import json
 import os
 
+import math
+from comfy.utils import common_upscale
 from bizyair.common.env_var import BIZYAIR_SERVER_ADDRESS
 from bizyair.image_utils import decode_data, encode_data
 
@@ -126,6 +128,20 @@ class BizyAirJoyCaption:
         SIZE_LIMIT = 1536
         # device = image.device
         _, w, h, c = image.shape
+        if w>SIZE_LIMIT or h>SIZE_LIMIT:
+
+            if h>w:
+                resize_h = SIZE_LIMIT
+                resize_w = math.ceil(w/h*SIZE_LIMIT)
+            else:
+                resize_w = SIZE_LIMIT
+                resize_h = math.ceil(h/w*SIZE_LIMIT)
+            print(f"resized image size: {resize_w}x{resize_h}")
+
+            samples = image.movedim(-1, 1)
+            resized_image = common_upscale(samples, resize_h, resize_w, "bilinear", "disabled")
+            image = resized_image.movedim(1, -1)
+            _, w, h, c = image.shape
         assert (
             w <= SIZE_LIMIT and h <= SIZE_LIMIT
         ), f"width and height must be less than {SIZE_LIMIT}x{SIZE_LIMIT}, but got {w} and {h}"
