@@ -35,11 +35,10 @@ def validate_api_key(api_key):
         with urllib.request.urlopen(req) as response:
             response_data = response.read().decode("utf-8")
             response_data = json.loads(response_data)
-            if "message" not in response_data:
+            if "message" not in response_data or response_data["message"] != "Ok":
                 IS_API_KEY_VALID = False
-            if response_data["message"] != "Ok":
-                IS_API_KEY_VALID = False
-            IS_API_KEY_VALID = True
+            else:
+                IS_API_KEY_VALID = True
     except Exception as e:
         print(
             "\n\n\033[91m[BizyAir]\033[0m "
