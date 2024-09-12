@@ -72,11 +72,16 @@ export class ApiKey extends ComfyDialog {
 
         // Open a new window for the OAuth
         const popup = window.open(authUrl, 'oauthPopup', 'width=600,height=600');
-        window.receiveValue = function (value) {
-            console.log('Received value:', value);
-            document.getElementById('bizyair-api-key').value = value;
+        window.addEventListener('message', (event) => {
+            if (event.origin === "http://127.0.0.1:8188") {
+                console.log('Received from child:', event.data);
+                document.getElementById('bizyair-api-key').value = event.data;
+            } else {
+                console.error('Received message from an unauthorized origin:', event.origin);
+            }
             popup.close();
-        }
+        });
+        window.postMessage
     }
     async toSubmit() {
         const apiKey = document.querySelector('#bizyair-api-key');
