@@ -47,7 +47,6 @@ from .errno import (
     PATH_NOT_EXISTS_ERR,
     INVALID_CLIENT_ID_ERR,
     FILE_NOT_EXISTS_ERR,
-    INVALID_USER_ERR,
     GET_USER_INFO_ERR,
     ErrorNo,
 )
