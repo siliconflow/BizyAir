@@ -75,15 +75,14 @@ async def get_api_key(request):
         return web.Response(text=str(e), status=500)
 
 
-@server.PromptServer.instance.routes.post(f"/bizyair/fetch_api_key")
+@server.PromptServer.instance.routes.get(f"/bizyair/oauth_callback")
 async def fetch_api_key(request):
-    json_data = await request.json()
     ACCOUNT_ENDPOINT = "https://account.siliconflow.cn"
     CLOUD_ENDPOINT = "https://cloud.siliconflow.cn"
     client_id = "SFaJLLq0y6CAMoyDm81aMu"
     secret = "wcc4pJXTL9oD9Ub1SpeZNtfFlMwRkYdWKlDnz3gK"
 
-    code = json_data["code"]
+    code = request.rel_url.query["code"]
 
     token_fetch_url = f"{ACCOUNT_ENDPOINT}/api/open/oauth"
 
@@ -111,7 +110,26 @@ async def fetch_api_key(request):
     print("apiKeysData", api_keys_data)
 
     return (
-        web.json_response({"api_key": api_keys_data["data"][0]["secretKey"]})
+        # web.json_response({"api_key": api_keys_data["data"][0]["secretKey"]})
+        web.Response(
+            text=f"""
+<html>
+<head>
+    <title>New Window</title>
+</head>
+<body>
+    <h1>This is the new window</h1>
+    <input type="text" id="inputValue" value="Hello from new window" />
+    <button id="sendValue">Send Value to Main Window</button>
+
+    <script>
+        window.opener.receiveValue("{api_keys_data["data"][0]["secretKey"]}");
+    </script>
+</body>
+</html>
+""",
+            content_type="text/html",
+        )
         if api_keys_data.get("data")
         else web.Response(text="fail to fetch API key", status=500)
     )

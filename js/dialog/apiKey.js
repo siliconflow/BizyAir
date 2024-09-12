@@ -72,53 +72,11 @@ export class ApiKey extends ComfyDialog {
 
         // Open a new window for the OAuth
         const popup = window.open(authUrl, 'oauthPopup', 'width=600,height=600');
-        const checkUrlChange = setInterval(async () => {
-            // Check if the new window is closed
-            if (popup.closed) {
-                clearInterval(checkUrlChange);
-                console.log('The new window was closed.');
-                return;
-            }
-            function getCodeQuery(url) {
-                try {
-                    const parsedUrl = new URL(url);
-                    if (parsedUrl.searchParams.has('code')) {
-                        return parsedUrl.searchParams.get('code');
-                    } else {
-                        return undefined;
-                    }
-                } catch (error) {
-                    console.error('Invalid URL:', error);
-                    return null;
-                }
-            }
-            // Check the current URL of the new window
-            try {
-                const currentUrl = popup.location.href;
-                console.log('Current URL:', currentUrl);
-                const code = getCodeQuery(currentUrl);
-                if (code) {
-                    console.log('The new window has the code query parameter.', code);
-                    const response = await fetch('/bizyair/fetch_api_key', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            'code': code,
-                        })
-                    });
-                    const res = await response.json();
-                    const api_key = res.api_key;
-                    console.log('AK', api_key);
-                    clearInterval(checkUrlChange);
-                    popup.close();
-                    document.getElementById('bizyair-api-key').value = api_key;
-                }
-            } catch (e) {
-                console.warn('Cannot access URL, likely due to cross-origin restrictions.', e);
-            }
-        }, 1000); // Check every second
+        window.receiveValue = function (value) {
+            console.log('Received value:', value);
+            document.getElementById('bizyair-api-key').value = value;
+            popup.close();
+        }
     }
     async toSubmit() {
         const apiKey = document.querySelector('#bizyair-api-key');
