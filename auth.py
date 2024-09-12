@@ -118,10 +118,7 @@ async def fetch_api_key(request):
     <title>New Window</title>
 </head>
 <body>
-    <h1>This is the new window</h1>
-    <input type="text" id="inputValue" value="Hello from new window" />
-    <button id="sendValue">Send Value to Main Window</button>
-
+    <h1>Just a moment...</h1>
     <script>
         window.opener.receiveValue("{api_keys_data["data"][0]["secretKey"]}");
     </script>
