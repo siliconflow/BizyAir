@@ -18,10 +18,37 @@ def set_api_key(API_KEY="YOUR_API_KEY"):
         BIZYAIR_API_KEY = API_KEY
 
 
+is_api_key_valid = None
+
+
 def validate_api_key(api_key):
-    if api_key is None or not api_key.startswith("sk-"):
+    global is_api_key_valid
+    if api_key is None:
         return False
-    return True
+    if is_api_key_valid is not None:
+        return is_api_key_valid
+
+    url = "https://api.siliconflow.cn/v1/user/info"
+    headers = {"accept": "application/json", "authorization": f"Bearer {api_key}"}
+    try:
+        req = urllib.request.Request(url, headers=headers)
+        with urllib.request.urlopen(req) as response:
+            response_data = response.read().decode("utf-8")
+            response_data = json.loads(response_data)
+            if "message" not in response_data:
+                is_api_key_valid = False
+            if response_data["message"] != "Ok":
+                is_api_key_valid = False
+            is_api_key_valid = True
+    except Exception as e:
+        print(
+            "\n\n\033[91m[BizyAir]\033[0m "
+            f"Fail to validate the api key: {api_key}, with error {e} \n\n"
+        )
+        print(f"")
+        is_api_key_valid = False
+    finally:
+        return is_api_key_valid
 
 
 def get_api_key():
@@ -29,7 +56,7 @@ def get_api_key():
     if not validate_api_key(BIZYAIR_API_KEY):
         error_message = (
             "BIZYAIR_API_KEY is not set or invalid. "
-            "Please provide a valid API key starting with 'sk-'. "
+            "Please refer to cloud.siliconflow.cn to get a valid API key. "
             f"Current BIZYAIR_API_KEY: {BIZYAIR_API_KEY}"
         )
         raise ValueError(error_message)
