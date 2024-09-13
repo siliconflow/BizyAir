@@ -708,7 +708,7 @@ class ModelHostServer:
             0x142F0E1EBA9EA3693, initCrc=0, xorOut=0xFFFFFFFFFFFFFFFF, rev=True
         )
         crc64_signature = 0
-        buf_size = 65536 * 4  # 缓冲区大小为256KB
+        buf_size = 65536 * 16  # 缓冲区大小为1MB
 
         # 使用 aiofiles 异步读取文件计算 CRC64
         async with aiofiles.open(file_path, "rb") as f:
@@ -858,4 +858,5 @@ class ModelHostServer:
                 if model["name"] == item["name"]:
                     self.send_sync(event="synced", data={"model_type": item["type"], "model_name": item["name"]}, sid=sid)
                     return
+            await asyncio.sleep(5)
 
