@@ -34,7 +34,7 @@ export function dialog(params) {
     const el = $el("div.bizyair-new-dialog", {
         parent: document.body,
         id,
-        style: { zIndex: 1000 + document.querySelectorAll('.bizyair-new-dialog').length },
+        style: { zIndex: 10000 + document.querySelectorAll('.bizyair-new-dialog').length },
         onclick: function () {
             if (params.closeOnClickModal) {
                 removeDialog(this)

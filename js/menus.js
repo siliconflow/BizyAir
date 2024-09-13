@@ -75,7 +75,6 @@ class FloatingButton {
         const comfyFloatingButton = document.querySelector('.comfy-floating-button')
         const bizyairMenu = document.querySelector('.bizyair-menu')
         const bizyairMenuCloser = document.querySelector('.cmfy-floating-button-closer')
-        console.log(bizyairMenu)
         if (this.visible) {
             comfyFloatingButton.className = 'comfy-floating-button comfy-floating-button-hidden';
             bizyairMenu.className = 'bizyair-menu bizyair-menu-hidden';
