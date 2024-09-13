@@ -858,4 +858,3 @@ class ModelHostServer:
                 if model["name"] == item["name"]:
                     self.send_sync(event="synced", data={"model_type": item["type"], "model_name": item["name"]}, sid=sid)
                     return
-

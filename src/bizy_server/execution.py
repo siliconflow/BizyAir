@@ -52,4 +52,3 @@ def upload_worker(server, q):
                 continue
         except Exception as e:
             logging.error(f"Failed to upload file: {e}")
-

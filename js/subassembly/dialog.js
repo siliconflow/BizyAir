@@ -94,7 +94,7 @@ export function dialog(params) {
     const fnEscapeClose = async function (e) {
         if (e.key === "Escape") {
             const topDialog = dialogStack[dialogStack.length - 1];
-    
+
             if (topDialog === el) {
                 if (params.onNo) {
                     await params.onNo();
@@ -108,7 +108,7 @@ export function dialog(params) {
     if (!params.onEsape) {
         document.addEventListener("keydown", fnEscapeClose);
     }
-    
+
     function removeDialog(el) {
         el.querySelector('.bizyair-dialog-content').style.transition = 'all 0.2s';
         el.querySelector('.bizyair-dialog-content').style.transform = 'translate(-50%, -50%) scale(0)';
