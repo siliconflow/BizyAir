@@ -34,8 +34,12 @@ class AliOssStorageClient:
 
     def sync_upload_file(self, file_path, object_name):
         total_size = os.path.getsize(file_path)
-        progress_bar = tqdm(total=total_size, unit='B', unit_scale=True,
-                            desc=f"Uploading {os.path.basename(file_path)}")
+        progress_bar = tqdm(
+            total=total_size,
+            unit="B",
+            unit_scale=True,
+            desc=f"Uploading {os.path.basename(file_path)}",
+        )
         # 维护累计发送的字节数
         bytes_uploaded = 0
 
@@ -48,7 +52,9 @@ class AliOssStorageClient:
                 self.onUploading(bytes_sent, total_bytes)
 
         try:
-            self.bucket.put_object_from_file(object_name, file_path, progress_callback=progress_callback)
+            self.bucket.put_object_from_file(
+                object_name, file_path, progress_callback=progress_callback
+            )
         except oss2.exceptions.OssError as e:
             logging.error(f"Failed to upload file: {e}")
             raise e

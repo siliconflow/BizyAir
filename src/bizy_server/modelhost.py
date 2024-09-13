@@ -8,15 +8,15 @@ import shutil
 import time
 import urllib.parse
 import urllib.request
+import uuid
 from collections import defaultdict
 from pathlib import Path
 
-import aiohttp
 import aiofiles
+import aiohttp
 import crcmod
 import oss2
 import requests
-import uuid
 from server import PromptServer
 
 import bizyair
@@ -30,25 +30,25 @@ from .errno import (
     COMMIT_FILE_ERR,
     COMMIT_MODEL_ERR,
     DELETE_MODEL_ERR,
+    EMPTY_ABS_FOLDER_ERR,
     EMPTY_FILES_ERR,
     EMPTY_UPLOAD_ID_ERR,
+    FILE_NOT_EXISTS_ERR,
     FILE_UPLOAD_SIZE_LIMIT_ERR,
+    GET_USER_INFO_ERR,
     INVALID_API_KEY_ERR,
+    INVALID_CLIENT_ID_ERR,
     INVALID_NAME,
     INVALID_TYPE,
     INVALID_UPLOAD_ID_ERR,
+    LIST_MODEL_ERR,
     LIST_MODEL_FILE_ERR,
     MODEL_ALREADY_EXISTS_ERR,
+    NO_ABS_PATH_ERR,
     NO_FILE_UPLOAD_ERR,
+    PATH_NOT_EXISTS_ERR,
     SIGN_FILE_ERR,
     UPLOAD_ERR,
-    EMPTY_ABS_FOLDER_ERR,
-    NO_ABS_PATH_ERR,
-    PATH_NOT_EXISTS_ERR,
-    INVALID_CLIENT_ID_ERR,
-    FILE_NOT_EXISTS_ERR,
-    GET_USER_INFO_ERR,
-    LIST_MODEL_ERR,
     ErrorNo,
 )
 from .execution import UploadQueue
@@ -95,7 +95,9 @@ class ModelHostServer:
 
         @prompt_server.routes.get(f"/{API_PREFIX}/upload")
         async def forward_upload_model_html(request):
-            return aiohttp.web.Response(text=upload_model_html, content_type="text/html")
+            return aiohttp.web.Response(
+                text=upload_model_html, content_type="text/html"
+            )
 
         @prompt_server.routes.get(f"/{API_PREFIX}/model_types")
         async def list_model_types(request):
@@ -128,7 +130,7 @@ class ModelHostServer:
         async def websocket_handler(request):
             ws = aiohttp.web.WebSocketResponse()
             await ws.prepare(request)
-            sid = request.rel_url.query.get('clientId', '')
+            sid = request.rel_url.query.get("clientId", "")
             if sid:
                 # Reusing existing session, remove old
                 self.sockets.pop(sid, None)
@@ -139,14 +141,18 @@ class ModelHostServer:
 
             try:
                 # Send initial state to the new client
-                await self.send_json(event="status", data={"status": "connected"}, sid=sid)
+                await self.send_json(
+                    event="status", data={"status": "connected"}, sid=sid
+                )
 
                 async for msg in ws:
                     if msg.type == aiohttp.WSMsgType.TEXT:
                         if msg.data == "ping":
                             await ws.send_str("pong")
                     if msg.type == aiohttp.WSMsgType.ERROR:
-                        logging.warning('ws connection closed with exception %s' % ws.exception())
+                        logging.warning(
+                            "ws connection closed with exception %s" % ws.exception()
+                        )
             finally:
                 self.sockets.pop(sid, None)
             return ws
@@ -167,27 +173,33 @@ class ModelHostServer:
             relative_paths = []
             for root, dirs, files in os.walk(absolute_path):
                 # Skip the .git directory
-                if '.git' in dirs:
-                    dirs.remove('.git')
+                if ".git" in dirs:
+                    dirs.remove(".git")
 
                 for file in files:
                     file_path = os.path.join(root, file)
                     relative_path = os.path.relpath(file_path, absolute_path)
                     file_size = os.path.getsize(file_path)
-                    relative_paths.append({"path": self.to_slash(relative_path), "size": file_size})
+                    relative_paths.append(
+                        {"path": self.to_slash(relative_path), "size": file_size}
+                    )
 
             if len(relative_paths) < 1:
                 return ErrResponse(EMPTY_FILES_ERR)
 
             upload_id = uuid.uuid4().hex
-            data = {"upload_id": upload_id, "root": absolute_path, "files": relative_paths}
+            data = {
+                "upload_id": upload_id,
+                "root": absolute_path,
+                "files": relative_paths,
+            }
             self.uploads[upload_id] = data
 
             return OKResponse(data)
 
         @prompt_server.routes.post(f"/{API_PREFIX}/submit_upload")
         async def submit_upload(request):
-            sid = request.rel_url.query.get('clientId', '')
+            sid = request.rel_url.query.get("clientId", "")
             if not self.is_string_valid(sid):
                 return ErrResponse(INVALID_CLIENT_ID_ERR)
 
@@ -214,7 +226,11 @@ class ModelHostServer:
             if err is not None:
                 return ErrResponse(err)
 
-            if exists and "overwrite" not in json_data or json_data["overwrite"] is not True:
+            if (
+                exists
+                and "overwrite" not in json_data
+                or json_data["overwrite"] is not True
+            ):
                 return ErrResponse(MODEL_ALREADY_EXISTS_ERR)
 
             self.uploads[upload_id]["sid"] = sid
@@ -359,9 +375,9 @@ class ModelHostServer:
                 return ErrResponse(err)
 
             if (
-                    exists
-                    and "overwrite" not in json_data
-                    or json_data["overwrite"] is not True
+                exists
+                and "overwrite" not in json_data
+                or json_data["overwrite"] is not True
             ):
                 return ErrResponse(MODEL_ALREADY_EXISTS_ERR)
 
@@ -509,7 +525,7 @@ class ModelHostServer:
             return None, COMMIT_FILE_ERR
 
     async def commit_model(
-            self, model_files, model_name: str, model_type: str, overwrite: bool
+        self, model_files, model_name: str, model_type: str, overwrite: bool
     ) -> (dict, ErrorNo):
         server_url = f"{BIZYAIR_SERVER_ADDRESS}/models"
 
@@ -634,7 +650,6 @@ class ModelHostServer:
             print(f"fail to get user info: {str(e)}")
             return None, GET_USER_INFO_ERR
 
-
     def is_string_valid(self, s):
         # 检查s是否已经被定义（即不是None）且不是空字符串
         if s is not None and s != "":
@@ -656,8 +671,8 @@ class ModelHostServer:
         if "type" not in json_data:
             return ErrResponse(INVALID_TYPE)
         if (
-                not self.is_string_valid(json_data["type"])
-                or json_data["type"] not in ALLOW_TYPES
+            not self.is_string_valid(json_data["type"])
+            or json_data["type"] not in ALLOW_TYPES
         ):
             return ErrResponse(INVALID_TYPE)
         return None
@@ -745,27 +760,45 @@ class ModelHostServer:
             await self.send_socket_catch_exception(self.sockets[sid].send_json, message)
 
     async def send_error(self, err: ErrorNo, sid=None):
-        await self.send_json(event="error", data={"message": err.message, "code": err.code, "data": err.data}, sid=sid)
+        await self.send_json(
+            event="error",
+            data={"message": err.message, "code": err.code, "data": err.data},
+            sid=sid,
+        )
 
     async def send_socket_catch_exception(self, function, message):
         try:
             await function(message)
-        except (aiohttp.ClientError, aiohttp.ClientPayloadError, ConnectionResetError) as err:
+        except (
+            aiohttp.ClientError,
+            aiohttp.ClientPayloadError,
+            ConnectionResetError,
+        ) as err:
             logging.warning("send error: {}".format(err))
 
     def send_sync(self, event, data, sid=None):
         asyncio.run_coroutine_threadsafe(self.send_json(event, data, sid), self.loop)
 
     def send_sync_error(self, err: ErrorNo, sid=None):
-        self.send_sync(event="errors", data={"message": err.message, "code": err.code, "data": err.data}, sid=sid)
+        self.send_sync(
+            event="errors",
+            data={"message": err.message, "code": err.code, "data": err.data},
+            sid=sid,
+        )
 
     async def do_upload(self, item):
         sid = item["sid"]
         upload_id = item["upload_id"]
         print("do_upload: ", upload_id)
-        self.send_sync(event="status",
-                       data={"status": "starting", "upload_id": upload_id, "message": f"start uploading"},
-                       sid=sid)
+        self.send_sync(
+            event="status",
+            data={
+                "status": "starting",
+                "upload_id": upload_id,
+                "message": f"start uploading",
+            },
+            sid=sid,
+        )
 
         root_dir = item["root"]
         model_files = []
@@ -792,17 +825,27 @@ class ModelHostServer:
 
                     def updateProgress(consume_bytes, total_bytes):
                         current_time = time.time()
-                        if current_time - self.upload_progresses_updated_at[upload_id] >= 1:
+                        if (
+                            current_time - self.upload_progresses_updated_at[upload_id]
+                            >= 1
+                        ):
                             self.upload_progresses_updated_at[upload_id] = current_time
 
                             progress = (
                                 f"{consume_bytes / total_bytes * 100:.0f}%"
-                                if consume_bytes / total_bytes * 100 == int(consume_bytes / total_bytes * 100)
+                                if consume_bytes / total_bytes * 100
+                                == int(consume_bytes / total_bytes * 100)
                                 else "{:.2f}%".format(consume_bytes / total_bytes * 100)
                             )
-                            self.send_sync(event="progress",
-                                           data={"upload_id": upload_id, "path": filename, "progress": progress},
-                                           sid=sid)
+                            self.send_sync(
+                                event="progress",
+                                data={
+                                    "upload_id": upload_id,
+                                    "path": filename,
+                                    "progress": progress,
+                                },
+                                sid=sid,
+                            )
 
                     oss_client = AliOssStorageClient(
                         endpoint=file_storage.get("endpoint"),
@@ -828,8 +871,11 @@ class ModelHostServer:
                     return
 
                 print(f"{filename} Already Uploaded")
-            self.send_sync(event="progress", data={"upload_id": upload_id, "path": filename, "progress": "100%"},
-                           sid=sid)
+            self.send_sync(
+                event="progress",
+                data={"upload_id": upload_id, "path": filename, "progress": "100%"},
+                sid=sid,
+            )
 
             model_files.append({"sign": sha256sum, "path": filename})
 
@@ -845,16 +891,33 @@ class ModelHostServer:
 
         print("Uploaded successfully")
 
-        self.send_sync(event="status",
-                       data={"status": "finish", "upload_id": upload_id, "message": f"uploading finished"}, sid=sid)
+        self.send_sync(
+            event="status",
+            data={
+                "status": "finish",
+                "upload_id": upload_id,
+                "message": f"uploading finished",
+            },
+            sid=sid,
+        )
 
         while True:
-            models, err = await self.get_models({"type": item["type"], "available": True})
+            models, err = await self.get_models(
+                {"type": item["type"], "available": True}
+            )
             if err is not None:
-                self.send_sync(event="error", data={"message": err.message, "code": err.code, "data": err.data}, sid=sid)
+                self.send_sync(
+                    event="error",
+                    data={"message": err.message, "code": err.code, "data": err.data},
+                    sid=sid,
+                )
                 return
             # 遍历models, 看当前name的model是否存在
             for model in models:
                 if model["name"] == item["name"]:
-                    self.send_sync(event="synced", data={"model_type": item["type"], "model_name": item["name"]}, sid=sid)
+                    self.send_sync(
+                        event="synced",
+                        data={"model_type": item["type"], "model_name": item["name"]},
+                        sid=sid,
+                    )
                     return
