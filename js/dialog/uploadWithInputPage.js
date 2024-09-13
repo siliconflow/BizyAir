@@ -11,71 +11,71 @@ export const uploadWithInputPage = async () => {
     const elOptions = typeList.map(item => $el("option", { value: item.value }, [item.label]))
     const temp = {
         filesAry: [],
-        content: $el("div.comfy-modal-content.comfy-modal-content-file",[
-                $el("div.bizyair-form-item", {}, [
-                    $el("span.bizyair-form-label", {}, ['Type']),
-                    $el("select.cm-input-item", {
-                        onchange: function() {
-                            this.className = this.className.replace(/cm-input-item-error/g, '')
-                        }
-                    }, [
-                        ...elOptions
-                    ]),
-                    $el("i.bizyair-form-qa", {
-                        onmouseover: function() {
-                            temp.showQA(this, 'Model types.')
-                        },
-                        onmouseout: function() {
-                            temp.hideQA(this)
-                        }
-                    }, ['?']),
+        content: $el("div.comfy-modal-content.comfy-modal-content-file", [
+            $el("div.bizyair-form-item", {}, [
+                $el("span.bizyair-form-label", {}, ['Type']),
+                $el("select.cm-input-item", {
+                    onchange: function () {
+                        this.className = this.className.replace(/cm-input-item-error/g, '')
+                    }
+                }, [
+                    ...elOptions
                 ]),
-                $el("div.bizyair-form-item", {}, [
-                    $el("span.bizyair-form-label", {}, ['Name']),
-                    $el("input.cm-input-item", {
-                        type: "text",
-                        placeholder: "The remote folder name",
-                        id: 'bizyair-model-name',
-                        onchange: function() {
-                            this.className = this.className.replace(/cm-input-item-error/g, '')
-                        }
-                    }),
-                    $el("i.bizyair-form-qa", {
-                        onmouseover: function() {
-                            temp.showQA(this, 'Remote folder name of the model')
-                        },
-                        onmouseout: function() {
-                            temp.hideQA(this)
-                        }
-                    }, ['?']),
-                ]),
-                $el("div.bizyair-form-item", {}, [
-                    $el("span.bizyair-form-label", {}, ['Purpose']),
-                    $el("input.cm-input-item", {
-                        type: "text",
-                        placeholder: "Please enter the local file path.",
-                        id: 'bizyair-input-file-box',
-                        onchange: function(e) {
-                            this.className = this.className.replace(/cm-input-item-error/g, '');
-                            temp.onFileMultiChange(e)
-                        }
-                    }),
-                    $el("i.bizyair-form-qa", {
-                        onmouseover: function() {
-                            temp.showQA(this, 'All the files in the selected folder will be uploaded to the remote folder.')
-                        },
-                        onmouseout: function() {
-                            temp.hideQA(this)
-                        }
-                    }, ['?']),
-                ]),
-                $el("br", {}, []),
-                $el('ul.bizyair-file-list', {}, []),
-                $el("p.tips-in-upload", {
-                    id: 'tips-in-upload',
-                    style: { display: 'none' }
-                }, ["Please do not close this dialog box or perform any other operations while the file is uploading."]),
-            ]
+                $el("i.bizyair-form-qa", {
+                    onmouseover: function () {
+                        temp.showQA(this, 'Model types.')
+                    },
+                    onmouseout: function () {
+                        temp.hideQA(this)
+                    }
+                }, ['?']),
+            ]),
+            $el("div.bizyair-form-item", {}, [
+                $el("span.bizyair-form-label", {}, ['Name']),
+                $el("input.cm-input-item", {
+                    type: "text",
+                    placeholder: "The remote folder name",
+                    id: 'bizyair-model-name',
+                    onchange: function () {
+                        this.className = this.className.replace(/cm-input-item-error/g, '')
+                    }
+                }),
+                $el("i.bizyair-form-qa", {
+                    onmouseover: function () {
+                        temp.showQA(this, 'Remote folder name of the model')
+                    },
+                    onmouseout: function () {
+                        temp.hideQA(this)
+                    }
+                }, ['?']),
+            ]),
+            $el("div.bizyair-form-item", {}, [
+                $el("span.bizyair-form-label", {}, ['Purpose']),
+                $el("input.cm-input-item", {
+                    type: "text",
+                    placeholder: "Please enter the local file path.",
+                    id: 'bizyair-input-file-box',
+                    onchange: function (e) {
+                        this.className = this.className.replace(/cm-input-item-error/g, '');
+                        temp.onFileMultiChange(e)
+                    }
+                }),
+                $el("i.bizyair-form-qa", {
+                    onmouseover: function () {
+                        temp.showQA(this, 'All the files in the selected folder will be uploaded to the remote folder.')
+                    },
+                    onmouseout: function () {
+                        temp.hideQA(this)
+                    }
+                }, ['?']),
+            ]),
+            $el("br", {}, []),
+            $el('ul.bizyair-file-list', {}, []),
+            $el("p.tips-in-upload", {
+                id: 'tips-in-upload',
+                style: { display: 'none' }
+            }, ["Please do not close this dialog box or perform any other operations while the file is uploading."]),
+        ]
         ),
         showQA(ele, text) {
             $el('span.bizyair-form-qa-hint', {
@@ -121,7 +121,7 @@ export const uploadWithInputPage = async () => {
                         e.innerHTML = ''
                     })
                 }
-            })            
+            })
         },
         toSubmit() {
             const elSelect = Q('select.cm-input-item')
@@ -173,7 +173,7 @@ export const uploadWithInputPage = async () => {
             Q('input.cm-input-item').disabled = true
             Q('select.cm-input-item').disabled = true
             Q('#bizyair-input-file-box').disabled = true
-            
+
             Q('#bizyair-upload-submit').disabled = true
             Q('#bizyair-upload-reset').disabled = true
             Q('#bizyair-upload-submit').innerText = 'Waiting...'
@@ -210,7 +210,7 @@ export const uploadWithInputPage = async () => {
                 data.data.files.forEach(file => {
                     Q('.bizyair-file-list').appendChild(
                         $el('li', {}, [
-                            $el("span", {}, [`${ file.path }`]),
+                            $el("span", {}, [`${file.path}`]),
                             $el("span.spinner-container", {}, []),
                         ])
                     )
@@ -243,7 +243,7 @@ export const uploadWithInputPage = async () => {
                     content: "The model has been uploaded successfully.",
                     noText: 'Close'
                 });
-                
+
             }
         }
     };

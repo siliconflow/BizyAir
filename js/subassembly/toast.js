@@ -30,10 +30,10 @@ export function toast(params) {
         id,
         style,
         parent: document.body,
-    },[
-        (params.type && params.type == 'succeed'? $el('div.bizyair-toast-icon.bizyair-toast-icon-succeed', {}, []): ''),
-        (params.type && params.type == 'warning'? $el('div.bizyair-toast-icon.bizyair-toast-icon-warning', {}, []): ''),
-        (params.type && params.type == 'error'? $el('div.bizyair-toast-icon.bizyair-toast-icon-error', {}, []): ''),
+    }, [
+        (params.type && params.type == 'succeed' ? $el('div.bizyair-toast-icon.bizyair-toast-icon-succeed', {}, []) : ''),
+        (params.type && params.type == 'warning' ? $el('div.bizyair-toast-icon.bizyair-toast-icon-warning', {}, []) : ''),
+        (params.type && params.type == 'error' ? $el('div.bizyair-toast-icon.bizyair-toast-icon-error', {}, []) : ''),
         $el('span.bizyair-toast-content', {}, [params.content]),
         $el('span.bizyair-toast-close', {}, []),
     ]);

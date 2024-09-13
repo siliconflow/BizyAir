@@ -24,12 +24,12 @@ export class WebSocketClient {
       };
     };
 
-   
+
     this.ws.onerror = (error) => {
       this.onError(error);
     };
 
-   
+
     this.ws.onclose = () => {
       console.warn('WebSocket 连接已关闭，准备重连');
       this.onClose();
@@ -37,7 +37,7 @@ export class WebSocketClient {
     };
   }
 
- 
+
   startKeepAlive() {
     if (this.keepAliveTimer) return;
 
@@ -55,7 +55,7 @@ export class WebSocketClient {
     }
   }
 
- 
+
   scheduleReconnect() {
     if (this.reconnectTimer) return;
 
@@ -63,19 +63,19 @@ export class WebSocketClient {
       console.log(`尝试重新连接...`);
       this.connect();
       this.reconnectTimer = null;
-     
+
       this.reconnectDelay = Math.min(this.reconnectDelay * 2, this.maxReconnectDelay);
     }, this.reconnectDelay);
   }
 
   onOpen() {
-   
+
     this.reconnectDelay = 2000;
     this.startKeepAlive();
   }
 
   onMessage(message) {
-   
+
     const data = JSON.parse(message.data);
     if (data === 'pong') {
     } else {
@@ -84,16 +84,16 @@ export class WebSocketClient {
   }
 
   onError(error) {
-   
+
     console.error('WebSocket 错误: ', error);
   }
 
   onClose() {
-   
+
     this.stopKeepAlive();
   }
 
- 
+
   close() {
     if (this.ws) {
       this.ws.close();
