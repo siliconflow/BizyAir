@@ -4,7 +4,7 @@ import { delModels, models_files, model_types } from "../apis.js"
 import { subscribe, unsubscribe } from '../subassembly/subscribers.js'
 
 export const modelList = async () => {
-    
+
     const resList = await models_files('bizyair/lora');
     const resType = await model_types();
     const listData = resList.data;

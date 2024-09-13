@@ -40,7 +40,7 @@ function customFetch(url, options = {}) {
                         }
                     }
                 })
-                
+
                 return;
             }
             return data;

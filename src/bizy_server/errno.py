@@ -41,4 +41,3 @@ INVALID_FILENAME_ERR = ErrorNo(500, 500109, None, "Invalid filename")
 DELETE_MODEL_ERR = ErrorNo(500, 500110, None, "Failed to delete model")
 GET_USER_INFO_ERR = ErrorNo(500, 500111, None, "Failed to get user info")
 LIST_MODEL_ERR = ErrorNo(500, 500112, None, "Failed to list model")
-
