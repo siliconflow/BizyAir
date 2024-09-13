@@ -849,7 +849,7 @@ class ModelHostServer:
                        data={"status": "finish", "upload_id": upload_id, "message": f"uploading finished"}, sid=sid)
 
         while True:
-            models, err = self.get_models({"type": item["type"], "available": True})
+            models, err = await self.get_models({"type": item["type"], "available": True})
             if err is not None:
                 self.send_sync(event="error", data={"message": err.message, "code": err.code, "data": err.data}, sid=sid)
                 return
