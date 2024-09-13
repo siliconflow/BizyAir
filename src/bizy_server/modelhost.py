@@ -48,6 +48,7 @@ from .errno import (
     INVALID_CLIENT_ID_ERR,
     FILE_NOT_EXISTS_ERR,
     GET_USER_INFO_ERR,
+    LIST_MODEL_ERR,
     ErrorNo,
 )
 from .execution import UploadQueue
@@ -592,7 +593,28 @@ class ModelHostServer:
 
         return result, None
 
-    async def valid_user_info(self) -> (bool, ErrorNo):
+    async def get_models(self, payload) -> (dict, ErrorNo):
+        headers, err = self.auth_header()
+        if err is not None:
+            return None, err
+
+        server_url = f"{BIZYAIR_SERVER_ADDRESS}/models"
+        try:
+            resp = self.do_get(server_url, params=payload, headers=headers)
+            ret = json.loads(resp)
+            if ret["code"] != CODE_OK:
+                return None, ErrorNo(500, ret["code"], None, ret["message"])
+
+            if not ret["data"]:
+                return [], None
+        except Exception as e:
+            print(f"fail to list model: {str(e)}")
+            return None, LIST_MODEL_ERR
+
+        models = ret["data"]["models"]
+        return models, None
+
+    async def valid_user(self) -> (bool, ErrorNo):
         headers, err = self.auth_header()
         if err is not None:
             return None, err
@@ -723,7 +745,7 @@ class ModelHostServer:
             await self.send_socket_catch_exception(self.sockets[sid].send_json, message)
 
     async def send_error(self, err: ErrorNo, sid=None):
-        await self.send_json("error", {"message": err.message, "code": err.code, "data": err.data}, sid)
+        await self.send_json(event="error", data={"message": err.message, "code": err.code, "data": err.data}, sid=sid)
 
     async def send_socket_catch_exception(self, function, message):
         try:
@@ -773,8 +795,10 @@ class ModelHostServer:
                         if current_time - self.upload_progresses_updated_at[upload_id] >= 1:
                             self.upload_progresses_updated_at[upload_id] = current_time
 
-                            progress = "{:.2f}%".format(
-                                consume_bytes / total_bytes * 100
+                            progress = (
+                                f"{consume_bytes / total_bytes * 100:.0f}%"
+                                if consume_bytes / total_bytes * 100 == int(consume_bytes / total_bytes * 100)
+                                else "{:.2f}%".format(consume_bytes / total_bytes * 100)
                             )
                             self.send_sync(event="progress",
                                            data={"upload_id": upload_id, "path": filename, "progress": progress},
@@ -823,3 +847,15 @@ class ModelHostServer:
 
         self.send_sync(event="status",
                        data={"status": "finish", "upload_id": upload_id, "message": f"uploading finished"}, sid=sid)
+
+        while True:
+            models, err = self.get_models({"type": item["type"], "available": True})
+            if err is not None:
+                self.send_sync(event="error", data={"message": err.message, "code": err.code, "data": err.data}, sid=sid)
+                return
+            # 遍历models, 看当前name的model是否存在
+            for model in models:
+                if model["name"] == item["name"]:
+                    self.send_sync(event="synced", data={"model_type": item["type"], "model_name": item["name"]}, sid=sid)
+                    return
+
