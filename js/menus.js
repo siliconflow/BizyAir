@@ -10,6 +10,7 @@ import { styleUploadFile } from "./subassembly/styleUploadFile.js";
 import { styleDialog } from './subassembly/styleDialog.js';
 import { notifySubscribers } from './subassembly/subscribers.js'
 import { WebSocketClient } from './subassembly/socket.js'
+import { toast } from './subassembly/toast.js'
 
 class FloatingButton {
     constructor(show_cases) {
@@ -112,13 +113,13 @@ app.registerExtension({
         const wsClient = new WebSocketClient(`ws://localhost:8188/bizyair/modelhost/ws?clientId=${sessionStorage.getItem('clientId')}`);
         wsClient.onMessage = function(message) {
             notifySubscribers('socketMessage', message);
+            const res = JSON.parse(message.data);
+            if (res && res.type == 'errors') {
+                toast.error(res.data.message)
+            }
+            // if (res && res.type == 'synced') {
+            //     toast(`${res.data.model_name} is available!`)
+            // }
         }
-        
-        // socket.onmessage = function(e) {
-        //     notifySubscribers('socketMessage', e.data);
-        // };
-        // socket.onclose = function(e) {
-        //     console.log('WebSocket close', e);
-        // };
     },
 });

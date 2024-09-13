@@ -10,7 +10,8 @@ function customFetch(url, options = {}) {
             console.log(`请求过于频繁，忽略请求：${url}`);
             dialog({
                 content: "The request is too frequent.",
-                warning: true
+                type: 'warning',
+                noText: 'Close',
             })
             return Promise.resolve(null);
         }
@@ -21,7 +22,7 @@ function customFetch(url, options = {}) {
             if (response.status == 404) {
                 dialog({
                     content: "You may be missing dependencies at the moment. For details, please refer to the ComfyUI logs.",
-                    error: true
+                    type: 'error'
                 })
             }
             return response.json();
@@ -30,7 +31,7 @@ function customFetch(url, options = {}) {
             const { code, message } = data;
             if (code !== 20000) {
                 dialog({
-                    warning: true,
+                    type: 'warning',
                     content: message,
                     noText: 'Close',
                     onNo: () => {

@@ -68,7 +68,6 @@ export const uploadWithInputPage = async () => {
                             temp.hideQA(this)
                         }
                     }, ['?']),
-                    // $el('p.upload-size-hint', { }, ['You can specify the file upload limit as needed (in MB), for example: python main.py --max-upload-size 1024']),
                 ]),
                 $el("br", {}, []),
                 $el('ul.bizyair-file-list', {}, []),
@@ -132,7 +131,7 @@ export const uploadWithInputPage = async () => {
 
             if (!elSelect.value) {
                 dialog({
-                    warning: true,
+                    tyoe: 'warning',
                     content: "Please select model type",
                     noText: 'Close'
                 })
@@ -142,8 +141,17 @@ export const uploadWithInputPage = async () => {
             }
             if (!elInput.value) {
                 dialog({
-                    warning: true,
+                    type: 'warning',
                     content: "Please input model name",
+                    noText: 'Close'
+                })
+                elInput.className = `${elInput.className} cm-input-item-error`
+                return
+            }
+            if (/^[A-Za-z0-9\u4e00-\u9fa5]([A-Za-z0-9\u4e00-\u9fa5-_]*)$/.test(elInput.value) == false) {
+                dialog({
+                    type: 'warning',
+                    content: "Please enter English letters, Chinese characters, numbers, or - or _.",
                     noText: 'Close'
                 })
                 elInput.className = `${elInput.className} cm-input-item-error`
@@ -151,7 +159,7 @@ export const uploadWithInputPage = async () => {
             }
             if (cmFileList.querySelectorAll('li').length == 0) {
                 dialog({
-                    warning: true,
+                    type: 'warning',
                     content: "Please select files",
                     noText: 'Close'
                 })
@@ -203,7 +211,6 @@ export const uploadWithInputPage = async () => {
                     Q('.bizyair-file-list').appendChild(
                         $el('li', {}, [
                             $el("span", {}, [`${ file.path }`]),
-                            // $el("span", {}, [`${ file.size }`]),
                             $el("span.spinner-container", {}, []),
                         ])
                     )
@@ -219,7 +226,6 @@ export const uploadWithInputPage = async () => {
     const fnMessage = (data) => {
         const res = JSON.parse(data.data);
         if (res.type == "progress") {
-            console.log(res.data)
             const cmFileList = QAll('.bizyair-file-list li');
             const index = temp.filesAry.map(e => e.path).indexOf(res.data.path)
             if (index != -1) {
@@ -228,13 +234,12 @@ export const uploadWithInputPage = async () => {
             }
         }
         if (res.type == "status") {
-            console.log(res.data)
             if (res.data.status == "finish") {
                 Q('#bizyair-upload-submit').style.display = 'none'
                 temp.unDisabledInput()
                 Q('#tips-in-upload').style.display = 'none'
                 dialog({
-                    succeed: true,
+                    type: 'succeed',
                     content: "The model has been uploaded successfully.",
                     noText: 'Close'
                 });
@@ -253,7 +258,6 @@ export const uploadWithInputPage = async () => {
         neutralText: 'Reset',
         onYes: () => {
             temp.toSubmit()
-            // return true
         },
         onNeutral: () => {
             Q('#bizyair-upload-submit').style.display = 'block';

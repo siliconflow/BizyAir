@@ -227,15 +227,12 @@ export const uploadPage = async () => {
             formData.append('filename', file.webkitRelativePath);
             formData.append("upload_id", this.uploadId);
             file_upload(formData).then(data => {
-                console.log('Request successful', data);
-
                 if (fn) {
                     fn(data)
                 }
             })
             .catch(error => {
                 this.unDisabledInput()
-                console.log(this.unDisabledInput)
                 console.error('Error during AJAX request', error);
             });
         },
@@ -299,7 +296,6 @@ export const uploadPage = async () => {
         noText: 'Close',
         onYes: () => {
             temp.toSubmit()
-            // return true
         },
     })
 }

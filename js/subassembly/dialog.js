@@ -1,6 +1,5 @@
 import { $el } from "../../../scripts/ui.js";
 
-let keydownListenerAdded = false;
 
 function generateUUID() {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
@@ -8,15 +7,7 @@ function generateUUID() {
         return r.toString(16);
     });
 }
-function removeDialog(el) {
-    el.querySelector('.bizyair-dialog-content').style.transition = 'all 0.2s';
-    el.querySelector('.bizyair-dialog-content').style.transform = 'translate(-50%, -50%) scale(0)';
-    el.style.transition = 'all 0.3s';
-    el.style.opacity = '0';
-    setTimeout(() => {
-        el.remove();
-    }, 200);
-}
+let dialogStack = [];
 export function dialog(params) {
     const id = 'bizyair-dialog' + generateUUID();
     const style = {}
@@ -32,15 +23,15 @@ export function dialog(params) {
             return $el("div.bizyair-new-dialog-body", {
                 style: { maxHeight: h }
             }, [
-                (params.succeed? $el('div.bizyair-new-dialog-icon.bizyair-new-dialog-succeed', {}, []): ''),
-                (params.warning? $el('div.bizyair-new-dialog-icon.bizyair-new-dialog-warning', {}, []): ''),
-                (params.error? $el('div.bizyair-new-dialog-icon.bizyair-new-dialog-error', {}, []): ''),
+                (params.type && params.type == 'succeed'? $el('div.bizyair-new-dialog-icon.bizyair-new-dialog-succeed', {}, []): ''),
+                (params.type && params.type == 'warning'? $el('div.bizyair-new-dialog-icon.bizyair-new-dialog-warning', {}, []): ''),
+                (params.type && params.type == 'error'? $el('div.bizyair-new-dialog-icon.bizyair-new-dialog-error', {}, []): ''),
                 params.content
             ])
         }
         return ''
     }
-    $el("div.bizyair-new-dialog", {
+    const el = $el("div.bizyair-new-dialog", {
         parent: document.body,
         id,
         style: { zIndex: 1000 + document.querySelectorAll('.bizyair-new-dialog').length },
@@ -97,27 +88,61 @@ export function dialog(params) {
                         removeDialog(document.getElementById(id))
                     }
                 }): '')
-                
             ]),
         ])
     ]);
-
-    if (!params.onEsape && !keydownListenerAdded) {
-        document.addEventListener("keydown", function (e) {
-            if (e.key === "Escape") {
-                const dialogs = document.querySelectorAll('.bizyair-new-dialog');
-                if (dialogs.length > 0) {
-                    removeDialog(dialogs[dialogs.length - 1])
+    const fnEscapeClose = async function (e) {
+        if (e.key === "Escape") {
+            const topDialog = dialogStack[dialogStack.length - 1];
+    
+            if (topDialog === el) {
+                if (params.onNo) {
+                    await params.onNo();
                 }
+                removeDialog(el);
             }
-        });
-        keydownListenerAdded = true;
+        }
+    }
+    dialogStack.push(el);
+
+    if (!params.onEsape) {
+        document.addEventListener("keydown", fnEscapeClose);
+    }
+    
+    function removeDialog(el) {
+        el.querySelector('.bizyair-dialog-content').style.transition = 'all 0.2s';
+        el.querySelector('.bizyair-dialog-content').style.transform = 'translate(-50%, -50%) scale(0)';
+        el.style.transition = 'all 0.3s';
+        el.style.opacity = '0';
+        setTimeout(() => {
+            el.remove();
+        }, 200);
+
+        document.removeEventListener("keydown", fnEscapeClose);
+        dialogStack = dialogStack.filter(d => d !== el);
     }
 }
-
-// dialog({
-//     title: 'Title',
-//     content: 'asdasd',
-//     noText: 'Close',
-//     error: true
-// });
+dialog.succeed = params => {
+    if (typeof params === 'string') {
+        const contentParams = { content: params, type: 'succeed' }
+        dialog(contentParams)
+    }
+    params.type = 'succeed';
+    dialog(params)
+}
+dialog.warning = params => {
+    if (typeof params === 'string') {
+        const contentParams = { content: params, type: 'warning' }
+        dialog(contentParams)
+    }
+    params.type = 'warning';
+    dialog(params)
+}
+dialog.error = params => {
+    if (typeof params === 'string') {
+        const contentParams = { content: params, type: 'error' }
+        dialog(contentParams)
+    }
+    params.type = 'error';
+    dialog(params)
+}

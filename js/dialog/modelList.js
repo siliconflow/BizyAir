@@ -1,6 +1,8 @@
 import { dialog } from '../subassembly/dialog.js';
 import { $el } from "../../../scripts/ui.js";
 import { delModels, models_files, model_types } from "../apis.js"
+import { subscribe, unsubscribe } from '../subassembly/subscribers.js'
+
 export const modelList = async () => {
     
     const resList = await models_files('bizyair/lora');
@@ -95,9 +97,27 @@ export const modelList = async () => {
             elDataItem(listData)
         )
     ]);
-
+    const fnMessage = (data) => {
+        const res = JSON.parse(data.data);
+        if (res && res.type == "synced") {
+            const elItemBody = document.querySelector('#bizyair-model-list-item-body')
+            models_files(document.getElementById('bizyair-model-filter').value).then(res => {
+                if (res.code == 20000) {
+                    elItemBody.innerHTML = ''
+                    const elData = elDataItem(res.data)
+                    elData.length && elData.forEach(ele => {
+                        elItemBody.appendChild(ele)
+                    });
+                }
+            })
+        }
+    }
+    subscribe('socketMessage', fnMessage);
     dialog({
         content: content,
         noText: 'Close',
+        onNo: () => {
+            unsubscribe('socketMessage', fnMessage)
+        }
     })
 }

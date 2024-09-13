@@ -43,7 +43,6 @@ export class WebSocketClient {
 
     this.keepAliveTimer = setInterval(() => {
       if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-        // console.log('send ❤');
         this.ws.send('ping');
       }
     }, this.keepAliveInterval);
@@ -79,7 +78,6 @@ export class WebSocketClient {
    
     const data = JSON.parse(message.data);
     if (data === 'pong') {
-      // console.log('❤');
     } else {
       console.log('message:', data);
     }

@@ -3,12 +3,11 @@ import { $el } from "../../../scripts/ui.js";
 export function apiKey() {
     async function toSubmit() {
         const apiKey = document.querySelector('#bizyair-api-key');
-        console.log(apiKey.value)
         if (!apiKey.value) {
             dialog({
                 content: "Please input API Key",
                 noText: 'Close',
-                error: true
+                type: 'error',
             });
             apiKey.className = `${apiKey.className} cm-input-item-error`
             return false

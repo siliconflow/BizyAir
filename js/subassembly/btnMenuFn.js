@@ -9,7 +9,7 @@ document.addEventListener("click", () => {
 });
 
 export async function showMenu(e, show_cases) {
-    if (dragging) return; // Prevent showing menu during drag
+    if (dragging) return;
     e.preventDefault();
     e.stopPropagation();
 
