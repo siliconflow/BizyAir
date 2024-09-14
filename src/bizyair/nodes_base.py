@@ -1,9 +1,12 @@
 import importlib
 import logging
+from typing import Dict
 import warnings
 from functools import wraps
 
-from .nodes_io import BizyAirNodeIO, create_node_data
+from .nodes_io import BizyAirNodeIO
+from .data_types import is_send_request_datatype
+from .common.utils import is_comfy_transferrable
 
 try:
     comfy_nodes = importlib.import_module("nodes")
@@ -58,37 +61,43 @@ def register_node(cls, prefix):
     NODE_DISPLAY_NAME_MAPPINGS[class_name] = display_name
 
 
-def ensure_unique_id(org_func, original_has_unique_id=False):
+def ensure_unique_id(org_func: callable, original_hidden: Dict = {}):
+ 
+    hidden_fields = {
+        "unique_id": "UNIQUE_ID",
+        "prompt": "PROMPT", 
+        "extra_pnginfo": "EXTRA_PNGINFO",
+    }
+     
     @wraps(org_func)
-    def new_func(self, **kwargs):
-        if original_has_unique_id:
-            self._assigned_id = kwargs.get("unique_id", "UNIQUE_ID")
-        elif "unique_id" in kwargs:
-            self._assigned_id = kwargs.pop("unique_id")
+    def wrapped_func(self, **kwargs):
+        # Ensure only new hidden fields are added, existing ones are not popped
+        if not hasattr(self, '_hidden'):
+            self._hidden = {}
+        for key in hidden_fields:
+            if key not in original_hidden:
+                self._hidden[key] = kwargs.pop(key, None)
+            else:
+                self._hidden[key] = kwargs[key]
         return org_func(self, **kwargs)
 
-    return new_func
+    return wrapped_func
 
 
-def ensure_hidden_unique_id(org_input_types_func):
-    original_has_unique_id = False
+def ensure_hidden_unique_id(org_input_types_func: callable):
+    hidden_fields = {
+        "unique_id": "UNIQUE_ID",
+        "prompt": "PROMPT", 
+        "extra_pnginfo": "EXTRA_PNGINFO",
+    }
 
     @wraps(org_input_types_func)
-    def new_input_types_func():
-        nonlocal original_has_unique_id
-
+    def wrapped_input_types_func():
         result = org_input_types_func()
-        if "hidden" not in result:
-            result["hidden"] = {"unique_id": "UNIQUE_ID"}
-        elif "unique_id" not in result["hidden"]:
-            result["hidden"]["unique_id"] = "UNIQUE_ID"
-        else:
-            original_has_unique_id = True
+        result.setdefault("hidden", {}).update(hidden_fields)
         return result
 
-    # Ensure original_has_unique_id is correctly set before returning
-    new_input_types_func()
-    return new_input_types_func, original_has_unique_id
+    return wrapped_input_types_func
 
 
 class BizyAirBaseNode:
@@ -103,25 +112,83 @@ class BizyAirBaseNode:
     @classmethod
     def setup_input_types(cls):
         # https://docs.comfy.org/essentials/custom_node_more_on_inputs#hidden-inputs
-        new_input_types_func, original_has_unique_id = ensure_hidden_unique_id(
+        original_hidden = cls.INPUT_TYPES().get("hidden", {})
+        new_input_types_func = ensure_hidden_unique_id(
             cls.INPUT_TYPES
         )
         cls.INPUT_TYPES = new_input_types_func
         setattr(
             cls,
             cls.FUNCTION,
-            ensure_unique_id(getattr(cls, cls.FUNCTION), original_has_unique_id),
+            ensure_unique_id(getattr(cls, cls.FUNCTION), original_hidden),
         )
 
     @property
     def assigned_id(self):
-        assert self._assigned_id is not None and isinstance(self._assigned_id, str)
-        return str(self._assigned_id)
+        assert self._hidden is not None 
+        return self._hidden['unique_id']
 
     def default_function(self, **kwargs):
+        class_type = self._determine_class_type()
+        send_request_datatype_list = self._get_send_request_datatypes()
+
+        if len(send_request_datatype_list) == len(self.RETURN_TYPES):
+            return self._process_all_send_request_types(class_type, kwargs)
+        elif len(send_request_datatype_list) > 0:
+            return self._process_partial_send_request_types(send_request_datatype_list)
+        else:
+            return self._process_non_send_request_types(class_type, kwargs)
+
+    def _determine_class_type(self):
         class_type = type(self).__name__
+        if class_type.startswith(f'{PREFIX}_'):
+            class_type = class_type[len(PREFIX) + 1:]
+        return class_type
+
+    def _get_send_request_datatypes(self):
+        return [return_type for return_type in self.RETURN_TYPES if is_send_request_datatype(return_type)]
+
+    def _process_all_send_request_types(self, class_type, kwargs):
+        node = BizyAirNodeIO(node_id=self.assigned_id, nodes={})
+        node.add_node_data(class_type=class_type, inputs=kwargs, outputs={})
+        return node.send_request()
+
+    def _process_partial_send_request_types(self, send_request_datatype_list):
+        # TODO: Implement handling for partial send request datatypes
+        # https://docs.comfy.org/essentials/javascript_objects_and_hijacking#properties-2
+        """ 
+        >>> import pprint
+        >>> pprint.pprint(self._hidden)
+        """
+        global_prompt = self._hidden['prompt'] 
+        workflow = self._hidden['extra_pnginfo']['workflow']
+        start_node_id = int(self.assigned_id)
+        from collections import deque
+        import pdb; pdb.set_trace()
+
+        def bfs(start_node_id):
+            visited = set()
+            queue = deque([start_node_id])
+            connected_nodes = []
+            comfy_graph = {node['id']: node for node in workflow['nodes']}
+            # bfs to find 最终的输出节点 all[self.RETURN_TYPES if is_send_request_datatype(return_type)
+            while queue:
+                current_node_id = queue.popleft()
+                current_node = comfy_graph[current_node_id]
+                flag = True
+                for outs in current_node['outputs']:
+                    for out in outs:
+                        if not is_send_request_datatype(out['type']):
+                            flag = False
+                            queue.append(out['id'])
+                
+            return connected_nodes
+
+
+
+    def _process_non_send_request_types(self, class_type, kwargs):
         outs = []
-        for slot_index in range(len(self.RETURN_TYPES)):
+        for slot_index, _ in enumerate(self.RETURN_TYPES):
             node = BizyAirNodeIO(node_id=self.assigned_id, nodes={})
             node.add_node_data(
                 class_type=class_type, inputs=kwargs, outputs={"slot_index": slot_index}
