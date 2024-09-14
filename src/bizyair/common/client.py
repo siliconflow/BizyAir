@@ -9,22 +9,23 @@ __all__ = ["send_request"]
 
 from .env_var import BIZYAIR_API_KEY, BIZYAIR_DEBUG
 
+IS_API_KEY_VALID = None
 
-def set_api_key(API_KEY="YOUR_API_KEY"):
+
+def set_api_key(API_KEY="YOUR_API_KEY", override=False):
     global BIZYAIR_API_KEY
-    if validate_api_key(BIZYAIR_API_KEY):
+    if IS_API_KEY_VALID is not None and not override:
         warnings.warn("API key has already been set", RuntimeWarning)
     elif validate_api_key(API_KEY):
         BIZYAIR_API_KEY = API_KEY
 
 
-IS_API_KEY_VALID = None
-
-
-def validate_api_key(api_key):
+def validate_api_key(api_key, override=False):
     global IS_API_KEY_VALID
     if api_key is None:
         return False
+    if override:
+        IS_API_KEY_VALID = None
     if IS_API_KEY_VALID is not None:
         return IS_API_KEY_VALID
 
