@@ -121,7 +121,7 @@ p.cm-word-file-modle{
 .bizyair-file-list{
     width: 100%;
     box-sizing: border-box;
-    height: 220px;
+    height: 200px;
     overflow-y: auto;
     padding: 10px;
     margin: 0;

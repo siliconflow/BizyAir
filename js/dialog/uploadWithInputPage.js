@@ -174,20 +174,15 @@ export const uploadWithInputPage = async () => {
             Q('select.cm-input-item').disabled = true
             Q('#bizyair-input-file-box').disabled = true
 
-            Q('#bizyair-upload-submit').disabled = true
-            Q('#bizyair-upload-reset').disabled = true
-            Q('#bizyair-upload-submit').innerText = 'Waiting...'
-            Q('#bizyair-upload-reset').innerText = 'Waiting...'
+            Q('#bizyair-upload-submit').style.display = 'none'
+            Q('#bizyair-upload-reset').style.display = 'none'
         },
         unDisabledInput() {
             Q('input.cm-input-item').disabled = false
             Q('select.cm-input-item').disabled = false
             Q('#bizyair-input-file-box').disabled = false
 
-            Q('#bizyair-upload-submit').disabled = false
-            Q('#bizyair-upload-reset').disabled = false
-            Q('#bizyair-upload-submit').innerText = 'Submit'
-            Q('#bizyair-upload-reset').innerText = 'Reset'
+            Q('#bizyair-upload-reset').style.display = 'block'
         },
         todoUpload() {
             const elSelect = Q('select.cm-input-item')
