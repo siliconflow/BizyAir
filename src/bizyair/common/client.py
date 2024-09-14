@@ -10,6 +10,8 @@ from dataclasses import dataclass, field
 
 from .env_var import BIZYAIR_API_KEY, BIZYAIR_DEBUG
 
+IS_API_KEY_VALID = None
+
 
 @dataclass
 class APIKeyState:
@@ -32,6 +34,7 @@ def set_api_key(api_key: str = "YOUR_API_KEY", override: bool = False):
     else:
         api_key_state.is_valid = False
         warnings.warn("Invalid API key provided.")
+
 
 
 def validate_api_key(api_key: str = None) -> bool:
