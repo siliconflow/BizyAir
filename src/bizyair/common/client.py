@@ -3,55 +3,59 @@ import pprint
 import urllib.error
 import urllib.request
 import warnings
-from typing import Dict
 
 __all__ = ["send_request"]
+
+from dataclasses import dataclass, field
 
 from .env_var import BIZYAIR_API_KEY, BIZYAIR_DEBUG
 
 IS_API_KEY_VALID = None
 
 
-def set_api_key(API_KEY="YOUR_API_KEY", override=False):
-    global BIZYAIR_API_KEY
-    if IS_API_KEY_VALID is not None and not override:
-        warnings.warn("API key has already been set", RuntimeWarning)
-    elif validate_api_key(API_KEY):
-        BIZYAIR_API_KEY = API_KEY
+@dataclass
+class APIKeyState:
+    current_api_key: str = field(default=None)
+    is_valid: bool = field(default=None)
 
 
-def validate_api_key(api_key, override=False):
-    global IS_API_KEY_VALID
-    if api_key is None:
+api_key_state = APIKeyState()
+
+
+def set_api_key(api_key: str = "YOUR_API_KEY", override: bool = False):
+    global BIZYAIR_API_KEY, api_key_state
+    if api_key_state.is_valid is not None and not override:
+        warnings.warn("API key has already been set and will not be overridden.")
+        return
+    if validate_api_key(api_key):
+        BIZYAIR_API_KEY = api_key
+        api_key_state.is_valid = True
+        print("\033[92mAPI key is set successfully.\033[0m")
+    else:
+        api_key_state.is_valid = False
+        warnings.warn("Invalid API key provided.")
+
+
+def validate_api_key(api_key: str = None) -> bool:
+    global api_key_state
+    if not api_key or not isinstance(api_key, str):
+        warnings.warn("API key is not set.")
         return False
-    if override:
-        IS_API_KEY_VALID = None
-    if IS_API_KEY_VALID is not None:
-        return IS_API_KEY_VALID
-
+    if api_key_state.current_api_key == api_key and api_key_state.is_valid is not None:
+        return api_key_state.is_valid
+    api_key_state.current_api_key = api_key
     url = "https://api.siliconflow.cn/v1/user/info"
     headers = {"accept": "application/json", "authorization": f"Bearer {api_key}"}
-    try:
-        req = urllib.request.Request(url, headers=headers)
-        with urllib.request.urlopen(req) as response:
-            response_data = response.read().decode("utf-8")
-            response_data = json.loads(response_data)
-            if "message" not in response_data or response_data["message"] != "Ok":
-                IS_API_KEY_VALID = False
-            else:
-                IS_API_KEY_VALID = True
-    except Exception as e:
-        print(
-            "\n\n\033[91m[BizyAir]\033[0m "
-            f"Fail to validate the api key: {api_key}, with error {e} \n\n"
-        )
-        print(f"")
-        IS_API_KEY_VALID = False
-    finally:
-        return IS_API_KEY_VALID
+
+    response_data = send_request(method="GET", url=url, headers=headers, callback=None)
+    if "message" not in response_data or response_data["message"] != "Ok":
+        api_key_state.is_valid = False
+    else:
+        api_key_state.is_valid = True
+    return api_key_state.is_valid
 
 
-def get_api_key():
+def get_api_key() -> str:
     global BIZYAIR_API_KEY
     if not validate_api_key(BIZYAIR_API_KEY):
         error_message = (
@@ -72,11 +76,31 @@ def _headers():
     return headers
 
 
+def process_response_data(response_data: dict) -> dict:
+    # Check if 'result' key exists, indicating a cloud response
+    if "result" in response_data:
+        try:
+            msg = json.loads(response_data["result"])
+        except json.JSONDecodeError:
+            raise ValueError("Failed to decode JSON from response.")
+    else:
+        # Handle local response directly
+        msg = response_data
+
+    return msg  # Return processed data or modify as needed
+
+
 def send_request(
-    method: str = "POST", url: str = None, data: bytes = None, verbose=False, **kwargs
-) -> Dict:
+    method: str = "POST",
+    url: str = None,
+    data: bytes = None,
+    verbose=False,
+    callback: callable = process_response_data,
+    **kwargs,
+) -> dict:
     try:
-        headers = kwargs.pop("headers", _headers())
+        headers = kwargs.pop("headers") if "headers" in kwargs else _headers()
+
         req = urllib.request.Request(
             url, data=data, headers=headers, method=method, **kwargs
         )
@@ -84,25 +108,23 @@ def send_request(
             response_data = response.read().decode("utf-8")
     except urllib.error.URLError as e:
         error_message = str(e)
-        print(f"{error_message=}")
+        if verbose:
+            print(f"URLError encountered: {error_message}")
         if "Unauthorized" in error_message:
-            raise Exception(
+            raise PermissionError(
                 "Key is invalid, please refer to https://cloud.siliconflow.cn to get the API key.\n"
                 "If you have the key, please click the 'BizyAir Key' button at the bottom right to set the key."
             )
         else:
-            raise Exception(
-                f"Failed to connect to the server: {error_message}, if you have no key, "
+            raise ConnectionError(
+                f"Failed to connect to the server: {error_message}.\n"
+                + "Please check your API key and ensure the server is reachable.\n"
+                + "Also, verify your network settings and disable any proxies if necessary.\n"
+                + "After checking, please restart the ComfyUI service."
             )
-    try:
-        ret = json.loads(response_data)
-        if "result" in ret:  # cloud
-            msg = json.loads(ret["result"])
-        else:  # local
-            msg = ret
-        return msg
-    except json.decoder.JSONDecodeError:
-        pprint.pprint(response_data)
+    if callback:
+        return callback(json.loads(response_data))
+    return json.loads(response_data)
 
 
 def fetch_models_by_type(
