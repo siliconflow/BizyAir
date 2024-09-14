@@ -39,18 +39,14 @@ class SiliconCloudLLMAPI:
 
     @classmethod
     def INPUT_TYPES(s):
-        default_sysmtem_prompt = """你是一个 stable diffusion prompt 专家，为我生成适用于 Stable Diffusion 模型的prompt。
-我给你相关的单词，你帮我扩写为适合 Stable Diffusion 文生图的 prompt。要求：
-1. 英文输出
-2. 除了 prompt 外，不要输出任何其它的信息
-"""
+        default_system_prompt = """你是一个 stable diffusion prompt 专家，为我生成适用于 Stable Diffusion 模型的prompt。 我给你相关的单词，你帮我扩写为适合 Stable Diffusion 文生图的 prompt。要求： 1. 英文输出 2. 除了 prompt 外，不要输出任何其它的信息 """
         return {
             "required": {
                 "model": ((), {}),
                 "system_prompt": (
                     "STRING",
                     {
-                        "default": default_sysmtem_prompt,
+                        "default": default_system_prompt,
                         "multiline": True,
                         "dynamicPrompts": True,
                     },
