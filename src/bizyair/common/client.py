@@ -36,7 +36,6 @@ def set_api_key(api_key: str = "YOUR_API_KEY", override: bool = False):
         warnings.warn("Invalid API key provided.")
 
 
-
 def validate_api_key(api_key: str = None) -> bool:
     global api_key_state
     if not api_key or not isinstance(api_key, str):
