@@ -5,6 +5,7 @@ import json
 import logging
 import os
 import shutil
+import threading
 import time
 import urllib.parse
 import urllib.request
@@ -237,177 +238,6 @@ class ModelHostServer:
             self.uploads[upload_id]["type"] = json_data["type"]
             self.uploads[upload_id]["name"] = json_data["name"]
             self.upload_queue.put(self.uploads[upload_id])
-            return OKResponse(None)
-
-        @prompt_server.routes.post(f"/{API_PREFIX}/file_upload")
-        async def file_upload(request):
-            if request.content_length and request.content_length > MAX_UPLOAD_FILE_SIZE:
-                return ErrResponse(FILE_UPLOAD_SIZE_LIMIT_ERR)
-
-            print("request.content_length:", request.content_length)
-            post = await request.post()
-            upload_id = post.get("upload_id")
-            if not self.is_string_valid(upload_id):
-                return ErrResponse(EMPTY_UPLOAD_ID_ERR)
-
-            file = post.get("file")
-            if file and file.file:
-                filename = file.filename
-                if not filename:
-                    return ErrResponse(NO_FILE_UPLOAD_ERR)
-                full_output_folder = os.path.join(
-                    os.path.normpath("bizy_air"),
-                    os.path.normpath("localstore"),
-                    upload_id,
-                )
-                filepath = os.path.abspath(os.path.join(full_output_folder, filename))
-                parent_folder = os.path.dirname(filepath)
-                if not os.path.exists(parent_folder):
-                    os.makedirs(parent_folder)
-
-                print(f"uploading file to localstore: {filename}")
-                with open(filepath, "wb") as f:
-                    f.write(file.file.read())
-
-                sha256sum = await self.calculate_hash(filepath)
-                print(
-                    f"write file to localstore: upload_id={upload_id}, filepath={filepath}, signature={sha256sum}"
-                )
-
-                if not CACHE.upload_id_exists(upload_id=upload_id):
-                    CACHE.set_valuemap(upload_id=upload_id, valuemap={})
-
-                CACHE.set_file_info(
-                    upload_id=upload_id,
-                    filename=filename,
-                    info={
-                        "relPath": self.to_slash(filename),
-                        "size": os.path.getsize(filepath),
-                        "signature": sha256sum,
-                    },
-                )
-
-                sign_data, err = await self.sign(sha256sum)
-                file_record = sign_data.get("file")
-                if err is not None:
-                    return ErrResponse(err)
-
-                if self.is_string_valid(file_record.get("id")):
-                    file_info = CACHE.get_file_info(
-                        upload_id=upload_id, filename=filename
-                    )
-                    file_info["id"] = file_record.get("id")
-                    file_info["remote_key"] = file_record.get("object_key")
-                    file_info["progress"] = "100.00%"
-                else:
-                    print("start uploading file")
-                    file_storage = sign_data.get("storage")
-                    try:
-
-                        def updateProgress(consume_bytes, total_bytes):
-                            fi = CACHE.get_file_info(
-                                upload_id=upload_id, filename=filename
-                            )
-                            if fi is not None:
-                                fi["progress"] = "{:.2f}%".format(
-                                    consume_bytes / total_bytes * 100
-                                )
-
-                        oss_client = AliOssStorageClient(
-                            endpoint=file_storage.get("endpoint"),
-                            bucket_name=file_storage.get("bucket"),
-                            access_key=file_record.get("access_key_id"),
-                            secret_key=file_record.get("access_key_secret"),
-                            security_token=file_record.get("security_token"),
-                            onUploading=updateProgress,
-                        )
-                        await oss_client.upload_file(
-                            filepath, file_record.get("object_key")
-                        )
-                    except oss2.exceptions.OssError as e:
-                        print(f"OSS err:{str(e)}")
-                        return ErrResponse(UPLOAD_ERR)
-
-                    commit_data, err = await self.commit_file(
-                        signature=sha256sum, object_key=file_record.get("object_key")
-                    )
-                    if err is not None:
-                        return ErrResponse(err)
-                    new_file_record = commit_data.get("file")
-                    file_info = CACHE.get_file_info(
-                        upload_id=upload_id, filename=filename
-                    )
-                    file_info["id"] = new_file_record.get("id")
-                    file_info["remote_key"] = new_file_record.get("object_key")
-                    print(f"{file_info['relPath']} Already Uploaded")
-
-                if os.path.exists(filepath):
-                    # 删除文件
-                    os.remove(filepath)
-
-                file_info = CACHE.get_file_info(upload_id=upload_id, filename=filename)
-                return OKResponse({"sign": file_info["signature"]})
-            else:
-                return ErrResponse(NO_FILE_UPLOAD_ERR)
-
-        @prompt_server.routes.post(f"/{API_PREFIX}/model_upload")
-        async def upload_model(request):
-            json_data = await request.json()
-            err = self.check_str_param(json_data, "upload_id", EMPTY_UPLOAD_ID_ERR)
-            if err is not None:
-                return err
-
-            if not CACHE.upload_id_exists(json_data["upload_id"]):
-                return ErrResponse(INVALID_UPLOAD_ID_ERR)
-
-            err = self.check_type(json_data)
-            if err is not None:
-                return err
-
-            err = self.check_str_param(json_data, "name", INVALID_NAME)
-            if err is not None:
-                return err
-
-            exists, err = await self.check_model(
-                type=json_data["type"], name=json_data["name"]
-            )
-            if err is not None:
-                return ErrResponse(err)
-
-            if (
-                exists
-                and "overwrite" not in json_data
-                or json_data["overwrite"] is not True
-            ):
-                return ErrResponse(MODEL_ALREADY_EXISTS_ERR)
-
-            if "files" not in json_data or len(json_data["files"]) < 1:
-                return ErrResponse(EMPTY_FILES_ERR)
-
-            files = json_data["files"]
-            for file in files:
-                file["path"] = self.to_slash(file["path"])
-
-            commit_ret, err = await self.commit_model(
-                model_files=files,
-                model_name=json_data["name"],
-                model_type=json_data["type"],
-                overwrite=json_data["overwrite"],
-            )
-
-            full_output_folder = os.path.join(
-                os.path.normpath("bizy_air"),
-                os.path.normpath("localstore"),
-                json_data["upload_id"],
-            )
-            if os.path.exists(full_output_folder):
-                # 删除文件
-                shutil.rmtree(full_output_folder)
-
-            if err is not None:
-                return ErrResponse(err)
-
-            print("Uploaded successfully")
             return OKResponse(None)
 
         @prompt_server.routes.get(f"/{API_PREFIX}/models/files")
@@ -901,25 +731,35 @@ class ModelHostServer:
             sid=sid,
         )
 
-        while True:
-            models, err = await self.get_models(
-                {"type": item["type"], "available": True}
-            )
-            if err is not None:
-                self.send_sync(
-                    event="error",
-                    data={"message": err.message, "code": err.code, "data": err.data},
-                    sid=sid,
-                )
-                return
-            # 遍历models, 看当前name的model是否存在
-            for model in models:
-                if model["name"] == item["name"]:
+        def check_sync_status():
+            while True:
+                future = asyncio.run_coroutine_threadsafe(self.get_models(
+                    {"type": item["type"], "available": True}
+                ), self.loop)
+
+                models, err = future.result(timeout=2)
+
+                if err is not None:
                     self.send_sync(
-                        event="synced",
-                        data={"model_type": item["type"], "model_name": item["name"]},
+                        event="error",
+                        data={"message": err.message, "code": err.code, "data": err.data},
                         sid=sid,
                     )
                     return
+                # 遍历models, 看当前name的model是否存在
+                for model in models:
+                    if model["name"] == item["name"]:
+                        self.send_sync(
+                            event="synced",
+                            data={"model_type": item["type"], "model_name": item["name"]},
+                            sid=sid,
+                        )
+                        return
 
-            await asyncio.sleep(5)
+                time.sleep(5)
+
+        threading.Thread(
+            target=check_sync_status,
+            daemon=True,
+        ).start()
+
