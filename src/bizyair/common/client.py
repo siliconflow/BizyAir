@@ -18,15 +18,15 @@ def set_api_key(API_KEY="YOUR_API_KEY"):
         BIZYAIR_API_KEY = API_KEY
 
 
-is_api_key_valid = None
+IS_API_KEY_VALID = None
 
 
 def validate_api_key(api_key):
-    global is_api_key_valid
+    global IS_API_KEY_VALID
     if api_key is None:
         return False
-    if is_api_key_valid is not None:
-        return is_api_key_valid
+    if IS_API_KEY_VALID is not None:
+        return IS_API_KEY_VALID
 
     url = "https://api.siliconflow.cn/v1/user/info"
     headers = {"accept": "application/json", "authorization": f"Bearer {api_key}"}
@@ -35,20 +35,19 @@ def validate_api_key(api_key):
         with urllib.request.urlopen(req) as response:
             response_data = response.read().decode("utf-8")
             response_data = json.loads(response_data)
-            if "message" not in response_data:
-                is_api_key_valid = False
-            if response_data["message"] != "Ok":
-                is_api_key_valid = False
-            is_api_key_valid = True
+            if "message" not in response_data or response_data["message"] != "Ok":
+                IS_API_KEY_VALID = False
+            else:
+                IS_API_KEY_VALID = True
     except Exception as e:
         print(
             "\n\n\033[91m[BizyAir]\033[0m "
             f"Fail to validate the api key: {api_key}, with error {e} \n\n"
         )
         print(f"")
-        is_api_key_valid = False
+        IS_API_KEY_VALID = False
     finally:
-        return is_api_key_valid
+        return IS_API_KEY_VALID
 
 
 def get_api_key():
