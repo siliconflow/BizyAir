@@ -1,8 +1,10 @@
 import json
-import requests
 import os
+
+import requests
 from aiohttp import web
 from server import PromptServer
+
 from bizyair.common.env_var import BIZYAIR_SERVER_ADDRESS
 from bizyair.image_utils import decode_data, encode_data
 
