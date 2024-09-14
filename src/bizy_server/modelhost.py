@@ -733,16 +733,21 @@ class ModelHostServer:
 
         def check_sync_status():
             while True:
-                future = asyncio.run_coroutine_threadsafe(self.get_models(
-                    {"type": item["type"], "available": True}
-                ), self.loop)
+                future = asyncio.run_coroutine_threadsafe(
+                    self.get_models({"type": item["type"], "available": True}),
+                    self.loop,
+                )
 
                 models, err = future.result(timeout=2)
 
                 if err is not None:
                     self.send_sync(
                         event="error",
-                        data={"message": err.message, "code": err.code, "data": err.data},
+                        data={
+                            "message": err.message,
+                            "code": err.code,
+                            "data": err.data,
+                        },
                         sid=sid,
                     )
                     return
@@ -751,7 +756,10 @@ class ModelHostServer:
                     if model["name"] == item["name"]:
                         self.send_sync(
                             event="synced",
-                            data={"model_type": item["type"], "model_name": item["name"]},
+                            data={
+                                "model_type": item["type"],
+                                "model_name": item["name"],
+                            },
                             sid=sid,
                         )
                         return
@@ -762,4 +770,3 @@ class ModelHostServer:
             target=check_sync_status,
             daemon=True,
         ).start()
-
