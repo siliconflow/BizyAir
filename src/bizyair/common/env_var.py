@@ -42,7 +42,7 @@ def load_api_key():
         has_key = api_key.startswith("sk-")
         return has_key, api_key
     else:
-        return False, "Key not found, please refer to cloud.siliconflow.cn"
+        return False, None
 
 
 def create_api_key_file(api_key):
