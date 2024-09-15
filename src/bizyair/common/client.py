@@ -47,11 +47,18 @@ def validate_api_key(api_key: str = None) -> bool:
     url = "https://api.siliconflow.cn/v1/user/info"
     headers = {"accept": "application/json", "authorization": f"Bearer {api_key}"}
 
-    response_data = send_request(method="GET", url=url, headers=headers, callback=None)
-    if "message" not in response_data or response_data["message"] != "Ok":
+    try:
+        response_data = send_request(
+            method="GET", url=url, headers=headers, callback=None
+        )
+        if "message" not in response_data or response_data["message"] != "Ok":
+            api_key_state.is_valid = False
+            print(f"\033[91mAPI key validation failed. API Key: {api_key}\033[0m")
+        else:
+            api_key_state.is_valid = True
+    except Exception as e:
         api_key_state.is_valid = False
-    else:
-        api_key_state.is_valid = True
+        print(f"\033[91mError validating API key: {api_key}, error: {e}\033[0m")
     return api_key_state.is_valid
 
 
