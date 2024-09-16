@@ -31,7 +31,7 @@ async def set_api_key(request):
         data = await request.post()
         api_key = data.get("api_key")
         if api_key:
-            if not validate_api_key(api_key, override=True):
+            if not validate_api_key(api_key):
                 error_msg = "Wrong API key provided, please refer to cloud.siliconflow.cn to get the key"
                 print("set_api_key:", error_msg)
                 return web.Response(
