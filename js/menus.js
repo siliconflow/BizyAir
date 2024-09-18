@@ -109,7 +109,7 @@ app.registerExtension({
         });
         new FloatingButton();
 
-        const wsClient = new WebSocketClient(`ws://localhost:8188/bizyair/modelhost/ws?clientId=${sessionStorage.getItem('clientId')}`);
+        const wsClient = new WebSocketClient(`ws://${location.host}/bizyair/modelhost/ws?clientId=${sessionStorage.getItem('clientId')}`);
         wsClient.onMessage = function(message) {
             notifySubscribers('socketMessage', message);
             const res = JSON.parse(message.data);
