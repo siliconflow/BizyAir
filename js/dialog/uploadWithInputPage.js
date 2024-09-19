@@ -50,7 +50,7 @@ export const uploadWithInputPage = async () => {
                 }, ['?']),
             ]),
             $el("div.bizyair-form-item", {}, [
-                $el("span.bizyair-form-label", {}, ['Purpose']),
+                $el("span.bizyair-form-label", {}, ['Local Path']),
                 $el("input.cm-input-item", {
                     type: "text",
                     placeholder: "Please enter the local file path.",
@@ -62,7 +62,7 @@ export const uploadWithInputPage = async () => {
                 }),
                 $el("i.bizyair-form-qa", {
                     onmouseover: function () {
-                        temp.showQA(this, 'All the files in the selected folder will be uploaded to the remote folder.')
+                        temp.showQA(this, 'Please specify the ABSOLUTE PATH of the directory to be uploaded.')
                     },
                     onmouseout: function () {
                         temp.hideQA(this)

@@ -18,20 +18,29 @@
 
 ## 在 ComfyUI 中上传模型
 
-!!! note
-    ComfyUI 默认传输数据大小为 100MB，建议启动时，将最大值设置大一些，如 `python main.py --max-upload-size 1000` 设置最大上传数据为 1000MB。
 
-点击 BizyAir 的 "Model" 按钮，可以打开模型对话框。
+点击 BizyAir 的 "Model" 按钮，有 "Remote Folders" 和 "Upload" 两个菜单选项。
 
-![](./imgs/modelbtn.jpg)
+分别对应了已经上传的模型和上传模型功能。
+
+![](./imgs/modelsmenu.png)
 
 在 “Remote Folders” 中可以查看已经上传的模型。
 
-![](./imgs/remotefolders.jpg)
+![](./imgs/remotefolders.png)
+
+- 点击 "垃圾桶" 图标可以删除上传的模型
+- Status 为 "Avaliable" 的模型，表示已经可以在推理中使用。
 
 在 “Upload” 中可以上传模型。
 
-![](./imgs/uploadfiles.jpg)
+![](./imgs/uploadfiles.png)
+
+其中：
+
+- Type 选择类型（当前只支持 “lora”）
+- Name 是远程目录的名字，如果与已经上传的远程模型重名，将会覆盖已有的远程模型
+- Local Path 是本地需要上传目录的 **绝对路径**。如果你是 Linux/Mac 用户，它看上去应该是 "/yourpath/xxxx"，如果你是 Windows 用户，它看上去应该是 "C:\yourpath\xxxx"。
 
 ## 使用 SiliconCloud Client 上传模型
 
@@ -77,7 +86,7 @@ siliconcloud  upload --type "bizyair/lora" --path /localpath/XLabs-AI/flux-lora-
 
 当模型的状态显示为 “Available” 时，表示模型已经可以在 BizyAir 工作流中使用。
 
-![](./imgs/model-ready.jpg)
+![](./imgs/remotefolders.png)
 
 !!! note
     上传的模型，即使完成后，也需要一定时间才能在 BizyAir 中使用，一般为 20~30 分钟。如果状态不为 “Available”，请稍等片刻。
