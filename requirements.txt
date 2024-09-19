@@ -2,3 +2,4 @@ numpy<2.0
 oss2
 crcmod
 requests
+aiofiles
