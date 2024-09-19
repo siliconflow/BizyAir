@@ -105,19 +105,20 @@ export function dialog(params) {
     }
     dialogStack.push(el);
 
-    if (!params.onEsape) {
+    if (!params.onEscape) {
         document.addEventListener("keydown", fnEscapeClose);
     }
 
     function removeDialog(el) {
-        el.querySelector('.bizyair-dialog-content').style.transition = 'all 0.2s';
-        el.querySelector('.bizyair-dialog-content').style.transform = 'translate(-50%, -50%) scale(0)';
-        el.style.transition = 'all 0.3s';
-        el.style.opacity = '0';
-        setTimeout(() => {
-            el.remove();
-        }, 200);
-
+        requestAnimationFrame(() => {
+            el.querySelector('.bizyair-dialog-content').style.transition = 'all 0.2s';
+            el.querySelector('.bizyair-dialog-content').style.transform = 'translate(-50%, -50%) scale(0)';
+            el.style.transition = 'all 0.3s';
+            el.style.opacity = '0';
+            setTimeout(() => {
+                el.remove();
+            }, 200);
+        });
         document.removeEventListener("keydown", fnEscapeClose);
         dialogStack = dialogStack.filter(d => d !== el);
     }

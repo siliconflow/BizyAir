@@ -116,9 +116,6 @@ app.registerExtension({
             if (res && res.type == 'errors') {
                 toast.error(res.data.message)
             }
-            // if (res && res.type == 'synced') {
-            //     toast(`${res.data.model_name} is available!`)
-            // }
         }
     },
 });

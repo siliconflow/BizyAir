@@ -19,7 +19,7 @@ export class WebSocketClient {
     };
 
     this.ws.onmessage = (message) => {
-      if (message.data != 'pong') {
+      if (message.data !== 'pong') {
         this.onMessage(message);
       };
     };

@@ -7,12 +7,14 @@ function generateUUID() {
     });
 }
 function removeToast(el) {
-    el.style.transition = 'all 0.2s';
-    el.style.opacity = '0';
-    el.style.transform = 'translate(50%, 0) scale(0)';
-    setTimeout(() => {
-        el.remove();
-    }, 200);
+    requestAnimationFrame(() => {
+        el.style.transition = 'all 0.2s';
+        el.style.opacity = '0';
+        el.style.transform = 'translate(50%, 0) scale(0)';
+        setTimeout(() => {
+            el.remove();
+        }, 200);
+    });
 }
 export function toast(params) {
     if (typeof params === 'string') {

@@ -223,7 +223,7 @@ export const uploadWithInputPage = async () => {
         if (res.type == "progress") {
             const cmFileList = QAll('.bizyair-file-list li');
             const index = temp.filesAry.map(e => e.path).indexOf(res.data.path)
-            if (index != -1) {
+            if (index !== -1) {
                 cmFileList[index].querySelector('.spinner-container').innerHTML = `${res.data.progress}`;
                 Q('.bizyair-file-list').scrollTop = cmFileList[index].offsetTop - 134;
             }
