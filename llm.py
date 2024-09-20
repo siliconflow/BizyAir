@@ -1,11 +1,11 @@
 import json
 import os
 
-import os
-from PIL import Image
-import numpy as np
 import comfy
 import folder_paths
+import numpy as np
+from PIL import Image
+
 import nodes
 from bizyair.image_utils import decode_data, encode_data
 

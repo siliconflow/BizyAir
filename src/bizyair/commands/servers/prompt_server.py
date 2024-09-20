@@ -52,3 +52,29 @@ class PromptServer(Command):
             print("Exception occurred while decoding data")
             traceback.print_exc()
             raise RuntimeError(f"Exception: {e=}") from e
+
+
+from .pub_sub_sse import Mediator, Subscriber
+
+
+class PromptSseServer(Command):
+    def __init__(self, router: Processor, processor: Processor):
+        self.router = router
+        self.processor = processor
+        self.mediator = Mediator()
+
+    def execute(
+        self,
+        pre_prompt: Dict[str, Dict[str, Any]],
+        hidden: Dict[
+            str, Dict[str, Any]
+        ],  # https://docs.comfy.org/essentials/custom_node_more_on_inputs#hidden-inputs
+    ) -> Subscriber:  #
+        pre_prompt = encode_data(pre_prompt)
+        prompt, last_node_id = self.processor(pre_prompt=pre_prompt, hidden=hidden)
+        url = self.router(prompt=prompt, last_node_ids=[last_node_id])
+        subscriber = Subscriber(name="prompt_sse_server", mediator=self.mediator)
+        self.mediator.subscribe(subscriber)
+        headers = {"Accept": "text/event-stream", "Content-Type": "application/json"}
+        self.mediator.start_sse_client(url, subscriber=subscriber, headers=headers)
+        return subscriber
