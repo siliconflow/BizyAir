@@ -7,7 +7,10 @@ import { newsBtn } from "./itemButton/btnNews.js";
 import { styleExample } from "./subassembly/styleExample.js";
 import { styleMenus } from "./subassembly/styleMenus.js";
 import { styleUploadFile } from "./subassembly/styleUploadFile.js";
-
+import { styleDialog } from './subassembly/styleDialog.js';
+import { notifySubscribers } from './subassembly/subscribers.js'
+import { WebSocketClient } from './subassembly/socket.js'
+import { toast } from './subassembly/toast.js'
 
 class FloatingButton {
     constructor(show_cases) {
@@ -72,7 +75,6 @@ class FloatingButton {
         const comfyFloatingButton = document.querySelector('.comfy-floating-button')
         const bizyairMenu = document.querySelector('.bizyair-menu')
         const bizyairMenuCloser = document.querySelector('.cmfy-floating-button-closer')
-        console.log(bizyairMenu)
         if (this.visible) {
             comfyFloatingButton.className = 'comfy-floating-button comfy-floating-button-hidden';
             bizyairMenu.className = 'bizyair-menu bizyair-menu-hidden';
@@ -101,6 +103,19 @@ app.registerExtension({
             textContent: styleUploadFile,
             parent: document.head,
         });
+        $el("style", {
+            textContent: styleDialog,
+            parent: document.head,
+        });
         new FloatingButton();
+
+        const wsClient = new WebSocketClient(`ws://${location.host}/bizyair/modelhost/ws?clientId=${sessionStorage.getItem('clientId')}`);
+        wsClient.onMessage = function(message) {
+            notifySubscribers('socketMessage', message);
+            const res = JSON.parse(message.data);
+            if (res && res.type == 'errors') {
+                toast.error(res.data.message)
+            }
+        }
     },
 });
