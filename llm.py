@@ -1,12 +1,7 @@
 import json
 import os
 
-import comfy
-import folder_paths
-import numpy as np
-from PIL import Image
-
-import nodes
+from bizyair.common.env_var import BIZYAIR_SERVER_ADDRESS
 from bizyair.image_utils import decode_data, encode_data
 
 from .utils import (
@@ -15,10 +10,6 @@ from .utils import (
     get_llm_response,
     send_post_request,
     serialize_and_encode,
-)
-
-BIZYAIR_SERVER_ADDRESS = os.getenv(
-    "BIZYAIR_SERVER_ADDRESS", "https://bizyair-api.siliconflow.cn/x/v1"
 )
 
 
