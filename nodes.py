@@ -53,42 +53,42 @@ class BizyAir_KSampler(BizyAirBaseNode):
         }
 
     RETURN_TYPES = ("LATENT",)
-    FUNCTION = "sample"
+    # FUNCTION = "sample"
     RETURN_NAMES = (f"LATENT",)
     CATEGORY = f"{PREFIX}/sampling"
 
-    def sample(
-        self,
-        model,
-        seed,
-        steps,
-        cfg,
-        sampler_name,
-        scheduler,
-        positive,
-        negative,
-        latent_image,
-        denoise=1,
-    ):
-        new_model: BizyAirNodeIO = model.copy(self.assigned_id)
-        new_model.add_node_data(
-            class_type="KSampler",
-            inputs={
-                "model": model,
-                "seed": seed,
-                "steps": steps,
-                "cfg": cfg,
-                "sampler_name": sampler_name,
-                "scheduler": scheduler,
-                "positive": positive,
-                "negative": negative,
-                "latent_image": latent_image,
-                "denoise": denoise,
-            },
-            outputs={"slot_index": 0},
-        )
-        progress_callback = ProgressCallback()
-        return new_model.send_request(progress_callback=progress_callback)
+    # def sample(
+    #     self,
+    #     model,
+    #     seed,
+    #     steps,
+    #     cfg,
+    #     sampler_name,
+    #     scheduler,
+    #     positive,
+    #     negative,
+    #     latent_image,
+    #     denoise=1,
+    # ):
+    # new_model: BizyAirNodeIO = model.copy(self.assigned_id)
+    # new_model.add_node_data(
+    #     class_type="KSampler",
+    #     inputs={
+    #         "model": model,
+    #         "seed": seed,
+    #         "steps": steps,
+    #         "cfg": cfg,
+    #         "sampler_name": sampler_name,
+    #         "scheduler": scheduler,
+    #         "positive": positive,
+    #         "negative": negative,
+    #         "latent_image": latent_image,
+    #         "denoise": denoise,
+    #     },
+    #     outputs={"slot_index": 0},
+    # )
+    # progress_callback = ProgressCallback()
+    # return new_model.send_request(progress_callback=progress_callback)
 
 
 class KSamplerAdvanced(BizyAirBaseNode):
