@@ -7,6 +7,8 @@ from queue import Queue
 
 import requests
 
+from bizyair.common.utils import truncate_long_strings
+
 
 @dataclass
 class SubscriberState:
@@ -87,13 +89,22 @@ class Mediator:
         def connect():
             from sseclient import SSEClient
 
-            response = requests.get(url, headers=headers, **kwargs)
-            sse_client = SSEClient(response)
-            for event in sse_client.events():
-                data = json.loads(event.data)
-                self.publish(data, subscriber=subscriber)
-            print(f"SSE client for {subscriber.name} disconnected")
-            self.publish(self.STOP_SIGNAL, subscriber=subscriber)
+            try:
+                response = requests.get(url, headers=headers, **kwargs)
+                if response.status_code != 200:
+                    print(
+                        f"Failed to connect to {url}, status code: {response.status_code}"
+                    )
+                    return
+                sse_client = SSEClient(response)
+                for event in sse_client.events():
+                    data = json.loads(event.data)
+                    self.publish(data, subscriber=subscriber)
+            except Exception as e:
+                print(f"Error connecting to {url}: {e}")
+            finally:
+                print(f"SSE client for {subscriber.name} disconnected")
+                self.publish(self.STOP_SIGNAL, subscriber=subscriber)
 
         self.executor.submit(connect)
 
@@ -139,10 +150,9 @@ class Subscriber:
                     event_node_id = result["message"]["data"]["node"]
                     if event_node_id == node_id:
                         return result["data"]["payload"]
-                if result is None:
-                    return None
             except Exception as e:
                 print(f"Error processing message for {self.name}: {e}")
+                return None
 
 
 class Publisher:
