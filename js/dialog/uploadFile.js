@@ -1,9 +1,12 @@
 import { app } from "../../../scripts/app.js";
 import { $el } from "../../../scripts/ui.js";
 import { ConfirmDialog } from "../subassembly/confirm.js";
-import { check_model_exists, model_upload, file_upload } from "../apis.js"
+import { check_model_exists, model_upload, file_upload, model_types } from "../apis.js"
+import { dialog } from '../subassembly/dialog.js';
 
-export function uploadPage (typeList, submitBtn) {
+export const uploadPage = async () => {
+    const resType = await model_types();
+    const typeList = resType.data;
     const elOptions = typeList.map(item => $el("option", { value: item.value }, [item.label]))
     const temp = {
         filesAry: [],
@@ -118,8 +121,7 @@ export function uploadPage (typeList, submitBtn) {
                     this.todoUpload()
                 },
                 onNo: () => {
-                    submitBtn.disabled = false
-                    submitBtn.innerText = 'Submit'
+                    this.unDisabledSubmit()
                     document.querySelectorAll('.spinner-container').forEach(e => {
                         e.innerHTML = ''
                     })
@@ -160,8 +162,7 @@ export function uploadPage (typeList, submitBtn) {
                 bizyairInputFileBox.className = `${bizyairInputFileBox.className} cm-input-item-error`
                 return
             }
-            submitBtn.disabled = true
-            submitBtn.innerText = 'Waiting...'
+            this.disabledSubmit()
             this.signs = []
             this.queryExists()
         },
@@ -175,8 +176,8 @@ export function uploadPage (typeList, submitBtn) {
             document.querySelector('select.cm-input-item').disabled = false
             document.querySelector('input.bizyair-input-file-modle').disabled = false
 
-            submitBtn.disabled = false
-            submitBtn.innerText = 'Submit'
+            document.querySelector('#bizyair-upload-submit').disabled = false
+            document.querySelector('#bizyair-upload-submit').innerText = 'Submit'
         },
         todoUpload() {
             this.disabledInput()
@@ -212,8 +213,7 @@ export function uploadPage (typeList, submitBtn) {
                 overwrite: true,
                 files: this.signs
             }).then(data => {
-                console.log(data)
-                submitBtn.style.display = 'none'
+                document.querySelector('#bizyair-upload-submit').style.display = 'none'
                 this.unDisabledInput()
                 document.querySelector('#tips-in-upload').style.display = 'none'
                 new ConfirmDialog({
@@ -227,15 +227,12 @@ export function uploadPage (typeList, submitBtn) {
             formData.append('filename', file.webkitRelativePath);
             formData.append("upload_id", this.uploadId);
             file_upload(formData).then(data => {
-                console.log('Request successful', data);
-
                 if (fn) {
                     fn(data)
                 }
             })
             .catch(error => {
                 this.unDisabledInput()
-                console.log(this.unDisabledInput)
                 console.error('Error during AJAX request', error);
             });
         },
@@ -278,13 +275,27 @@ export function uploadPage (typeList, submitBtn) {
                 )
             })
         },
+        disabledSubmit() {
+            document.querySelector('#bizyair-upload-submit').disabled = true
+            document.querySelector('#bizyair-upload-submit').innerText = 'Waiting...'
+        },
+        unDisabledSubmit() {
+            document.querySelector('#bizyair-upload-submit').disabled = false
+            document.querySelector('#bizyair-upload-submit').innerText = 'Submit'
+        },
         redraw() {
             document.querySelector('#bizyair-model-name').value = ''
             document.querySelector('.bizyair-file-list').innerHTML = ''
             document.querySelector('.bizyair-input-file-modle').value = ''
-            submitBtn.disabled = false
-            submitBtn.innerText = 'Submit'
         }
     }
-    return temp
+    dialog({
+        content: temp.content,
+        yesText: 'Submit',
+        yesId: 'bizyair-upload-submit',
+        noText: 'Close',
+        onYes: () => {
+            temp.toSubmit()
+        },
+    })
 }

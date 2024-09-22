@@ -4,6 +4,8 @@ from typing import Dict, Union
 
 import yaml
 
+from bizyair.common.env_var import BIZYAIR_SERVER_ADDRESS
+
 
 def filter_files_extensions(
     files: Collection[str], extensions: Collection[str]
@@ -26,6 +28,8 @@ def load_yaml_config(file_path):
 
 
 def get_service_route(service_config: Dict[str, str]) -> Union[str, None]:
-    if {"route", "service_address"}.issubset(service_config):
-        return f"{service_config['service_address']}{service_config['route']}"
+    if {"route"}.issubset(service_config):
+        return service_config.get(
+            "service_address", BIZYAIR_SERVER_ADDRESS
+        ) + service_config.get("route")
     return None

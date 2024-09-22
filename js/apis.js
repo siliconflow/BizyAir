@@ -1,27 +1,47 @@
-import { ConfirmDialog } from './subassembly/confirm.js';
+import { dialog } from './subassembly/dialog.js';
+
+const fetchCache = new Map();
 
 function customFetch(url, options = {}) {
+    const now = Date.now();
+    if (fetchCache.has(url)) {
+        const lastFetchTime = fetchCache.get(url);
+        if (now - lastFetchTime < 1200) {
+            console.log(`请求过于频繁，忽略请求：${url}`);
+            dialog({
+                content: "The request is too frequent.",
+                type: 'warning',
+                noText: 'Close',
+            })
+            return Promise.resolve(null);
+        }
+    }
+    fetchCache.set(url, now);
     return window.fetch(url, options)
         .then(response => {
-            console.log(response)
+            if (response.status == 404) {
+                dialog({
+                    content: "You may be missing dependencies at the moment. For details, please refer to the ComfyUI logs.",
+                    type: 'error'
+                })
+            }
             return response.json();
         })
         .then(data => {
             const { code, message } = data;
             if (code !== 20000) {
-                const warning = new ConfirmDialog({
-                    warning: true,
-                    message
-                })
-                warning.listen(e => {
-                    console.log(e)
-                    if (e.behavior === 'close') {
+                dialog({
+                    type: 'warning',
+                    content: message,
+                    noText: 'Close',
+                    onNo: () => {
                         if (code === 401000) {
                             document.querySelector('.menus-item-key').click()
                         }
                     }
                 })
-                return
+
+                return;
             }
             return data;
         })
@@ -30,6 +50,7 @@ function customFetch(url, options = {}) {
             throw error;
         });
 }
+
 
 export function check_model_exists ( type, name ) {
     return customFetch(`/bizyair/modelhost/check_model_exists`, {
@@ -68,6 +89,17 @@ export function models_files ( data ) {
 
 export function model_types () {
     return customFetch(`/bizyair/modelhost/model_types`, {method: 'GET'})
+}
+
+export function check_folder (url) {
+    return customFetch(`/bizyair/modelhost/check_folder?absolute_path=${encodeURIComponent(url)}`, {method: 'GET'})
+}
+
+export function submit_upload (data) {
+    return customFetch(`/bizyair/modelhost/submit_upload?clientId=${sessionStorage.getItem('clientId')}`, {
+        method: 'POST',
+        body: JSON.stringify(data)
+    })
 }
 
 export function delModels ( data ) {

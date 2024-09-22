@@ -9,13 +9,10 @@ import os
 import numpy as np
 import requests
 
+from bizyair.common.env_var import BIZYAIR_SERVER_ADDRESS
 from bizyair.image_utils import decode_comfy_image, encode_comfy_image
 
 from .utils import get_api_key
-
-BIZYAIR_SERVER_ADDRESS = os.getenv(
-    "BIZYAIR_SERVER_ADDRESS", "https://bizyair-api.siliconflow.cn/x/v1"
-)
 
 
 class StableDiffusionXLControlNetUnionPipeline:

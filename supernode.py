@@ -4,6 +4,7 @@ import uuid
 
 import torch
 
+from bizyair.common.env_var import BIZYAIR_SERVER_ADDRESS
 from bizyair.image_utils import decode_data, encode_data
 
 from .utils import (
@@ -11,10 +12,6 @@ from .utils import (
     get_api_key,
     send_post_request,
     serialize_and_encode,
-)
-
-BIZYAIR_SERVER_ADDRESS = os.getenv(
-    "BIZYAIR_SERVER_ADDRESS", "https://bizyair-api.siliconflow.cn/x/v1"
 )
 
 

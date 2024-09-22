@@ -1,3 +1,4 @@
+import asyncio
 import json
 import os
 import urllib.error
@@ -27,8 +28,11 @@ async def get_bizyair_news(base_url="https://bizyair.siliconflow.cn"):
     except aiohttp.ClientError as e:
         print(f"Error fetching news.json: {e}")
         return {}
+    except asyncio.exceptions.TimeoutError as e:
+        print(f"Request bizyair news timed out: {e}")
+        return {}
     except Exception as e:
-        print(f"Error fetching BizyAir bznews.json: {str(e)}")
+        print(f"Error fetching BizyAir bznews.json: {type(e).__name__} - {str(e)}")
         return {}
 
 
