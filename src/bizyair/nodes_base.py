@@ -2,11 +2,12 @@ import importlib
 import logging
 import warnings
 from functools import wraps
-from typing import Dict, List
+from typing import Any, Dict, List
 
 from .commands import invoker
 from .common.utils import is_comfy_transferrable
 from .data_types import is_send_request_datatype
+from .image_utils import decode_data, encode_data
 from .nodes_io import BizyAirNodeIO
 
 try:
@@ -103,12 +104,22 @@ def ensure_hidden_unique_id(org_input_types_func: callable):
 
 class BizyAirBaseNode:
     FUNCTION = "default_function"
+    subscriber = None
 
     def __init_subclass__(cls, **kwargs):
         if not cls.CATEGORY.startswith(f"{LOGO}{PREFIX}"):
             cls.CATEGORY = f"{LOGO}{PREFIX}/{cls.CATEGORY}"
         register_node(cls, PREFIX)
         cls.setup_input_types()
+        if getattr(cls, "FUNCTION", None) is None:
+            cls.FUNCTION = "default_function"
+        elif cls.FUNCTION != "default_function":
+            original_function = getattr(cls, cls.FUNCTION)
+
+            def run_function(self, **kwargs):
+                return original_function(self, **kwargs)
+
+            setattr(cls, cls.FUNCTION, run_function)
 
     @classmethod
     def setup_input_types(cls):
@@ -127,12 +138,34 @@ class BizyAirBaseNode:
         assert self._hidden is not None
         return self._hidden["unique_id"]
 
+    def _merge_results(self, result: List[List[Any]], node_ios: List[BizyAirNodeIO]):
+        assert len(result) == len(node_ios)
+        return [x[0] if x is not None else y for x, y in zip(result, node_ios)]
+
+    def _should_pre_run(self):
+        subscriber = BizyAirBaseNode.subscriber
+        return (
+            subscriber is not None
+            and not subscriber.is_empty()
+            and self.assigned_id in subscriber.prompt
+        )
+
+    def _pre_run(self):
+        subscriber = BizyAirBaseNode.subscriber
+        result = subscriber.get_result(self.assigned_id)
+        return decode_data(result)
+
     def default_function(self, **kwargs):
         class_type = self._determine_class_type()
         send_request_datatype_list = self._get_send_request_datatypes()
         node_ios: List[BizyAirNodeIO] = self._process_non_send_request_types(
             class_type, kwargs
         )
+        if self._should_pre_run():
+            result = self._pre_run()
+            if result:
+                return self._merge_results(result, node_ios)
+
         if len(send_request_datatype_list) == len(self.RETURN_TYPES):
             return self._process_all_send_request_types(node_ios)
         elif len(send_request_datatype_list) > 0:
@@ -160,13 +193,14 @@ class BizyAirBaseNode:
         # TODO: Implement handling for partial send request datatypes
         # https://docs.comfy.org/essentials/javascript_objects_and_hijacking#properties-2
         pre_prompt = node_ios[0].nodes
+        pre_prompt = encode_data(pre_prompt)
         subscriber = invoker.prompt_sse_server.execute(
             pre_prompt=pre_prompt, hidden=self._hidden
         )
-        print(subscriber)
-        import pdb
-
-        pdb.set_trace()
+        result = subscriber.get_result(self.assigned_id)
+        result = decode_data(result)
+        BizyAirBaseNode.subscriber = subscriber
+        return self._merge_results(result, node_ios)
 
     def _process_non_send_request_types(self, class_type, kwargs):
         outs = []

@@ -1,9 +1,11 @@
 import json
+import pprint
 from collections import deque
 from typing import Any, Dict, List
 
 from bizyair.common import client
 from bizyair.common.env_var import BIZYAIR_DEBUG, BIZYAIR_DEV_REQUEST_URL
+from bizyair.common.utils import truncate_long_strings
 from bizyair.data_types import is_send_request_datatype
 from bizyair.path_utils import (
     convert_prompt_label_path_to_real_path,
@@ -104,11 +106,12 @@ class PromptSseProcessor(Processor):
             node_id = queue.popleft()
             if str(node_id) not in pre_prompt:
                 pre_prompt[str(node_id)] = hidden["prompt"][str(node_id)]
+            if BIZYAIR_DEBUG:
+                print(f"{node_id} -> ", end="")
 
-            print(f"{node_id} -> ", end="")
             if node_id in visited:
                 continue
-
+            last_node_id = node_id
             visited.add(node_id)
             # https://docs.comfy.org/essentials/javascript_objects_and_hijacking#workflow
             for link in links:
@@ -119,12 +122,17 @@ class PromptSseProcessor(Processor):
                     link[5],
                 )
                 if is_send_request_datatype(data_type):
-                    last_node_id = upstream_node_id
                     continue
 
                 if upstream_node_id == node_id and downstream_node_id not in visited:
                     queue.append(downstream_node_id)
-
+        if BIZYAIR_DEBUG:
+            pprint.pprint(
+                {
+                    "pre_prompt": truncate_long_strings(pre_prompt),
+                    "last_node_id": last_node_id,
+                }
+            )
         return pre_prompt, str(last_node_id)
 
     def validate_input(

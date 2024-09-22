@@ -1,7 +1,6 @@
 import json
 import queue
 import threading
-import time
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from queue import Queue
@@ -109,6 +108,9 @@ class Subscriber:
     def receive(self, message):
         self.messages.put(message)
 
+    def is_empty(self):
+        return self.messages.empty()
+
     def pop(self, timeout=5):
         try:
             if self.is_subscribed or not self.messages.empty():
@@ -117,10 +119,30 @@ class Subscriber:
                 return None
         except queue.Empty:
             print(f"No messages received for {self.name} within the timeout period.")
+            return None
 
     def unsubscribe(self):
         self.mediator.unsubscribe(self)
         self.is_subscribed = False  # 更新订阅状态为未订阅
+
+    def get_result(self, node_id, timeout=5):
+        while True:
+            result = self.pop(timeout=timeout)
+            if result is None:
+                return None
+            try:
+                if (
+                    "message" in result
+                    and isinstance(result["message"], dict)
+                    and result["message"]["event"] == "result"
+                ):
+                    event_node_id = result["message"]["data"]["node"]
+                    if event_node_id == node_id:
+                        return result["data"]["payload"]
+                if result is None:
+                    return None
+            except Exception as e:
+                print(f"Error processing message for {self.name}: {e}")
 
 
 class Publisher:

@@ -1,3 +1,4 @@
+import json
 import pprint
 import traceback
 from typing import Any, Dict, List
@@ -69,12 +70,18 @@ class PromptSseServer(Command):
         hidden: Dict[
             str, Dict[str, Any]
         ],  # https://docs.comfy.org/essentials/custom_node_more_on_inputs#hidden-inputs
-    ) -> Subscriber:  #
-        pre_prompt = encode_data(pre_prompt)
+    ) -> Subscriber:
         prompt, last_node_id = self.processor(pre_prompt=pre_prompt, hidden=hidden)
         url = self.router(prompt=prompt, last_node_ids=[last_node_id])
         subscriber = Subscriber(name="prompt_sse_server", mediator=self.mediator)
         self.mediator.subscribe(subscriber)
         headers = {"Accept": "text/event-stream", "Content-Type": "application/json"}
-        self.mediator.start_sse_client(url, subscriber=subscriber, headers=headers)
+        data = json.dumps({"prompt": prompt, "last_node_id": last_node_id}).encode(
+            "utf-8"
+        )
+        subscriber.prompt = prompt
+        subscriber.last_node_id = last_node_id
+        self.mediator.start_sse_client(
+            url, subscriber=subscriber, headers=headers, data=data
+        )
         return subscriber
