@@ -25,6 +25,7 @@ import bizyair.common
 
 from .cache import UploadCache
 from .errno import (
+    CHANGE_PUBLIC_ERR,
     CHECK_MODEL_EXISTS_ERR,
     CODE_NO_MODEL_FOUND,
     CODE_OK,
@@ -40,13 +41,16 @@ from .errno import (
     INVALID_API_KEY_ERR,
     INVALID_CLIENT_ID_ERR,
     INVALID_NAME,
+    INVALID_SHARE_ID,
     INVALID_TYPE,
     INVALID_UPLOAD_ID_ERR,
     LIST_MODEL_ERR,
     LIST_MODEL_FILE_ERR,
+    LIST_SHARE_MODEL_FILE_ERR,
     MODEL_ALREADY_EXISTS_ERR,
     NO_ABS_PATH_ERR,
     NO_FILE_UPLOAD_ERR,
+    NO_PUBLIC_FLAG_ERR,
     PATH_NOT_EXISTS_ERR,
     SIGN_FILE_ERR,
     UPLOAD_ERR,
@@ -246,6 +250,33 @@ class ModelHostServer:
             if err is not None:
                 return err
 
+            public = False
+            if "public" in request.rel_url.query:
+                public = request.rel_url.query["public"]
+
+            payload = {"type": request.rel_url.query["type"], "public": public}
+
+            if "name" in request.rel_url.query:
+                payload["name"] = request.rel_url.query["name"]
+
+            if "ext_name" in request.rel_url.query:
+                payload["ext_name"] = request.rel_url.query["ext_name"]
+
+            model_files, err = await self.get_model_files(payload)
+            if err is not None:
+                return ErrResponse(err)
+            return OKResponse(model_files)
+
+        @prompt_server.routes.get(f"/{API_PREFIX}" + "/{shareId}/models/files")
+        async def list_share_model_files(request):
+            shareId = request.match_info["shareId"]
+            if not self.is_string_valid(shareId):
+                return ErrResponse(INVALID_SHARE_ID)
+
+            err = self.check_type(request.rel_url.query)
+            if err is not None:
+                return err
+
             payload = {
                 "type": request.rel_url.query["type"],
             }
@@ -256,7 +287,9 @@ class ModelHostServer:
             if "ext_name" in request.rel_url.query:
                 payload["ext_name"] = request.rel_url.query["ext_name"]
 
-            model_files, err = await self.get_model_files(payload)
+            model_files, err = await self.get_share_model_files(
+                shareId=shareId, payload=payload
+            )
             if err is not None:
                 return ErrResponse(err)
             return OKResponse(model_files)
@@ -280,6 +313,32 @@ class ModelHostServer:
                 return ErrResponse(err)
 
             print("Delete successfully")
+            return OKResponse(None)
+
+        @prompt_server.routes.put(f"/{API_PREFIX}/models/change_public")
+        async def change_model_public(request):
+            json_data = await request.json()
+
+            err = self.check_type(json_data)
+            if err is not None:
+                return err
+
+            err = self.check_str_param(json_data, "name", INVALID_NAME)
+            if err is not None:
+                return err
+
+            if "public" not in json_data:
+                return ErrResponse(NO_PUBLIC_FLAG_ERR)
+
+            err = await self.change_public(
+                model_type=json_data["type"],
+                model_name=json_data["name"],
+                public=json_data["public"],
+            )
+            if err is not None:
+                return ErrResponse(err)
+
+            print("Change visible successfully")
             return OKResponse(None)
 
     def get_html_content(self, filename: str):
@@ -402,6 +461,31 @@ class ModelHostServer:
             print(f"fail to remove model: {str(e)}")
             return DELETE_MODEL_ERR
 
+    async def change_public(
+        self, model_name: str, model_type: str, public: bool
+    ) -> ErrorNo:
+        server_url = f"{BIZYAIR_SERVER_ADDRESS}/models/change_public"
+
+        payload = {
+            "name": model_name,
+            "type": model_type,
+            "public": public,
+        }
+        headers, err = self.auth_header()
+        if err is not None:
+            return err
+
+        try:
+            resp = self.do_put(server_url, data=payload, headers=headers)
+            ret = json.loads(resp)
+            if ret["code"] != CODE_OK:
+                return ErrorNo(500, ret["code"], None, ret["message"])
+
+            return None
+        except Exception as e:
+            print(f"fail to change model visible: {str(e)}")
+            return CHANGE_PUBLIC_ERR
+
     async def get_model_files(self, payload) -> (dict, ErrorNo):
         headers, err = self.auth_header()
         if err is not None:
@@ -420,8 +504,45 @@ class ModelHostServer:
             if not ret["data"]:
                 return [], None
         except Exception as e:
-            print(f"fail to remove model: {str(e)}")
+            print(f"fail to list model files: {str(e)}")
             return None, LIST_MODEL_FILE_ERR
+
+        files = ret["data"]["files"]
+        result = []
+        if len(files) > 0:
+            tree = defaultdict(lambda: {"name": "", "list": []})
+
+            for item in files:
+                parts = item["label_path"].split("/")
+                model_name = parts[0]
+                if model_name not in tree:
+                    tree[model_name] = {"name": model_name, "list": [item]}
+                else:
+                    tree[model_name]["list"].append(item)
+            result = list(tree.values())
+
+        return result, None
+
+    async def get_share_model_files(self, shareId, payload) -> (dict, ErrorNo):
+        headers, err = self.auth_header()
+        if err is not None:
+            return None, err
+
+        server_url = f"{BIZYAIR_SERVER_ADDRESS}/{shareId}/models/files"
+        try:
+            resp = self.do_get(server_url, params=payload, headers=headers)
+            ret = json.loads(resp)
+            if ret["code"] != CODE_OK:
+                if ret["code"] == CODE_NO_MODEL_FOUND:
+                    return [], None
+                else:
+                    return None, ErrorNo(500, ret["code"], None, ret["message"])
+
+            if not ret["data"]:
+                return [], None
+        except Exception as e:
+            print(f"fail to list share model files: {str(e)}")
+            return None, LIST_SHARE_MODEL_FILE_ERR
 
         files = ret["data"]["files"]
         result = []
@@ -536,6 +657,14 @@ class ModelHostServer:
             data = json.dumps(data)
 
         response = requests.post(url, data=data, headers=headers, timeout=3)
+        return response.text
+
+    def do_put(self, url, data=None, headers=None):
+        # 将字典转换为字节串
+        if data:
+            data = bytes(json.dumps(data), "utf-8")
+
+        response = requests.put(url, data=data, headers=headers, timeout=3)
         return response.text
 
     def do_delete(self, url, data=None, headers=None):
