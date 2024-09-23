@@ -125,16 +125,16 @@ class KSamplerAdvanced(BizyAirBaseNode):
         }
 
     RETURN_TYPES = ("LATENT",)
-    FUNCTION = "sample"
+    # FUNCTION = "sample"
 
     CATEGORY = "sampling"
 
-    def sample(self, model, **kwargs):
-        new_model: BizyAirNodeIO = model.copy(self.assigned_id)
-        kwargs["model"] = model
-        new_model.add_node_data(class_type="KSamplerAdvanced", inputs=kwargs)
-        progress_callback = ProgressCallback()
-        return new_model.send_request(progress_callback=progress_callback)
+    # def sample(self, model, **kwargs):
+    #     new_model: BizyAirNodeIO = model.copy(self.assigned_id)
+    #     kwargs["model"] = model
+    #     new_model.add_node_data(class_type="KSamplerAdvanced", inputs=kwargs)
+    #     progress_callback = ProgressCallback()
+    #     return new_model.send_request(progress_callback=progress_callback)
 
 
 class BizyAir_CheckpointLoaderSimple(BizyAirBaseNode):
@@ -222,21 +222,21 @@ class BizyAir_VAEDecode(BizyAirBaseNode):
 
     RETURN_TYPES = ("IMAGE",)
     RETURN_NAMES = (f"IMAGE",)
-    FUNCTION = "decode"
+    # FUNCTION = "decode"
 
     CATEGORY = f"{PREFIX}/latent"
 
-    def decode(self, vae, samples):
-        new_vae: BizyAirNodeIO = vae.copy(self.assigned_id)
-        new_vae.add_node_data(
-            class_type="VAEDecode",
-            inputs={
-                "samples": samples,
-                "vae": vae,
-            },
-            outputs={"slot_index": 0},
-        )
-        return new_vae.send_request()
+    # def decode(self, vae, samples):
+    #     new_vae: BizyAirNodeIO = vae.copy(self.assigned_id)
+    #     new_vae.add_node_data(
+    #         class_type="VAEDecode",
+    #         inputs={
+    #             "samples": samples,
+    #             "vae": vae,
+    #         },
+    #         outputs={"slot_index": 0},
+    #     )
+    #     return new_vae.send_request()
 
 
 class BizyAir_LoraLoader(BizyAirBaseNode):
@@ -295,20 +295,20 @@ class BizyAir_VAEEncode(BizyAirBaseNode):
 
     RETURN_TYPES = ("LATENT",)
     RETURN_NAMES = (f"LATENT",)
-    FUNCTION = "encode"
+    # FUNCTION = "encode"
     CATEGORY = f"{PREFIX}/latent"
 
-    def encode(self, vae, pixels):
-        new_vae: BizyAirNodeIO = vae.copy(self.assigned_id)
-        new_vae.add_node_data(
-            class_type="VAEEncode",
-            inputs={
-                "vae": vae,
-                "pixels": pixels,
-            },
-            outputs={"slot_index": 0},
-        )
-        return new_vae.send_request()
+    # def encode(self, vae, pixels):
+    #     new_vae: BizyAirNodeIO = vae.copy(self.assigned_id)
+    #     new_vae.add_node_data(
+    #         class_type="VAEEncode",
+    #         inputs={
+    #             "vae": vae,
+    #             "pixels": pixels,
+    #         },
+    #         outputs={"slot_index": 0},
+    #     )
+    #     return new_vae.send_request()
 
 
 class BizyAir_VAEEncodeForInpaint(BizyAirBaseNode):
