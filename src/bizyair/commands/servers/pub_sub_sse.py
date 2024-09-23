@@ -118,6 +118,7 @@ class Subscriber:
         self.mediator = mediator
         self.messages = queue.Queue()
         self.is_subscribed = True  # 订阅状态监测
+        self.tmp_result = {}
 
     def receive(self, message):
         self.messages.put(message)
@@ -141,6 +142,11 @@ class Subscriber:
 
     def get_result(self, node_id, timeout=12):
         while True:
+            if node_id in self.tmp_result:
+                out = self.tmp_result[node_id]
+                del self.tmp_result[node_id]
+                return out
+
             result = self.pop(timeout=timeout)
             if result is None:
                 return None
@@ -153,6 +159,8 @@ class Subscriber:
                     event_node_id = result["message"]["data"]["node"]
                     if event_node_id == node_id:
                         return result["data"]["payload"]
+                    else:
+                        self.tmp_result[event_node_id] = result["data"]["payload"]
             except Exception as e:
                 print(f"Error processing message for {self.name}: {e}")
                 return None

@@ -1,8 +1,4 @@
 import io
-import json
-import os
-import re
-import time
 
 import matplotlib.pyplot as plt
 

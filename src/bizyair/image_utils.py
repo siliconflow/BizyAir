@@ -176,14 +176,18 @@ def tensor_to_base64(tensor: torch.Tensor, compress=True) -> str:
     return tensor_b64
 
 
-def base64_to_tensor(tensor_b64: str, compress=True) -> torch.Tensor:
+def base64_to_numpy(tensor_b64: str, compress=True) -> np.ndarray:
     tensor_bytes = base64.b64decode(tensor_b64)
 
     if compress:
         tensor_bytes = zlib.decompress(tensor_bytes)
 
     tensor_np = pickle.loads(tensor_bytes)
+    return tensor_np
 
+
+def base64_to_tensor(tensor_b64: str, compress=True) -> torch.Tensor:
+    tensor_np = base64_to_numpy(tensor_b64, compress=compress)
     tensor = torch.from_numpy(tensor_np)
     return tensor
 
@@ -222,7 +226,7 @@ def _(input: str, **kwargs):
         return decode_comfy_image(tensor_b64, old_version=old_version)
     elif input.startswith(NUMPY_MARKER):
         tensor_b64 = input[len(NUMPY_MARKER) :]
-        return base64_to_tensor(tensor_b64)
+        return base64_to_numpy(tensor_b64)
     return input
 
 

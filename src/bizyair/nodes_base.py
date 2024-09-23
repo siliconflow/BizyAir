@@ -166,6 +166,8 @@ class BizyAirBaseNode:
             result = self._pre_run()
             if result:
                 return self._merge_results(result, node_ios)
+            else:
+                warnings.warn("Pre-run result is None")
 
         if len(send_request_datatype_list) == len(self.RETURN_TYPES):
             return self._process_all_send_request_types(node_ios)
