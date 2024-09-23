@@ -16,4 +16,5 @@ def is_model_datatype(datatype: str) -> bool:
 
 # https://docs.comfy.org/essentials/custom_node_images_and_masks
 def is_send_request_datatype(datatype: str) -> bool:
-    return datatype in {"IMAGE", "LATENT", "MASK"}
+    # return datatype in {"IMAGE", "LATENT", "MASK", "STRING"}
+    return datatype in {"IMAGE", "LATENT", "MASK", "STRING", "FLOAT", "INT"}

@@ -104,14 +104,14 @@ class PromptSseProcessor(Processor):
         last_node_id = int(unique_id)
         while queue:
             node_id = queue.popleft()
-            if str(node_id) not in pre_prompt:
+            if str(node_id) not in pre_prompt and str(node_id) in hidden["prompt"]:
                 pre_prompt[str(node_id)] = hidden["prompt"][str(node_id)]
             if BIZYAIR_DEBUG:
                 print(f"{node_id} -> ", end="")
 
             if node_id in visited:
                 continue
-            last_node_id = node_id
+
             visited.add(node_id)
             # https://docs.comfy.org/essentials/javascript_objects_and_hijacking#workflow
             for link in links:
@@ -126,6 +126,10 @@ class PromptSseProcessor(Processor):
 
                 if upstream_node_id == node_id and downstream_node_id not in visited:
                     queue.append(downstream_node_id)
+
+                elif downstream_node_id == node_id and upstream_node_id not in visited:
+                    queue.append(upstream_node_id)
+
         if BIZYAIR_DEBUG:
             pprint.pprint(
                 {

@@ -83,14 +83,14 @@ class Mediator:
         self.executor.shutdown(wait=True)
 
     def start_sse_client(self, url, subscriber, headers=None, **kwargs):
-        print(f"Starting SSE client for {subscriber.name}, {url=}")
+        print(f"Starting SSE client for {subscriber.name}, {headers=} {url=}")
         """启动 SSE 客户端来接收数据"""
 
         def connect():
             from sseclient import SSEClient
 
             try:
-                response = requests.get(url, headers=headers, **kwargs)
+                response = requests.get(url, headers=headers, **kwargs, stream=True)
                 if response.status_code != 200:
                     print(
                         f"Failed to connect to {url}, status code: {response.status_code}"
@@ -99,6 +99,9 @@ class Mediator:
                 sse_client = SSEClient(response)
                 for event in sse_client.events():
                     data = json.loads(event.data)
+                    import pprint
+
+                    pprint.pprint(truncate_long_strings(data))
                     self.publish(data, subscriber=subscriber)
             except Exception as e:
                 print(f"Error connecting to {url}: {e}")
@@ -136,7 +139,7 @@ class Subscriber:
         self.mediator.unsubscribe(self)
         self.is_subscribed = False  # 更新订阅状态为未订阅
 
-    def get_result(self, node_id, timeout=5):
+    def get_result(self, node_id, timeout=12):
         while True:
             result = self.pop(timeout=timeout)
             if result is None:

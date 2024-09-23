@@ -107,19 +107,20 @@ class BizyAirBaseNode:
     subscriber = None
 
     def __init_subclass__(cls, **kwargs):
+        if getattr(cls, "FUNCTION", None) is None:
+            cls.FUNCTION = "default_function"
+
         if not cls.CATEGORY.startswith(f"{LOGO}{PREFIX}"):
             cls.CATEGORY = f"{LOGO}{PREFIX}/{cls.CATEGORY}"
         register_node(cls, PREFIX)
         cls.setup_input_types()
-        if getattr(cls, "FUNCTION", None) is None:
-            cls.FUNCTION = "default_function"
-        elif cls.FUNCTION != "default_function":
-            original_function = getattr(cls, cls.FUNCTION)
+        # elif cls.FUNCTION != "default_function":
+        #     original_function = getattr(cls, cls.FUNCTION)
 
-            def run_function(self, **kwargs):
-                return original_function(self, **kwargs)
+        #     def run_function(self, **kwargs):
+        #         return original_function(self, **kwargs)
 
-            setattr(cls, cls.FUNCTION, run_function)
+        #     setattr(cls, cls.FUNCTION, run_function)
 
     @classmethod
     def setup_input_types(cls):
@@ -197,7 +198,7 @@ class BizyAirBaseNode:
         subscriber = invoker.prompt_sse_server.execute(
             pre_prompt=pre_prompt, hidden=self._hidden
         )
-        result = subscriber.get_result(self.assigned_id)
+        result = subscriber.get_result(self.assigned_id, timeout=240 * 60)
         result = decode_data(result)
         BizyAirBaseNode.subscriber = subscriber
         return self._merge_results(result, node_ios)
