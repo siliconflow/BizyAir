@@ -137,6 +137,7 @@ class PromptSseProcessor(Processor):
                     "last_node_id": last_node_id,
                 }
             )
+            # dict_keys(['139', '141', '142', '138', '143', '150'])
         return pre_prompt, str(last_node_id)
 
     def validate_input(

@@ -145,15 +145,11 @@ class BizyAirBaseNode:
 
     def _should_pre_run(self):
         subscriber = BizyAirBaseNode.subscriber
-        return (
-            subscriber is not None
-            and not subscriber.is_empty()
-            and self.assigned_id in subscriber.prompt
-        )
+        return subscriber is not None and self.assigned_id in subscriber.prompt
 
-    def _pre_run(self):
+    def _pre_run(self, timeout=86400):
         subscriber = BizyAirBaseNode.subscriber
-        result = subscriber.get_result(self.assigned_id)
+        result = subscriber.get_result(self.assigned_id, timeout=timeout)
         return decode_data(result)
 
     def default_function(self, **kwargs):

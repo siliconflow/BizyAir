@@ -79,6 +79,7 @@ class PromptSseServer(Command):
         data = json.dumps({"prompt": prompt, "last_node_id": last_node_id}).encode(
             "utf-8"
         )
+
         subscriber.prompt = prompt
         subscriber.last_node_id = last_node_id
         self.mediator.start_sse_client(

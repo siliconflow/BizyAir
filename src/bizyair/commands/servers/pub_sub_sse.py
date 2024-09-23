@@ -99,9 +99,8 @@ class Mediator:
                 sse_client = SSEClient(response)
                 for event in sse_client.events():
                     data = json.loads(event.data)
-                    import pprint
-
-                    pprint.pprint(truncate_long_strings(data))
+                    # import pprint
+                    # pprint.pprint(truncate_long_strings(data))
                     self.publish(data, subscriber=subscriber)
             except Exception as e:
                 print(f"Error connecting to {url}: {e}")
@@ -109,6 +108,9 @@ class Mediator:
                 print(f"SSE client for {subscriber.name} disconnected")
                 self.publish(self.STOP_SIGNAL, subscriber=subscriber)
 
+        import pdb
+
+        pdb.set_trace()
         self.executor.submit(connect)
 
 
@@ -119,14 +121,21 @@ class Subscriber:
         self.messages = queue.Queue()
         self.is_subscribed = True  # 订阅状态监测
         self.tmp_result = {}
+        self.prompt = {}
 
     def receive(self, message):
         self.messages.put(message)
 
-    def is_empty(self):
-        return self.messages.empty()
+    def is_active(self, node_id):
+        if node_id not in self.prompt:
+            return False
+        return (
+            self.is_subscribed
+            or not self.messages.empty()
+            or node_id in self.tmp_result
+        )
 
-    def pop(self, timeout=5):
+    def pop(self, timeout=86400):
         try:
             if self.is_subscribed or not self.messages.empty():
                 return self.messages.get(timeout=timeout)
@@ -140,7 +149,7 @@ class Subscriber:
         self.mediator.unsubscribe(self)
         self.is_subscribed = False  # 更新订阅状态为未订阅
 
-    def get_result(self, node_id, timeout=12):
+    def get_result(self, node_id, timeout=86400):
         while True:
             if node_id in self.tmp_result:
                 out = self.tmp_result[node_id]
@@ -148,8 +157,11 @@ class Subscriber:
                 return out
 
             result = self.pop(timeout=timeout)
-            if result is None:
-                return None
+            import pprint
+
+            print(f"{node_id=}")
+            pprint.pprint(truncate_long_strings(result))
+
             try:
                 if (
                     "message" in result
