@@ -22,8 +22,8 @@ class SiliconCloudLLMAPI:
         "Qwen2 72B Instruct": "Qwen/Qwen2-72B-Instruct",
         "(Free)Qwen2 7B Instruct": "Qwen/Qwen2-7B-Instruct",
         "No LLM Enhancement": "Bypass",
-        "(Free)Qwen2.5-7b Instruct": "Qwen/Qwen2.5-7b-Instruct",
-        "Qwen2.5-72b Instruct": "Qwen/Qwen2.5-72b-Instruct"
+        "(Free)Qwen2.5-7b Instruct": "Qwen/Qwen2.5-7B-Instruct",
+        "Qwen2.5-72b Instruct": "Qwen/Qwen2.5-72B-Instruct"
     }
 
     @classmethod
