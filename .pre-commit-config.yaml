@@ -4,17 +4,17 @@ repos:
     hooks:
       - id: sort-imports
         name: Sort imports
-        entry: python -m isort --profile black .
+        entry: python3 -m isort --profile black .
         language: system
         types: [python]
       - id: format-code
         name: Format code
-        entry: python -m black .
+        entry: python3 -m black .
         language: system
         types: [python]
       - id: flake8-code-check
         name: Code Quality Check
-        entry: python -m flake8 .
+        entry: python3 -m flake8 .
         language: system
         types: [python]
 
