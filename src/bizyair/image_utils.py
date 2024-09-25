@@ -17,6 +17,7 @@ from .common.env_var import BIZYAIR_DEBUG
 # Marker to identify base64-encoded tensors
 TENSOR_MARKER = "TENSOR:"
 IMAGE_MARKER = "IMAGE:"
+NUMPY_MARKER = "NUMPY:"
 
 
 class TaskStatus(Enum):
@@ -175,14 +176,18 @@ def tensor_to_base64(tensor: torch.Tensor, compress=True) -> str:
     return tensor_b64
 
 
-def base64_to_tensor(tensor_b64: str, compress=True) -> torch.Tensor:
+def base64_to_numpy(tensor_b64: str, compress=True) -> np.ndarray:
     tensor_bytes = base64.b64decode(tensor_b64)
 
     if compress:
         tensor_bytes = zlib.decompress(tensor_bytes)
 
     tensor_np = pickle.loads(tensor_bytes)
+    return tensor_np
 
+
+def base64_to_tensor(tensor_b64: str, compress=True) -> torch.Tensor:
+    tensor_np = base64_to_numpy(tensor_b64, compress=compress)
     tensor = torch.from_numpy(tensor_np)
     return tensor
 
@@ -219,6 +224,9 @@ def _(input: str, **kwargs):
         tensor_b64 = input[len(IMAGE_MARKER) :]
         old_version = kwargs.get("old_version", False)
         return decode_comfy_image(tensor_b64, old_version=old_version)
+    elif input.startswith(NUMPY_MARKER):
+        tensor_b64 = input[len(NUMPY_MARKER) :]
+        return base64_to_numpy(tensor_b64)
     return input
 
 
@@ -273,6 +281,20 @@ def _(output, **kwargs):
             output, image_format="WEBP", old_version=old_version, lossless=lossless
         )
     return TENSOR_MARKER + tensor_to_base64(output)
+
+
+def numpy_to_base64(tensor_np: np.array, compress=True) -> str:
+    tensor_bytes = pickle.dumps(tensor_np)
+    if compress:
+        tensor_bytes = zlib.compress(tensor_bytes)
+
+    tensor_b64 = base64.b64encode(tensor_bytes).decode("utf-8")
+    return tensor_b64
+
+
+@encode_data.register(np.ndarray)
+def _(output, *, verbose=False):
+    return NUMPY_MARKER + numpy_to_base64(output)
 
 
 @encode_data.register(int)

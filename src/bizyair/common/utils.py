@@ -1,4 +1,5 @@
 import copy
+from typing import Any
 
 import torch
 
@@ -39,3 +40,19 @@ def deepcopy_except_types(obj, exclude_types):
         }
     else:
         return copy.deepcopy(obj)
+
+
+def is_comfy_transferrable(obj: Any) -> bool:
+    """
+    Check if the object is a transferrable type.
+    """
+    if isinstance(obj, (torch.Tensor, str, int, float, bool)):
+        return True
+    elif isinstance(obj, tuple):
+        return all(is_comfy_transferrable(item) for item in obj)
+    elif isinstance(obj, list):
+        return all(is_comfy_transferrable(item) for item in obj)
+    elif isinstance(obj, dict):
+        return all(is_comfy_transferrable(item) for item in obj.values())
+    else:
+        return False

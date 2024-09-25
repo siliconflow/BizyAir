@@ -65,4 +65,5 @@ class Image_Encode(BizyAirBaseNode):
 
     def apply(self, image, lossless=False):
         out = encode_data(image, lossless=lossless)
+
         return (out,)
