@@ -49,7 +49,7 @@ export function apiKey() {
                         this.className = 'cm-input-item'
                     }
                 }),
-                $el('p.confirm-word', {}, ['Please', $el('a.bizyair-link', {  href: '', target: '_blank', onclick: () => openOAuthPopup((key) => document.querySelector('#bizyair-api-key').value = key  ) }, ['login']), " to autofill the key,"]),
+                $el('p.confirm-word', {}, ['Please', $el('a.bizyair-link', {  href: '', target: '_blank', onclick: () => openOAuthPopup((key) => document.querySelector('#bizyair-api-key').value = key  ) }, ['click to login']), " and autofill the key,"]),
                 $el('p.confirm-word', {}, ['or visit', $el('a.bizyair-link', { href: 'https://cloud.siliconflow.cn', target: '_blank' }, ['https://cloud.siliconflow.cn']), " to get your key and input manually."]),
                 $el('p.confirm-word', {}, [
                     "Setting the API Key signifies agreement to the",
