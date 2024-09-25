@@ -84,7 +84,7 @@ async def fetch_api_key(request):
                         text=f"""
                         <html>
                         <head>
-                            <title>New Window</title>
+                            <title>BizyAir</title>
                         </head>
                         <body>
                             <h1>Just a moment...</h1>
