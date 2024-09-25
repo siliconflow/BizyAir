@@ -33,6 +33,12 @@ def parse_arguments():
         required=True,
         help="The secret for OAuth",
     )
+    parser.add_argument(
+        "--port",
+        type=int,
+        default=8080,
+        help="The port to run the server on",
+    )
 
     return parser.parse_args()
 
@@ -42,6 +48,7 @@ ACCOUNT_ENDPOINT = args.account_endpoint
 CLOUD_ENDPOINT = args.cloud_endpoint
 client_id = args.client_id
 secret = args.secret
+port = args.port  # Added the port argument
 
 
 async def fetch_api_key(request):
@@ -108,4 +115,4 @@ async def init_app():
 
 if __name__ == "__main__":
     app = asyncio.run(init_app())
-    web.run_app(app, port=8080)
+    web.run_app(app, port=port)  # Use the port argument here
