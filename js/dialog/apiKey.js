@@ -1,5 +1,6 @@
 import { dialog } from '../subassembly/dialog.js';
 import { $el } from "../../../scripts/ui.js";
+import { openOAuthPopup } from "./oauth.js";
 export function apiKey() {
     async function toSubmit() {
         const apiKey = document.querySelector('#bizyair-api-key');
@@ -48,7 +49,8 @@ export function apiKey() {
                         this.className = 'cm-input-item'
                     }
                 }),
-                $el('p.confirm-word', {}, ['Please visit', $el('a.bizyair-link', { href: 'https://cloud.siliconflow.cn', target: '_blank' }, ['https://cloud.siliconflow.cn']), " to get your key."]),
+                $el('p.confirm-word', {}, ['Please', $el('a.bizyair-link', {  href: '', target: '_blank', onclick: () => openOAuthPopup((key) => document.querySelector('#bizyair-api-key').value = key  ) }, ['login']), " to autofill the key,"]),
+                $el('p.confirm-word', {}, ['or visit', $el('a.bizyair-link', { href: 'https://cloud.siliconflow.cn', target: '_blank' }, ['https://cloud.siliconflow.cn']), " to get your key and input manually."]),
                 $el('p.confirm-word', {}, [
                     "Setting the API Key signifies agreement to the",
                     $el('a.bizyair-link', {
