@@ -1,5 +1,6 @@
 # BizyAir
 
+- [2024/09/19] 🌩️ BizyAir has updated the model upload feature, allowing the upload process to display a progress bar, and the size of the models uploaded is no longer restricted by ComfyUI. (https://siliconflow.github.io/BizyAir/model-host/introduce.html)
 - [2024/09/06] 🌩️ BizyAir supports InstantID for SDXL now. [SDXL InstantID workflow](./examples/bizyair_sdxl_InstantID_basic.json)
 - [2024/09/05] 🌩️ BizyAir supports users in running custom LoRA models, including SDXL and Flux LoRA. [How to upload and run custom model](https://siliconflow.github.io/BizyAir/model-host/introduce.html)
 - [2024/08/23] 🌩️ BizyAir now support ultimateSDupscale nodes [upscale workflow](./examples/bizyair_ultimate_sd_upscale.json)

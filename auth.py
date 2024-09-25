@@ -7,7 +7,7 @@ import server
 from aiohttp import web
 
 import bizyair
-from bizyair.common import create_api_key_file, load_api_key
+from bizyair.common import create_api_key_file, load_api_key, validate_api_key
 
 API_KEY = None
 html_file_path = Path(os.path.dirname(os.path.abspath(__file__))) / "set_api_key.html"
@@ -32,14 +32,20 @@ async def set_api_key(request):
         data = await request.post()
         api_key = data.get("api_key")
         if api_key:
+            if not validate_api_key(api_key):
+                error_msg = "Wrong API key provided, please refer to cloud.siliconflow.cn to get the key"
+                print("set_api_key:", error_msg)
+                return web.Response(
+                    text=error_msg,
+                    status=400,
+                )
             create_api_key_file(api_key)
             API_KEY = api_key
-            bizyair.set_api_key(API_KEY)
+            bizyair.set_api_key(API_KEY, override=True)
+            print("Set the key sucessfully.")
             return web.Response(text="ok")
         else:
-            error_msg = (
-                "No token provided, please refer to cloud.siliconflow.cn to get the key"
-            )
+            error_msg = "No API key provided, please refer to cloud.siliconflow.cn to get the key"
             print("set_api_key:", error_msg)
             return web.Response(
                 text=error_msg,
