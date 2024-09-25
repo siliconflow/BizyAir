@@ -30,7 +30,7 @@ def parse_arguments():
     parser.add_argument(
         "--secret",
         type=str,
-        default="wcc4pJXTL9oD9Ub1SpeZNtfFlMwRkYdWKlDnz3gK",
+        required=True,
         help="The secret for OAuth",
     )
 
