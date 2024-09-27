@@ -53,7 +53,13 @@ def guess_url_from_node(
                         configs = routing_configs[config_key]
                         # TODO fix
                         if config_key == "flux-dev":
-                            if node["inputs"]["weight_dtype"] == "fp8_e4m3fn":
+                            if (
+                                node["inputs"]["weight_dtype"] == "fp8_e4m3fn"
+                                or node_usage_state.loras
+                            ):
+                                node["inputs"][
+                                    "weight_dtype"
+                                ] = "fp8_e4m3fn"  # set to fp8_e4m3fn for lora
                                 return (
                                     configs.get(
                                         "service_address", BIZYAIR_SERVER_ADDRESS
