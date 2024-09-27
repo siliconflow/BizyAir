@@ -242,6 +242,10 @@ class ModelHostServer:
             self.uploads[upload_id]["type"] = json_data["type"]
             self.uploads[upload_id]["name"] = json_data["name"]
             self.upload_queue.put(self.uploads[upload_id])
+
+            # enable refresh for lora
+            # TODO: enable refresh for other types
+            bizyair.path_utils.path_manager.enable_refresh_options("loras")
             return OKResponse(None)
 
         @prompt_server.routes.get(f"/{API_PREFIX}/models/files")
@@ -286,12 +290,12 @@ class ModelHostServer:
 
             if "ext_name" in request.rel_url.query:
                 payload["ext_name"] = request.rel_url.query["ext_name"]
-
             model_files, err = await self.get_share_model_files(
                 shareId=shareId, payload=payload
             )
             if err is not None:
                 return ErrResponse(err)
+
             return OKResponse(model_files)
 
         @prompt_server.routes.delete(f"/{API_PREFIX}/models")

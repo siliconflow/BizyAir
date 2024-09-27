@@ -4,6 +4,7 @@ import os
 import pprint
 import re
 import warnings
+from dataclasses import dataclass
 from typing import Any, Dict, List, Union
 
 from ..common import fetch_models_by_type
@@ -22,6 +23,34 @@ supported_pt_extensions: set[str] = {
 ScanPathType = list[str]
 folder_names_and_paths: dict[str, ScanPathType] = {}
 filename_path_mapping: dict[str, dict[str, str]] = {}
+
+
+@dataclass
+class RefreshSettings:
+    loras: bool = True
+
+    def get(self, folder_name: str, default: bool = True):
+        return getattr(self, folder_name, default)
+
+    def set(self, folder_name: str, value: bool):
+        setattr(self, folder_name, value)
+
+
+refresh_settings = RefreshSettings()
+
+
+def enable_refresh_options(folder_names: Union[str, list[str]]):
+    if isinstance(folder_names, str):
+        folder_names = [folder_names]
+    for folder_name in folder_names:
+        refresh_settings.set(folder_name, True)
+
+
+def disable_refresh_options(folder_names: Union[str, list[str]]):
+    if isinstance(folder_names, str):
+        folder_names = [folder_names]
+    for folder_name in folder_names:
+        refresh_settings.set(folder_name, False)
 
 
 def _get_config_path():
@@ -88,26 +117,37 @@ def get_config_file_list(base_path=None) -> list:
 
 
 def cached_filename_list(
-    folder_name: str, *, verbose=False, refresh=False
+    folder_name: str, *, share_id: str = None, verbose=False, refresh=False
 ) -> list[str]:
     global filename_path_mapping
     if refresh or folder_name not in filename_path_mapping:
         model_types: Dict[str, str] = models_config["model_types"]
-        url = get_service_route(models_config["model_hub"]["find_model"])
+        if share_id:
+            url = f"{BIZYAIR_SERVER_ADDRESS}/{share_id}/models/files"
+        else:
+            url = get_service_route(models_config["model_hub"]["find_model"])
         msg = fetch_models_by_type(
             url=url, method="GET", model_type=model_types[folder_name]
         )
         if verbose:
             pprint.pprint({"cached_filename_list": msg})
 
-        if not msg or "data" not in msg or msg["data"] is None:
-            return []
+        try:
+            if not msg or "data" not in msg or msg["data"] is None:
+                return []
 
-        filename_path_mapping[folder_name] = {
-            x["label_path"]: x["real_path"]
-            for x in msg["data"]["files"]
-            if x["label_path"]
-        }
+            filename_path_mapping[folder_name] = {
+                x["label_path"]: x["real_path"]
+                for x in msg["data"]["files"]
+                if x["label_path"]
+            }
+        except Exception as e:
+            warnings.warn(f"Failed to get filename list: {e}")
+            return []
+        finally:
+            # TODO fix share_id vaild refresh settings
+            if share_id is None:
+                disable_refresh_options(folder_name)
 
     return list(
         filter_files_extensions(
@@ -139,11 +179,23 @@ def convert_prompt_label_path_to_real_path(prompt: dict[str, dict[str, any]]) ->
     return new_prompt
 
 
+def get_share_filename_list(folder_name, share_id, *, verbose=BIZYAIR_DEBUG):
+    assert share_id is not None and isinstance(share_id, str)
+    # TODO fix share_id vaild refresh settings
+    return cached_filename_list(
+        folder_name, share_id=share_id, verbose=verbose, refresh=True
+    )
+
+
 def get_filename_list(folder_name, *, verbose=BIZYAIR_DEBUG):
+
     global folder_names_and_paths
     results = []
     if folder_name in models_config["model_types"]:
-        results.extend(cached_filename_list(folder_name, verbose=verbose, refresh=True))
+        refresh = refresh_settings.get(folder_name, True)
+        results.extend(
+            cached_filename_list(folder_name, verbose=verbose, refresh=refresh)
+        )
     if folder_name in folder_names_and_paths:
         results.extend(folder_names_and_paths[folder_name])
     if BIZYAIR_DEBUG:
@@ -153,7 +205,6 @@ def get_filename_list(folder_name, *, verbose=BIZYAIR_DEBUG):
             results.extend(folder_paths.get_filename_list(folder_name))
         except:
             pass
-
     return results
 
 

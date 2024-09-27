@@ -798,3 +798,53 @@ class InpaintModelConditioning(BizyAirBaseNode):
     # FUNCTION = "encode"
 
     CATEGORY = "conditioning/inpaint"
+
+
+class SharedLoraLoader(BizyAir_LoraLoader):
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "share_id": ("STRING", {"default": "share_id"}),
+                "lora_name": ("STRING", {"default": "lora_name"}),
+                "model": (data_types.MODEL,),
+                "clip": (data_types.CLIP,),
+                "strength_model": (
+                    "FLOAT",
+                    {"default": 1.0, "min": -100.0, "max": 100.0, "step": 0.01},
+                ),
+                "strength_clip": (
+                    "FLOAT",
+                    {"default": 1.0, "min": -100.0, "max": 100.0, "step": 0.01},
+                ),
+            }
+        }
+
+    RETURN_TYPES = (data_types.MODEL, data_types.CLIP)
+    RETURN_NAMES = ("MODEL", "CLIP")
+    FUNCTION = "shared_load_lora"
+    CATEGORY = f"{PREFIX}/loaders"
+    NODE_DISPLAY_NAME = "Shared Lora Loader"
+
+    @classmethod
+    def VALIDATE_INPUTS(cls, share_id: str, lora_name: str):
+        if lora_name in folder_paths.filename_path_mapping.get("loras", {}):
+            return True
+
+        outs = folder_paths.get_share_filename_list("loras", share_id=share_id)
+        if lora_name not in outs:
+            raise ValueError(
+                f"Lora {lora_name} not found in share {share_id} with {outs}"
+            )
+        return True
+
+    def shared_load_lora(
+        self, model, clip, lora_name, strength_model, strength_clip, **kwargs
+    ):
+        return super().load_lora(
+            model=model,
+            clip=clip,
+            lora_name=lora_name,
+            strength_model=strength_model,
+            strength_clip=strength_clip,
+        )
