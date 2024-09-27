@@ -806,7 +806,7 @@ class SharedLoraLoader(BizyAir_LoraLoader):
         return {
             "required": {
                 "share_id": ("STRING", {"default": "share_id"}),
-                "lora_name": ("STRING", {"default": "lora_name"}),
+                "lora_name": (folder_paths.get_filename_list("loras"),),
                 "model": (data_types.MODEL,),
                 "clip": (data_types.CLIP,),
                 "strength_model": (

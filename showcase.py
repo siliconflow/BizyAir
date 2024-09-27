@@ -119,3 +119,23 @@ async def get_file_content(request):
             status=500,
             content_type="application/json",
         )
+
+
+@PromptServer.instance.routes.post("/bizyair/shareloras")
+async def get_share_loras(request):
+    try:
+        data = await request.json()
+    except json.JSONDecodeError:
+        return web.Response(
+            text=json.dumps({"error": "Invalid JSON body"}),
+            status=400,
+            content_type="application/json",
+        )
+
+    share_id = data.get("share_id")
+    print(f"use {share_id} to get the loras_list...")
+    loras_list = ["flux/lora1.safetensors", "flux/lora2.safetensors"]
+    return web.Response(
+        text=json.dumps(loras_list, ensure_ascii=False),
+        content_type="application/json",
+    )
