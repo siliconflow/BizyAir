@@ -1,8 +1,11 @@
+import asyncio
 import json
 import pprint
 import urllib.error
 import urllib.request
 import warnings
+
+import aiohttp
 
 __all__ = ["send_request"]
 
@@ -132,6 +135,48 @@ def send_request(
     if callback:
         return callback(json.loads(response_data))
     return json.loads(response_data)
+
+
+async def async_send_request(
+    method: str = "POST",
+    url: str = None,
+    data: bytes = None,
+    verbose=False,
+    callback: callable = process_response_data,
+    **kwargs,
+) -> dict:
+    headers = kwargs.pop("headers") if "headers" in kwargs else _headers()
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.request(
+                method, url, data=data, headers=headers, **kwargs
+            ) as response:
+                response_data = await response.text()
+                if response.status != 200:
+                    error_message = f"HTTP Status {response.status}"
+                    if verbose:
+                        print(f"Error encountered: {error_message}")
+                    if response.status == 401:
+                        raise PermissionError(
+                            "Key is invalid, please refer to https://cloud.siliconflow.cn to get the API key.\n"
+                            "If you have the key, please click the 'BizyAir Key' button at the bottom right to set the key."
+                        )
+                    else:
+                        raise ConnectionError(
+                            f"Failed to connect to the server: {error_message}.\n"
+                            + "Please check your API key and ensure the server is reachable.\n"
+                            + "Also, verify your network settings and disable any proxies if necessary.\n"
+                            + "After checking, please restart the ComfyUI service."
+                        )
+                if callback:
+                    return callback(json.loads(response_data))
+                return json.loads(response_data)
+    except aiohttp.ClientError as e:
+        print(f"Error fetching data: {e}")
+        return {}
+    except Exception as e:
+        print(f"Error fetching data: {str(e)}")
+        return {}
 
 
 def fetch_models_by_type(

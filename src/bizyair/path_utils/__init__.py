@@ -6,3 +6,4 @@ from .path_manager import (
     guess_config,
     guess_url_from_node,
 )
+from .utils import filter_files_extensions
