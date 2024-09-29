@@ -14,7 +14,6 @@ app.registerExtension({
                 });
 
                 const { data: loras_list } = await response.json();
-                // console.log("loras_list:", loras_list);
                 const lora_name_widget = comfynode.widgets.find(widget => widget.name === "lora_name");
                 if (loras_list.length > 0) {
                     lora_name_widget.value = loras_list[0];
