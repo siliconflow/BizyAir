@@ -317,7 +317,7 @@ class ModelHostServer:
             if err is not None:
                 return ErrResponse(err)
 
-            print("Delete successfully")
+            print("BizyAir: Delete successfully")
             return OKResponse(None)
 
         @prompt_server.routes.put(f"/{API_PREFIX}/models/change_public")
@@ -343,7 +343,7 @@ class ModelHostServer:
             if err is not None:
                 return ErrResponse(err)
 
-            print("Change visible successfully")
+            print("BizyAir: Make model visible successfully")
             return OKResponse(None)
 
     def get_html_content(self, filename: str):
