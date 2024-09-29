@@ -14,12 +14,9 @@ from .utils import (
     serialize_and_encode,
 )
 
-# BIZYAIR_SERVER_ADDRESS = os.getenv(
-#     "BIZYAIR_SERVER_ADDRESS", "https://api.siliconflow.cn"
-# )
-
-BIZYAIR_SERVER_ADDRESS = "http://127.0.0.1:8000"
-
+BIZYAIR_SERVER_ADDRESS = os.getenv(
+    "BIZYAIR_SERVER_ADDRESS", "https://api.siliconflow.cn"
+)
 
 class SuperResolution:
     API_URL = f"{BIZYAIR_SERVER_ADDRESS}/supernode/superresolution"
@@ -369,7 +366,7 @@ class BizyAirSegmentAnythingText:
             "prompt": prompt,
             "box_threshold": box_threshold,             #置信度
             "text_threshold": box_threshold,             #置信度
-            "mode": 1           #自动分割模式
+            "mode": 1           #文本分割模式
         }
         auth = f"Bearer {API_KEY}"
         headers = {
