@@ -14,9 +14,11 @@ from .utils import (
     serialize_and_encode,
 )
 
-BIZYAIR_SERVER_ADDRESS = os.getenv(
-    "BIZYAIR_SERVER_ADDRESS", "https://api.siliconflow.cn"
-)
+# BIZYAIR_SERVER_ADDRESS = os.getenv(
+#     "BIZYAIR_SERVER_ADDRESS", "https://api.siliconflow.cn"
+# )
+
+BIZYAIR_SERVER_ADDRESS = "http://127.0.0.1:8000"
 
 
 class SuperResolution:
@@ -247,7 +249,7 @@ class AuraSR:
         image = image.to(device)
         return (image,)
 
-class BizyAirSegmentAnything:
+class BizyAirSegmentAnythingAuto:
     API_URL = f"{BIZYAIR_SERVER_ADDRESS}/supernode/sam"
 
     @classmethod
@@ -265,7 +267,6 @@ class BizyAirSegmentAnything:
     CATEGORY = "☁️BizyAir/segment-anything"
 
     def auto_sam(self, image):
-        print("why image.shape:", image.shape)
         API_KEY = get_api_key()
         SIZE_LIMIT = 1536
         # device = image.device
@@ -280,8 +281,95 @@ class BizyAirSegmentAnything:
             "input_label": None,
             "input_boxes": None,
             "prompt": None,
-            "threshold": 0.3,             #置信度
+            "box_threshold": None,             #置信度
+            "text_threshold": None,
             "mode": 0           #自动分割模式
+        }
+        auth = f"Bearer {API_KEY}"
+        headers = {
+            "accept": "application/json",
+            "content-type": "application/json",
+            "authorization": auth,
+        }
+        image = image.squeeze(0).numpy()
+        image_pil = Image.fromarray((image * 255).astype(np.uint8))
+        input_image = encode_image_to_base64(image_pil, format="webp")
+        payload["image"] = input_image
+
+        ret: str = send_post_request(self.API_URL, payload=payload, headers=headers)
+        ret = json.loads(ret)
+
+        try:
+            if "result" in ret:
+                ret = json.loads(ret["result"])
+        except Exception as e:
+            raise Exception(f"Unexpected response: {ret} {e=}")
+
+        if ret["status"] == "error":
+            raise Exception(ret["message"])
+
+        msg = ret["data"]
+        if msg["type"] not in (
+            "comfyair",
+            "bizyair",
+        ):
+            raise Exception(f"Unexpected response type: {msg}")
+
+        img = msg["image"]
+        
+        img = (torch.from_numpy(decode_base64_to_np(img)).float()/255.0).unsqueeze(0)
+
+        return (img,)
+
+class BizyAirSegmentAnythingText:
+    API_URL = f"{BIZYAIR_SERVER_ADDRESS}/supernode/sam"
+
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "image": ("IMAGE",),
+                "prompt": ("STRING", {}),
+                "box_threshold": ("FLOAT", {
+                    "default": 0.3,
+                    "min": 0,
+                    "max": 1.0,
+                    "step": 0.01
+                }),
+                "text_threshold": ("FLOAT", {
+                    "default": 0.3,
+                    "min": 0,
+                    "max": 1.0,
+                    "step": 0.01
+                }),
+            }
+        }
+
+    # RETURN_TYPES = ("IMAGE", "MASK")
+    RETURN_TYPES = ("IMAGE",)
+    FUNCTION = "text_sam"
+
+    CATEGORY = "☁️BizyAir/segment-anything"
+
+    def text_sam(self, image, prompt, box_threshold, text_threshold):
+        print("why image.shape:", image.shape)
+        API_KEY = get_api_key()
+        SIZE_LIMIT = 1536
+        # device = image.device
+        _, w, h, c = image.shape
+        assert (
+            w <= SIZE_LIMIT and h <= SIZE_LIMIT
+        ), f"width and height must be less than {SIZE_LIMIT}x{SIZE_LIMIT}, but got {w} and {h}"
+
+        payload = {
+            "image": None, 
+            "input_points": None,
+            "input_label": None,
+            "input_boxes": None,
+            "prompt": prompt,
+            "box_threshold": box_threshold,             #置信度
+            "text_threshold": box_threshold,             #置信度
+            "mode": 1           #自动分割模式
         }
         auth = f"Bearer {API_KEY}"
         headers = {
@@ -324,12 +412,14 @@ NODE_CLASS_MAPPINGS = {
     "BizyAirRemoveBackground": RemoveBackground,
     "BizyAirGenerateLightningImage": GenerateLightningImage,
     "BizyAirAuraSR": AuraSR,
-    "BizyAirSegmentAnything": BizyAirSegmentAnything,
+    "BizyAirSegmentAnythingAuto": BizyAirSegmentAnythingAuto,
+    "BizyAirSegmentAnythingText": BizyAirSegmentAnythingText,
 }
 NODE_DISPLAY_NAME_MAPPINGS = {
     "BizyAirAuraSR": "☁️BizyAir Photorealistic Image Super Resolution",
     "BizyAirSuperResolution": "☁️BizyAir Anime Image Super Resolution",
     "BizyAirRemoveBackground": "☁️BizyAir Remove Image Background",
     "BizyAirGenerateLightningImage": "☁️BizyAir Generate Photorealistic Images",
-    "BizyAirSegmentAnything": "☁️BizyAir Auto SegmentAnything",
+    "BizyAirSegmentAnythingAuto": "☁️BizyAir Auto SAM",
+    "BizyAirSegmentAnythingText": "☁️BizyAir Text Guided SAM",
 }
