@@ -1,20 +1,37 @@
 import { dialog } from '../subassembly/dialog.js';
 import { $el } from "../../../scripts/ui.js";
-import { delModels, models_files, model_types } from "../apis.js"
+import { delModels, models_files, model_types, change_public } from "../apis.js"
 import { subscribe, unsubscribe } from '../subassembly/subscribers.js'
 
 export const modelList = async () => {
-
-    const resList = await models_files('bizyair/lora');
+    let isPublic = 'false';
+    let type = 'bizyair/lora';
     const resType = await model_types();
-    const listData = resList.data;
     const typeList = resType.data;
+
+    const getData = async () => {
+        const elItemBody = document.querySelector('#bizyair-model-list-item-body')
+        return models_files({type, public: isPublic}).then(res => {
+            if (res.code == 20000) {
+                elItemBody.innerHTML = ''
+                const elData = elDataItem(res.data)
+                elData.length && elData.forEach(ele => {
+                    elItemBody.appendChild(ele)
+                });
+            }
+        })
+    }
     const elDataItemChild = (list) => {
         return list.map(item => $el('div.bizyair-model-list-item-child.bizyair-model-list-item', {}, [
             $el('div.bizyair-flex-item', { title: item.label_path}, [item.label_path]),
-            $el('div.bizyair-flex-item-avaulable', {}, [
-                item.available ? 'Available' : $el('span.spinner-container', {}, [$el('span.spinner')])
-            ])
+            $el('div.bizyair-flex-item', {}, [
+                item.available
+                    ?
+                    $el('span.available-word', {}, ['Available'])
+                    :
+                    $el('span.spinner-container.spinner-container-in-list', {}, [$el('span.spinner')])
+            ]),
+            $el('div.bizyair-flex-item-avaulable', {}, [' '])
         ]))
     }
     const del = (name, ele) => {
@@ -25,7 +42,7 @@ export const modelList = async () => {
             noText: "No",
             onYes: () => {
                 delModels({
-                    type: document.querySelector('#bizyair-model-filter').value,
+                    type,
                     name,
                 }).then(res => {
                     if (res.code == 20000) {
@@ -36,6 +53,41 @@ export const modelList = async () => {
             }
         })
     }
+    const share = (data, ele) => {
+        const changePublic = (publicStatus) => {
+            change_public({
+                type,
+                name: data.name,
+                public: publicStatus
+            }).then(res => {
+                if (res.code == 20000) {
+                    ele.closest('.bizyair-model-list-item').remove()
+                }
+            })
+        }
+        if (!data.list[0].available) {
+            dialog({
+                content: "The model is not available, please try again later.",
+                noText: 'Close',
+                type: 'warning',
+            });
+            return
+        }
+        if (data.list[0] && data.list[0].public) {
+            dialog({
+                content: "Are you sure you want to cancel this?",
+                yesText: "Yes",
+                noText: "No",
+                onYes: () => {
+                    changePublic(false)
+                    return true
+                }
+            })
+        } else {
+            changePublic(true)
+        }
+    }
+
     const handleItemLis = (ele) => {
         ele.className = ele.className == 'bizyair-icon-fold' ? 'bizyair-icon-fold unfold' : 'bizyair-icon-fold';
         ele.closest('.bizyair-model-list-item').querySelector('.bizyair-model-list-item-lis').style.display = ele.closest('.bizyair-model-list-item').querySelector('.bizyair-model-list-item-lis').style.display == 'none' ? 'block' : 'none'
@@ -50,12 +102,23 @@ export const modelList = async () => {
                         handleItemLis(this)
                     }
                 }, ['']),
-                $el('span', {}, [e.name]),
-                $el('span.bizyair-icon-delete', {
-                    onclick: function() {
-                        del(e.name, this)
-                    }
-                }),
+                $el('span.bizyair-model-list-content', {}, [
+                    $el('span', {}, [e.name]),
+                    $el('span.bizyair-model-handle', {}, [
+                        (isPublic !== 'true' ?
+                            $el('span.bizyair-icon-delete', {
+                                onclick: function() {
+                                    del(e.name, this)
+                                }
+                            }) : ''
+                        ),
+                        $el(`span.bizyair-icon-share${isPublic === 'true' ? '.bizyair-icon-unshared' : ''}`, {
+                            onclick: function() {
+                                share(e, this)
+                            }
+                        }),
+                    ]),
+                ]),
             ]),
             $el('div.bizyair-model-list-item-lis',
                 { style: { display: 'none' } },
@@ -65,51 +128,64 @@ export const modelList = async () => {
     }
 
     const changeType = (e) => {
-        const elItemBody = document.querySelector('#bizyair-model-list-item-body')
-        models_files(e.target.value).then(res => {
-            if (res.code == 20000) {
-                elItemBody.innerHTML = ''
-                const elData = elDataItem(res.data)
-                elData.length && elData.forEach(ele => {
-                    elItemBody.appendChild(ele)
-                });
-            }
-        })
+        type = e.target.value;
+        getData();
+    }
+    const changePublic = async (e) => {
+        isPublic = e.target.value;
+        await getData();
+
     }
 
     const content = $el('div.bizyair-model-list', {}, [
         $el('div.bizyair-model-filter-item', {}, [
-            $el("span.bizyair-filter-label", {}, ['Filter']),
-            $el("select.cm-input-item", {
-                id: 'bizyair-model-filter',
-                onchange: (e) => changeType(e)
-            }, [
-                ...elOptions
+            $el("div.bizyair-model-filter-lis", {}, [
+                $el("span.bizyair-filter-label", {}, ['Filter']),
+                $el("select.cm-input-item", {
+                    id: 'bizyair-model-filter',
+                    onchange: (e) => changeType(e)
+                }, [
+                    ...elOptions
+                ]),
             ]),
+            $el("div.bizyair-model-filter-lis", {}, [
+                $el("span.bizyair-filter-label", {}, ['Public']),
+                $el("label.radio-container", {}, [
+                    $el("input", {
+                        type: 'radio',
+                        name: 'isPublic',
+                        value: 'false',
+                        checked: isPublic == 'false',
+                        onchange: (e) => changePublic(e)
+                    }),
+                    'No'
+                ]),
+                $el("label.radio-container", {}, [
+                    $el("input", {
+                        type: 'radio',
+                        name: 'isPublic',
+                        value: 'true',
+                        onchange: (e) => changePublic(e)
+                    }),
+                    'Yes'
+                ]),
+            ])
         ]),
 
         $el('div.bizyair-model-list-item.bizyair-model-list-item-header', {}, [
             $el('div.bizyair-flex-item', {}, ['File Name']),
-            $el('div.bizyair-flex-item-avaulable', {}, ['Status']),
+            $el('div.bizyair-flex-item', {}, ['Status']),
+            $el('div.bizyair-flex-item-avaulable', {}, ['Operate']),
         ]),
         $el('div.bizyair-model-list-item-body',
             { id: 'bizyair-model-list-item-body' },
-            elDataItem(listData)
+            []
         )
     ]);
     const fnMessage = (data) => {
         const res = JSON.parse(data.data);
         if (res && res.type == "synced") {
-            const elItemBody = document.querySelector('#bizyair-model-list-item-body')
-            models_files(document.getElementById('bizyair-model-filter').value).then(res => {
-                if (res.code == 20000) {
-                    elItemBody.innerHTML = ''
-                    const elData = elDataItem(res.data)
-                    elData.length && elData.forEach(ele => {
-                        elItemBody.appendChild(ele)
-                    });
-                }
-            })
+            getData();
         }
     }
     subscribe('socketMessage', fnMessage);
@@ -120,4 +196,5 @@ export const modelList = async () => {
             unsubscribe('socketMessage', fnMessage)
         }
     })
+    getData()
 }
