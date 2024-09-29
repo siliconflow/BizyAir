@@ -242,6 +242,10 @@ class ModelHostServer:
             self.uploads[upload_id]["type"] = json_data["type"]
             self.uploads[upload_id]["name"] = json_data["name"]
             self.upload_queue.put(self.uploads[upload_id])
+
+            # enable refresh for lora
+            # TODO: enable refresh for other types
+            bizyair.path_utils.path_manager.enable_refresh_options("loras")
             return OKResponse(None)
 
         @prompt_server.routes.get(f"/{API_PREFIX}/models/files")
@@ -270,6 +274,7 @@ class ModelHostServer:
         @prompt_server.routes.get(f"/{API_PREFIX}" + "/{shareId}/models/files")
         async def list_share_model_files(request):
             shareId = request.match_info["shareId"]
+
             if not self.is_string_valid(shareId):
                 return ErrResponse(INVALID_SHARE_ID)
 
@@ -286,12 +291,12 @@ class ModelHostServer:
 
             if "ext_name" in request.rel_url.query:
                 payload["ext_name"] = request.rel_url.query["ext_name"]
-
             model_files, err = await self.get_share_model_files(
                 shareId=shareId, payload=payload
             )
             if err is not None:
                 return ErrResponse(err)
+
             return OKResponse(model_files)
 
         @prompt_server.routes.delete(f"/{API_PREFIX}/models")
@@ -524,41 +529,35 @@ class ModelHostServer:
         return result, None
 
     async def get_share_model_files(self, shareId, payload) -> (dict, ErrorNo):
-        headers, err = self.auth_header()
-        if err is not None:
-            return None, err
-
         server_url = f"{BIZYAIR_SERVER_ADDRESS}/{shareId}/models/files"
         try:
-            resp = self.do_get(server_url, params=payload, headers=headers)
-            ret = json.loads(resp)
-            if ret["code"] != CODE_OK:
-                if ret["code"] == CODE_NO_MODEL_FOUND:
-                    return [], None
-                else:
-                    return None, ErrorNo(500, ret["code"], None, ret["message"])
 
-            if not ret["data"]:
-                return [], None
+            def callback(ret: dict):
+                if ret["code"] != CODE_OK:
+                    if ret["code"] == CODE_NO_MODEL_FOUND:
+                        return [], None
+                    else:
+                        return [], ErrorNo(500, ret["code"], None, ret["message"])
+
+                if not ret or "data" not in ret or ret["data"] is None:
+                    return [], None
+
+                outputs = [
+                    x["label_path"] for x in ret["data"]["files"] if x["label_path"]
+                ]
+                outputs = bizyair.path_utils.filter_files_extensions(
+                    outputs,
+                    extensions=bizyair.path_utils.path_manager.supported_pt_extensions,
+                )
+                return outputs, None
+
+            ret = await bizyair.common.client.async_send_request(
+                method="GET", url=server_url, params=payload, callback=callback
+            )
+            return ret[0], ret[1]
         except Exception as e:
             print(f"fail to list share model files: {str(e)}")
-            return None, LIST_SHARE_MODEL_FILE_ERR
-
-        files = ret["data"]["files"]
-        result = []
-        if len(files) > 0:
-            tree = defaultdict(lambda: {"name": "", "list": []})
-
-            for item in files:
-                parts = item["label_path"].split("/")
-                model_name = parts[0]
-                if model_name not in tree:
-                    tree[model_name] = {"name": model_name, "list": [item]}
-                else:
-                    tree[model_name]["list"].append(item)
-            result = list(tree.values())
-
-        return result, None
+            return [], LIST_SHARE_MODEL_FILE_ERR
 
     async def get_models(self, payload) -> (dict, ErrorNo):
         headers, err = self.auth_header()
