@@ -84,7 +84,11 @@ export function set_api_key ( data ) {
 }
 
 export function models_files ( data ) {
-    return customFetch(`/bizyair/modelhost/models/files?type=${data}`, {method: 'GET'})
+    return customFetch(`/bizyair/modelhost/models/files?type=${data.type}&public=${data.public}`, {method: 'GET'})
+}
+
+export function change_public ( data ) {
+    return customFetch(`/bizyair/modelhost/models/change_public`, {method: 'PUT', body: JSON.stringify(data)})
 }
 
 export function model_types () {
