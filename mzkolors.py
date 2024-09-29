@@ -4,6 +4,7 @@ import uuid
 import torch
 
 from bizyair import BizyAirBaseNode, BizyAirNodeIO, create_node_data
+from bizyair.common.env_var import BIZYAIR_SERVER_ADDRESS
 from bizyair.data_types import CONDITIONING
 from bizyair.image_utils import encode_data
 
@@ -15,10 +16,6 @@ from .utils import (
 )
 
 CATEGORY_NAME = "☁️BizyAir/Kolors"
-
-BIZYAIR_SERVER_ADDRESS = os.getenv(
-    "BIZYAIR_SERVER_ADDRESS", "https://api.siliconflow.cn"
-)
 
 
 class BizyAirMZChatGLM3TextEncode:

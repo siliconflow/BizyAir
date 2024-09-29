@@ -12,7 +12,7 @@
       "realisticStockPhoto_v20.safetensors",
       "samaritan3dCartoon_v40SDXL.safetensors"
     ],
-    "sd15":[
+    "sd15": [
       "dreamshaper_8.safetensors"
     ]
   },
@@ -32,8 +32,11 @@
     "sdxl": [
       "diffusion_pytorch_model_promax.safetensors"
     ],
-    "sd15":[
+    "sd15": [
       "control_v11f1e_sd15_tile.pth"
+    ],
+    "instantid": [
+      "diffusion_pytorch_model.safetensors"
     ]
   },
   "ipadapter": {
@@ -45,6 +48,9 @@
     "sdxl": [
       "Cute_Animals.safetensors",
       "watercolor_v1_sdxl_lora.safetensors"
+    ],
+    "flux": [
+      "meijia_flux_lora_rank16_bf16.safetensors"
     ]
   },
   "unet": {
@@ -65,12 +71,15 @@
       "ae.sft"
     ]
   },
-  "clip":[
+  "clip": [
     "clip_l.safetensors",
     "t5xxl_fp16.safetensors",
     "t5xxl_fp8_e4m3fn.safetensors"
   ],
-  "upscale_models":[
+  "upscale_models": [
     "4x_NMKD-Siax_200k.pth"
+  ],
+  "instantid": [
+    "ip-adapter.bin"
   ]
 }

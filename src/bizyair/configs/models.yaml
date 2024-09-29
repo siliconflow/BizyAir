@@ -1,7 +1,7 @@
-service_config:
-  service_address: https://api.siliconflow.cn
-  route: /supernode/listmodelserver
-  service_route: "{{ service_config.service_address }}{{ service_config.route }}"
+# Common configuration
+model_hub:
+  find_model:
+    route: /models/files
 
 model_types:
   loras: bizyair/lora
@@ -11,19 +11,14 @@ model_types:
 
 routing_configs:
   sdxl:
-    service_address: https://api.siliconflow.cn
-    route: /supernode/bizyair-sdxl-comfy-ksampler
+    route: /supernode/bizyair-sdxl-comfy-ksampler-v2
   kolors:
-    service_address: https://api.siliconflow.cn
     route: /supernode/kolors-bizyair-sdxl-comfy-ksampler
   flux-dev:
-    service_address:  https://api.siliconflow.cn
     route: /supernode/flux-dev-bizyair-comfy-ksampler-speedup
   flux-schnell:
-    service_address:  https://api.siliconflow.cn
     route: /supernode/flux-bizyair-sdxl-comfy-ksampler
   ultimatesdupscale:
-    service_address: https://api.siliconflow.cn
     route: /supernode/bizyair-ultimate-sd-upscale-ksampler
 
 routing_rules:

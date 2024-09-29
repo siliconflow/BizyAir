@@ -3,6 +3,9 @@ import os
 import uuid
 
 import torch
+from bizyair.common.env_var import BIZYAIR_SERVER_ADDRESS
+from bizyair.image_utils import decode_data, encode_data
+
 import numpy as np
 from PIL import Image
 from bizyair.image_utils import decode_data, encode_data, encode_image_to_base64,decode_base64_to_np
@@ -14,9 +17,6 @@ from .utils import (
     serialize_and_encode,
 )
 
-BIZYAIR_SERVER_ADDRESS = os.getenv(
-    "BIZYAIR_SERVER_ADDRESS", "https://api.siliconflow.cn"
-)
 
 class SuperResolution:
     API_URL = f"{BIZYAIR_SERVER_ADDRESS}/supernode/superresolution"

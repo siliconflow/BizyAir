@@ -32,11 +32,11 @@ def convert_image_to_rgb(image: Image.Image) -> Image.Image:
 
 
 def encode_image_to_base64(
-    image: Image.Image, format: str = "png", quality: int = 100
+    image: Image.Image, format: str = "png", quality: int = 100, lossless=False
 ) -> str:
     image = convert_image_to_rgb(image)
     with io.BytesIO() as output:
-        image.save(output, format=format, quality=quality)
+        image.save(output, format=format, quality=quality, lossless=lossless)
         output.seek(0)
         img_bytes = output.getvalue()
         if BIZYAIR_DEBUG:
@@ -105,7 +105,7 @@ def _legacy_decode_comfy_image(
     return output
 
 
-def _new_encode_comfy_image(images: torch.Tensor, image_format="WEBP") -> str:
+def _new_encode_comfy_image(images: torch.Tensor, image_format="WEBP", **kwargs) -> str:
     """https://docs.comfy.org/essentials/custom_node_snippets#save-an-image-batch
     Encode a batch of images to base64 strings.
 
@@ -120,7 +120,7 @@ def _new_encode_comfy_image(images: torch.Tensor, image_format="WEBP") -> str:
     for batch_number, image in enumerate(images):
         i = 255.0 * image.cpu().numpy()
         img = Image.fromarray(np.clip(i, 0, 255).astype(np.uint8))
-        base64ed_image = encode_image_to_base64(img, format=image_format)
+        base64ed_image = encode_image_to_base64(img, format=image_format, **kwargs)
         results[batch_number] = base64ed_image
 
     return json.dumps(results)
@@ -149,11 +149,11 @@ def _new_decode_comfy_image(img_datas: str, image_format="WEBP") -> torch.tensor
 
 
 def encode_comfy_image(
-    image: torch.Tensor, image_format="WEBP", old_version=False
+    image: torch.Tensor, image_format="WEBP", old_version=False, lossless=False
 ) -> str:
     if old_version:
         return _legacy_encode_comfy_image(image, image_format)
-    return _new_encode_comfy_image(image, image_format)
+    return _new_encode_comfy_image(image, image_format, lossless=lossless)
 
 
 def decode_comfy_image(
@@ -268,8 +268,9 @@ def is_image_tensor(tensor) -> bool:
 def _(output, **kwargs):
     if is_image_tensor(output) and not kwargs.get("disable_image_marker", False):
         old_version = kwargs.get("old_version", False)
+        lossless = kwargs.get("lossless", False)
         return IMAGE_MARKER + encode_comfy_image(
-            output, image_format="WEBP", old_version=old_version
+            output, image_format="WEBP", old_version=old_version, lossless=lossless
         )
     return TENSOR_MARKER + tensor_to_base64(output)
 

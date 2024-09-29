@@ -38,9 +38,7 @@ app.registerExtension({
 
             const onExecuted = nodeType.prototype.onExecuted;
             nodeType.prototype.onExecuted = function (message) {
-                // message is the ui_obj return by python backend {"ui": ui_obj, "result": result_obj}
                 onExecuted?.apply(this, arguments);
-                // python backend return {"ui": {"text": text}, ...}, so message has the attribute text
                 populate.call(this, message.text);
             };
         }

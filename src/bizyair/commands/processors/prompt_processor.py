@@ -3,7 +3,7 @@ from collections import deque
 from typing import Any, Dict, List
 
 from bizyair.common import client
-from bizyair.common.env_var import BIZYAIR_DEBUG
+from bizyair.common.env_var import BIZYAIR_DEBUG, BIZYAIR_DEV_REQUEST_URL
 from bizyair.path_utils import (
     convert_prompt_label_path_to_real_path,
     guess_url_from_node,
@@ -34,6 +34,9 @@ class NodeUsageState:
 
 class SearchServiceRouter(Processor):
     def process(self, prompt: Dict[str, Dict[str, Any]], last_node_ids: List[str]):
+        if BIZYAIR_DEV_REQUEST_URL:
+            return BIZYAIR_DEV_REQUEST_URL
+
         # TODO Improve distribution logic
         queue = deque(last_node_ids)
         visited = {key: True for key in last_node_ids}

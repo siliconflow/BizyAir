@@ -3,15 +3,13 @@ import os
 import numpy as np
 import torch
 
+from bizyair.common.env_var import BIZYAIR_SERVER_ADDRESS
+
 from .utils import (
     decode_and_deserialize,
     get_api_key,
     send_post_request,
     serialize_and_encode,
-)
-
-BIZYAIR_SERVER_ADDRESS = os.getenv(
-    "BIZYAIR_SERVER_ADDRESS", "https://api.siliconflow.cn"
 )
 
 # Sync with theoritical limit from Comfy base
