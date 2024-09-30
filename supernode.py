@@ -2,13 +2,17 @@ import json
 import os
 import uuid
 
-import torch
-from bizyair.common.env_var import BIZYAIR_SERVER_ADDRESS
-from bizyair.image_utils import decode_data, encode_data
-
 import numpy as np
+import torch
 from PIL import Image
-from bizyair.image_utils import decode_data, encode_data, encode_image_to_base64,decode_base64_to_np
+
+from bizyair.common.env_var import BIZYAIR_SERVER_ADDRESS
+from bizyair.image_utils import (
+    decode_base64_to_np,
+    decode_data,
+    encode_data,
+    encode_image_to_base64,
+)
 
 from .utils import (
     decode_and_deserialize,
@@ -16,6 +20,7 @@ from .utils import (
     send_post_request,
     serialize_and_encode,
 )
+
 
 class SuperResolution:
     API_URL = f"{BIZYAIR_SERVER_ADDRESS}/supernode/superresolution"
@@ -255,18 +260,14 @@ class BizyAirSegmentAnythingText:
             "required": {
                 "image": ("IMAGE",),
                 "prompt": ("STRING", {}),
-                "box_threshold": ("FLOAT", {
-                    "default": 0.3,
-                    "min": 0,
-                    "max": 1.0,
-                    "step": 0.01
-                }),
-                "text_threshold": ("FLOAT", {
-                    "default": 0.3,
-                    "min": 0,
-                    "max": 1.0,
-                    "step": 0.01
-                }),
+                "box_threshold": (
+                    "FLOAT",
+                    {"default": 0.3, "min": 0, "max": 1.0, "step": 0.01},
+                ),
+                "text_threshold": (
+                    "FLOAT",
+                    {"default": 0.3, "min": 0, "max": 1.0, "step": 0.01},
+                ),
             }
         }
 
@@ -286,13 +287,13 @@ class BizyAirSegmentAnythingText:
         ), f"width and height must be less than {SIZE_LIMIT}x{SIZE_LIMIT}, but got {w} and {h}"
 
         payload = {
-            "image": None, 
-            "mode": 1,          #文本分割模式
+            "image": None,
+            "mode": 1,  # 文本分割模式
             "params": {
                 "prompt": prompt,
                 "box_threshold": box_threshold,
-                "text_threshold": text_threshold            
-            }    
+                "text_threshold": text_threshold,
+            },
         }
         auth = f"Bearer {API_KEY}"
         headers = {
@@ -318,19 +319,18 @@ class BizyAirSegmentAnythingText:
             raise Exception(ret["message"])
 
         msg = ret["data"]
-        if msg["type"] not in (
-            "bizyair",
-        ):
+        if msg["type"] not in ("bizyair",):
             raise Exception(f"Unexpected response type: {msg}")
-        
+
         if "error" in msg:
             raise Exception(f"Error happens: {msg}")
 
         img = msg["image"]
-        
-        img = (torch.from_numpy(decode_base64_to_np(img)).float()/255.0).unsqueeze(0)
+
+        img = (torch.from_numpy(decode_base64_to_np(img)).float() / 255.0).unsqueeze(0)
 
         return (img,)
+
 
 NODE_CLASS_MAPPINGS = {
     "BizyAirSuperResolution": SuperResolution,
