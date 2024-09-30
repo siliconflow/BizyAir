@@ -271,8 +271,7 @@ class BizyAirSegmentAnythingText:
             }
         }
 
-    # RETURN_TYPES = ("IMAGE", "MASK")
-    RETURN_TYPES = ("IMAGE",)
+    RETURN_TYPES = ("IMAGE", "MASK")
     FUNCTION = "text_sam"
 
     CATEGORY = "☁️BizyAir/segment-anything"
@@ -280,7 +279,7 @@ class BizyAirSegmentAnythingText:
     def text_sam(self, image, prompt, box_threshold, text_threshold):
         API_KEY = get_api_key()
         SIZE_LIMIT = 1536
-        # device = image.device
+        device = image.device
         _, w, h, c = image.shape
         assert (
             w <= SIZE_LIMIT and h <= SIZE_LIMIT
@@ -326,10 +325,19 @@ class BizyAirSegmentAnythingText:
             raise Exception(f"Error happens: {msg}")
 
         img = msg["image"]
+        mask_image = msg["mask_image"]
 
-        img = (torch.from_numpy(decode_base64_to_np(img)).float() / 255.0).unsqueeze(0)
-
-        return (img,)
+        img = (
+            (torch.from_numpy(decode_base64_to_np(img)).float() / 255.0)
+            .unsqueeze(0)
+            .to(device)
+        )
+        img_mask = (
+            torch.from_numpy(decode_base64_to_np(mask_image)).float() / 255.0
+        ).to(device)
+        img_mask = img_mask.mean(dim=-1)
+        img_mask = img_mask.unsqueeze(0)
+        return (img, img_mask)
 
 
 NODE_CLASS_MAPPINGS = {
