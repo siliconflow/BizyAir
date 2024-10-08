@@ -346,7 +346,7 @@ class ModelHostServer:
             print("BizyAir: Make model visible successfully")
             return OKResponse(None)
 
-        @prompt_server.routes.get(f"/{API_PREFIX}/user/info")
+        @prompt_server.routes.get(f"/bizyair/user/info")
         async def user_info(request):
             info, err = await self.user_info()
             if err is not None:
