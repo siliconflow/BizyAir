@@ -373,22 +373,9 @@ input.cm-input-item-error{
     background-color: var(--comfy-input-bg);
     border-radius: 50%;
     margin-top: 5px;
-    position: relative;
+    display: block;
 }
-.bizyair-form-qa-hint{
-    position: absolute;
-    background-color: var(--comfy-input-bg);
-    border: 1px solid var(--border-color);
-    padding: 5px 10px;
-    border-radius: 8px;
-    color: var(--input-text);
-    right: 0;
-    line-height: 30px;
-    top: -40px;
-    white-space: nowrap;
-    font-size: 18px;
-    font-weight: bold;
-}
+
 .upload-size-hint{
     position: absolute;
     left: 104px;

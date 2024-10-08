@@ -2,6 +2,7 @@ import { $el } from "../../../scripts/ui.js";
 import { check_model_exists, model_types, check_folder, submit_upload } from "../apis.js"
 import { dialog } from '../subassembly/dialog.js';
 import { subscribe, unsubscribe } from '../subassembly/subscribers.js'
+import { tooltip } from  '../subassembly/tooltip.js'
 
 export const uploadWithInputPage = async () => {
     const Q = (selector) => document.querySelector(selector);
@@ -21,14 +22,10 @@ export const uploadWithInputPage = async () => {
                 }, [
                     ...elOptions
                 ]),
-                $el("i.bizyair-form-qa", {
-                    onmouseover: function () {
-                        temp.showQA(this, 'Model types.')
-                    },
-                    onmouseout: function () {
-                        temp.hideQA(this)
-                    }
-                }, ['?']),
+                tooltip({
+                    tips: 'Model types.',
+                    content: $el("i.bizyair-form-qa", {}, ['?'])
+                })
             ]),
             $el("div.bizyair-form-item", {}, [
                 $el("span.bizyair-form-label", {}, ['Name']),
@@ -40,14 +37,10 @@ export const uploadWithInputPage = async () => {
                         this.className = this.className.replace(/cm-input-item-error/g, '')
                     }
                 }),
-                $el("i.bizyair-form-qa", {
-                    onmouseover: function () {
-                        temp.showQA(this, 'Remote folder name of the model')
-                    },
-                    onmouseout: function () {
-                        temp.hideQA(this)
-                    }
-                }, ['?']),
+                tooltip({
+                    tips: 'Remote folder name of the model',
+                    content: $el("i.bizyair-form-qa", {}, ['?'])
+                })
             ]),
             $el("div.bizyair-form-item", {}, [
                 $el("span.bizyair-form-label", {}, ['Local Path']),
@@ -60,14 +53,10 @@ export const uploadWithInputPage = async () => {
                         temp.onFileMultiChange(e)
                     }
                 }),
-                $el("i.bizyair-form-qa", {
-                    onmouseover: function () {
-                        temp.showQA(this, 'Please specify the ABSOLUTE PATH of the directory to be uploaded.')
-                    },
-                    onmouseout: function () {
-                        temp.hideQA(this)
-                    }
-                }, ['?']),
+                tooltip({
+                    tips: 'Please specify the ABSOLUTE PATH of the directory to be uploaded.',
+                    content: $el("i.bizyair-form-qa", {}, ['?'])
+                })
             ]),
             $el("br", {}, []),
             $el('ul.bizyair-file-list', {}, []),
@@ -77,14 +66,6 @@ export const uploadWithInputPage = async () => {
             }, ["Please do not close this dialog box or perform any other operations while the file is uploading."]),
         ]
         ),
-        showQA(ele, text) {
-            $el('span.bizyair-form-qa-hint', {
-                parent: ele,
-            }, [text])
-        },
-        hideQA(ele) {
-            ele.querySelector('.bizyair-form-qa-hint').remove()
-        },
         queryExists() {
             const type = Q('select.cm-input-item').value
             const name = Q('input.cm-input-item').value
