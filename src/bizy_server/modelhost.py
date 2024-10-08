@@ -346,6 +346,14 @@ class ModelHostServer:
             print("BizyAir: Make model visible successfully")
             return OKResponse(None)
 
+        @prompt_server.routes.get(f"/{API_PREFIX}/user/info")
+        async def user_info(request):
+            info, err = await self.user_info()
+            if err is not None:
+                return ErrResponse(err)
+
+            return OKResponse(info)
+
     def get_html_content(self, filename: str):
         html_file_path = Path(current_path) / filename
         with open(html_file_path, "r", encoding="utf-8") as htmlfile:
@@ -580,22 +588,22 @@ class ModelHostServer:
         models = ret["data"]["models"]
         return models, None
 
-    async def valid_user(self) -> (bool, ErrorNo):
+    async def user_info(self) -> (dict, ErrorNo):
         headers, err = self.auth_header()
         if err is not None:
             return None, err
 
-        server_url = f"https://api.siliconflow.cn/v1/user/info"
+        server_url = f"{BIZYAIR_SERVER_ADDRESS}/user/info"
         try:
             resp = self.do_get(server_url, headers=headers)
             ret = json.loads(resp)
             if ret["code"] != CODE_OK:
                 if ret["code"] == 401:
-                    return False, None
+                    return None, INVALID_API_KEY_ERR
                 else:
                     return None, ErrorNo(500, ret["code"], None, ret["message"])
 
-            return True, None
+            return ret["data"], None
         except Exception as e:
             print(f"fail to get user info: {str(e)}")
             return None, GET_USER_INFO_ERR
