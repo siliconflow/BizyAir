@@ -12,12 +12,14 @@ export const modelList = async () => {
     const getData = async () => {
         const elItemBody = document.querySelector('#bizyair-model-list-item-body')
         return models_files({type, public: isPublic}).then(res => {
-            if (res.code == 20000) {
+            if (res.code === 20000) {
                 elItemBody.innerHTML = ''
                 const elData = elDataItem(res.data)
-                elData.length && elData.forEach(ele => {
-                    elItemBody.appendChild(ele)
-                });
+                if (elData.length) {
+                    for (const ele of elData) {
+                        elItemBody.appendChild(ele)
+                    }
+                }
             }
         })
     }
@@ -45,7 +47,7 @@ export const modelList = async () => {
                     type,
                     name,
                 }).then(res => {
-                    if (res.code == 20000) {
+                    if (res.code === 20000) {
                         ele.closest('.bizyair-model-list-item').remove()
                     }
                 })
@@ -60,7 +62,7 @@ export const modelList = async () => {
                 name: data.name,
                 public: publicStatus
             }).then(res => {
-                if (res.code == 20000) {
+                if (res.code === 20000) {
                     ele.closest('.bizyair-model-list-item').remove()
                 }
             })
@@ -73,7 +75,7 @@ export const modelList = async () => {
             });
             return
         }
-        if (data.list[0] && data.list[0].public) {
+        if (data.list[0]?.public) {
             dialog({
                 content: "Are you sure you want to cancel this?",
                 yesText: "Yes",
@@ -89,8 +91,8 @@ export const modelList = async () => {
     }
 
     const handleItemLis = (ele) => {
-        ele.className = ele.className == 'bizyair-icon-fold' ? 'bizyair-icon-fold unfold' : 'bizyair-icon-fold';
-        ele.closest('.bizyair-model-list-item').querySelector('.bizyair-model-list-item-lis').style.display = ele.closest('.bizyair-model-list-item').querySelector('.bizyair-model-list-item-lis').style.display == 'none' ? 'block' : 'none'
+        ele.className = ele.className === 'bizyair-icon-fold' ? 'bizyair-icon-fold unfold' : 'bizyair-icon-fold';
+        ele.closest('.bizyair-model-list-item').querySelector('.bizyair-model-list-item-lis').style.display = ele.closest('.bizyair-model-list-item').querySelector('.bizyair-model-list-item-lis').style.display === 'none' ? 'block' : 'none'
     }
 
     const elOptions = typeList.map(item => $el("option", { value: item.value }, [item.label]));
@@ -155,7 +157,7 @@ export const modelList = async () => {
                         type: 'radio',
                         name: 'isPublic',
                         value: 'false',
-                        checked: isPublic == 'false',
+                        checked: isPublic === 'false',
                         onchange: (e) => changePublic(e)
                     }),
                     'No'
@@ -184,7 +186,7 @@ export const modelList = async () => {
     ]);
     const fnMessage = (data) => {
         const res = JSON.parse(data.data);
-        if (res && res.type == "synced") {
+        if (res && res.type === "synced") {
             getData();
         }
     }
