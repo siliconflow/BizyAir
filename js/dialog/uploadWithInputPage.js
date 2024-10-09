@@ -74,9 +74,9 @@ export const uploadWithInputPage = async () => {
                     if (data.data.exists) {
                         this.confirmExists()
                     } else {
-                        QAll('.spinner-container').forEach(e => {
+                        for (const e of QAll('.spinner-container')) {
                             e.innerHTML = `<span class="spinner"></span>`
-                        })
+                        }
                         this.todoUpload()
                     }
                 }

@@ -2,6 +2,7 @@ import { dialog } from '../subassembly/dialog.js';
 import { $el } from "../../../scripts/ui.js";
 import { delModels, models_files, model_types, change_public } from "../apis.js"
 import { subscribe, unsubscribe } from '../subassembly/subscribers.js'
+import { tooltip } from  '../subassembly/tooltip.js'
 
 export const modelList = async () => {
     let isPublic = 'false';
@@ -36,6 +37,20 @@ export const modelList = async () => {
             $el('div.bizyair-flex-item-avaulable', {}, [' '])
         ]))
     }
+    const showDetails = (e, ele) => {
+        console.log(e, ele)
+        dialog({
+            title: "Details",
+            content: $el('div.bizyair-model-details', {}, [
+                $el('div.bizyair-model-details-item', {}, [
+                    $el('div.bizyair-model-details-item-label', {}, ['Name']),
+                    $el('div.bizyair-model-details-item-value', {}, [e])
+                ]),
+            ]),
+            noText: "Close",
+        })
+    }
+
     const del = (name, ele) => {
         dialog({
             title: "This operation cannot be undone.",
@@ -55,6 +70,7 @@ export const modelList = async () => {
             }
         })
     }
+
     const share = (data, ele) => {
         const changePublic = (publicStatus) => {
             change_public({
@@ -107,18 +123,34 @@ export const modelList = async () => {
                 $el('span.bizyair-model-list-content', {}, [
                     $el('span', {}, [e.name]),
                     $el('span.bizyair-model-handle', {}, [
-                        (isPublic !== 'true' ?
-                            $el('span.bizyair-icon-delete', {
+                        tooltip({
+                            tips: 'Details',
+                            content: $el('span.bizyair-icon-operate.bizyair-icon-more', {
                                 onclick: function() {
-                                    del(e.name, this)
+                                    showDetails(e, this)
                                 }
-                            }) : ''
-                        ),
-                        $el(`span.bizyair-icon-share${isPublic === 'true' ? '.bizyair-icon-unshared' : ''}`, {
-                            onclick: function() {
-                                share(e, this)
-                            }
+                            })
                         }),
+                        (isPublic !== 'true' ?
+                            tooltip({
+                                tips: 'Delete',
+                                content: $el('span.bizyair-icon-operate.bizyair-icon-delete', {
+                                    onclick: function() {
+                                        del(e.name, this)
+                                    }
+                                })
+                            })
+                            : ''
+                        ),
+                        tooltip({
+                            tips: isPublic === 'true' ? 'Cancel sharing' : 'Share',
+                            content: $el(`span.bizyair-icon-operate.bizyair-icon-share${isPublic === 'true' ? '.bizyair-icon-unshared' : ''}`, {
+                                onclick: function() {
+                                    share(e, this)
+                                }
+                            })
+                        }),
+
                     ]),
                 ]),
             ]),

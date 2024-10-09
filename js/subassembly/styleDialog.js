@@ -155,4 +155,29 @@ export const styleDialog = `
     font-size: 18px;
     font-weight: bold;
 }
+.bizyair-drawer{
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.6);
+}
+.bizyair-icon-close{
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    width: 24px;
+    height: 24px;
+}
+.bizyair-drawer-content{
+    position: absolute;
+    top: 0;
+    transform: scale(1);
+    padding: 20px;
+    min-width: 400px;
+    height: 100vh;
+    overflow-y: auto;
+    background-color: var(--comfy-input-bg);
+}
 `

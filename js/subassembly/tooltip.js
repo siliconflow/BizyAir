@@ -2,14 +2,14 @@ import { $el } from "../../../scripts/ui.js";
 
 
 function generateUUID() {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-        var r = window.crypto.getRandomValues(new Uint8Array(1))[0] % 16 | (c === 'x' ? 0 : 8);
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+        const r = window.crypto.getRandomValues(new Uint8Array(1))[0] % 16 | (c === 'x' ? 0 : 8);
         return r.toString(16);
     });
 }
 export function tooltip(params) {
-    const id = 'bizyair-tooltip' + generateUUID();
-    const style = {}
+    const id = `bizyair-tooltip${generateUUID()}`;
+    const style = {};
     let iTime = null;
     const showTips = (e) => {
         clearTimeout(iTime);
