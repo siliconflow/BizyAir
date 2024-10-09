@@ -20,11 +20,15 @@
 
 BizyAir is a collection of [ComfyUI](https://github.com/comfyanonymous/ComfyUI) nodes that help you overcome environmental and hardware limitations, allowing you to more easily generate high-quality content with ComfyUI.
 
-![](./docs/docs/getting-started/imgs/run-bizyair-examples.gif)
+![](./docs/docs/getting-started/imgs/remove-the-background.gif)
 
-BizyAir nodes are capable of operating in conjunction with local nodes. For example, the workflow below shows the use of BizyAir for ChatGLM3 text encoding and VAE decoding, while employing a local KSampler.
+![](./docs/docs/getting-started/imgs/recreate-existing-image.gif)
 
- ![](./docs/docs/getting-started/imgs/run-with-local-nodes.gif)
+![](./docs/docs/getting-started/imgs/text-guided-segment-anything.gif)
+
+BizyAir now supports many models and nodes.
+
+![](./docs/docs/getting-started/imgs/models-and-nodes.gif)
 
 ## Table of Contents
 
@@ -44,6 +48,7 @@ Please see the [Quick Start](https://siliconflow.github.io/BizyAir/getting-start
 
 Make sure to **set your API KEY** for the **first time** use!
 
+![](./docs/docs/getting-started/imgs/how-to-set-key.gif)
 
 ## Installation
 
