@@ -54,6 +54,9 @@ from .errno import (
     UPLOAD_ERR,
     NO_SHARE_ID_ERR,
     UPDATE_SHATE_ID_ERR,
+    GET_DESCRIPTION_ERR,
+    UPDATE_DESCRIPTION_ERR,
+    INVALID_DESCRIPTION,
     ErrorNo,
 )
 from .execution import UploadQueue
@@ -368,6 +371,56 @@ class BizyAirServer:
 
             return OKResponse(ret)
 
+        @prompt_server.routes.get(f"/{MODEL_HOST_API}/models/description")
+        async def description(request):
+            err = self.check_type(request.rel_url.query)
+            if err is not None:
+                return err
+
+            err = self.check_str_param(request.rel_url.query, "name", INVALID_NAME)
+            if err is not None:
+                return err
+
+            payload = {
+                "type": request.rel_url.query["type"],
+                "name": request.rel_url.query["name"]
+            }
+
+            if "share_id" in request.rel_url.query:
+                payload["share_id"] = request.rel_url.query["share_id"]
+
+            get_desc, err = await self.get_description(payload)
+            if err is not None:
+                return ErrResponse(err)
+            return OKResponse(get_desc)
+
+        @prompt_server.routes.put(f"/{MODEL_HOST_API}/models/description")
+        async def change_description(request):
+            json_data = await request.json()
+
+            err = self.check_type(json_data)
+            if err is not None:
+                return err
+
+            err = self.check_str_param(json_data, "name", INVALID_NAME)
+            if err is not None:
+                return err
+
+            err = self.check_str_param(json_data, "description", INVALID_DESCRIPTION)
+            if err is not None:
+                return err
+
+            payload = {
+                "type": json_data["type"],
+                "name": json_data["name"],
+                "description": json_data["description"],
+            }
+
+            desc, err = await self.update_description(payload)
+            if err is not None:
+                return ErrResponse(err)
+            return OKResponse(desc)
+
     def get_html_content(self, filename: str):
         html_file_path = Path(current_path) / filename
         with open(html_file_path, "r", encoding="utf-8") as htmlfile:
@@ -637,12 +690,49 @@ class BizyAirServer:
             if ret["code"] != CODE_OK:
                 return None, ErrorNo(500, ret["code"], None, ret["message"])
 
-            if not ret["data"]:
-                return [], None
-
+            return {}, None
         except Exception as e:
             print(f"fail to update share_id: {str(e)}")
             return None, UPDATE_SHATE_ID_ERR
+
+    async def get_description(self, payload) -> (dict, ErrorNo):
+        headers, err = self.auth_header()
+        if err is not None:
+            return None, err
+
+        server_url = f"{BIZYAIR_SERVER_ADDRESS}/models/get_description"
+        try:
+            resp = self.do_get(server_url, params=payload, headers=headers)
+
+            ret = json.loads(resp)
+            if ret["code"] != CODE_OK:
+                return None, ErrorNo(500, ret["code"], None, ret["message"])
+
+            if not ret["data"]:
+                return {}, None
+
+            return ret["data"], None
+        except Exception as e:
+            print(f"fail to get description: {str(e)}")
+            return None, GET_DESCRIPTION_ERR
+
+    async def update_description(self, payload) -> (dict, ErrorNo):
+        headers, err = self.auth_header()
+        if err is not None:
+            return None, err
+
+        server_url = f"{BIZYAIR_SERVER_ADDRESS}/models/update_description"
+        try:
+            resp = self.do_put(server_url, data=payload, headers=headers)
+
+            ret = json.loads(resp)
+            if ret["code"] != CODE_OK:
+                return None, ErrorNo(500, ret["code"], None, ret["message"])
+
+            return {}, None
+        except Exception as e:
+            print(f"fail to get description: {str(e)}")
+            return None, UPDATE_DESCRIPTION_ERR
 
     def is_string_valid(self, s):
         # 检查s是否已经被定义（即不是None）且不是空字符串
