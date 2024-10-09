@@ -36,7 +36,6 @@ from .errno import (
     EMPTY_FILES_ERR,
     EMPTY_UPLOAD_ID_ERR,
     FILE_NOT_EXISTS_ERR,
-    FILE_UPLOAD_SIZE_LIMIT_ERR,
     GET_USER_INFO_ERR,
     INVALID_API_KEY_ERR,
     INVALID_CLIENT_ID_ERR,
@@ -49,11 +48,12 @@ from .errno import (
     LIST_SHARE_MODEL_FILE_ERR,
     MODEL_ALREADY_EXISTS_ERR,
     NO_ABS_PATH_ERR,
-    NO_FILE_UPLOAD_ERR,
     NO_PUBLIC_FLAG_ERR,
     PATH_NOT_EXISTS_ERR,
     SIGN_FILE_ERR,
     UPLOAD_ERR,
+    NO_SHARE_ID_ERR,
+    UPDATE_SHATE_ID_ERR,
     ErrorNo,
 )
 from .execution import UploadQueue
@@ -71,7 +71,9 @@ BIZYAIR_SERVER_ADDRESS = os.getenv(
     "BIZYAIR_SERVER_ADDRESS", "https://bizyair-api.siliconflow.cn/x/v1"
 )
 
-API_PREFIX = "bizyair/modelhost"
+API_PREFIX = "bizyair"
+MODEL_HOST_API = f"{API_PREFIX}/modelhost"
+USER_API = f"{API_PREFIX}/user"
 
 CACHE = UploadCache()
 logging.basicConfig(level=logging.DEBUG)
@@ -83,9 +85,9 @@ TYPE_OPTIONS = {
 ALLOW_TYPES = list(TYPE_OPTIONS.values())
 
 
-class ModelHostServer:
+class BizyAirServer:
     def __init__(self):
-        ModelHostServer.instance = self
+        BizyAirServer.instance = self
         list_model_html = self.get_html_content("templates/list_model.html")
         upload_model_html = self.get_html_content("templates/upload_model.html")
         self.sockets = dict()
@@ -94,17 +96,17 @@ class ModelHostServer:
         self.loop = asyncio.get_event_loop()
         self.upload_progresses_updated_at = dict()
 
-        @prompt_server.routes.get(f"/{API_PREFIX}/list")
+        @prompt_server.routes.get(f"/{MODEL_HOST_API}/list")
         async def forward_list_model_html(request):
             return aiohttp.web.Response(text=list_model_html, content_type="text/html")
 
-        @prompt_server.routes.get(f"/{API_PREFIX}/upload")
+        @prompt_server.routes.get(f"/{MODEL_HOST_API}/upload")
         async def forward_upload_model_html(request):
             return aiohttp.web.Response(
                 text=upload_model_html, content_type="text/html"
             )
 
-        @prompt_server.routes.get(f"/{API_PREFIX}/model_types")
+        @prompt_server.routes.get(f"/{MODEL_HOST_API}/model_types")
         async def list_model_types(request):
             types = []
             for k, v in TYPE_OPTIONS.items():
@@ -112,7 +114,7 @@ class ModelHostServer:
 
             return OKResponse(types)
 
-        @prompt_server.routes.post(f"/{API_PREFIX}/check_model_exists")
+        @prompt_server.routes.post(f"/{MODEL_HOST_API}/check_model_exists")
         async def check_model_exists(request):
             json_data = await request.json()
             err = self.check_type(json_data)
@@ -131,7 +133,7 @@ class ModelHostServer:
 
             return OKResponse({"exists": exists})
 
-        @prompt_server.routes.get(f"/{API_PREFIX}/ws")
+        @prompt_server.routes.get(f"/{MODEL_HOST_API}/ws")
         async def websocket_handler(request):
             ws = aiohttp.web.WebSocketResponse()
             await ws.prepare(request)
@@ -162,7 +164,7 @@ class ModelHostServer:
                 self.sockets.pop(sid, None)
             return ws
 
-        @prompt_server.routes.get(f"/{API_PREFIX}/check_folder")
+        @prompt_server.routes.get(f"/{MODEL_HOST_API}/check_folder")
         async def check_folder(request):
             absolute_path = request.rel_url.query.get("absolute_path")
 
@@ -202,7 +204,7 @@ class ModelHostServer:
 
             return OKResponse(data)
 
-        @prompt_server.routes.post(f"/{API_PREFIX}/submit_upload")
+        @prompt_server.routes.post(f"/{MODEL_HOST_API}/submit_upload")
         async def submit_upload(request):
             sid = request.rel_url.query.get("clientId", "")
             if not self.is_string_valid(sid):
@@ -248,7 +250,7 @@ class ModelHostServer:
             bizyair.path_utils.path_manager.enable_refresh_options("loras")
             return OKResponse(None)
 
-        @prompt_server.routes.get(f"/{API_PREFIX}/models/files")
+        @prompt_server.routes.get(f"/{MODEL_HOST_API}/models/files")
         async def list_model_files(request):
             err = self.check_type(request.rel_url.query)
             if err is not None:
@@ -271,7 +273,7 @@ class ModelHostServer:
                 return ErrResponse(err)
             return OKResponse(model_files)
 
-        @prompt_server.routes.get(f"/{API_PREFIX}" + "/{shareId}/models/files")
+        @prompt_server.routes.get(f"/{MODEL_HOST_API}" + "/{shareId}/models/files")
         async def list_share_model_files(request):
             shareId = request.match_info["shareId"]
 
@@ -299,7 +301,7 @@ class ModelHostServer:
 
             return OKResponse(model_files)
 
-        @prompt_server.routes.delete(f"/{API_PREFIX}/models")
+        @prompt_server.routes.delete(f"/{MODEL_HOST_API}/models")
         async def delete_model(request):
             json_data = await request.json()
 
@@ -320,7 +322,7 @@ class ModelHostServer:
             print("BizyAir: Delete successfully")
             return OKResponse(None)
 
-        @prompt_server.routes.put(f"/{API_PREFIX}/models/change_public")
+        @prompt_server.routes.put(f"/{MODEL_HOST_API}/models/change_public")
         async def change_model_public(request):
             json_data = await request.json()
 
@@ -346,13 +348,25 @@ class ModelHostServer:
             print("BizyAir: Make model visible successfully")
             return OKResponse(None)
 
-        @prompt_server.routes.get(f"/bizyair/user/info")
+        @prompt_server.routes.get(f"/{USER_API}/info")
         async def user_info(request):
             info, err = await self.user_info()
             if err is not None:
                 return ErrResponse(err)
 
             return OKResponse(info)
+
+        @prompt_server.routes.put(f"/{USER_API}/share_id")
+        async def update_share_id(request):
+            json_data = await request.json()
+            if "share_id" not in json_data:
+                return ErrResponse(NO_SHARE_ID_ERR)
+
+            ret, err = await self.update_share_id(share_id=json_data["share_id"])
+            if err is not None:
+                return ErrResponse(err)
+
+            return OKResponse(ret)
 
     def get_html_content(self, filename: str):
         html_file_path = Path(current_path) / filename
@@ -607,6 +621,28 @@ class ModelHostServer:
         except Exception as e:
             print(f"fail to get user info: {str(e)}")
             return None, GET_USER_INFO_ERR
+
+    async def update_share_id(self, share_id) -> (dict, ErrorNo):
+        headers, err = self.auth_header()
+        if err is not None:
+            return None, err
+
+        server_url = f"{BIZYAIR_SERVER_ADDRESS}/user/update_share_id"
+        try:
+            resp = self.do_put(server_url, data={
+                "share_id": share_id
+            }, headers=headers)
+
+            ret = json.loads(resp)
+            if ret["code"] != CODE_OK:
+                return None, ErrorNo(500, ret["code"], None, ret["message"])
+
+            if not ret["data"]:
+                return [], None
+
+        except Exception as e:
+            print(f"fail to update share_id: {str(e)}")
+            return None, UPDATE_SHATE_ID_ERR
 
     def is_string_valid(self, s):
         # 检查s是否已经被定义（即不是None）且不是空字符串
