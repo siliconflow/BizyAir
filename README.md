@@ -44,7 +44,6 @@ Please see the [Quick Start](https://siliconflow.github.io/BizyAir/getting-start
 
 Make sure to **set your API KEY** for the **first time** use!
 
-![](./docs/docs/getting-started/imgs/how-to-set-key.gif)
 
 ## Installation
 
