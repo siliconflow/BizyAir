@@ -119,9 +119,20 @@ class BizyAirBaseNode:
         return str(self._assigned_id)
 
     def default_function(self, **kwargs):
+        class_type = self._determine_class_type()
+        node_ios = self._process_non_send_request_types(class_type, kwargs)
+        # TODO: add processing for send_request_types
+        return node_ios
+
+    def _determine_class_type(self):
         class_type = type(self).__name__
+        if class_type.startswith(f"{PREFIX}_"):
+            class_type = class_type[len(PREFIX) + 1 :]
+        return class_type
+
+    def _process_non_send_request_types(self, class_type, kwargs):
         outs = []
-        for slot_index in range(len(self.RETURN_TYPES)):
+        for slot_index, _ in enumerate(self.RETURN_TYPES):
             node = BizyAirNodeIO(node_id=self.assigned_id, nodes={})
             node.add_node_data(
                 class_type=class_type, inputs=kwargs, outputs={"slot_index": slot_index}
