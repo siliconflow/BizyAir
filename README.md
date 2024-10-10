@@ -43,7 +43,7 @@ Run ComfyUI anywhere, anytime, without worrying about the environment or hardwar
 
 Please see the [Quick Start](https://siliconflow.github.io/BizyAir/getting-started/quick-start.html) page to set up BizyAir.
 
-Make sure to **set your API KEY** for the **first time** use!
+Make sure to **set your API KEY** for the **first time** use! You can click on the "click to login" link for a quick setup.
 
 ![](./docs/docs/getting-started/imgs/how-to-set-key.gif)
 
