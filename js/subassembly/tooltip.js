@@ -9,7 +9,6 @@ function generateUUID() {
 }
 export function tooltip(params) {
     const id = `bizyair-tooltip${generateUUID()}`;
-    const style = {};
     let iTime = null;
     const showTips = (e) => {
         clearTimeout(iTime);
@@ -25,9 +24,9 @@ export function tooltip(params) {
         }, 300)
     }
 
-    return $el("span.bizyair-tooltip", {
+    return $el(`span.bizyair-tooltip${params.class ? `.${params.class}` : ''}`, {
         id,
-        style: { zIndex: 10000 + document.querySelectorAll('.bizyair-tooltip').length, ...style }
+        style: { zIndex: 10000 + document.querySelectorAll('.bizyair-tooltip').length, ...params.style }
     }, [
         $el('span.bizyair-tooltip-content', {
             style: { display: 'none' },

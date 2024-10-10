@@ -16,4 +16,7 @@ export const styleMyInfo = `
     justify-content: space-between;
     align-items: center;
 }
+.margin-left-10 {
+    margin-left: 10px;
+}
 `

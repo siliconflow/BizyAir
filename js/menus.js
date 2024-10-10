@@ -113,7 +113,8 @@ app.registerExtension({
             parent: document.head,
         });
         const info = await getUserInfo()
-        userMenu = info?.data ? myInfoBtn(info.data) : apiKeyBtn
+        sessionStorage.setItem('userInfo', JSON.stringify(info.data))
+        userMenu = info?.data ? myInfoBtn() : apiKeyBtn
         new FloatingButton();
 
         const wsClient = new WebSocketClient(`ws://${location.host}/bizyair/modelhost/ws?clientId=${sessionStorage.getItem('clientId')}`);

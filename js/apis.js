@@ -6,7 +6,8 @@ function customFetch(url, options = {}) {
     const now = Date.now();
     if (fetchCache.has(url)) {
         const lastFetchTime = fetchCache.get(url);
-        if (now - lastFetchTime < 1200) {
+        console.log(fetchCache, now, lastFetchTime)
+        if (now - lastFetchTime < 600) {
             console.log(`请求过于频繁，忽略请求：${url}`);
             dialog({
                 content: "The request is too frequent.",
@@ -118,4 +119,24 @@ export function delModels ( data ) {
 
 export function getUserInfo () {
     return customFetch('/bizyair/user/info', { method: 'get' })
+}
+
+export function putShareId (data) {
+    return customFetch('/bizyair/user/share_id', {
+        method: 'put',
+        body: JSON.stringify(data)
+    })
+}
+
+export function getDescription (data) {
+    return customFetch(`/bizyair/modelhost/models/description?${new URLSearchParams(data).toString()}`, {
+        method: 'get'
+    })
+}
+
+export function putDescription (data) {
+    return customFetch('/bizyair/modelhost/models/description', {
+        method: 'put',
+        body: JSON.stringify(data)
+    })
 }

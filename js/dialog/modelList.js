@@ -1,6 +1,6 @@
 import { dialog } from '../subassembly/dialog.js';
 import { $el } from "../../../scripts/ui.js";
-import { delModels, models_files, model_types, change_public } from "../apis.js"
+import { delModels, models_files, model_types, change_public, getDescription, putDescription } from "../apis.js"
 import { subscribe, unsubscribe } from '../subassembly/subscribers.js'
 import { tooltip } from  '../subassembly/tooltip.js'
 
@@ -37,15 +37,128 @@ export const modelList = async () => {
             $el('div.bizyair-flex-item-avaulable', {}, [' '])
         ]))
     }
-    const showDetails = (e, ele) => {
+    const saveDescription = async (e) => {
+        const description = document.querySelector('textarea.bizyair-model-details-item-value').value
+        const res = await putDescription({
+            type,
+            name: e.name,
+            description
+        })
+        if (res) {
+            document.querySelector('#description-textarea').style.display = 'none'
+            document.querySelector('#description-save').style.display = 'none'
+            document.querySelector('#description-word').style.display = 'block'
+            document.querySelector('#description-edit').style.display = 'block'
+            document.querySelector('#description-word').innerHTML = description
+        }
+    }
+    const detailsItem = (label, value) => {
+        return $el('div.bizyair-model-details-item', {}, [
+            $el('div.bizyair-model-details-item-label', {}, [label]),
+            $el('div.bizyair-model-details-item-value', {}, [value])
+        ])
+    }
+    const showDetails = async (e, ele) => {
         console.log(e, ele)
+        let descriptionParam = {
+            name: e.name,
+            type
+        }
+        if (isPublic === 'true') {
+            descriptionParam = {
+                name: e.name,
+                type,
+                share_id: JSON.parse(sessionStorage.getItem('userInfo')).share_id
+            }
+        }
+        const res = await getDescription(descriptionParam)
+        console.log(res)
+        // putDescription
         dialog({
             title: "Details",
             content: $el('div.bizyair-model-details', {}, [
-                $el('div.bizyair-model-details-item', {}, [
-                    $el('div.bizyair-model-details-item-label', {}, ['Name']),
-                    $el('div.bizyair-model-details-item-value', {}, [e])
-                ]),
+                detailsItem('Name', e.name),
+                detailsItem('isPublic', isPublic === 'true' ? 'Yes' : 'No'),
+                detailsItem('Number of files', e.list.length),
+                (
+                    isPublic === 'true' ?
+                    detailsItem('Share ID', JSON.parse(sessionStorage.getItem('userInfo')).share_id)
+                    : ''
+                ),
+                detailsItem('Description', $el('div.bizyair-model-details-item-value-description', {}, [
+                    $el('div.bizyair-model-details-item-value', {
+                        style: {
+                            display: 'block'
+                        },
+                        id: 'description-word'
+                    }, [res.data.description ? res.data.description : 'No description']),
+                    $el('textarea.bizyair-model-details-item-value', {
+                        style: {
+                            display: 'none'
+                        },
+                        rows: 6,
+                        id: 'description-textarea'
+                    }, [res.data.description ? res.data.description : '']),
+                    $el('span.bizyair-icon-operate.bizyair-icon-edit', {
+                        id: 'description-edit',
+                        onclick: () => {
+                            document.querySelector('#description-textarea').style.display = 'block'
+                            document.querySelector('#description-word').style.display = 'none'
+                            document.querySelector('#description-edit').style.display = 'none'
+                            document.querySelector('#description-save').style.display = 'block'
+                            document.querySelector('#description-textarea').focus()
+                        }
+                    }, [])
+                ])),
+                detailsItem(' ', $el('button.bizyair-model-details-item-button', {
+                    style: {
+                        display: 'none'
+                    },
+                    id: 'description-save',
+                    onclick: () => saveDescription(e)
+                }, ['Save'])),
+
+
+                // $el('div.bizyair-model-details-item', {}, [
+                //     $el('div.bizyair-model-details-item-label', {}, ['Name']),
+                //     $el('div.bizyair-model-details-item-value', {}, [e.name])
+                // ]),
+                // $el('div.bizyair-model-details-item', {}, [
+                //     $el('div.bizyair-model-details-item-label', {}, ['isPublic']),
+                //     $el('div.bizyair-model-details-item-value', {}, [isPublic === 'true' ? 'Yes' : 'No'])
+                // ]),
+                // $el('div.bizyair-model-details-item', {}, [
+                //     $el('div.bizyair-model-details-item-label', {}, ['Number of files']),
+                //     $el('div.bizyair-model-details-item-value', {}, [e.list.length])
+                // ]),
+                // $el('div.bizyair-model-details-item', {
+                //     style: {
+                //         display: isPublic === 'true' ? 'block' : 'none'
+                //     }
+                // }, [
+                //     $el('div.bizyair-model-details-item-label', {}, ['Share ID']),
+                //     $el('div.bizyair-model-details-item-value', {}, [JSON.parse(sessionStorage.getItem('userInfo')).share_id])
+                // ]),
+
+                // $el('div.bizyair-model-details-item', {}, [
+                //     $el('div.bizyair-model-details-item-label', {}, ['Description']),
+                //     $el('div.bizyair-model-details-item-value', {
+                //         style: {
+                //             display: 'none'
+                //         }
+                //     }, [`${res.data.description ? res.data.description : 'No description'}`]),
+                //     $el('textarea.bizyair-model-details-item-value', {
+                //         style: {
+                //             display: 'block'
+                //         }
+                //     }, [`${res.data.description ? res.data.description : 'No description'}`]),
+
+                // ]),
+                // $el('div.bizyair-model-details-item', {}, [
+                //     $el('button.bizyair-model-details-item-button', {
+                //         onclick: () => saveDescription(e)
+                //     }, ['Save'])
+                // ])
             ]),
             noText: "Close",
         })
