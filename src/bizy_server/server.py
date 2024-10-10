@@ -98,7 +98,7 @@ class BizyAirServer:
             if err is not None:
                 return ErrResponse(err)
 
-            return OKResponse({"exists": exists})
+            return OKResponse(exists)
 
         @self.prompt_server.routes.get(f"/{MODEL_HOST_API}/ws")
         async def websocket_handler(request):
