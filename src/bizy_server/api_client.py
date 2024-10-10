@@ -84,7 +84,7 @@ class APIClient:
             return True, None
 
         except Exception as e:
-            print(f"fail to check model: {str(e)}")
+            print(f"\033[31m[BizyAir]\033[0m Fail to check model: {str(e)}")
             return None, CHECK_MODEL_EXISTS_ERR
 
     async def sign(self, signature: str) -> (dict, ErrorNo):
@@ -102,7 +102,7 @@ class APIClient:
             return ret["data"], None
 
         except Exception as e:
-            print(f"fail to sign model: {str(e)}")
+            print(f"\033[31m[BizyAir]\033[0m Fail to sign model: {str(e)}")
             return None, SIGN_FILE_ERR
 
     async def commit_file(self, signature: str, object_key: str) -> (dict, ErrorNo):
@@ -124,7 +124,7 @@ class APIClient:
 
             return ret["data"], None
         except Exception as e:
-            print(f"fail to commit file: {str(e)}")
+            print(f"\033[31m[BizyAir]\033[0m Fail to commit file: {str(e)}")
             return None, COMMIT_FILE_ERR
 
     async def commit_model(
@@ -150,7 +150,7 @@ class APIClient:
 
             return ret["data"], None
         except Exception as e:
-            print(f"fail to commit model: {str(e)}")
+            print(f"\033[31m[BizyAir]\033[0m Fail to commit model: {str(e)}")
             return None, COMMIT_MODEL_ERR
 
     async def remove_model(self, model_name: str, model_type: str) -> ErrorNo:
@@ -172,7 +172,7 @@ class APIClient:
 
             return None
         except Exception as e:
-            print(f"fail to remove model: {str(e)}")
+            print(f"\033[31m[BizyAir]\033[0m Fail to remove model: {str(e)}")
             return DELETE_MODEL_ERR
 
     async def change_public(
@@ -197,7 +197,7 @@ class APIClient:
 
             return None
         except Exception as e:
-            print(f"fail to change model visible: {str(e)}")
+            print(f"\033[31m[BizyAir]\033[0m Fail to change model visibility: {str(e)}")
             return CHANGE_PUBLIC_ERR
 
     async def get_model_files(self, payload) -> (dict, ErrorNo):
@@ -218,7 +218,7 @@ class APIClient:
             if not ret["data"]:
                 return [], None
         except Exception as e:
-            print(f"fail to list model files: {str(e)}")
+            print(f"\033[31m[BizyAir]\033[0m Fail to list model files: {str(e)}")
             return None, LIST_MODEL_FILE_ERR
 
         files = ret["data"]["files"]
@@ -265,7 +265,7 @@ class APIClient:
             )
             return ret[0], ret[1]
         except Exception as e:
-            print(f"fail to list share model files: {str(e)}")
+            print(f"\033[31m[BizyAir]\033[0m Fail to list share model files: {str(e)}")
             return [], LIST_SHARE_MODEL_FILE_ERR
 
     async def get_models(self, payload) -> (dict, ErrorNo):
@@ -283,7 +283,7 @@ class APIClient:
             if not ret["data"]:
                 return [], None
         except Exception as e:
-            print(f"fail to list model: {str(e)}")
+            print(f"\033[31m[BizyAir]\033[0m Fail to list model: {str(e)}")
             return None, LIST_MODEL_ERR
 
         models = ret["data"]["models"]
@@ -306,7 +306,7 @@ class APIClient:
 
             return ret["data"], None
         except Exception as e:
-            print(f"fail to get user info: {str(e)}")
+            print(f"\033[31m[BizyAir]\033[0m Fail to get user info: {str(e)}")
             return None, GET_USER_INFO_ERR
 
     async def update_share_id(self, share_id) -> (dict, ErrorNo):
@@ -326,7 +326,7 @@ class APIClient:
 
             return {}, None
         except Exception as e:
-            print(f"fail to update share_id: {str(e)}")
+            print(f"\033[31m[BizyAir]\033[0m Fail to update share_id: {str(e)}")
             return None, UPDATE_SHATE_ID_ERR
 
     async def get_description(self, payload) -> (dict, ErrorNo):
@@ -347,7 +347,7 @@ class APIClient:
 
             return ret["data"], None
         except Exception as e:
-            print(f"fail to get description: {str(e)}")
+            print(f"\033[31m[BizyAir]\033[0m Fail to get description: {str(e)}")
             return None, GET_DESCRIPTION_ERR
 
     async def update_description(self, payload) -> (dict, ErrorNo):
@@ -365,5 +365,5 @@ class APIClient:
 
             return {}, None
         except Exception as e:
-            print(f"fail to get description: {str(e)}")
+            print(f"\033[31m[BizyAir]\033[0m Fail to get description: {str(e)}")
             return None, UPDATE_DESCRIPTION_ERR

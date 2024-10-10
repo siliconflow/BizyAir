@@ -45,7 +45,6 @@ class UploadManager:
     async def do_upload(self, item):
         sid = item["sid"]
         upload_id = item["upload_id"]
-        print("do_upload: ", upload_id)
         self.server.send_sync(
             event="status",
             data={
@@ -74,7 +73,7 @@ class UploadManager:
                 return
 
             if not is_string_valid(file_record.get("id")):
-                print("start uploading file")
+                print(f"\033[94m[BizyAir]\033[0m Start uploading file: {filename}")
                 file_storage = sign_data.get("storage")
                 try:
                     self.upload_progresses_updated_at[upload_id] = 0
@@ -115,7 +114,7 @@ class UploadManager:
                         filepath, file_record.get("object_key")
                     )
                 except oss2.exceptions.OssError as e:
-                    print(f"OSS err:{str(e)}")
+                    print(f"\033[31m[BizyAir]\033[0m OSS err:{str(e)}")
                     self.server.send_sync_error(UPLOAD_ERR, sid)
                     return
 
@@ -126,7 +125,7 @@ class UploadManager:
                     self.server.send_sync_error(err)
                     return
 
-                print(f"{filename} Already Uploaded")
+                print(f"\033[32m[BizyAir]\033[0m {filename} Already Uploaded")
             self.server.send_sync(
                 event="progress",
                 data={"upload_id": upload_id, "path": filename, "progress": "100%"},
@@ -145,7 +144,7 @@ class UploadManager:
             self.server.send_sync_error(err, sid)
             return
 
-        print("Uploaded successfully")
+        print("\033[32m[BizyAir]\033[0m Uploaded successfully")
 
         self.server.send_sync(
             event="status",
