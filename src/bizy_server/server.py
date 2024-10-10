@@ -1,70 +1,37 @@
 import asyncio
-import base64
-import hashlib
-import json
 import logging
 import os
-import shutil
-import threading
-import time
-import urllib.parse
-import urllib.request
 import uuid
-from collections import defaultdict
-from pathlib import Path
 
-import aiofiles
 import aiohttp
-import crcmod
-import oss2
-import requests
 from server import PromptServer
 
 import bizyair
 import bizyair.common
 
-from .cache import UploadCache
+from .api_client import APIClient
 from .errno import (
-    CHANGE_PUBLIC_ERR,
-    CHECK_MODEL_EXISTS_ERR,
-    CODE_NO_MODEL_FOUND,
-    CODE_OK,
-    COMMIT_FILE_ERR,
-    COMMIT_MODEL_ERR,
-    DELETE_MODEL_ERR,
     EMPTY_ABS_FOLDER_ERR,
     EMPTY_FILES_ERR,
     EMPTY_UPLOAD_ID_ERR,
-    FILE_NOT_EXISTS_ERR,
-    GET_USER_INFO_ERR,
-    INVALID_API_KEY_ERR,
     INVALID_CLIENT_ID_ERR,
     INVALID_NAME,
     INVALID_SHARE_ID,
     INVALID_TYPE,
     INVALID_UPLOAD_ID_ERR,
-    LIST_MODEL_ERR,
-    LIST_MODEL_FILE_ERR,
-    LIST_SHARE_MODEL_FILE_ERR,
     MODEL_ALREADY_EXISTS_ERR,
     NO_ABS_PATH_ERR,
     NO_PUBLIC_FLAG_ERR,
     PATH_NOT_EXISTS_ERR,
-    SIGN_FILE_ERR,
-    UPLOAD_ERR,
     NO_SHARE_ID_ERR,
-    UPDATE_SHATE_ID_ERR,
-    GET_DESCRIPTION_ERR,
-    UPDATE_DESCRIPTION_ERR,
     INVALID_DESCRIPTION,
     ErrorNo,
 )
+from .error_handler import ErrorHandler
 from .execution import UploadQueue
-from .oss import AliOssStorageClient
 from .resp import ErrResponse, OKResponse
-
-current_path = os.path.abspath(os.path.dirname(__file__))
-prompt_server = PromptServer.instance
+from .upload_manager import UploadManager
+from .utils import get_html_content, check_type, check_str_param, is_string_valid, to_slash, list_types
 
 from comfy.cli_args import args
 
@@ -78,57 +45,54 @@ API_PREFIX = "bizyair"
 MODEL_HOST_API = f"{API_PREFIX}/modelhost"
 USER_API = f"{API_PREFIX}/user"
 
-CACHE = UploadCache()
 logging.basicConfig(level=logging.DEBUG)
-
-TYPE_OPTIONS = {
-    "lora": "bizyair/lora",
-    # "other": "other",
-}
-ALLOW_TYPES = list(TYPE_OPTIONS.values())
 
 
 class BizyAirServer:
     def __init__(self):
         BizyAirServer.instance = self
-        list_model_html = self.get_html_content("templates/list_model.html")
-        upload_model_html = self.get_html_content("templates/upload_model.html")
+        self.api_client = APIClient()
+        self.upload_manager = UploadManager(self)
+        self.error_handler = ErrorHandler()
+        self.prompt_server = PromptServer.instance
         self.sockets = dict()
         self.uploads = dict()
         self.upload_queue = UploadQueue()
         self.loop = asyncio.get_event_loop()
-        self.upload_progresses_updated_at = dict()
 
-        @prompt_server.routes.get(f"/{MODEL_HOST_API}/list")
+
+        self.setup_routes()
+
+    def setup_routes(self):
+        list_model_html = get_html_content("templates/list_model.html")
+        upload_model_html = get_html_content("templates/upload_model.html")
+
+        @self.prompt_server.routes.get(f"/{MODEL_HOST_API}/list")
         async def forward_list_model_html(request):
             return aiohttp.web.Response(text=list_model_html, content_type="text/html")
 
-        @prompt_server.routes.get(f"/{MODEL_HOST_API}/upload")
+        @self.prompt_server.routes.get(f"/{MODEL_HOST_API}/upload")
         async def forward_upload_model_html(request):
-            return aiohttp.web.Response(
-                text=upload_model_html, content_type="text/html"
-            )
+            return aiohttp.web.Response(text=upload_model_html, content_type="text/html")
 
-        @prompt_server.routes.get(f"/{MODEL_HOST_API}/model_types")
+        @self.prompt_server.routes.get(f"/{MODEL_HOST_API}/model_types")
         async def list_model_types(request):
-            types = []
-            for k, v in TYPE_OPTIONS.items():
-                types.append({"label": k, "value": v})
+            allow_types = list_types()
 
-            return OKResponse(types)
+            return OKResponse(allow_types)
 
-        @prompt_server.routes.post(f"/{MODEL_HOST_API}/check_model_exists")
+        @self.prompt_server.routes.post(f"/{MODEL_HOST_API}/check_model_exists")
         async def check_model_exists(request):
             json_data = await request.json()
-            err = self.check_type(json_data)
+            err = check_type(json_data)
             if err is not None:
                 return err
 
-            err = self.check_str_param(json_data, param_name="name", err=INVALID_TYPE)
+            err = check_str_param(json_data, param_name="name", err=INVALID_TYPE)
             if err is not None:
                 return err
 
-            exists, err = await self.check_model(
+            exists, err = await self.api_client.check_model(
                 name=json_data["name"], type=json_data["type"]
             )
             if err is not None:
@@ -136,7 +100,7 @@ class BizyAirServer:
 
             return OKResponse({"exists": exists})
 
-        @prompt_server.routes.get(f"/{MODEL_HOST_API}/ws")
+        @self.prompt_server.routes.get(f"/{MODEL_HOST_API}/ws")
         async def websocket_handler(request):
             ws = aiohttp.web.WebSocketResponse()
             await ws.prepare(request)
@@ -167,11 +131,11 @@ class BizyAirServer:
                 self.sockets.pop(sid, None)
             return ws
 
-        @prompt_server.routes.get(f"/{MODEL_HOST_API}/check_folder")
+        @self.prompt_server.routes.get(f"/{MODEL_HOST_API}/check_folder")
         async def check_folder(request):
             absolute_path = request.rel_url.query.get("absolute_path")
 
-            if not self.is_string_valid(absolute_path):
+            if not is_string_valid(absolute_path):
                 return ErrResponse(EMPTY_ABS_FOLDER_ERR)
 
             if not os.path.isabs(absolute_path):
@@ -191,7 +155,7 @@ class BizyAirServer:
                     relative_path = os.path.relpath(file_path, absolute_path)
                     file_size = os.path.getsize(file_path)
                     relative_paths.append(
-                        {"path": self.to_slash(relative_path), "size": file_size}
+                        {"path": to_slash(relative_path), "size": file_size}
                     )
 
             if len(relative_paths) < 1:
@@ -207,14 +171,14 @@ class BizyAirServer:
 
             return OKResponse(data)
 
-        @prompt_server.routes.post(f"/{MODEL_HOST_API}/submit_upload")
+        @self.prompt_server.routes.post(f"/{MODEL_HOST_API}/submit_upload")
         async def submit_upload(request):
             sid = request.rel_url.query.get("clientId", "")
-            if not self.is_string_valid(sid):
+            if not is_string_valid(sid):
                 return ErrResponse(INVALID_CLIENT_ID_ERR)
 
             json_data = await request.json()
-            err = self.check_str_param(json_data, "upload_id", EMPTY_UPLOAD_ID_ERR)
+            err = check_str_param(json_data, "upload_id", EMPTY_UPLOAD_ID_ERR)
             if err is not None:
                 return err
 
@@ -222,15 +186,15 @@ class BizyAirServer:
             if upload_id not in self.uploads:
                 return ErrResponse(INVALID_UPLOAD_ID_ERR)
 
-            err = self.check_type(json_data)
+            err = check_type(json_data)
             if err is not None:
                 return err
 
-            err = self.check_str_param(json_data, "name", INVALID_NAME)
+            err = check_str_param(json_data, "name", INVALID_NAME)
             if err is not None:
                 return err
 
-            exists, err = await self.check_model(
+            exists, err = await self.api_client.check_model(
                 type=json_data["type"], name=json_data["name"]
             )
             if err is not None:
@@ -253,9 +217,9 @@ class BizyAirServer:
             bizyair.path_utils.path_manager.enable_refresh_options("loras")
             return OKResponse(None)
 
-        @prompt_server.routes.get(f"/{MODEL_HOST_API}/models/files")
+        @self.prompt_server.routes.get(f"/{MODEL_HOST_API}/models/files")
         async def list_model_files(request):
-            err = self.check_type(request.rel_url.query)
+            err = check_type(request.rel_url.query)
             if err is not None:
                 return err
 
@@ -271,19 +235,19 @@ class BizyAirServer:
             if "ext_name" in request.rel_url.query:
                 payload["ext_name"] = request.rel_url.query["ext_name"]
 
-            model_files, err = await self.get_model_files(payload)
+            model_files, err = await self.api_client.get_model_files(payload)
             if err is not None:
                 return ErrResponse(err)
             return OKResponse(model_files)
 
-        @prompt_server.routes.get(f"/{MODEL_HOST_API}" + "/{shareId}/models/files")
+        @self.prompt_server.routes.get(f"/{MODEL_HOST_API}" + "/{shareId}/models/files")
         async def list_share_model_files(request):
             shareId = request.match_info["shareId"]
 
-            if not self.is_string_valid(shareId):
+            if not is_string_valid(shareId):
                 return ErrResponse(INVALID_SHARE_ID)
 
-            err = self.check_type(request.rel_url.query)
+            err = check_type(request.rel_url.query)
             if err is not None:
                 return err
 
@@ -296,7 +260,7 @@ class BizyAirServer:
 
             if "ext_name" in request.rel_url.query:
                 payload["ext_name"] = request.rel_url.query["ext_name"]
-            model_files, err = await self.get_share_model_files(
+            model_files, err = await self.api_client.get_share_model_files(
                 shareId=shareId, payload=payload
             )
             if err is not None:
@@ -304,19 +268,19 @@ class BizyAirServer:
 
             return OKResponse(model_files)
 
-        @prompt_server.routes.delete(f"/{MODEL_HOST_API}/models")
+        @self.prompt_server.routes.delete(f"/{MODEL_HOST_API}/models")
         async def delete_model(request):
             json_data = await request.json()
 
-            err = self.check_type(json_data)
+            err = check_type(json_data)
             if err is not None:
                 return err
 
-            err = self.check_str_param(json_data, "name", INVALID_NAME)
+            err = check_str_param(json_data, "name", INVALID_NAME)
             if err is not None:
                 return err
 
-            err = await self.remove_model(
+            err = await self.api_client.remove_model(
                 model_type=json_data["type"], model_name=json_data["name"]
             )
             if err is not None:
@@ -325,22 +289,22 @@ class BizyAirServer:
             print("BizyAir: Delete successfully")
             return OKResponse(None)
 
-        @prompt_server.routes.put(f"/{MODEL_HOST_API}/models/change_public")
+        @self.prompt_server.routes.put(f"/{MODEL_HOST_API}/models/change_public")
         async def change_model_public(request):
             json_data = await request.json()
 
-            err = self.check_type(json_data)
+            err = check_type(json_data)
             if err is not None:
                 return err
 
-            err = self.check_str_param(json_data, "name", INVALID_NAME)
+            err = check_str_param(json_data, "name", INVALID_NAME)
             if err is not None:
                 return err
 
             if "public" not in json_data:
                 return ErrResponse(NO_PUBLIC_FLAG_ERR)
 
-            err = await self.change_public(
+            err = await self.api_client.change_public(
                 model_type=json_data["type"],
                 model_name=json_data["name"],
                 public=json_data["public"],
@@ -348,36 +312,36 @@ class BizyAirServer:
             if err is not None:
                 return ErrResponse(err)
 
-            print("BizyAir: Make model visible successfully")
+            print("BizyAir: Change model visibility successfully")
             return OKResponse(None)
 
-        @prompt_server.routes.get(f"/{USER_API}/info")
+        @self.prompt_server.routes.get(f"/{USER_API}/info")
         async def user_info(request):
-            info, err = await self.user_info()
+            info, err = await self.api_client.user_info()
             if err is not None:
                 return ErrResponse(err)
 
             return OKResponse(info)
 
-        @prompt_server.routes.put(f"/{USER_API}/share_id")
+        @self.prompt_server.routes.put(f"/{USER_API}/share_id")
         async def update_share_id(request):
             json_data = await request.json()
             if "share_id" not in json_data:
                 return ErrResponse(NO_SHARE_ID_ERR)
 
-            ret, err = await self.update_share_id(share_id=json_data["share_id"])
+            ret, err = await self.api_client.update_share_id(share_id=json_data["share_id"])
             if err is not None:
                 return ErrResponse(err)
 
             return OKResponse(ret)
 
-        @prompt_server.routes.get(f"/{MODEL_HOST_API}/models/description")
+        @self.prompt_server.routes.get(f"/{MODEL_HOST_API}/models/description")
         async def description(request):
-            err = self.check_type(request.rel_url.query)
+            err = check_type(request.rel_url.query)
             if err is not None:
                 return err
 
-            err = self.check_str_param(request.rel_url.query, "name", INVALID_NAME)
+            err = check_str_param(request.rel_url.query, "name", INVALID_NAME)
             if err is not None:
                 return err
 
@@ -389,24 +353,24 @@ class BizyAirServer:
             if "share_id" in request.rel_url.query:
                 payload["share_id"] = request.rel_url.query["share_id"]
 
-            get_desc, err = await self.get_description(payload)
+            get_desc, err = await self.api_client.get_description(payload)
             if err is not None:
                 return ErrResponse(err)
             return OKResponse(get_desc)
 
-        @prompt_server.routes.put(f"/{MODEL_HOST_API}/models/description")
+        @self.prompt_server.routes.put(f"/{MODEL_HOST_API}/models/description")
         async def change_description(request):
             json_data = await request.json()
 
-            err = self.check_type(json_data)
+            err = check_type(json_data)
             if err is not None:
                 return err
 
-            err = self.check_str_param(json_data, "name", INVALID_NAME)
+            err = check_str_param(json_data, "name", INVALID_NAME)
             if err is not None:
                 return err
 
-            err = self.check_str_param(json_data, "description", INVALID_DESCRIPTION)
+            err = check_str_param(json_data, "description", INVALID_DESCRIPTION)
             if err is not None:
                 return err
 
@@ -416,430 +380,10 @@ class BizyAirServer:
                 "description": json_data["description"],
             }
 
-            desc, err = await self.update_description(payload)
+            desc, err = await self.api_client.update_description(payload)
             if err is not None:
                 return ErrResponse(err)
             return OKResponse(desc)
-
-    def get_html_content(self, filename: str):
-        html_file_path = Path(current_path) / filename
-        with open(html_file_path, "r", encoding="utf-8") as htmlfile:
-            html_content = htmlfile.read()
-        return html_content
-
-    async def check_model(self, type: str, name: str) -> (bool, ErrorNo):
-        server_url = f"{BIZYAIR_SERVER_ADDRESS}/models/check"
-
-        payload = {
-            "name": name,
-            "type": type,
-        }
-        headers, err = self.auth_header()
-        if err is not None:
-            return None, err
-
-        try:
-            resp = self.do_get(server_url, params=payload, headers=headers)
-            ret = json.loads(resp)
-            if ret["code"] != CODE_OK:
-                return None, ErrorNo(500, ret["code"], None, ret["message"])
-
-            if "exists" not in ret["data"]:
-                return False, None
-
-            return True, None
-
-        except Exception as e:
-            print(f"fail to check model: {str(e)}")
-            return None, CHECK_MODEL_EXISTS_ERR
-
-    async def sign(self, signature: str) -> (dict, ErrorNo):
-        server_url = f"{BIZYAIR_SERVER_ADDRESS}/files/{signature}"
-        headers, err = self.auth_header()
-        if err is not None:
-            return None, err
-
-        try:
-            resp = self.do_get(server_url, params=None, headers=headers)
-            ret = json.loads(resp)
-            if ret["code"] != CODE_OK:
-                return None, ErrorNo(500, ret["code"], None, ret["message"])
-
-            return ret["data"], None
-
-        except Exception as e:
-            print(f"fail to sign model: {str(e)}")
-            return None, SIGN_FILE_ERR
-
-    async def commit_file(self, signature: str, object_key: str) -> (dict, ErrorNo):
-        server_url = f"{BIZYAIR_SERVER_ADDRESS}/files"
-
-        payload = {
-            "sign": signature,
-            "object_key": object_key,
-        }
-        headers, err = self.auth_header()
-        if err is not None:
-            return None, err
-
-        try:
-            resp = self.do_post(server_url, data=payload, headers=headers)
-            ret = json.loads(resp)
-            if ret["code"] != CODE_OK:
-                return None, ErrorNo(500, ret["code"], None, ret["message"])
-
-            return ret["data"], None
-        except Exception as e:
-            print(f"fail to commit file: {str(e)}")
-            return None, COMMIT_FILE_ERR
-
-    async def commit_model(
-        self, model_files, model_name: str, model_type: str, overwrite: bool
-    ) -> (dict, ErrorNo):
-        server_url = f"{BIZYAIR_SERVER_ADDRESS}/models"
-
-        payload = {
-            "name": model_name,
-            "type": model_type,
-            "overwrite": overwrite,
-            "files": model_files,
-        }
-        headers, err = self.auth_header()
-        if err is not None:
-            return None, err
-
-        try:
-            resp = self.do_post(server_url, data=payload, headers=headers)
-            ret = json.loads(resp)
-            if ret["code"] != CODE_OK:
-                return None, ErrorNo(500, ret["code"], None, ret["message"])
-
-            return ret["data"], None
-        except Exception as e:
-            print(f"fail to commit model: {str(e)}")
-            return None, COMMIT_MODEL_ERR
-
-    async def remove_model(self, model_name: str, model_type: str) -> ErrorNo:
-        server_url = f"{BIZYAIR_SERVER_ADDRESS}/models"
-
-        payload = {
-            "name": model_name,
-            "type": model_type,
-        }
-        headers, err = self.auth_header()
-        if err is not None:
-            return err
-
-        try:
-            resp = self.do_delete(server_url, data=payload, headers=headers)
-            ret = json.loads(resp)
-            if ret["code"] != CODE_OK:
-                return ErrorNo(500, ret["code"], None, ret["message"])
-
-            return None
-        except Exception as e:
-            print(f"fail to remove model: {str(e)}")
-            return DELETE_MODEL_ERR
-
-    async def change_public(
-        self, model_name: str, model_type: str, public: bool
-    ) -> ErrorNo:
-        server_url = f"{BIZYAIR_SERVER_ADDRESS}/models/change_public"
-
-        payload = {
-            "name": model_name,
-            "type": model_type,
-            "public": public,
-        }
-        headers, err = self.auth_header()
-        if err is not None:
-            return err
-
-        try:
-            resp = self.do_put(server_url, data=payload, headers=headers)
-            ret = json.loads(resp)
-            if ret["code"] != CODE_OK:
-                return ErrorNo(500, ret["code"], None, ret["message"])
-
-            return None
-        except Exception as e:
-            print(f"fail to change model visible: {str(e)}")
-            return CHANGE_PUBLIC_ERR
-
-    async def get_model_files(self, payload) -> (dict, ErrorNo):
-        headers, err = self.auth_header()
-        if err is not None:
-            return None, err
-
-        server_url = f"{BIZYAIR_SERVER_ADDRESS}/models/files"
-        try:
-            resp = self.do_get(server_url, params=payload, headers=headers)
-            ret = json.loads(resp)
-            if ret["code"] != CODE_OK:
-                if ret["code"] == CODE_NO_MODEL_FOUND:
-                    return [], None
-                else:
-                    return None, ErrorNo(500, ret["code"], None, ret["message"])
-
-            if not ret["data"]:
-                return [], None
-        except Exception as e:
-            print(f"fail to list model files: {str(e)}")
-            return None, LIST_MODEL_FILE_ERR
-
-        files = ret["data"]["files"]
-        result = []
-        if len(files) > 0:
-            tree = defaultdict(lambda: {"name": "", "list": []})
-
-            for item in files:
-                parts = item["label_path"].split("/")
-                model_name = parts[0]
-                if model_name not in tree:
-                    tree[model_name] = {"name": model_name, "list": [item]}
-                else:
-                    tree[model_name]["list"].append(item)
-            result = list(tree.values())
-
-        return result, None
-
-    async def get_share_model_files(self, shareId, payload) -> (dict, ErrorNo):
-        server_url = f"{BIZYAIR_SERVER_ADDRESS}/{shareId}/models/files"
-        try:
-
-            def callback(ret: dict):
-                if ret["code"] != CODE_OK:
-                    if ret["code"] == CODE_NO_MODEL_FOUND:
-                        return [], None
-                    else:
-                        return [], ErrorNo(500, ret["code"], None, ret["message"])
-
-                if not ret or "data" not in ret or ret["data"] is None:
-                    return [], None
-
-                outputs = [
-                    x["label_path"] for x in ret["data"]["files"] if x["label_path"]
-                ]
-                outputs = bizyair.path_utils.filter_files_extensions(
-                    outputs,
-                    extensions=bizyair.path_utils.path_manager.supported_pt_extensions,
-                )
-                return outputs, None
-
-            ret = await bizyair.common.client.async_send_request(
-                method="GET", url=server_url, params=payload, callback=callback
-            )
-            return ret[0], ret[1]
-        except Exception as e:
-            print(f"fail to list share model files: {str(e)}")
-            return [], LIST_SHARE_MODEL_FILE_ERR
-
-    async def get_models(self, payload) -> (dict, ErrorNo):
-        headers, err = self.auth_header()
-        if err is not None:
-            return None, err
-
-        server_url = f"{BIZYAIR_SERVER_ADDRESS}/models"
-        try:
-            resp = self.do_get(server_url, params=payload, headers=headers)
-            ret = json.loads(resp)
-            if ret["code"] != CODE_OK:
-                return None, ErrorNo(500, ret["code"], None, ret["message"])
-
-            if not ret["data"]:
-                return [], None
-        except Exception as e:
-            print(f"fail to list model: {str(e)}")
-            return None, LIST_MODEL_ERR
-
-        models = ret["data"]["models"]
-        return models, None
-
-    async def user_info(self) -> (dict, ErrorNo):
-        headers, err = self.auth_header()
-        if err is not None:
-            return None, err
-
-        server_url = f"{BIZYAIR_SERVER_ADDRESS}/user/info"
-        try:
-            resp = self.do_get(server_url, headers=headers)
-            ret = json.loads(resp)
-            if ret["code"] != CODE_OK:
-                if ret["code"] == 401:
-                    return None, INVALID_API_KEY_ERR
-                else:
-                    return None, ErrorNo(500, ret["code"], None, ret["message"])
-
-            return ret["data"], None
-        except Exception as e:
-            print(f"fail to get user info: {str(e)}")
-            return None, GET_USER_INFO_ERR
-
-    async def update_share_id(self, share_id) -> (dict, ErrorNo):
-        headers, err = self.auth_header()
-        if err is not None:
-            return None, err
-
-        server_url = f"{BIZYAIR_SERVER_ADDRESS}/user/update_share_id"
-        try:
-            resp = self.do_put(server_url, data={
-                "share_id": share_id
-            }, headers=headers)
-
-            ret = json.loads(resp)
-            if ret["code"] != CODE_OK:
-                return None, ErrorNo(500, ret["code"], None, ret["message"])
-
-            return {}, None
-        except Exception as e:
-            print(f"fail to update share_id: {str(e)}")
-            return None, UPDATE_SHATE_ID_ERR
-
-    async def get_description(self, payload) -> (dict, ErrorNo):
-        headers, err = self.auth_header()
-        if err is not None:
-            return None, err
-
-        server_url = f"{BIZYAIR_SERVER_ADDRESS}/models/get_description"
-        try:
-            resp = self.do_get(server_url, params=payload, headers=headers)
-
-            ret = json.loads(resp)
-            if ret["code"] != CODE_OK:
-                return None, ErrorNo(500, ret["code"], None, ret["message"])
-
-            if not ret["data"]:
-                return {}, None
-
-            return ret["data"], None
-        except Exception as e:
-            print(f"fail to get description: {str(e)}")
-            return None, GET_DESCRIPTION_ERR
-
-    async def update_description(self, payload) -> (dict, ErrorNo):
-        headers, err = self.auth_header()
-        if err is not None:
-            return None, err
-
-        server_url = f"{BIZYAIR_SERVER_ADDRESS}/models/update_description"
-        try:
-            resp = self.do_put(server_url, data=payload, headers=headers)
-
-            ret = json.loads(resp)
-            if ret["code"] != CODE_OK:
-                return None, ErrorNo(500, ret["code"], None, ret["message"])
-
-            return {}, None
-        except Exception as e:
-            print(f"fail to get description: {str(e)}")
-            return None, UPDATE_DESCRIPTION_ERR
-
-    def is_string_valid(self, s):
-        # 检查s是否已经被定义（即不是None）且不是空字符串
-        if s is not None and s != "":
-            return True
-        else:
-            return False
-
-    def to_slash(self, path):
-        return path.replace("\\", "/")
-
-    def check_str_param(self, json_data, param_name: str, err):
-        if param_name not in json_data:
-            return ErrResponse(err)
-        if not self.is_string_valid(json_data[param_name]):
-            return ErrResponse(err)
-        return None
-
-    def check_type(self, json_data):
-        if "type" not in json_data:
-            return ErrResponse(INVALID_TYPE)
-        if (
-            not self.is_string_valid(json_data["type"])
-            or json_data["type"] not in ALLOW_TYPES
-        ):
-            return ErrResponse(INVALID_TYPE)
-        return None
-
-    def auth_header(self):
-        try:
-            api_key = bizyair.common.get_api_key()
-            auth = f"Bearer {api_key}"
-            headers = {
-                "accept": "application/json",
-                "content-type": "application/json",
-                "authorization": auth,
-            }
-            return headers, None
-        except ValueError as e:
-            error_message = e.args[0] if e.args else INVALID_API_KEY_ERR.message
-            INVALID_API_KEY_ERR.message = error_message
-            return None, INVALID_API_KEY_ERR
-
-    def do_get(self, url, params=None, headers=None):
-        # 将字典编码为URL参数字符串
-        if params:
-            query_string = urllib.parse.urlencode(params)
-            url = f"{url}?{query_string}"
-        response = requests.get(url, params=params, headers=headers, timeout=3)
-        return response.text
-
-    def do_post(self, url, data=None, headers=None):
-        # 将字典转换为字节串
-        if data:
-            data = json.dumps(data)
-
-        response = requests.post(url, data=data, headers=headers, timeout=3)
-        return response.text
-
-    def do_put(self, url, data=None, headers=None):
-        # 将字典转换为字节串
-        if data:
-            data = bytes(json.dumps(data), "utf-8")
-
-        response = requests.put(url, data=data, headers=headers, timeout=3)
-        return response.text
-
-    def do_delete(self, url, data=None, headers=None):
-        # 将字典转换为字节串
-        if data:
-            data = bytes(json.dumps(data), "utf-8")
-
-        response = requests.delete(url, data=data, headers=headers, timeout=3)
-        return response.text
-
-    async def calculate_hash(self, file_path):
-        # 读取文件并计算 CRC64
-        # 创建CRC64校验函数。
-        do_crc64 = crcmod.mkCrcFun(
-            0x142F0E1EBA9EA3693, initCrc=0, xorOut=0xFFFFFFFFFFFFFFFF, rev=True
-        )
-        crc64_signature = 0
-        buf_size = 65536 * 16  # 缓冲区大小为1MB
-
-        # 使用 aiofiles 异步读取文件计算 CRC64
-        async with aiofiles.open(file_path, "rb") as f:
-            while chunk := await f.read(buf_size):
-                crc64_signature = do_crc64(chunk, crc64_signature)
-
-        # 重新读取文件计算 MD5
-        md5_hash = hashlib.md5()
-        async with aiofiles.open(file_path, "rb") as file:
-            while chunk := await file.read(buf_size):
-                md5_hash.update(chunk)
-        md5_str = base64.b64encode(md5_hash.digest()).decode("utf-8")
-
-        # 计算 SHA256
-        hasher = hashlib.sha256()
-        hasher.update(f"{md5_str}{crc64_signature}".encode("utf-8"))
-        hash_string = hasher.hexdigest()
-
-        # 调试信息输出
-        logging.debug(
-            f"file: {file_path}, crc64: {crc64_signature}, md5: {md5_str}, sha256: {hash_string}"
-        )
-
-        return hash_string
 
     async def send_json(self, event, data, sid=None):
         message = {"type": event, "data": data}
@@ -878,157 +422,3 @@ class BizyAirServer:
             sid=sid,
         )
 
-    async def do_upload(self, item):
-        sid = item["sid"]
-        upload_id = item["upload_id"]
-        print("do_upload: ", upload_id)
-        self.send_sync(
-            event="status",
-            data={
-                "status": "starting",
-                "upload_id": upload_id,
-                "message": f"start uploading",
-            },
-            sid=sid,
-        )
-
-        root_dir = item["root"]
-        model_files = []
-        for file in item["files"]:
-            filename = file["path"]
-            filepath = os.path.abspath(os.path.join(root_dir, filename))
-            if not os.path.exists(filepath):
-                self.send_sync_error(err=FILE_NOT_EXISTS_ERR, sid=sid)
-                return
-
-            sha256sum = await self.calculate_hash(filepath)
-
-            sign_data, err = await self.sign(sha256sum)
-            file_record = sign_data.get("file")
-            if err is not None:
-                self.send_sync_error(err=err, sid=sid)
-                return
-
-            if not self.is_string_valid(file_record.get("id")):
-                print("start uploading file")
-                file_storage = sign_data.get("storage")
-                try:
-                    self.upload_progresses_updated_at[upload_id] = 0
-
-                    def updateProgress(consume_bytes, total_bytes):
-                        current_time = time.time()
-                        if (
-                            current_time - self.upload_progresses_updated_at[upload_id]
-                            >= 1
-                        ):
-                            self.upload_progresses_updated_at[upload_id] = current_time
-
-                            progress = (
-                                f"{consume_bytes / total_bytes * 100:.0f}%"
-                                if consume_bytes / total_bytes * 100
-                                == int(consume_bytes / total_bytes * 100)
-                                else "{:.2f}%".format(consume_bytes / total_bytes * 100)
-                            )
-                            self.send_sync(
-                                event="progress",
-                                data={
-                                    "upload_id": upload_id,
-                                    "path": filename,
-                                    "progress": progress,
-                                },
-                                sid=sid,
-                            )
-
-                    oss_client = AliOssStorageClient(
-                        endpoint=file_storage.get("endpoint"),
-                        bucket_name=file_storage.get("bucket"),
-                        access_key=file_record.get("access_key_id"),
-                        secret_key=file_record.get("access_key_secret"),
-                        security_token=file_record.get("security_token"),
-                        onUploading=updateProgress,
-                    )
-                    await oss_client.upload_file(
-                        filepath, file_record.get("object_key")
-                    )
-                except oss2.exceptions.OssError as e:
-                    print(f"OSS err:{str(e)}")
-                    self.send_sync_error(UPLOAD_ERR, sid)
-                    return
-
-                commit_data, err = await self.commit_file(
-                    signature=sha256sum, object_key=file_record.get("object_key")
-                )
-                if err is not None:
-                    self.send_sync_error(err)
-                    return
-
-                print(f"{filename} Already Uploaded")
-            self.send_sync(
-                event="progress",
-                data={"upload_id": upload_id, "path": filename, "progress": "100%"},
-                sid=sid,
-            )
-
-            model_files.append({"sign": sha256sum, "path": filename})
-
-        commit_ret, err = await self.commit_model(
-            model_files=model_files,
-            model_name=item["name"],
-            model_type=item["type"],
-            overwrite=True,
-        )
-        if err is not None:
-            self.send_sync_error(err, sid)
-            return
-
-        print("Uploaded successfully")
-
-        self.send_sync(
-            event="status",
-            data={
-                "status": "finish",
-                "upload_id": upload_id,
-                "message": f"uploading finished",
-            },
-            sid=sid,
-        )
-
-        def check_sync_status():
-            while True:
-                future = asyncio.run_coroutine_threadsafe(
-                    self.get_models({"type": item["type"], "available": True}),
-                    self.loop,
-                )
-
-                models, err = future.result(timeout=2)
-
-                if err is not None:
-                    self.send_sync(
-                        event="error",
-                        data={
-                            "message": err.message,
-                            "code": err.code,
-                            "data": err.data,
-                        },
-                        sid=sid,
-                    )
-                    return
-                # 遍历models, 看当前name的model是否存在
-                for model in models:
-                    if model["name"] == item["name"]:
-                        self.send_sync(
-                            event="synced",
-                            data={
-                                "model_type": item["type"],
-                                "model_name": item["name"],
-                            },
-                            sid=sid,
-                        )
-                        return
-
-                time.sleep(5)
-
-        threading.Thread(
-            target=check_sync_status,
-            daemon=True,
-        ).start()

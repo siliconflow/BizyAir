@@ -46,7 +46,7 @@ def upload_worker(server, q):
             if queue_item is not None:
                 item, item_id = queue_item
                 loop = asyncio.get_event_loop()
-                loop.run_until_complete(server.do_upload(item))
+                loop.run_until_complete(server.upload_manager.do_upload(item))
                 q.task_done(item_id)
             else:
                 continue
