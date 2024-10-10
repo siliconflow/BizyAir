@@ -421,4 +421,3 @@ class BizyAirServer:
             data={"message": err.message, "code": err.code, "data": err.data},
             sid=sid,
         )
-

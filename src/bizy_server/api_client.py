@@ -78,11 +78,7 @@ class APIClient:
             if ret["code"] != CODE_OK:
                 return None, ErrorNo(500, ret["code"], None, ret["message"])
 
-            if "exists" not in ret["data"]:
-                return False, None
-
-            return True, None
-
+            return ret["data"]
         except Exception as e:
             print(f"\033[31m[BizyAir]\033[0m Fail to check model: {str(e)}")
             return None, CHECK_MODEL_EXISTS_ERR
