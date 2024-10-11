@@ -5,7 +5,7 @@
 !!! note
     You can get your API KEY from [SiliconCloud](https://cloud.siliconflow.cn/) for free.
 
-For the first use, you need to set your API key. Click the "BizyAir Key" button to launch the key setting page and set the key.
+For the first use, you need to set your API key.  Click on the "click to login" link for a quick setup.
 
 ![](./imgs/how-to-set-key.gif)
 
