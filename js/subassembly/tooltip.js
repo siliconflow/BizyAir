@@ -10,12 +10,18 @@ function generateUUID() {
 export function tooltip(params) {
     const id = `bizyair-tooltip${generateUUID()}`;
     let iTime = null;
-    const showTips = (e) => {
+    const showTips = async (e) => {
         clearTimeout(iTime);
         const el = document.querySelector(`#${id} .bizyair-tooltip-content`);
+
+        if(params.awaitTips) {
+            el.querySelector('.await-tips').innerHTML = await params.awaitTips();
+        }
         el.style.display = 'block';
-        // el.style.left = e.clientX + 'px';
-        // el.style.top = e.clientY + 'px';
+
+        // el.style.position = 'fixed';
+        // el.style.left = `${e.clientX - e.target.offsetLeft}px`;
+        // el.style.top = `${e.clientY}px`;
     }
     const hideTips = (e) => {
         iTime = setTimeout(() => {
@@ -32,7 +38,10 @@ export function tooltip(params) {
             style: { display: 'none' },
             onmousemove: showTips,
             onmouseleave: hideTips,
-        }, [params.tips]),
+        }, [
+            params.tips || '',
+            params.awaitTips ? $el('span.await-tips', {}, []) : '',
+        ]),
         $el('span.bizyair-tooltip-arrow', {
 
             onmousemove: showTips,

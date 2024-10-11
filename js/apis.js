@@ -6,14 +6,13 @@ function customFetch(url, options = {}) {
     const now = Date.now();
     if (fetchCache.has(url)) {
         const lastFetchTime = fetchCache.get(url);
-        console.log(fetchCache, now, lastFetchTime)
-        if (now - lastFetchTime < 600) {
-            console.log(`请求过于频繁，忽略请求：${url}`);
-            dialog({
-                content: "The request is too frequent.",
-                type: 'warning',
-                noText: 'Close',
-            })
+        if (now - lastFetchTime < 1200) {
+            // console.log(`请求过于频繁，忽略请求：${url}`);
+            // dialog({
+            //     content: "The request is too frequent.",
+            //     type: 'warning',
+            //     noText: 'Close',
+            // })
             return Promise.resolve(null);
         }
     }

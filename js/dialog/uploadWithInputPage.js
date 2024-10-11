@@ -71,6 +71,14 @@ export const uploadWithInputPage = async () => {
             const name = Q('input.cm-input-item').value
             check_model_exists(type, name).then(data => {
                 if (data.code === 20000) {
+                    if (data.data.public) {
+                        dialog({
+                            type: 'warning',
+                            content: "This model has already been published and cannot be overwritten.",
+                            noText: 'Close'
+                        })
+                        return
+                    }
                     if (data.data.exists) {
                         this.confirmExists()
                     } else {
@@ -90,17 +98,18 @@ export const uploadWithInputPage = async () => {
                 yesText: "Yes",
                 noText: "No",
                 onYes: () => {
-                    QAll('.spinner-container').forEach(e => {
+
+                    for (const e of QAll('.spinner-container')) {
                         e.innerHTML = `<span class="spinner"></span>`
-                    })
+                    }
                     this.todoUpload();
                     return true
                 },
                 onNo: () => {
                     this.unDisabledInput()
-                    QAll('.spinner-container').forEach(e => {
+                    for (const e of QAll('.spinner-container')) {
                         e.innerHTML = ''
-                    })
+                    }
                 }
             })
         },
@@ -129,7 +138,7 @@ export const uploadWithInputPage = async () => {
                 elInput.className = `${elInput.className} cm-input-item-error`
                 return
             }
-            if (/^[A-Za-z0-9\u4e00-\u9fa5]([A-Za-z0-9\u4e00-\u9fa5-_]*)$/.test(elInput.value) == false) {
+            if (/^[A-Za-z0-9\u4e00-\u9fa5]([A-Za-z0-9\u4e00-\u9fa5-_]*)$/.test(elInput.value) === false) {
                 dialog({
                     type: 'warning',
                     content: "Please enter English letters, Chinese characters, numbers, or - or _.",
@@ -138,7 +147,7 @@ export const uploadWithInputPage = async () => {
                 elInput.className = `${elInput.className} cm-input-item-error`
                 return
             }
-            if (cmFileList.querySelectorAll('li').length == 0) {
+            if (cmFileList.querySelectorAll('li').length === 0) {
                 dialog({
                     type: 'warning',
                     content: "Please select files",
@@ -183,14 +192,14 @@ export const uploadWithInputPage = async () => {
             check_folder(e.target.value).then(data => {
                 this.filesAry = data.data.files
                 this.uploadId = data.data.upload_id
-                data.data.files.forEach(file => {
+                for (const file of data.data.files) {
                     Q('.bizyair-file-list').appendChild(
                         $el('li', {}, [
                             $el("span", {}, [`${file.path}`]),
                             $el("span.spinner-container", {}, []),
                         ])
                     )
-                })
+                }
             })
         },
         redraw() {
@@ -201,7 +210,7 @@ export const uploadWithInputPage = async () => {
     }
     const fnMessage = (data) => {
         const res = JSON.parse(data.data);
-        if (res.type == "progress") {
+        if (res.type === "progress") {
             const cmFileList = QAll('.bizyair-file-list li');
             const index = temp.filesAry.map(e => e.path).indexOf(res.data.path)
             if (index !== -1) {
@@ -209,8 +218,8 @@ export const uploadWithInputPage = async () => {
                 Q('.bizyair-file-list').scrollTop = cmFileList[index].offsetTop - 134;
             }
         }
-        if (res.type == "status") {
-            if (res.data.status == "finish") {
+        if (res.type === "status") {
+            if (res.data.status === "finish") {
                 Q('#bizyair-upload-submit').style.display = 'none'
                 temp.unDisabledInput()
                 Q('#tips-in-upload').style.display = 'none'

@@ -282,6 +282,14 @@ input.cm-input-item-error{
 .bizyair-model-handle{
     display: flex;
 }
+.bizyair-model-list-name{
+    flex: 1;
+    display: flex;
+    position: relative;
+}
+.bizyair-model-list-name span{
+    flex: 1;
+}
 .bizyair-icon-operate{
     width: 24px;
     height: 24px;

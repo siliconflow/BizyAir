@@ -7,6 +7,7 @@ import { tooltip } from  '../subassembly/tooltip.js'
 export const modelList = async () => {
     let isPublic = 'false';
     let type = 'bizyair/lora';
+    let iTimer = null;
     const resType = await model_types();
     const typeList = resType.data;
 
@@ -39,18 +40,11 @@ export const modelList = async () => {
     }
     const saveDescription = async (e) => {
         const description = document.querySelector('textarea.bizyair-model-details-item-value').value
-        const res = await putDescription({
+        await putDescription({
             type,
             name: e.name,
             description
         })
-        if (res) {
-            document.querySelector('#description-textarea').style.display = 'none'
-            document.querySelector('#description-save').style.display = 'none'
-            document.querySelector('#description-word').style.display = 'block'
-            document.querySelector('#description-edit').style.display = 'block'
-            document.querySelector('#description-word').innerHTML = description
-        }
     }
     const detailsItem = (label, value) => {
         return $el('div.bizyair-model-details-item', {}, [
@@ -72,7 +66,6 @@ export const modelList = async () => {
             }
         }
         const res = await getDescription(descriptionParam)
-        console.log(res)
         // putDescription
         dialog({
             title: "Details",
@@ -86,79 +79,15 @@ export const modelList = async () => {
                     : ''
                 ),
                 detailsItem('Description', $el('div.bizyair-model-details-item-value-description', {}, [
-                    $el('div.bizyair-model-details-item-value', {
-                        style: {
-                            display: 'block'
-                        },
-                        id: 'description-word'
-                    }, [res.data.description ? res.data.description : 'No description']),
                     $el('textarea.bizyair-model-details-item-value', {
-                        style: {
-                            display: 'none'
-                        },
                         rows: 6,
                         id: 'description-textarea'
-                    }, [res.data.description ? res.data.description : '']),
-                    $el('span.bizyair-icon-operate.bizyair-icon-edit', {
-                        id: 'description-edit',
-                        onclick: () => {
-                            document.querySelector('#description-textarea').style.display = 'block'
-                            document.querySelector('#description-word').style.display = 'none'
-                            document.querySelector('#description-edit').style.display = 'none'
-                            document.querySelector('#description-save').style.display = 'block'
-                            document.querySelector('#description-textarea').focus()
-                        }
-                    }, [])
+                    }, [res.data.description ? res.data.description : ''])
                 ])),
                 detailsItem(' ', $el('button.bizyair-model-details-item-button', {
-                    style: {
-                        display: 'none'
-                    },
                     id: 'description-save',
                     onclick: () => saveDescription(e)
                 }, ['Save'])),
-
-
-                // $el('div.bizyair-model-details-item', {}, [
-                //     $el('div.bizyair-model-details-item-label', {}, ['Name']),
-                //     $el('div.bizyair-model-details-item-value', {}, [e.name])
-                // ]),
-                // $el('div.bizyair-model-details-item', {}, [
-                //     $el('div.bizyair-model-details-item-label', {}, ['isPublic']),
-                //     $el('div.bizyair-model-details-item-value', {}, [isPublic === 'true' ? 'Yes' : 'No'])
-                // ]),
-                // $el('div.bizyair-model-details-item', {}, [
-                //     $el('div.bizyair-model-details-item-label', {}, ['Number of files']),
-                //     $el('div.bizyair-model-details-item-value', {}, [e.list.length])
-                // ]),
-                // $el('div.bizyair-model-details-item', {
-                //     style: {
-                //         display: isPublic === 'true' ? 'block' : 'none'
-                //     }
-                // }, [
-                //     $el('div.bizyair-model-details-item-label', {}, ['Share ID']),
-                //     $el('div.bizyair-model-details-item-value', {}, [JSON.parse(sessionStorage.getItem('userInfo')).share_id])
-                // ]),
-
-                // $el('div.bizyair-model-details-item', {}, [
-                //     $el('div.bizyair-model-details-item-label', {}, ['Description']),
-                //     $el('div.bizyair-model-details-item-value', {
-                //         style: {
-                //             display: 'none'
-                //         }
-                //     }, [`${res.data.description ? res.data.description : 'No description'}`]),
-                //     $el('textarea.bizyair-model-details-item-value', {
-                //         style: {
-                //             display: 'block'
-                //         }
-                //     }, [`${res.data.description ? res.data.description : 'No description'}`]),
-
-                // ]),
-                // $el('div.bizyair-model-details-item', {}, [
-                //     $el('button.bizyair-model-details-item-button', {
-                //         onclick: () => saveDescription(e)
-                //     }, ['Save'])
-                // ])
             ]),
             noText: "Close",
         })
@@ -224,6 +153,30 @@ export const modelList = async () => {
         ele.closest('.bizyair-model-list-item').querySelector('.bizyair-model-list-item-lis').style.display = ele.closest('.bizyair-model-list-item').querySelector('.bizyair-model-list-item-lis').style.display === 'none' ? 'block' : 'none'
     }
 
+    const handleItemMouseover = async ($event, e) => {
+        console.log($event.target, $event.target.getBoundingClientRect().left)
+        clearTimeout(iTimer)
+        if (document.querySelector('#tooltip-description')) return
+        const res = await getDescription({
+            name: e.name,
+            type
+        })
+        $el('span',{
+            id: 'tooltip-description',
+            style: {
+                position: 'absolute',
+                bottom: '-30px',
+                left: `${$event.clientX - $event.target.getBoundingClientRect().left}px`,
+            },
+            parent: $event.target
+        },[res.data.description])
+    }
+    const handleItemMouseout = (e) => {
+        iTimer = setTimeout(() => {
+            document.querySelector('#tooltip-description')?.remove()
+        }, 300)
+    }
+
     const elOptions = typeList.map(item => $el("option", { value: item.value }, [item.label]));
     const elDataItem = (list) => {
         return list.map(e => $el('div.bizyair-model-list-item', {}, [
@@ -234,7 +187,10 @@ export const modelList = async () => {
                     }
                 }, ['']),
                 $el('span.bizyair-model-list-content', {}, [
-                    $el('span', {}, [e.name]),
+                    $el('span.bizyair-model-list-name', {
+                        // onmouseover: ($event) => handleItemMouseover($event, e),
+                        // onmouseout: () => handleItemMouseout(e)
+                    }, [e.name]),
                     $el('span.bizyair-model-handle', {}, [
                         tooltip({
                             tips: 'Details',
