@@ -1,5 +1,5 @@
 # BizyAir
-
+- [2024/10/11] 🌩️ BizyAir supports PuLID for Flux. [FLUX PuLID workflow](./examples/bizyair_flux_pulid.json)
 - [2024/09/29] 🌩️ BizyAir has support to share your custom LoRAs. [Share Your LoRAs](http://bizyair.siliconflow.cn/model-host/sharemodel.html)
 - [2024/09/19] 🌩️ BizyAir has updated the model upload feature, allowing the upload process to display a progress bar, and the size of the models uploaded is no longer restricted by ComfyUI. (https://siliconflow.github.io/BizyAir/model-host/introduce.html)
 - [2024/09/06] 🌩️ BizyAir supports InstantID for SDXL now. [SDXL InstantID workflow](./examples/bizyair_sdxl_InstantID_basic.json)
@@ -20,11 +20,12 @@
 
 BizyAir is a collection of [ComfyUI](https://github.com/comfyanonymous/ComfyUI) nodes that help you overcome environmental and hardware limitations, allowing you to more easily generate high-quality content with ComfyUI.
 
-![](./docs/docs/getting-started/imgs/run-bizyair-examples.gif)
+![](./docs/docs/getting-started/imgs/text-guided-segment-anything.gif)
 
-BizyAir nodes are capable of operating in conjunction with local nodes. For example, the workflow below shows the use of BizyAir for ChatGLM3 text encoding and VAE decoding, while employing a local KSampler.
+BizyAir now supports many models and nodes.
 
- ![](./docs/docs/getting-started/imgs/run-with-local-nodes.gif)
+![](./docs/docs/getting-started/imgs/models-and-nodes.gif)
+
 
 ## Table of Contents
 
@@ -42,7 +43,7 @@ Run ComfyUI anywhere, anytime, without worrying about the environment or hardwar
 
 Please see the [Quick Start](https://siliconflow.github.io/BizyAir/getting-started/quick-start.html) page to set up BizyAir.
 
-Make sure to **set your API KEY** for the **first time** use!
+Make sure to **set your API KEY** for the **first time** use! You can click on the "click to login" link for a quick setup.
 
 ![](./docs/docs/getting-started/imgs/how-to-set-key.gif)
 
