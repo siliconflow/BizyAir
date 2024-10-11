@@ -36,13 +36,13 @@ class SearchServiceRouter(Processor):
         queue = deque(last_node_ids)
         visited = {key: True for key in last_node_ids}
         results = []
-        class_type_table = {}
+        class_type_table = {
+            node_data["class_type"]: True for node_data in prompt.values()
+        }
         while queue:
             vertex = queue.popleft()
             if BIZYAIR_DEBUG:
                 print(vertex, end="->")
-            class_type = prompt[vertex]["class_type"]
-            class_type_table[class_type] = True
 
             url = guess_url_from_node(prompt[vertex], class_type_table)
             if url:
