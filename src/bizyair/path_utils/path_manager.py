@@ -67,7 +67,7 @@ models_config: Dict[str, Dict[str, Any]] = load_yaml_config(
 
 
 def guess_url_from_node(
-    node: Dict[str, Dict[str, Any]], node_usage_state
+    node: Dict[str, Dict[str, Any]], class_type_table: Dict[str, bool]
 ) -> Union[str, None]:
     if "loader" in node["class_type"].lower():
         for attr in ("ckpt_name", "unet_name", "vae_name"):
@@ -82,10 +82,15 @@ def guess_url_from_node(
                         configs = routing_configs[config_key]
                         # TODO fix
                         if config_key == "flux-dev":
-                            if (
-                                node["inputs"]["weight_dtype"] == "fp8_e4m3fn"
-                                or node_usage_state.loras
-                            ):
+                            if class_type_table.get("ApplyPulidFlux", False):
+                                return (
+                                    configs.get(
+                                        "service_address", BIZYAIR_SERVER_ADDRESS
+                                    )
+                                    + "/supernode/bizyair-flux-dev-comfy-pulid"
+                                )
+
+                            if class_type_table.get("LoraLoader", False):
                                 node["inputs"][
                                     "weight_dtype"
                                 ] = "fp8_e4m3fn"  # set to fp8_e4m3fn for lora
