@@ -9,10 +9,10 @@
         "0": 430,
         "1": 397
       },
-      "size": {
-        "0": 400,
-        "1": 200
-      },
+      "size": [
+        413.22141513120516,
+        233.04265353118785
+      ],
       "flags": {},
       "order": 0,
       "mode": 0,
@@ -26,13 +26,15 @@
             12
           ],
           "slot_index": 0,
-          "shape": 3
+          "shape": 3,
+          "label": "IMAGE"
         },
         {
           "name": "MASK",
           "type": "MASK",
           "links": null,
-          "shape": 3
+          "shape": 3,
+          "label": "MASK"
         }
       ],
       "properties": {
@@ -40,19 +42,20 @@
       },
       "widgets_values": [
         "https://bizy-air.oss-cn-beijing.aliyuncs.com/examples_asset/bizyair-instantid-example.webp"
-      ]
+      ],
+      "shape": 1
     },
     {
       "id": 13,
       "type": "PreviewImage",
       "pos": {
-        "0": 858,
+        "0": 857,
         "1": 397
       },
-      "size": {
-        "0": 210,
-        "1": 246
-      },
+      "size": [
+        224.47041513120507,
+        235.70465353118777
+      ],
       "flags": {},
       "order": 2,
       "mode": 0,
@@ -60,25 +63,27 @@
         {
           "name": "images",
           "type": "IMAGE",
-          "link": 12
+          "link": 12,
+          "label": "images"
         }
       ],
       "outputs": [],
       "properties": {
         "Node name for S&R": "PreviewImage"
-      }
+      },
+      "shape": 1
     },
     {
       "id": 1,
       "type": "BizyAirSegmentAnythingText",
       "pos": {
-        "0": 1116,
-        "1": 417
+        "0": 1127,
+        "1": 402
       },
-      "size": {
-        "0": 315,
-        "1": 126
-      },
+      "size": [
+        320.49541513120494,
+        240.02165353118778
+      ],
       "flags": {},
       "order": 1,
       "mode": 0,
@@ -86,7 +91,8 @@
         {
           "name": "image",
           "type": "IMAGE",
-          "link": 5
+          "link": 5,
+          "label": "image"
         }
       ],
       "outputs": [
@@ -97,7 +103,8 @@
             2
           ],
           "slot_index": 0,
-          "shape": 3
+          "shape": 3,
+          "label": "IMAGE"
         },
         {
           "name": "MASK",
@@ -105,8 +112,9 @@
           "links": [
             9
           ],
+          "slot_index": 1,
           "shape": 3,
-          "slot_index": 1
+          "label": "MASK"
         }
       ],
       "properties": {
@@ -116,18 +124,47 @@
         "hat",
         0.3,
         0.2
-      ]
+      ],
+      "shape": 1
+    },
+    {
+      "id": 3,
+      "type": "PreviewImage",
+      "pos": {
+        "0": 1488,
+        "1": 386
+      },
+      "size": [
+        219.040415131205,
+        256.0216535311878
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 2,
+          "label": "images"
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "shape": 1
     },
     {
       "id": 12,
       "type": "PreviewImage",
       "pos": {
-        "0": 1835,
-        "1": 386.386474609375
+        "0": 1766,
+        "1": 389
       },
       "size": [
-        210,
-        246
+        225.06541513120465,
+        252.69765353118783
       ],
       "flags": {},
       "order": 5,
@@ -136,46 +173,22 @@
         {
           "name": "images",
           "type": "IMAGE",
-          "link": 10
+          "link": 10,
+          "label": "images"
         }
       ],
       "outputs": [],
       "properties": {
         "Node name for S&R": "PreviewImage"
-      }
-    },
-    {
-      "id": 3,
-      "type": "PreviewImage",
-      "pos": {
-        "0": 1579,
-        "1": 384.386474609375
       },
-      "size": {
-        "0": 210,
-        "1": 246
-      },
-      "flags": {},
-      "order": 3,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "images",
-          "type": "IMAGE",
-          "link": 2
-        }
-      ],
-      "outputs": [],
-      "properties": {
-        "Node name for S&R": "PreviewImage"
-      }
+      "shape": 1
     },
     {
       "id": 11,
       "type": "MaskToImage",
       "pos": {
-        "0": 1830,
-        "1": 309.386474609375
+        "0": 1611,
+        "1": 593
       },
       "size": {
         "0": 264.5999755859375,
@@ -188,7 +201,8 @@
         {
           "name": "mask",
           "type": "MASK",
-          "link": 9
+          "link": 9,
+          "label": "mask"
         }
       ],
       "outputs": [
@@ -198,13 +212,15 @@
           "links": [
             10
           ],
+          "slot_index": 0,
           "shape": 3,
-          "slot_index": 0
+          "label": "IMAGE"
         }
       ],
       "properties": {
         "Node name for S&R": "MaskToImage"
-      }
+      },
+      "shape": 1
     }
   ],
   "links": [
@@ -251,14 +267,14 @@
   ],
   "groups": [
     {
-      "title": "根据文本抠图",
+      "title": "抠图结果",
       "bounding": [
-        1114,
-        309,
-        356,
-        339
+        1466,
+        314,
+        552,
+        343
       ],
-      "color": "#A88",
+      "color": "#b58b2a",
       "font_size": 24,
       "flags": {}
     },
@@ -267,22 +283,22 @@
       "bounding": [
         421,
         314,
-        677,
-        334
+        684,
+        343
       ],
       "color": "#3f789e",
       "font_size": 24,
       "flags": {}
     },
     {
-      "title": "抠图结果",
+      "title": "根据文本抠图",
       "bounding": [
-        1490,
-        308,
-        642,
-        341
+        1108,
+        315,
+        355,
+        342
       ],
-      "color": "#b58b2a",
+      "color": "#A88",
       "font_size": 24,
       "flags": {}
     }
