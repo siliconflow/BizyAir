@@ -1,0 +1,239 @@
+{
+  "last_node_id": 41,
+  "last_link_id": 53,
+  "nodes": [
+    {
+      "id": 38,
+      "type": "BizyAirGenerateLightningImage",
+      "pos": {
+        "0": 825.1817626953125,
+        "1": 153
+      },
+      "size": [
+        408.72265625,
+        221.52081298828125
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            51,
+            52
+          ],
+          "slot_index": 0,
+          "shape": 3,
+          "label": "IMAGE"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAirGenerateLightningImage"
+      },
+      "widgets_values": [
+        "a dog",
+        1038091115073926,
+        "fixed",
+        1024,
+        1024,
+        1.5,
+        1
+      ],
+      "shape": 1
+    },
+    {
+      "id": 36,
+      "type": "BizyAirRemoveBackground",
+      "pos": {
+        "0": 827.1817626953125,
+        "1": 420
+      },
+      "size": [
+        406.72265625,
+        81.52081298828125
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 51,
+          "label": "image"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            53
+          ],
+          "slot_index": 0,
+          "shape": 3,
+          "label": "IMAGE"
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null,
+          "shape": 3,
+          "label": "MASK"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAirRemoveBackground"
+      },
+      "shape": 1
+    },
+    {
+      "id": 39,
+      "type": "PreviewImage",
+      "pos": {
+        "0": 1269,
+        "1": 158
+      },
+      "size": [
+        226.72265625,
+        344.52081298828125
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 52,
+          "label": "images"
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "shape": 1
+    },
+    {
+      "id": 40,
+      "type": "PreviewImage",
+      "pos": {
+        "0": 1513,
+        "1": 160
+      },
+      "size": [
+        213.72265625,
+        340.52081298828125
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 53,
+          "slot_index": 0,
+          "label": "images"
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "shape": 1
+    },
+    {
+      "id": 41,
+      "type": "Note",
+      "pos": {
+        "0": 814,
+        "1": 10
+      },
+      "size": [
+        929.72265625,
+        63.52081298828125
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {
+        "text": ""
+      },
+      "widgets_values": [
+        "这个例子中，先使用 BizyAir Generate Photorealistic Image 节点生成了一张图片，然后使用 BizyAir Remove Image Background 节点将该图片的背景抠除掉。\n\n你可以对比地看到抠除背景前后的两张图片。 "
+      ],
+      "color": "#432",
+      "bgcolor": "#653"
+    }
+  ],
+  "links": [
+    [
+      51,
+      38,
+      0,
+      36,
+      0,
+      "IMAGE"
+    ],
+    [
+      52,
+      38,
+      0,
+      39,
+      0,
+      "IMAGE"
+    ],
+    [
+      53,
+      36,
+      0,
+      40,
+      0,
+      "IMAGE"
+    ]
+  ],
+  "groups": [
+    {
+      "title": "预览图",
+      "bounding": [
+        1250,
+        80,
+        495,
+        441
+      ],
+      "color": "#8A8",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "title": "模型",
+      "bounding": [
+        813,
+        80,
+        433,
+        441
+      ],
+      "color": "#3f789e",
+      "font_size": 24,
+      "flags": {}
+    }
+  ],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 1.1,
+      "offset": [
+        -612.0226562500001,
+        207.5791870117185
+      ]
+    }
+  },
+  "version": 0.4
+}
