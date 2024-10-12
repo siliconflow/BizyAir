@@ -4,6 +4,7 @@ import { tooltip } from  '../subassembly/tooltip.js'
 import { getUserInfo, putShareId } from '../apis.js'
 import { apiKey } from "./apiKey.js";
 import { toast } from '../subassembly/toast.js';
+import { subscribe } from "../subassembly/subscribers.js";
 
 const getSelector = selector => {
     const element = document.querySelector(selector);
@@ -43,6 +44,7 @@ export async function myInfoDialog() {
         getSelector('.bizyair-tooltip-save').css({ display: 'none' })
         getSelector('.bizyair-tooltip-edit').css({ display: 'block' })
         getSelector('#bizyair-myinfo-share-id').text(getSelector('#bizyair-myinfo-share-id-edit').value)
+        toast('Save successfully')
     }
     const copyText = text => {
         console.log(text)
@@ -69,18 +71,14 @@ export async function myInfoDialog() {
             $el('div.bizyair-myinfo-primary', {}, [
                 $el('div.bizyair-myinfo-primary-box', {}, [
                     'Api Key:',
-                    $el('span.bizyair-myinfo-password.margin-left-10', {}, [`${info.api_key}`]),
+                    $el('span.bizyair-myinfo-password.margin-left-10', {
+                        id: 'bizyair-myinfo-password'
+                    }, [`${info.api_key}`]),
                     $el('div.bizyair-myinfo-operate', {}, [
                         tooltip({
                             tips: 'Edit',
                             content: $el('span.bizyair-icon-operate.bizyair-icon-edit', {
                                 onclick: apiKey
-                            })
-                        }),
-                        tooltip({
-                            tips: 'Copy',
-                            content: $el('span.bizyair-icon-operate.bizyair-icon-copy', {
-                                onclick: () => copyText(info.api_key)
                             })
                         })
                     ]),
@@ -123,7 +121,7 @@ export async function myInfoDialog() {
                     }),
                 ]),
                 $el('div.bizyair-myinfo-operate', {}, [
-                    tooltip({
+                    (Date.now() - new Date(info.last_share_id_update_at) > 1000 * 60 * 60 * 24 * 365 ? tooltip({
                         class: 'bizyair-tooltip-edit',
                         style: {
                             display: 'block'
@@ -132,13 +130,13 @@ export async function myInfoDialog() {
                         content: $el('span.bizyair-icon-operate.bizyair-icon-edit', {
                             onclick: editShareId
                         })
-                    }),
+                    }): ''),
                     tooltip({
                         class: 'bizyair-tooltip-save',
                         style: {
                             display: 'none'
                         },
-                        tips: 'Edit',
+                        tips: 'Save',
                         content: $el('span.bizyair-icon-operate.bizyair-icon-save', {
                             onclick: saveShareId
                         })
@@ -158,4 +156,7 @@ export async function myInfoDialog() {
         direction: 'right',
         width: '600px'
     });
+    subscribe('loginRefresh', e => {
+        getSelector('#bizyair-myinfo-password').text(e)
+    })
 }

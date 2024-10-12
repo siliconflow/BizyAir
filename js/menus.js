@@ -10,7 +10,7 @@ import { styleMenus } from "./subassembly/styleMenus.js";
 import { styleUploadFile } from "./subassembly/styleUploadFile.js";
 import { styleDialog } from './subassembly/styleDialog.js';
 import { styleMyInfo } from './subassembly/styleMyInfo.js';
-import { notifySubscribers } from './subassembly/subscribers.js'
+import { notifySubscribers, subscribe } from './subassembly/subscribers.js'
 import { WebSocketClient } from './subassembly/socket.js'
 import { toast } from './subassembly/toast.js'
 import { getUserInfo } from './apis.js'
@@ -112,10 +112,13 @@ app.registerExtension({
             textContent: styleMyInfo,
             parent: document.head,
         });
-        const info = await getUserInfo()
-        sessionStorage.setItem('userInfo', JSON.stringify(info.data))
-        userMenu = info?.data ? myInfoBtn() : apiKeyBtn
-        new FloatingButton();
+        getUserInfo().then(info => {
+            sessionStorage.setItem('userInfo', JSON.stringify(info.data))
+            userMenu = info?.data ? myInfoBtn() : apiKeyBtn
+            new FloatingButton();
+        }).catch(() => {
+            new FloatingButton();
+        })
 
         const wsClient = new WebSocketClient(`ws://${location.host}/bizyair/modelhost/ws?clientId=${sessionStorage.getItem('clientId')}`);
         wsClient.onMessage = message => {
@@ -125,5 +128,15 @@ app.registerExtension({
                 toast.error(res.data.message)
             }
         }
+        subscribe('loginRefresh', () => {
+            document.querySelector('.comfy-floating-button').remove()
+            getUserInfo().then(info => {
+                sessionStorage.setItem('userInfo', JSON.stringify(info.data))
+                userMenu = info?.data ? myInfoBtn() : apiKeyBtn
+                new FloatingButton();
+            }).catch(() => {
+                new FloatingButton();
+            })
+        })
     },
 });

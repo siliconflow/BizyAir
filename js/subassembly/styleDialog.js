@@ -76,7 +76,7 @@ export const styleDialog = `
     right: 0;
     padding: 10px 0;
     border-radius: 8px 0 0 8px;
-    z-index: 10000;
+    z-index: 100000;
     display: flex;
     align-items: center;
     min-width: 240px;

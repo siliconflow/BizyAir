@@ -3,11 +3,11 @@ import { $el } from "../../../scripts/ui.js";
 import { delModels, models_files, model_types, change_public, getDescription, putDescription } from "../apis.js"
 import { subscribe, unsubscribe } from '../subassembly/subscribers.js'
 import { tooltip } from  '../subassembly/tooltip.js'
+import { toast } from '../subassembly/toast.js'
 
 export const modelList = async () => {
     let isPublic = 'false';
     let type = 'bizyair/lora';
-    let iTimer = null;
     const resType = await model_types();
     const typeList = resType.data;
 
@@ -45,6 +45,7 @@ export const modelList = async () => {
             name: e.name,
             description
         })
+        toast('Save successfully')
     }
     const detailsItem = (label, value) => {
         return $el('div.bizyair-model-details-item', {}, [
@@ -122,6 +123,7 @@ export const modelList = async () => {
             }).then(res => {
                 if (res.code === 20000) {
                     ele.closest('.bizyair-model-list-item').remove()
+                    toast('Share successfully')
                 }
             })
         }
@@ -151,30 +153,6 @@ export const modelList = async () => {
     const handleItemLis = (ele) => {
         ele.className = ele.className === 'bizyair-icon-fold' ? 'bizyair-icon-fold unfold' : 'bizyair-icon-fold';
         ele.closest('.bizyair-model-list-item').querySelector('.bizyair-model-list-item-lis').style.display = ele.closest('.bizyair-model-list-item').querySelector('.bizyair-model-list-item-lis').style.display === 'none' ? 'block' : 'none'
-    }
-
-    const handleItemMouseover = async ($event, e) => {
-        console.log($event.target, $event.target.getBoundingClientRect().left)
-        clearTimeout(iTimer)
-        if (document.querySelector('#tooltip-description')) return
-        const res = await getDescription({
-            name: e.name,
-            type
-        })
-        $el('span',{
-            id: 'tooltip-description',
-            style: {
-                position: 'absolute',
-                bottom: '-30px',
-                left: `${$event.clientX - $event.target.getBoundingClientRect().left}px`,
-            },
-            parent: $event.target
-        },[res.data.description])
-    }
-    const handleItemMouseout = (e) => {
-        iTimer = setTimeout(() => {
-            document.querySelector('#tooltip-description')?.remove()
-        }, 300)
     }
 
     const elOptions = typeList.map(item => $el("option", { value: item.value }, [item.label]));
