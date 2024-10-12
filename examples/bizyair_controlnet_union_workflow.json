@@ -5,14 +5,14 @@
     {
       "id": 62,
       "type": "PreviewImage",
-      "pos": [
-        427,
-        865
-      ],
-      "size": {
-        "0": 385.400390625,
-        "1": 315.51861572265625
+      "pos": {
+        "0": 396,
+        "1": 830
       },
+      "size": [
+        423.78031225381415,
+        316.68421298171506
+      ],
       "flags": {},
       "order": 5,
       "mode": 0,
@@ -20,49 +20,27 @@
         {
           "name": "images",
           "type": "IMAGE",
-          "link": 68
+          "link": 68,
+          "label": "images"
         }
       ],
+      "outputs": [],
       "properties": {
         "Node name for S&R": "PreviewImage"
-      }
-    },
-    {
-      "id": 51,
-      "type": "PreviewImage",
-      "pos": [
-        879,
-        1018
-      ],
-      "size": {
-        "0": 801.9078369140625,
-        "1": 862.51708984375
       },
-      "flags": {},
-      "order": 6,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "images",
-          "type": "IMAGE",
-          "link": 59
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "PreviewImage"
-      }
+      "shape": 1
     },
     {
       "id": 54,
       "type": "StableDiffusionXLControlNetUnionPipeline",
-      "pos": [
-        889,
-        582
-      ],
-      "size": {
-        "0": 795.5317993164062,
-        "1": 342
+      "pos": {
+        "0": 406,
+        "1": 1251
       },
+      "size": [
+        401.8315951538142,
+        359.37631698171367
+      ],
       "flags": {},
       "order": 4,
       "mode": 0,
@@ -71,33 +49,39 @@
           "name": "openpose_image",
           "type": "IMAGE",
           "link": null,
-          "slot_index": 0
+          "slot_index": 0,
+          "label": "openpose_image"
         },
         {
           "name": "depth_image",
           "type": "IMAGE",
-          "link": 67
+          "link": 67,
+          "label": "depth_image"
         },
         {
           "name": "hed_pidi_scribble_ted_image",
           "type": "IMAGE",
-          "link": null
+          "link": null,
+          "label": "hed_pidi_scribble_ted_image"
         },
         {
           "name": "canny_lineart_anime_lineart_mlsd_image",
           "type": "IMAGE",
           "link": null,
-          "slot_index": 3
+          "slot_index": 3,
+          "label": "canny_lineart_anime_lineart_mlsd_image"
         },
         {
           "name": "normal_image",
           "type": "IMAGE",
-          "link": null
+          "link": null,
+          "label": "normal_image"
         },
         {
           "name": "segment_image",
           "type": "IMAGE",
-          "link": null
+          "link": null,
+          "label": "segment_image"
         },
         {
           "name": "prompt",
@@ -105,7 +89,8 @@
           "link": 57,
           "widget": {
             "name": "prompt"
-          }
+          },
+          "label": "prompt"
         },
         {
           "name": "negative_prompt",
@@ -113,7 +98,8 @@
           "link": null,
           "widget": {
             "name": "negative_prompt"
-          }
+          },
+          "label": "negative_prompt"
         }
       ],
       "outputs": [
@@ -123,8 +109,9 @@
           "links": [
             59
           ],
+          "slot_index": 0,
           "shape": 3,
-          "slot_index": 0
+          "label": "IMAGE"
         }
       ],
       "properties": {
@@ -140,63 +127,63 @@
         "",
         0,
         0.5
-      ]
+      ],
+      "shape": 1
     },
     {
-      "id": 61,
-      "type": "BizyAirDepthAnythingV2Preprocessor",
-      "pos": [
-        422,
-        1245
-      ],
-      "size": {
-        "0": 409.1106872558594,
-        "1": 82
+      "id": 39,
+      "type": "BizyAirSiliconCloudLLMAPI",
+      "pos": {
+        "0": 929,
+        "1": 791
       },
-      "flags": {},
-      "order": 2,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "image",
-          "type": "IMAGE",
-          "link": 69
-        }
+      "size": [
+        453.9082712538125,
+        381.017535281715
       ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
       "outputs": [
         {
-          "name": "IMAGE",
-          "type": "IMAGE",
+          "name": "STRING",
+          "type": "STRING",
           "links": [
-            67,
-            68
+            57
           ],
+          "slot_index": 0,
           "shape": 3,
-          "slot_index": 0
+          "label": "STRING"
         }
       ],
       "properties": {
-        "Node name for S&R": "BizyAirDepthAnythingV2Preprocessor"
+        "Node name for S&R": "BizyAirSiliconCloudLLMAPI"
       },
       "widgets_values": [
-        "depth_anything_v2_vitl.pth",
-        1024
-      ]
+        "(Free)GLM4 9B Chat",
+        "你是一个 stable diffusion prompt 专家，为我生成适用于 Stable Diffusion 模型的prompt。\n我给你相关的单词，你帮我扩写为适合 Stable Diffusion 文生图的 prompt。要求：\n1. 英文输出\n2. 除了 prompt 外，不要输出任何其它的信息\n",
+        "哈士奇，梵高风格",
+        510,
+        0.8200000000000001
+      ],
+      "shape": 1
     },
     {
       "id": 63,
       "type": "BizyAirGenerateLightningImage",
-      "pos": [
-        427,
-        1383
-      ],
-      "size": {
-        "0": 400,
-        "1": 219.99993896484375
+      "pos": {
+        "0": 936,
+        "1": 1254
       },
+      "size": [
+        449.01083705381234,
+        358.22246828171365
+      ],
       "flags": {},
-      "order": 0,
+      "order": 1,
       "mode": 0,
+      "inputs": [],
       "outputs": [
         {
           "name": "IMAGE",
@@ -205,8 +192,9 @@
             69,
             70
           ],
+          "slot_index": 0,
           "shape": 3,
-          "slot_index": 0
+          "label": "IMAGE"
         }
       ],
       "properties": {
@@ -220,18 +208,91 @@
         1024,
         1.5,
         1
-      ]
+      ],
+      "shape": 1
+    },
+    {
+      "id": 61,
+      "type": "BizyAirDepthAnythingV2Preprocessor",
+      "pos": {
+        "0": 1455.229736328125,
+        "1": 815.74365234375
+      },
+      "size": [
+        407.1142244256862,
+        800.5813817379637
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 69,
+          "label": "image"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            67,
+            68
+          ],
+          "slot_index": 0,
+          "shape": 3,
+          "label": "IMAGE"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAirDepthAnythingV2Preprocessor"
+      },
+      "widgets_values": [
+        "depth_anything_v2_vitl.pth",
+        1024
+      ],
+      "shape": 1
+    },
+    {
+      "id": 51,
+      "type": "PreviewImage",
+      "pos": {
+        "0": 1945,
+        "1": 800
+      },
+      "size": [
+        552.6257353538094,
+        257.0432263817154
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 59,
+          "label": "images"
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "shape": 1
     },
     {
       "id": 64,
       "type": "PreviewImage",
-      "pos": [
-        430,
-        1648
-      ],
+      "pos": {
+        "0": 1950,
+        "1": 1123
+      },
       "size": [
-        399.92510963042355,
-        330.73766556354894
+        549.5744524538095,
+        481.6327314817138
       ],
       "flags": {},
       "order": 3,
@@ -240,49 +301,15 @@
         {
           "name": "images",
           "type": "IMAGE",
-          "link": 70
+          "link": 70,
+          "label": "images"
         }
       ],
+      "outputs": [],
       "properties": {
         "Node name for S&R": "PreviewImage"
-      }
-    },
-    {
-      "id": 39,
-      "type": "BizyAirSiliconCloudLLMAPI",
-      "pos": [
-        418,
-        569
-      ],
-      "size": {
-        "0": 400,
-        "1": 248
       },
-      "flags": {},
-      "order": 1,
-      "mode": 0,
-      "outputs": [
-        {
-          "name": "STRING",
-          "type": "STRING",
-          "links": [
-            57
-          ],
-          "shape": 3,
-          "slot_index": 0
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "BizyAirSiliconCloudLLMAPI"
-      },
-      "widgets_values": [
-        "(Free)GLM4 9B Chat",
-        "你是一个 stable diffusion prompt 专家，为我生成适用于 Stable Diffusion 模型的prompt。\n我给你相关的单词，你帮我扩写为适合 Stable Diffusion 文生图的 prompt。要求：\n1. 英文输出\n2. 除了 prompt 外，不要输出任何其它的信息\n",
-        "哈士奇，梵高风格",
-        510,
-        0.8200000000000001,
-        "\nA Siberian Husky in the style of Van Gogh"
-      ]
+      "shape": 1
     }
   ],
   "links": [
@@ -335,15 +362,88 @@
       "IMAGE"
     ]
   ],
-  "groups": [],
+  "groups": [
+    {
+      "title": "预览图",
+      "bounding": [
+        1905,
+        706,
+        639,
+        945
+      ],
+      "color": "#444",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "title": "提示词",
+      "bounding": [
+        885,
+        706,
+        533,
+        945
+      ],
+      "color": "#b58b2a",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "title": "模型",
+      "bounding": [
+        361,
+        1175,
+        483,
+        459
+      ],
+      "color": "#a1309b",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "title": "模型和参考图",
+      "bounding": [
+        320,
+        705,
+        561,
+        948
+      ],
+      "color": "#3f789e",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "title": "参考图",
+      "bounding": [
+        360,
+        751,
+        485,
+        416
+      ],
+      "color": "#88A",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "title": "采样器",
+      "bounding": [
+        1422,
+        707,
+        479,
+        944
+      ],
+      "color": "#8A8",
+      "font_size": 24,
+      "flags": {}
+    }
+  ],
   "config": {},
   "extra": {
     "ds": {
-      "scale": 0.4240976183724857,
-      "offset": {
-        "0": 458.5367079463696,
-        "1": -798.2250492602803
-      }
+      "scale": 0.5131581182307082,
+      "offset": [
+        -26.652452553816453,
+        -324.32559678171725
+      ]
     }
   },
   "version": 0.4

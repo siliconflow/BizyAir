@@ -5,17 +5,18 @@
     {
       "id": 38,
       "type": "BizyAirGenerateLightningImage",
-      "pos": [
-        821,
-        197
-      ],
-      "size": {
-        "0": 398.97265625,
-        "1": 220
+      "pos": {
+        "0": 825.1817626953125,
+        "1": 153
       },
+      "size": [
+        408.72265625,
+        221.52081298828125
+      ],
       "flags": {},
       "order": 0,
       "mode": 0,
+      "inputs": [],
       "outputs": [
         {
           "name": "IMAGE",
@@ -24,8 +25,9 @@
             51,
             52
           ],
+          "slot_index": 0,
           "shape": 3,
-          "slot_index": 0
+          "label": "IMAGE"
         }
       ],
       "properties": {
@@ -39,69 +41,19 @@
         1024,
         1.5,
         1
-      ]
-    },
-    {
-      "id": 39,
-      "type": "PreviewImage",
-      "pos": [
-        1233,
-        195
       ],
-      "size": {
-        "0": 212.87109375,
-        "1": 310.46612548828125
-      },
-      "flags": {},
-      "order": 3,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "images",
-          "type": "IMAGE",
-          "link": 52
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "PreviewImage"
-      }
-    },
-    {
-      "id": 40,
-      "type": "PreviewImage",
-      "pos": [
-        1460,
-        199
-      ],
-      "size": {
-        "0": 212.87109375,
-        "1": 310.46612548828125
-      },
-      "flags": {},
-      "order": 4,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "images",
-          "type": "IMAGE",
-          "link": 53,
-          "slot_index": 0
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "PreviewImage"
-      }
+      "shape": 1
     },
     {
       "id": 36,
       "type": "BizyAirRemoveBackground",
-      "pos": [
-        830,
-        460
-      ],
+      "pos": {
+        "0": 827.1817626953125,
+        "1": 420
+      },
       "size": [
-        384.16796875,
-        46
+        406.72265625,
+        81.52081298828125
       ],
       "flags": {},
       "order": 2,
@@ -110,7 +62,8 @@
         {
           "name": "image",
           "type": "IMAGE",
-          "link": 51
+          "link": 51,
+          "label": "image"
         }
       ],
       "outputs": [
@@ -120,34 +73,96 @@
           "links": [
             53
           ],
+          "slot_index": 0,
           "shape": 3,
-          "slot_index": 0
+          "label": "IMAGE"
         },
         {
           "name": "MASK",
           "type": "MASK",
           "links": null,
-          "shape": 3
+          "shape": 3,
+          "label": "MASK"
         }
       ],
       "properties": {
         "Node name for S&R": "BizyAirRemoveBackground"
-      }
+      },
+      "shape": 1
+    },
+    {
+      "id": 39,
+      "type": "PreviewImage",
+      "pos": {
+        "0": 1269,
+        "1": 158
+      },
+      "size": [
+        226.72265625,
+        344.52081298828125
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 52,
+          "label": "images"
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "shape": 1
+    },
+    {
+      "id": 40,
+      "type": "PreviewImage",
+      "pos": {
+        "0": 1513,
+        "1": 160
+      },
+      "size": [
+        213.72265625,
+        340.52081298828125
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 53,
+          "slot_index": 0,
+          "label": "images"
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "shape": 1
     },
     {
       "id": 41,
       "type": "Note",
-      "pos": [
-        566,
-        200
-      ],
+      "pos": {
+        "0": 814,
+        "1": 10
+      },
       "size": [
-        241.35546875,
-        302.44268798828125
+        929.72265625,
+        63.52081298828125
       ],
       "flags": {},
       "order": 1,
       "mode": 0,
+      "inputs": [],
+      "outputs": [],
       "properties": {
         "text": ""
       },
@@ -184,15 +199,40 @@
       "IMAGE"
     ]
   ],
-  "groups": [],
+  "groups": [
+    {
+      "title": "预览图",
+      "bounding": [
+        1250,
+        80,
+        495,
+        441
+      ],
+      "color": "#8A8",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "title": "模型",
+      "bounding": [
+        813,
+        80,
+        433,
+        441
+      ],
+      "color": "#3f789e",
+      "font_size": 24,
+      "flags": {}
+    }
+  ],
   "config": {},
   "extra": {
     "ds": {
-      "scale": 1,
-      "offset": {
-        "0": 73.27734375,
-        "1": 64.47918701171875
-      }
+      "scale": 1.1,
+      "offset": [
+        -612.0226562500001,
+        207.5791870117185
+      ]
     }
   },
   "version": 0.4
