@@ -1,10 +1,14 @@
+import hashlib
 import json
 import os
 import uuid
+from enum import Enum
 
+import folder_paths
+import node_helpers
 import numpy as np
 import torch
-from PIL import Image
+from PIL import Image, ImageOps, ImageSequence
 
 from bizyair.common.env_var import BIZYAIR_SERVER_ADDRESS
 from bizyair.image_utils import (
@@ -17,9 +21,25 @@ from bizyair.image_utils import (
 from .utils import (
     decode_and_deserialize,
     get_api_key,
+    send_get_request,
     send_post_request,
     serialize_and_encode,
 )
+
+
+class INFER_MODE(Enum):
+    auto = 0
+    text = 1
+    points_box = 2
+    batched_boxes = 3
+
+
+class EDIT_MODE(Enum):
+    box = 0
+    point = 1
+
+
+BIZYAIR_SERVER_ADDRESS = "http://127.0.0.1:8000"
 
 
 class SuperResolution:
@@ -251,6 +271,84 @@ class AuraSR:
         return (image,)
 
 
+class SAMLoadImage:
+    @classmethod
+    def INPUT_TYPES(s):
+        input_dir = folder_paths.get_input_directory()
+        files = [
+            f
+            for f in os.listdir(input_dir)
+            if os.path.isfile(os.path.join(input_dir, f))
+        ]
+        return {
+            "required": {"image": (sorted(files), {"image_upload": True})},
+        }
+
+    CATEGORY = "image"
+
+    RETURN_TYPES = ("IMAGE",)
+    FUNCTION = "load_image"
+
+    def load_image(self, image):
+        image_path = folder_paths.get_annotated_filepath(image)
+
+        img = node_helpers.pillow(Image.open, image_path)
+
+        output_images = []
+        output_masks = []
+        w, h = None, None
+
+        excluded_formats = ["MPO"]
+
+        for i in ImageSequence.Iterator(img):
+            i = node_helpers.pillow(ImageOps.exif_transpose, i)
+
+            if i.mode == "I":
+                i = i.point(lambda i: i * (1 / 255))
+            image = i.convert("RGB")
+
+            if len(output_images) == 0:
+                w = image.size[0]
+                h = image.size[1]
+
+            if image.size[0] != w or image.size[1] != h:
+                continue
+
+            image = np.array(image).astype(np.float32) / 255.0
+            image = torch.from_numpy(image)[None,]
+            if "A" in i.getbands():
+                mask = np.array(i.getchannel("A")).astype(np.float32) / 255.0
+                mask = 1.0 - torch.from_numpy(mask)
+            else:
+                mask = torch.zeros((64, 64), dtype=torch.float32, device="cpu")
+            output_images.append(image)
+            output_masks.append(mask.unsqueeze(0))
+
+        if len(output_images) > 1 and img.format not in excluded_formats:
+            output_image = torch.cat(output_images, dim=0)
+            output_mask = torch.cat(output_masks, dim=0)
+        else:
+            output_image = output_images[0]
+            output_mask = output_masks[0]
+
+        return (output_image, output_mask)
+
+    @classmethod
+    def IS_CHANGED(s, image):
+        image_path = folder_paths.get_annotated_filepath(image)
+        m = hashlib.sha256()
+        with open(image_path, "rb") as f:
+            m.update(f.read())
+        return m.digest().hex()
+
+    @classmethod
+    def VALIDATE_INPUTS(s, image):
+        if not folder_paths.exists_annotated_filepath(image):
+            return "Invalid image file: {}".format(image)
+
+        return True
+
+
 class BizyAirSegmentAnythingText:
     API_URL = f"{BIZYAIR_SERVER_ADDRESS}/supernode/sam"
 
@@ -337,6 +435,203 @@ class BizyAirSegmentAnythingText:
         ).to(device)
         img_mask = img_mask.mean(dim=-1)
         img_mask = img_mask.unsqueeze(0)
+
+        return (img, img_mask)
+
+
+class BizyAirSegmentAnythingBox:
+    API_URL = f"{BIZYAIR_SERVER_ADDRESS}/supernode/sam"
+
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "image": ("IMAGE",),
+            }
+        }
+
+    RETURN_TYPES = ("IMAGE", "MASK")
+    FUNCTION = "box_sam"
+
+    CATEGORY = "☁️BizyAir/segment-anything"
+
+    def box_sam(self, image):
+        API_KEY = get_api_key()
+        SIZE_LIMIT = 1536
+        device = image.device
+        _, w, h, c = image.shape
+        assert (
+            w <= SIZE_LIMIT and h <= SIZE_LIMIT
+        ), f"width and height must be less than {SIZE_LIMIT}x{SIZE_LIMIT}, but got {w} and {h}"
+
+        json_msg = send_get_request("http://127.0.0.1:9999/api/bizyair/getsam")
+        json_msg = json.loads(json_msg)
+        print("why json_msg:", json_msg)
+        is_box = json_msg["mode"] == EDIT_MODE.box.value
+        assert is_box
+        coordinates = [
+            json.loads(json_msg["coords"][key]) for key in json_msg["coords"]
+        ]
+        input_box = [
+            [
+                float(coord["startx"]),
+                float(coord["starty"]),
+                float(coord["endx"]),
+                float(coord["endy"]),
+            ]
+            for coord in coordinates
+        ]
+
+        payload = {
+            "image": None,
+            "mode": INFER_MODE.batched_boxes.value,  # Point/Box分割模式
+            "params": {
+                "input_points": None,
+                "input_label": None,
+                "input_boxes": json.dumps(input_box),
+            },
+        }
+        auth = f"Bearer {API_KEY}"
+        headers = {
+            "accept": "application/json",
+            "content-type": "application/json",
+            "authorization": auth,
+        }
+        image = image.squeeze(0).numpy()
+        image_pil = Image.fromarray((image * 255).astype(np.uint8))
+        input_image = encode_image_to_base64(image_pil, format="webp")
+        payload["image"] = input_image
+
+        ret: str = send_post_request(self.API_URL, payload=payload, headers=headers)
+        ret = json.loads(ret)
+
+        try:
+            if "result" in ret:
+                ret = json.loads(ret["result"])
+        except Exception as e:
+            raise Exception(f"Unexpected response: {ret} {e=}")
+
+        if ret["status"] == "error":
+            raise Exception(ret["message"])
+
+        msg = ret["data"]
+        if msg["type"] not in ("bizyair",):
+            raise Exception(f"Unexpected response type: {msg}")
+
+        if "error" in msg:
+            raise Exception(f"Error happens: {msg}")
+
+        img = msg["image"]
+        mask_image = msg["mask_image"]
+
+        img = (
+            (torch.from_numpy(decode_base64_to_np(img)).float() / 255.0)
+            .unsqueeze(0)
+            .to(device)
+        )
+        img_mask = (
+            torch.from_numpy(decode_base64_to_np(mask_image)).float() / 255.0
+        ).to(device)
+        img_mask = img_mask.mean(dim=-1)
+        img_mask = img_mask.unsqueeze(0)
+
+        coord = send_get_request("http://127.0.0.1:9999/api/bizyair/getsam")
+        coord = json.loads(coord)
+        return (img, img_mask)
+
+
+class BizyAirSegmentAnythingPoint:
+    API_URL = f"{BIZYAIR_SERVER_ADDRESS}/supernode/sam"
+
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "image": ("IMAGE",),
+            }
+        }
+
+    RETURN_TYPES = ("IMAGE", "MASK")
+    FUNCTION = "point_sam"
+
+    CATEGORY = "☁️BizyAir/segment-anything"
+
+    def point_sam(self, image):
+        API_KEY = get_api_key()
+        SIZE_LIMIT = 1536
+        device = image.device
+        _, w, h, c = image.shape
+        assert (
+            w <= SIZE_LIMIT and h <= SIZE_LIMIT
+        ), f"width and height must be less than {SIZE_LIMIT}x{SIZE_LIMIT}, but got {w} and {h}"
+
+        json_msg = send_get_request("http://127.0.0.1:9999/api/bizyair/getsam")
+        json_msg = json.loads(json_msg)
+        is_point = json_msg["mode"] == EDIT_MODE.point.value
+        assert is_point
+        coordinates = [
+            json.loads(json_msg["coords"][key]) for key in json_msg["coords"]
+        ]
+        input_points = [
+            [float(coord["startx"]), float(coord["starty"])] for coord in coordinates
+        ]
+        input_label = [coord["pointType"] for coord in coordinates]
+        payload = {
+            "image": None,
+            "mode": INFER_MODE.points_box.value,  # Point/Box分割模式
+            "params": {
+                "input_points": json.dumps(input_points),
+                "input_label": json.dumps(input_label),
+                "input_boxes": None,
+            },
+        }
+        auth = f"Bearer {API_KEY}"
+        headers = {
+            "accept": "application/json",
+            "content-type": "application/json",
+            "authorization": auth,
+        }
+        image = image.squeeze(0).numpy()
+        image_pil = Image.fromarray((image * 255).astype(np.uint8))
+        input_image = encode_image_to_base64(image_pil, format="webp")
+        payload["image"] = input_image
+
+        ret: str = send_post_request(self.API_URL, payload=payload, headers=headers)
+        ret = json.loads(ret)
+
+        try:
+            if "result" in ret:
+                ret = json.loads(ret["result"])
+        except Exception as e:
+            raise Exception(f"Unexpected response: {ret} {e=}")
+
+        if ret["status"] == "error":
+            raise Exception(ret["message"])
+
+        msg = ret["data"]
+        if msg["type"] not in ("bizyair",):
+            raise Exception(f"Unexpected response type: {msg}")
+
+        if "error" in msg:
+            raise Exception(f"Error happens: {msg}")
+
+        img = msg["image"]
+        mask_image = msg["mask_image"]
+
+        img = (
+            (torch.from_numpy(decode_base64_to_np(img)).float() / 255.0)
+            .unsqueeze(0)
+            .to(device)
+        )
+        img_mask = (
+            torch.from_numpy(decode_base64_to_np(mask_image)).float() / 255.0
+        ).to(device)
+        img_mask = img_mask.mean(dim=-1)
+        img_mask = img_mask.unsqueeze(0)
+
+        coord = send_get_request("http://127.0.0.1:9999/api/bizyair/getsam")
+        coord = json.loads(coord)
+        print("why coord:", coord)
         return (img, img_mask)
 
 
@@ -345,12 +640,18 @@ NODE_CLASS_MAPPINGS = {
     "BizyAirRemoveBackground": RemoveBackground,
     "BizyAirGenerateLightningImage": GenerateLightningImage,
     "BizyAirAuraSR": AuraSR,
+    "SAMLoadImage": SAMLoadImage,
     "BizyAirSegmentAnythingText": BizyAirSegmentAnythingText,
+    "BizyAirSegmentAnythingBox": BizyAirSegmentAnythingBox,
+    "BizyAirSegmentAnythingPoint": BizyAirSegmentAnythingPoint,
 }
 NODE_DISPLAY_NAME_MAPPINGS = {
     "BizyAirAuraSR": "☁️BizyAir Photorealistic Image Super Resolution",
     "BizyAirSuperResolution": "☁️BizyAir Anime Image Super Resolution",
     "BizyAirRemoveBackground": "☁️BizyAir Remove Image Background",
     "BizyAirGenerateLightningImage": "☁️BizyAir Generate Photorealistic Images",
+    "SAMLoadImage": "BizyAir SAMLoadImage",
     "BizyAirSegmentAnythingText": "☁️BizyAir Text Guided SAM",
+    "BizyAirSegmentAnythingBox": "☁️BizyAir Box Guided SAM",
+    "BizyAirSegmentAnythingPoint": "☁️BizyAir Point Guided SAM",
 }

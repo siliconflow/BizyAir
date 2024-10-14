@@ -12,6 +12,8 @@ BIZYAIR_DEBUG = os.getenv("BIZYAIR_DEBUG", False)
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 SHOW_CASES = {}
+SAM_COORDINATE = {}
+IS_RESET_SAM = False
 
 
 async def get_bizyair_news(base_url="https://bizyair.siliconflow.cn"):
@@ -119,3 +121,39 @@ async def get_file_content(request):
             status=500,
             content_type="application/json",
         )
+
+
+@PromptServer.instance.routes.post("/bizyair/postsam")
+async def save_sam(request):
+    global IS_RESET_SAM
+    IS_RESET_SAM = False
+    post = await request.post()
+    SAM_COORDINATE["nums"] = post.get("nums")
+    SAM_COORDINATE["coords"] = json.loads(post.get("coords"))
+    SAM_COORDINATE["mode"] = json.loads(post.get("mode"))
+
+    return web.Response(status=200)
+
+
+@PromptServer.instance.routes.get("/bizyair/getsam")
+async def get_sam(request):
+    return web.Response(
+        text=json.dumps(SAM_COORDINATE, ensure_ascii=False),
+        content_type="application/json",
+    )
+
+
+@PromptServer.instance.routes.get("/bizyair/resetsam")
+async def reset_sam(request):
+    global IS_RESET_SAM
+    IS_RESET_SAM = True
+    return web.Response(status=200)
+
+
+@PromptServer.instance.routes.get("/bizyair/isresetsam")
+async def isreset_sam(request):
+    status = {"isresetsam": IS_RESET_SAM}
+    return web.Response(
+        text=json.dumps(status),
+        content_type="application/json",
+    )
