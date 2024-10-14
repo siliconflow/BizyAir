@@ -5,6 +5,7 @@ import { getUserInfo, putShareId } from '../apis.js'
 import { apiKey } from "./apiKey.js";
 import { toast } from '../subassembly/toast.js';
 import { subscribe } from "../subassembly/subscribers.js";
+import { dialog } from '../subassembly/dialog.js';
 
 const getSelector = selector => {
     const element = document.querySelector(selector);
@@ -37,14 +38,21 @@ export async function myInfoDialog() {
         getSelector('.bizyair-tooltip-edit').css({ display: 'none' })
         getSelector('.bizyair-tooltip-save').css({ display: 'block' })
     }
-    const saveShareId = async () => {
-        await putShareId({ share_id: getSelector('#bizyair-myinfo-share-id-edit').value })
-        getSelector('#bizyair-myinfo-share-id').css({ display: 'block' })
-        getSelector('#bizyair-myinfo-share-id-edit').css({ display: 'none' })
-        getSelector('.bizyair-tooltip-save').css({ display: 'none' })
-        getSelector('.bizyair-tooltip-edit').css({ display: 'block' })
-        getSelector('#bizyair-myinfo-share-id').text(getSelector('#bizyair-myinfo-share-id-edit').value)
-        toast('Save successfully')
+    const saveShareId = () => {
+        dialog({
+            title: 'Are you sure you want to modify it?',
+            content: 'If you make this change, it will render any models you have previously shared unavailable, and you are only allowed to make this modification once per year.',
+            noText: 'Cancel',
+            yesText: 'Confirm',
+            onYes: async () => {
+                await putShareId({ share_id: getSelector('#bizyair-myinfo-share-id-edit').value })
+                getSelector('#bizyair-myinfo-share-id').css({ display: 'block' })
+                getSelector('#bizyair-myinfo-share-id-edit').css({ display: 'none' })
+                getSelector('.bizyair-tooltip-save').css({ display: 'none' })
+                getSelector('.bizyair-tooltip-edit').css({ display: 'block' })
+                getSelector('#bizyair-myinfo-share-id').text(getSelector('#bizyair-myinfo-share-id-edit').value)
+            }
+        })
     }
     const copyText = text => {
         console.log(text)
@@ -70,7 +78,7 @@ export async function myInfoDialog() {
 
             $el('div.bizyair-myinfo-primary', {}, [
                 $el('div.bizyair-myinfo-primary-box', {}, [
-                    'Api Key:',
+                    'API Key:',
                     $el('span.bizyair-myinfo-password.margin-left-10', {
                         id: 'bizyair-myinfo-password'
                     }, [`${info.api_key}`]),
@@ -112,7 +120,6 @@ export async function myInfoDialog() {
                         },
                         id: 'bizyair-myinfo-share-id-edit',
                         value: info.share_id,
-                        onblur: saveShareId,
                         onkeyup: (e) => {
                             if (e.key === 'Enter') {
                                 saveShareId()
