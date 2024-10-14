@@ -1,22 +1,39 @@
+import json
 import os
 import urllib.parse
 import urllib.request
 from collections import defaultdict
 
 import requests
-import json
 
-from .errno import INVALID_API_KEY_ERR, ErrorNo, CODE_OK, UPDATE_SHATE_ID_ERR, GET_DESCRIPTION_ERR, \
-    UPDATE_DESCRIPTION_ERR, CHECK_MODEL_EXISTS_ERR, SIGN_FILE_ERR, COMMIT_FILE_ERR, COMMIT_MODEL_ERR, DELETE_MODEL_ERR, \
-    CHANGE_PUBLIC_ERR, CODE_NO_MODEL_FOUND, LIST_MODEL_FILE_ERR, LIST_SHARE_MODEL_FILE_ERR, LIST_MODEL_ERR, \
-    GET_USER_INFO_ERR
-from .error_handler import ErrorHandler
 import bizyair
 import bizyair.common
+
+from .errno import (
+    CHANGE_PUBLIC_ERR,
+    CHECK_MODEL_EXISTS_ERR,
+    CODE_NO_MODEL_FOUND,
+    CODE_OK,
+    COMMIT_FILE_ERR,
+    COMMIT_MODEL_ERR,
+    DELETE_MODEL_ERR,
+    GET_DESCRIPTION_ERR,
+    GET_USER_INFO_ERR,
+    INVALID_API_KEY_ERR,
+    LIST_MODEL_ERR,
+    LIST_MODEL_FILE_ERR,
+    LIST_SHARE_MODEL_FILE_ERR,
+    SIGN_FILE_ERR,
+    UPDATE_DESCRIPTION_ERR,
+    UPDATE_SHATE_ID_ERR,
+    ErrorNo,
+)
+from .error_handler import ErrorHandler
 
 BIZYAIR_SERVER_ADDRESS = os.getenv(
     "BIZYAIR_SERVER_ADDRESS", "https://bizyair-api.siliconflow.cn/x/v1"
 )
+
 
 class APIClient:
     def __init__(self):
@@ -125,7 +142,7 @@ class APIClient:
             return None, COMMIT_FILE_ERR
 
     async def commit_model(
-            self, model_files, model_name: str, model_type: str, overwrite: bool
+        self, model_files, model_name: str, model_type: str, overwrite: bool
     ) -> (dict, ErrorNo):
         server_url = f"{BIZYAIR_SERVER_ADDRESS}/models"
 
@@ -173,7 +190,7 @@ class APIClient:
             return DELETE_MODEL_ERR
 
     async def change_public(
-            self, model_name: str, model_type: str, public: bool
+        self, model_name: str, model_type: str, public: bool
     ) -> ErrorNo:
         server_url = f"{BIZYAIR_SERVER_ADDRESS}/models/change_public"
 
@@ -313,9 +330,7 @@ class APIClient:
 
         server_url = f"{BIZYAIR_SERVER_ADDRESS}/user/update_share_id"
         try:
-            resp = self.do_put(server_url, data={
-                "share_id": share_id
-            }, headers=headers)
+            resp = self.do_put(server_url, data={"share_id": share_id}, headers=headers)
 
             ret = json.loads(resp)
             if ret["code"] != CODE_OK:

@@ -43,10 +43,7 @@ def check_str_param(json_data, param_name: str, err):
 def check_type(json_data):
     if "type" not in json_data:
         return ErrResponse(INVALID_TYPE)
-    if (
-            not is_string_valid(json_data["type"])
-            or json_data["type"] not in ALLOW_TYPES
-    ):
+    if not is_string_valid(json_data["type"]) or json_data["type"] not in ALLOW_TYPES:
         return ErrResponse(INVALID_TYPE)
     return None
 

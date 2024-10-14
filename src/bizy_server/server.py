@@ -4,6 +4,7 @@ import os
 import uuid
 
 import aiohttp
+from comfy.cli_args import args
 from server import PromptServer
 
 import bizyair
@@ -15,6 +16,7 @@ from .errno import (
     EMPTY_FILES_ERR,
     EMPTY_UPLOAD_ID_ERR,
     INVALID_CLIENT_ID_ERR,
+    INVALID_DESCRIPTION,
     INVALID_NAME,
     INVALID_SHARE_ID,
     INVALID_TYPE,
@@ -22,18 +24,22 @@ from .errno import (
     MODEL_ALREADY_EXISTS_ERR,
     NO_ABS_PATH_ERR,
     NO_PUBLIC_FLAG_ERR,
-    PATH_NOT_EXISTS_ERR,
     NO_SHARE_ID_ERR,
-    INVALID_DESCRIPTION,
+    PATH_NOT_EXISTS_ERR,
     ErrorNo,
 )
 from .error_handler import ErrorHandler
 from .execution import UploadQueue
 from .resp import ErrResponse, OKResponse
 from .upload_manager import UploadManager
-from .utils import get_html_content, check_type, check_str_param, is_string_valid, to_slash, list_types
-
-from comfy.cli_args import args
+from .utils import (
+    check_str_param,
+    check_type,
+    get_html_content,
+    is_string_valid,
+    list_types,
+    to_slash,
+)
 
 MAX_UPLOAD_FILE_SIZE = round(args.max_upload_size * 1024 * 1024)
 
@@ -60,7 +66,6 @@ class BizyAirServer:
         self.upload_queue = UploadQueue()
         self.loop = asyncio.get_event_loop()
 
-
         self.setup_routes()
 
     def setup_routes(self):
@@ -73,7 +78,9 @@ class BizyAirServer:
 
         @self.prompt_server.routes.get(f"/{MODEL_HOST_API}/upload")
         async def forward_upload_model_html(request):
-            return aiohttp.web.Response(text=upload_model_html, content_type="text/html")
+            return aiohttp.web.Response(
+                text=upload_model_html, content_type="text/html"
+            )
 
         @self.prompt_server.routes.get(f"/{MODEL_HOST_API}/model_types")
         async def list_model_types(request):
@@ -94,7 +101,7 @@ class BizyAirServer:
 
             exists, err = await self.api_client.check_model(
                 name=json_data["name"], type=json_data["type"]
-            )   
+            )
             if err is not None:
                 return ErrResponse(err)
 
@@ -329,7 +336,9 @@ class BizyAirServer:
             if "share_id" not in json_data:
                 return ErrResponse(NO_SHARE_ID_ERR)
 
-            ret, err = await self.api_client.update_share_id(share_id=json_data["share_id"])
+            ret, err = await self.api_client.update_share_id(
+                share_id=json_data["share_id"]
+            )
             if err is not None:
                 return ErrResponse(err)
 
@@ -347,7 +356,7 @@ class BizyAirServer:
 
             payload = {
                 "type": request.rel_url.query["type"],
-                "name": request.rel_url.query["name"]
+                "name": request.rel_url.query["name"],
             }
 
             if "share_id" in request.rel_url.query:

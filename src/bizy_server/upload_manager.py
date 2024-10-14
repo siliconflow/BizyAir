@@ -1,17 +1,17 @@
-import os
 import asyncio
+import base64
+import hashlib
+import os
 import threading
 import time
 
 import aiofiles
-import hashlib
-import base64
 import crcmod
 import oss2
 
 from .errno import FILE_NOT_EXISTS_ERR, UPLOAD_ERR
-from .oss import AliOssStorageClient
 from .error_handler import ErrorHandler
+from .oss import AliOssStorageClient
 from .utils import is_string_valid
 
 
@@ -22,7 +22,9 @@ class UploadManager:
         self.server = server
 
     async def calculate_hash(self, file_path):
-        do_crc64 = crcmod.mkCrcFun(0x142F0E1EBA9EA3693, initCrc=0, xorOut=0xFFFFFFFFFFFFFFFF, rev=True)
+        do_crc64 = crcmod.mkCrcFun(
+            0x142F0E1EBA9EA3693, initCrc=0, xorOut=0xFFFFFFFFFFFFFFFF, rev=True
+        )
         crc64_signature = 0
         buf_size = 65536 * 16
 
@@ -81,15 +83,15 @@ class UploadManager:
                     def updateProgress(consume_bytes, total_bytes):
                         current_time = time.time()
                         if (
-                                current_time - self.upload_progresses_updated_at[upload_id]
-                                >= 1
+                            current_time - self.upload_progresses_updated_at[upload_id]
+                            >= 1
                         ):
                             self.upload_progresses_updated_at[upload_id] = current_time
 
                             progress = (
                                 f"{consume_bytes / total_bytes * 100:.0f}%"
                                 if consume_bytes / total_bytes * 100
-                                   == int(consume_bytes / total_bytes * 100)
+                                == int(consume_bytes / total_bytes * 100)
                                 else "{:.2f}%".format(consume_bytes / total_bytes * 100)
                             )
                             self.server.send_sync(
@@ -159,7 +161,9 @@ class UploadManager:
         def check_sync_status():
             while True:
                 future = asyncio.run_coroutine_threadsafe(
-                    self.server.api_client.get_models({"type": item["type"], "available": True}),
+                    self.server.api_client.get_models(
+                        {"type": item["type"], "available": True}
+                    ),
                     self.server.loop,
                 )
 
