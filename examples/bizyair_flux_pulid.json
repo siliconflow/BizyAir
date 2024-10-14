@@ -1,0 +1,1111 @@
+{
+  "last_node_id": 109,
+  "last_link_id": 142,
+  "nodes": [
+    {
+      "id": 78,
+      "type": "BizyAir_PulidFluxModelLoader",
+      "pos": {
+        "0": 787,
+        "1": 1846,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0,
+        "9": 0
+      },
+      "size": {
+        "0": 302.4410400390625,
+        "1": 58
+      },
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "pulid_flux",
+          "type": "BIZYAIR_PULIDFLUX",
+          "links": [
+            126
+          ],
+          "slot_index": 0,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_PulidFluxModelLoader"
+      },
+      "widgets_values": [
+        "pulid_flux_v0.9.0.safetensors"
+      ]
+    },
+    {
+      "id": 79,
+      "type": "BizyAir_PulidFluxEvaClipLoader",
+      "pos": {
+        "0": 799,
+        "1": 1959,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0,
+        "9": 0
+      },
+      "size": {
+        "0": 302.3999938964844,
+        "1": 26
+      },
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "eva_clip",
+          "type": "BIZYAIR_EVA_CLIP",
+          "links": [
+            127
+          ],
+          "slot_index": 0,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_PulidFluxEvaClipLoader"
+      }
+    },
+    {
+      "id": 81,
+      "type": "BizyAir_PulidFluxInsightFaceLoader",
+      "pos": {
+        "0": 793,
+        "1": 2030,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0,
+        "9": 0
+      },
+      "size": {
+        "0": 327.6000061035156,
+        "1": 58
+      },
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "face_analysis",
+          "type": "BIZYAIR_FACEANALYSIS",
+          "links": [
+            129
+          ],
+          "slot_index": 0,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_PulidFluxInsightFaceLoader"
+      },
+      "widgets_values": [
+        "CUDA"
+      ]
+    },
+    {
+      "id": 83,
+      "type": "BizyAir_UNETLoader",
+      "pos": {
+        "0": 355,
+        "1": 1012,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0,
+        "9": 0
+      },
+      "size": {
+        "0": 378,
+        "1": 82
+      },
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "BIZYAIR_MODEL",
+          "type": "BIZYAIR_MODEL",
+          "links": [
+            125
+          ],
+          "slot_index": 0,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_UNETLoader"
+      },
+      "widgets_values": [
+        "flux/flux1-dev.sft",
+        "fp8_e4m3fn"
+      ]
+    },
+    {
+      "id": 85,
+      "type": "BizyAir_CLIPTextEncodeFlux",
+      "pos": {
+        "0": 792,
+        "1": 1034,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0,
+        "9": 0
+      },
+      "size": {
+        "0": 466.6143493652344,
+        "1": 350.7861022949219
+      },
+      "flags": {},
+      "order": 12,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "BIZYAIR_CLIP",
+          "link": 113
+        }
+      ],
+      "outputs": [
+        {
+          "name": "conditioning",
+          "type": "BIZYAIR_CONDITIONING",
+          "links": [
+            121
+          ],
+          "slot_index": 0,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_CLIPTextEncodeFlux"
+      },
+      "widgets_values": [
+        "a woman holding sign with glowing green text \"PuLID for FLUX\"",
+        "a woman holding sign with glowing green text \"PuLID for FLUX\"",
+        3.5
+      ]
+    },
+    {
+      "id": 95,
+      "type": "BizyAir_BasicGuider",
+      "pos": {
+        "0": 1348,
+        "1": 1025,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0,
+        "9": 0
+      },
+      "size": {
+        "0": 264.5999755859375,
+        "1": 46
+      },
+      "flags": {},
+      "order": 15,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "BIZYAIR_MODEL",
+          "link": 124
+        },
+        {
+          "name": "conditioning",
+          "type": "BIZYAIR_CONDITIONING",
+          "link": 121
+        }
+      ],
+      "outputs": [
+        {
+          "name": "GUIDER",
+          "type": "GUIDER",
+          "links": [
+            122
+          ],
+          "slot_index": 0,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_BasicGuider"
+      }
+    },
+    {
+      "id": 87,
+      "type": "BizyAir_KSamplerSelect",
+      "pos": {
+        "0": 1349,
+        "1": 1142,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0,
+        "9": 0
+      },
+      "size": {
+        "0": 259.90234375,
+        "1": 58
+      },
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "SAMPLER",
+          "type": "SAMPLER",
+          "links": [
+            115
+          ],
+          "slot_index": 0,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_KSamplerSelect"
+      },
+      "widgets_values": [
+        "euler"
+      ]
+    },
+    {
+      "id": 88,
+      "type": "BizyAir_RandomNoise",
+      "pos": {
+        "0": 1354,
+        "1": 1271,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0,
+        "9": 0
+      },
+      "size": {
+        "0": 248.53359985351562,
+        "1": 82
+      },
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "NOISE",
+          "type": "NOISE",
+          "links": [
+            114
+          ],
+          "slot_index": 0,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_RandomNoise"
+      },
+      "widgets_values": [
+        60,
+        "increment"
+      ]
+    },
+    {
+      "id": 86,
+      "type": "BizyAir_BasicScheduler",
+      "pos": {
+        "0": 1357,
+        "1": 1427,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0,
+        "9": 0
+      },
+      "size": {
+        "0": 242.97654724121094,
+        "1": 106
+      },
+      "flags": {},
+      "order": 16,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "BIZYAIR_MODEL",
+          "link": 130
+        }
+      ],
+      "outputs": [
+        {
+          "name": "SIGMAS",
+          "type": "SIGMAS",
+          "links": [
+            116
+          ],
+          "slot_index": 0,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_BasicScheduler"
+      },
+      "widgets_values": [
+        "simple",
+        20,
+        1
+      ]
+    },
+    {
+      "id": 89,
+      "type": "BizyAir_SamplerCustomAdvanced",
+      "pos": {
+        "0": 1732,
+        "1": 1022,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0,
+        "9": 0
+      },
+      "size": {
+        "0": 390.5999755859375,
+        "1": 106
+      },
+      "flags": {},
+      "order": 17,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "noise",
+          "type": "NOISE",
+          "link": 114
+        },
+        {
+          "name": "guider",
+          "type": "GUIDER",
+          "link": 122
+        },
+        {
+          "name": "sampler",
+          "type": "SAMPLER",
+          "link": 115
+        },
+        {
+          "name": "sigmas",
+          "type": "SIGMAS",
+          "link": 116
+        },
+        {
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 133
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "type": "LATENT",
+          "links": [
+            117
+          ],
+          "slot_index": 0,
+          "shape": 3
+        },
+        {
+          "name": "denoised_output",
+          "type": "LATENT",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_SamplerCustomAdvanced"
+      }
+    },
+    {
+      "id": 106,
+      "type": "Reroute",
+      "pos": {
+        "0": 2015,
+        "1": 1166,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0,
+        "9": 0
+      },
+      "size": [
+        75,
+        26
+      ],
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "",
+          "type": "*",
+          "link": 139
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "BIZYAIR_VAE",
+          "links": [
+            140
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "showOutputText": false,
+        "horizontal": false
+      }
+    },
+    {
+      "id": 90,
+      "type": "BizyAir_VAEDecode",
+      "pos": {
+        "0": 1854,
+        "1": 1294,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0,
+        "9": 0
+      },
+      "size": {
+        "0": 252,
+        "1": 46
+      },
+      "flags": {},
+      "order": 18,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 117
+        },
+        {
+          "name": "vae",
+          "type": "BIZYAIR_VAE",
+          "link": 140
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            119
+          ],
+          "slot_index": 0,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_VAEDecode"
+      }
+    },
+    {
+      "id": 91,
+      "type": "BizyAir_VAELoader",
+      "pos": {
+        "0": 355,
+        "1": 1334,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0,
+        "9": 0
+      },
+      "size": {
+        "0": 365.0637512207031,
+        "1": 58.98834991455078
+      },
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "vae",
+          "type": "BIZYAIR_VAE",
+          "links": [
+            139
+          ],
+          "slot_index": 0,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_VAELoader"
+      },
+      "widgets_values": [
+        "flux/ae.sft"
+      ]
+    },
+    {
+      "id": 84,
+      "type": "BizyAir_DualCLIPLoader",
+      "pos": {
+        "0": 356,
+        "1": 1155,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0,
+        "9": 0
+      },
+      "size": {
+        "0": 367.9985046386719,
+        "1": 106
+      },
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "BIZYAIR_CLIP",
+          "type": "BIZYAIR_CLIP",
+          "links": [
+            113
+          ],
+          "slot_index": 0,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_DualCLIPLoader"
+      },
+      "widgets_values": [
+        "t5xxl_fp8_e4m3fn.safetensors",
+        "clip_l.safetensors",
+        "flux"
+      ]
+    },
+    {
+      "id": 97,
+      "type": "BizyAir_ApplyPulidFlux",
+      "pos": {
+        "0": 1196,
+        "1": 1832,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0,
+        "9": 0
+      },
+      "size": {
+        "0": 404.95245361328125,
+        "1": 219.5450439453125
+      },
+      "flags": {},
+      "order": 13,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "BIZYAIR_MODEL",
+          "link": 125
+        },
+        {
+          "name": "pulid_flux",
+          "type": "BIZYAIR_PULIDFLUX",
+          "link": 126
+        },
+        {
+          "name": "eva_clip",
+          "type": "BIZYAIR_EVA_CLIP",
+          "link": 127
+        },
+        {
+          "name": "face_analysis",
+          "type": "BIZYAIR_FACEANALYSIS",
+          "link": 129
+        },
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 141
+        },
+        {
+          "name": "attn_mask",
+          "type": "MASK",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "BIZYAIR_MODEL",
+          "type": "BIZYAIR_MODEL",
+          "links": [
+            124,
+            130
+          ],
+          "slot_index": 0,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_ApplyPulidFlux"
+      },
+      "widgets_values": [
+        0.8,
+        0,
+        1
+      ]
+    },
+    {
+      "id": 107,
+      "type": "Note",
+      "pos": {
+        "0": 366,
+        "1": 1470,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0,
+        "9": 0
+      },
+      "size": {
+        "0": 380.41119384765625,
+        "1": 183.65455627441406
+      },
+      "flags": {
+        "collapsed": false
+      },
+      "order": 8,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {},
+      "widgets_values": [
+        "ComfyUI-PuLID-Flux Limitations:\n\n1. **LoRA Not Supported**\n2. **Maximum Output Size**: 1x1024x1024 (batch_size=1, height=1024, width=1024)"
+      ],
+      "color": "#322",
+      "bgcolor": "#533"
+    },
+    {
+      "id": 60,
+      "type": "EmptyLatentImage",
+      "pos": {
+        "0": 769,
+        "1": 1482,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0,
+        "9": 0
+      },
+      "size": {
+        "0": 331.86749267578125,
+        "1": 172.31396484375
+      },
+      "flags": {
+        "collapsed": false
+      },
+      "order": 9,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            133
+          ],
+          "slot_index": 0,
+          "shape": 3,
+          "label": "Latent"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "EmptyLatentImage"
+      },
+      "widgets_values": [
+        512,
+        512,
+        1
+      ]
+    },
+    {
+      "id": 108,
+      "type": "BizyAir_LoadImageURL",
+      "pos": {
+        "0": 440,
+        "1": 1862,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0,
+        "9": 0
+      },
+      "size": [
+        327.91456932528456,
+        100.70831190960143
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            141,
+            142
+          ],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_LoadImageURL"
+      },
+      "widgets_values": [
+        "https://bizy-air.oss-cn-beijing.aliyuncs.com/examples_asset/bizyair-instantid-example.webp"
+      ]
+    },
+    {
+      "id": 109,
+      "type": "PreviewImage",
+      "pos": {
+        "0": 1658,
+        "1": 1764,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0,
+        "9": 0
+      },
+      "size": [
+        434.71131188337495,
+        458.62693605652476
+      ],
+      "flags": {},
+      "order": 14,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 142
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      }
+    },
+    {
+      "id": 92,
+      "type": "PreviewImage",
+      "pos": {
+        "0": 2103,
+        "1": 1760,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0,
+        "9": 0
+      },
+      "size": [
+        441.48189101203707,
+        467.08426786587825
+      ],
+      "flags": {},
+      "order": 19,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 119
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      }
+    }
+  ],
+  "links": [
+    [
+      113,
+      84,
+      0,
+      85,
+      0,
+      "BIZYAIR_CLIP"
+    ],
+    [
+      114,
+      88,
+      0,
+      89,
+      0,
+      "NOISE"
+    ],
+    [
+      115,
+      87,
+      0,
+      89,
+      2,
+      "SAMPLER"
+    ],
+    [
+      116,
+      86,
+      0,
+      89,
+      3,
+      "SIGMAS"
+    ],
+    [
+      117,
+      89,
+      0,
+      90,
+      0,
+      "LATENT"
+    ],
+    [
+      119,
+      90,
+      0,
+      92,
+      0,
+      "IMAGE"
+    ],
+    [
+      121,
+      85,
+      0,
+      95,
+      1,
+      "BIZYAIR_CONDITIONING"
+    ],
+    [
+      122,
+      95,
+      0,
+      89,
+      1,
+      "GUIDER"
+    ],
+    [
+      124,
+      97,
+      0,
+      95,
+      0,
+      "BIZYAIR_MODEL"
+    ],
+    [
+      125,
+      83,
+      0,
+      97,
+      0,
+      "BIZYAIR_MODEL"
+    ],
+    [
+      126,
+      78,
+      0,
+      97,
+      1,
+      "BIZYAIR_PULIDFLUX"
+    ],
+    [
+      127,
+      79,
+      0,
+      97,
+      2,
+      "BIZYAIR_EVA_CLIP"
+    ],
+    [
+      129,
+      81,
+      0,
+      97,
+      3,
+      "BIZYAIR_FACEANALYSIS"
+    ],
+    [
+      130,
+      97,
+      0,
+      86,
+      0,
+      "BIZYAIR_MODEL"
+    ],
+    [
+      133,
+      60,
+      0,
+      89,
+      4,
+      "LATENT"
+    ],
+    [
+      139,
+      91,
+      0,
+      106,
+      0,
+      "*"
+    ],
+    [
+      140,
+      106,
+      0,
+      90,
+      1,
+      "BIZYAIR_VAE"
+    ],
+    [
+      141,
+      108,
+      0,
+      97,
+      4,
+      "IMAGE"
+    ],
+    [
+      142,
+      108,
+      0,
+      109,
+      0,
+      "IMAGE"
+    ]
+  ],
+  "groups": [
+    {
+      "title": "Apply Pulid",
+      "bounding": [
+        420,
+        1728,
+        1195,
+        498
+      ],
+      "color": "#3f789e",
+      "font_size": 24,
+      "locked": false
+    },
+    {
+      "title": "Flux txtimg",
+      "bounding": [
+        302,
+        869,
+        1853,
+        828
+      ],
+      "color": "#3f789e",
+      "font_size": 24,
+      "locked": false
+    }
+  ],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.6209213230591554,
+      "offset": [
+        -396.4968633103375,
+        -1067.3994774159783
+      ]
+    },
+    "0246.VERSION": [
+      0,
+      0,
+      4
+    ]
+  },
+  "version": 0.4
+}

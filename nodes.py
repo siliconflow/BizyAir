@@ -749,37 +749,6 @@ class CLIPSetLastLayer(BizyAirBaseNode):
         return (new_clip,)
 
 
-class FluxGuidance(BizyAirBaseNode):
-    @classmethod
-    def INPUT_TYPES(s):
-        return {
-            "required": {
-                "conditioning": (data_types.CONDITIONING,),
-                "guidance": (
-                    "FLOAT",
-                    {"default": 3.5, "min": 0.0, "max": 100.0, "step": 0.1},
-                ),
-            }
-        }
-
-    RETURN_TYPES = (data_types.CONDITIONING,)
-    FUNCTION = "append"
-
-    CATEGORY = "advanced/conditioning/flux"
-
-    def append(self, conditioning: BizyAirNodeIO, guidance):
-        new_conditioning = conditioning.copy(self.assigned_id)
-        new_conditioning.add_node_data(
-            class_type="FluxGuidance",
-            inputs={
-                "conditioning": conditioning,
-                "guidance": guidance,
-            },
-            outputs={"slot_index": 0},
-        )
-        return (new_conditioning,)
-
-
 class InpaintModelConditioning(BizyAirBaseNode):
     @classmethod
     def INPUT_TYPES(s):
