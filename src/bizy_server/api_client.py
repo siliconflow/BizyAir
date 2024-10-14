@@ -34,7 +34,8 @@ class APIClient:
             return headers, None
         except ValueError as e:
             error_message = e.args[0] if e.args else "Invalid API key"
-            return None, self.error_handler.handle_error(INVALID_API_KEY_ERR, message=error_message)
+            INVALID_API_KEY_ERR.message = error_message
+            return None, INVALID_API_KEY_ERR
 
     def do_get(self, url, params=None, headers=None):
         if params:

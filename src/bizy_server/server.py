@@ -94,7 +94,7 @@ class BizyAirServer:
 
             exists, err = await self.api_client.check_model(
                 name=json_data["name"], type=json_data["type"]
-            )
+            )   
             if err is not None:
                 return ErrResponse(err)
 
