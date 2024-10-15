@@ -7,7 +7,8 @@ app.registerExtension({
 
     async beforeRegisterNodeDef(nodeType, nodeData, app) {
 
-        if(nodeData.name === "SAMLoadImage"){
+        if(nodeData.name === "BizyAirSegmentAnythingBox" || nodeData.name === "BizyAirSegmentAnythingPoint"){
+            console.log("beforeRegisterNodeDef")
             const original_getExtraMenuOptions = nodeType.prototype.getExtraMenuOptions;
 
             nodeType.prototype.getExtraMenuOptions = function(_, options) {
@@ -49,7 +50,8 @@ app.registerExtension({
             await api.fetchApi("/bizyair/resetsam");
         }
 
-        if(node.title === "BizyAir SAMLoadImage"){
+        if(node.title === "☁️BizyAir Point Guided SAM" || node.title === "☁️BizyAir Box Guided SAM"){
+            console.log("nodeCreated")
             const imageWidget = node.widgets.find(widget => widget.name === "image");
             const cb = node.callback;
             if (imageWidget) {
