@@ -4,7 +4,6 @@ import os
 import uuid
 
 import aiohttp
-from comfy.cli_args import args
 from server import PromptServer
 
 import bizyair
@@ -39,12 +38,6 @@ from .utils import (
     is_string_valid,
     list_types,
     to_slash,
-)
-
-MAX_UPLOAD_FILE_SIZE = round(args.max_upload_size * 1024 * 1024)
-
-BIZYAIR_SERVER_ADDRESS = os.getenv(
-    "BIZYAIR_SERVER_ADDRESS", "https://bizyair-api.siliconflow.cn/x/v1"
 )
 
 API_PREFIX = "bizyair"
