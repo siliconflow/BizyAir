@@ -27,8 +27,6 @@ from .utils import (
     serialize_and_encode,
 )
 
-BIZYAIR_SERVER_ADDRESS = "http://127.0.0.1:8000"
-
 
 class INFER_MODE(Enum):
     auto = 0
