@@ -1,7 +1,7 @@
+import asyncio
 import json
-import os
 
-import requests
+import aiohttp
 from aiohttp import web
 from server import PromptServer
 
@@ -23,16 +23,29 @@ async def get_silicon_cloud_models_endpoint(request):
     api_key = data.get("api_key", get_api_key())
     url = "https://api.siliconflow.cn/v1/models"
     headers = {"accept": "application/json", "authorization": f"Bearer {api_key}"}
+    params = {"type": "text", "sub_type": "chat"}
+
     try:
-        response = requests.get(url, headers=headers)
-        response.raise_for_status()
-        data = response.json()
-        models = [model["id"] for model in data["data"]]
-        models.append("No LLM Enhancement")
-        return web.json_response(models)
-    except requests.RequestException as e:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                url, headers=headers, params=params, timeout=10
+            ) as response:
+                if response.status == 200:
+                    data = await response.json()
+                    models = [model["id"] for model in data["data"]]
+                    models.append("No LLM Enhancement")
+                    return web.json_response(models)
+                else:
+                    print(f"Error fetching models: HTTP Status {response.status}")
+                    return web.json_response(
+                        ["Error fetching models"], status=response.status
+                    )
+    except aiohttp.ClientError as e:
         print(f"Error fetching models: {e}")
         return web.json_response(["Error fetching models"], status=500)
+    except asyncio.exceptions.TimeoutError:
+        print("Request to fetch models timed out")
+        return web.json_response(["Request timed out"], status=504)
 
 
 class SiliconCloudLLMAPI:
