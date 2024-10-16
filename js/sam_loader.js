@@ -8,13 +8,12 @@ app.registerExtension({
     async beforeRegisterNodeDef(nodeType, nodeData, app) {
 
         if(nodeData.name === "BizyAirSegmentAnythingBox" || nodeData.name === "BizyAirSegmentAnythingPoint"){
-            console.log("beforeRegisterNodeDef")
             const original_getExtraMenuOptions = nodeType.prototype.getExtraMenuOptions;
 
             nodeType.prototype.getExtraMenuOptions = function(_, options) {
                 original_getExtraMenuOptions?.apply(this, arguments);
                 options.push({
-                    content: "sam_edit",
+                    content: "Open in SAM EDITOR",
                     callback: async () => {
                         ComfyApp.copyToClipspace(this);
                         ComfyApp.clipspace_return_node = this;
@@ -51,12 +50,10 @@ app.registerExtension({
         }
 
         if(node.title === "☁️BizyAir Point Guided SAM" || node.title === "☁️BizyAir Box Guided SAM"){
-            console.log("nodeCreated")
             const imageWidget = node.widgets.find(widget => widget.name === "image");
             const cb = node.callback;
             if (imageWidget) {
                 imageWidget.callback = async function(){
-                    console.log("why my imageWidget callback")
                     showImage(imageWidget.value);
                     if (cb) {
                         return cb.apply(this, arguments);

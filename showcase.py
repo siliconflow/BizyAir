@@ -131,6 +131,7 @@ async def save_sam(request):
     SAM_COORDINATE["nums"] = post.get("nums")
     SAM_COORDINATE["coords"] = json.loads(post.get("coords"))
     SAM_COORDINATE["mode"] = json.loads(post.get("mode"))
+    SAM_COORDINATE["filename"] = post.get("filename")
 
     return web.Response(status=200)
 

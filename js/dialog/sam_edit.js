@@ -1,9 +1,6 @@
 import { api } from "../../../scripts/api.js";
 import { ComfyApp } from "../../../scripts/app.js";
 import { $el, ComfyDialog, } from "../../../scripts/ui.js";
-// var __defProp = Object.defineProperty;
-// var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-// __name(sam_edit, "sam_edit");
 
 function loadImage(imagePath) {
     return new Promise((resolve, reject) => {
@@ -24,14 +21,23 @@ function prepare_mask(image, maskCanvas, maskCtx, maskColor) {
     );
     for (let i = 0; i < maskData.data.length; i += 4) {
       if (maskData.data[i + 3] == 255) maskData.data[i + 3] = 0;
-      else maskData.data[i + 3] = 255;
-      maskData.data[i] = maskColor.r;
-      maskData.data[i + 1] = maskColor.g;
-      maskData.data[i + 2] = maskColor.b;
+      else if(maskData.data[i + 3] == 0){   //对应黑色点
+        maskData.data[i + 3] = 255;
+        maskData.data[i] = 0;
+        maskData.data[i + 1] = 0;
+        maskData.data[i + 2] = 0;
+      }
+      else{               //对应红色点254
+        maskData.data[i + 3] = 255;
+        maskData.data[i] = 255;
+        maskData.data[i + 1] = 0;
+        maskData.data[i + 2] = 0;
+      }
     }
     maskCtx.globalCompositeOperation = "source-over";
     maskCtx.putImageData(maskData, 0, 0);
 }
+
 function dataURLToBlob(dataURL) {
   const parts = dataURL.split(";base64,");
   const contentType = parts[0].split(":")[1];
@@ -57,7 +63,6 @@ async function uploadMask(filepath, formData) {
   );
   if (ComfyApp.clipspace.images)
     ComfyApp.clipspace.images[ComfyApp.clipspace["selectedIndex"]] = filepath;
-  // ClipspaceDialog.invalidatePreview();
   if (ComfyApp.clipspace && ComfyApp.clipspace.imgs && ComfyApp.clipspace.imgs.length > 0) {
     const img_preview = document.getElementById(
       "clipspace_preview"
@@ -78,18 +83,6 @@ async function uploadSamPrompt(formData){
     console.error("Error:", error);
   });
 }
-// async function getSamStatus(){
-//   api.fetchApi("/bizyair/isresetsam", { method: "GET" }).then(response => response.json()).then(data => {
-//     console.log(data)
-// });
-// }
-// class Point {
-//     constructor(x, y, type) {
-//         this.x = x
-//         this.y = y
-//         this.type = type // 左击 1  右击 3
-//     }
-//   }
 
 class SAMEditorDialog extends ComfyDialog {
     static instance = null;
@@ -120,6 +113,7 @@ class SAMEditorDialog extends ComfyDialog {
     last_pressure;
     history = [];
     coords = [];
+    filename = " ";
     static getInstance() {
       if (!SAMEditorDialog.instance) {
         SAMEditorDialog.instance = new SAMEditorDialog();
@@ -273,7 +267,6 @@ class SAMEditorDialog extends ComfyDialog {
         }
       );
       this.pointButton = this.createLeftButton(this.getPointButtonText(), () => {
-        console.log(self.brush_color_mode)
         if (self.brush_color_mode === "remain") {
           self.brush_color_mode = "remove";
         } else if (self.brush_color_mode === "remove") {
@@ -284,7 +277,6 @@ class SAMEditorDialog extends ComfyDialog {
         self.updateWhenBrushColorModeChanged();
       });
       this.modeButton = this.createLeftButton(this.getModeButtonText(), () => {
-        // console.log(self.mode)
         if (self.mode === "point") {
           self.mode = "box";
         } else if (self.mode === "box") {
@@ -380,12 +372,22 @@ class SAMEditorDialog extends ComfyDialog {
       this.is_visible = true;
       const resp = await api.fetchApi("/bizyair/isresetsam");
       const status = await resp.json();
-      // console.log(status)
-      // console.log(status['isresetsam'])
 
       if(status['isresetsam']){
         this.resetHistory();
       }
+
+      const resp1 = await api.fetchApi("/bizyair/getsam");
+      const sam_old_coords = await resp1.json();
+      if(sam_old_coords.filename === this.filename){
+        for (const key in sam_old_coords.coords) {
+          if (sam_old_coords.hasOwnProperty(key)) {
+            const value = sam_old_coords[key]
+            this.coords.push(value);
+          }
+        }
+      }
+
       this.addHistory();
     }
     isOpened() {
@@ -409,7 +411,6 @@ class SAMEditorDialog extends ComfyDialog {
       const maskCtx = this.maskCtx;
       const maskCanvas = this.maskCanvas;
       imgCtx.clearRect(0, 0, this.imgCanvas.width, this.imgCanvas.height);
-      console.log(ComfyApp.clipspace)
       maskCtx.clearRect(0, 0, this.maskCanvas.width, this.maskCanvas.height);
       const filepath = ComfyApp.clipspace.images;
       const alpha_url = new URL(
@@ -423,6 +424,16 @@ class SAMEditorDialog extends ComfyDialog {
       const rgb_url = new URL(
         ComfyApp.clipspace.imgs[ComfyApp.clipspace["selectedIndex"]].src
       );
+      const href = rgb_url.href
+      const filenameRegex = /filename=(.+?)(&|$)/;
+      const match = href.match(filenameRegex);
+      if (match) {
+          this.filename = match[1].split('%20%5Binput%5D')[0];
+          console.log("提取到的filename:", this.filename);
+      } else {
+          console.log("未找到filename匹配");
+      }
+
       rgb_url.searchParams.delete("channel");
       rgb_url.searchParams.set("channel", "rgb");
       this.image = new Image();
@@ -727,7 +738,6 @@ class SAMEditorDialog extends ComfyDialog {
             self.maskCtx.fillStyle = this.getMaskFillStyle();
             self.maskCtx.globalCompositeOperation = "source-over";
             self.maskCtx.arc(x, y, brush_size, 0, Math.PI * 2, false);
-            console.log("111")
             self.maskCtx.rect(x, y, 20, 30);
             self.maskCtx.fill();
             self.lastx = x;
@@ -748,8 +758,6 @@ class SAMEditorDialog extends ComfyDialog {
             for (var i = 0; i < distance; i += 5) {
               var px = self.lastx + directionX * i;
               var py = self.lasty + directionY * i;
-            //   self.maskCtx.arc(px, py, brush_size, 0, Math.PI * 2, false);
-              console.log("222")
               if(self.mode === "box"){
                 self.endx = px;
                 self.endy = py;
@@ -817,7 +825,6 @@ class SAMEditorDialog extends ComfyDialog {
       }
     }
     handlePointerDown(self, event) {
-        console.log("why handlePointerDown.");
         if (event.ctrlKey) {
           if (event.buttons == 1) {
             SAMEditorDialog.mousedown_x = event.clientX;
@@ -894,14 +901,34 @@ class SAMEditorDialog extends ComfyDialog {
         backupCanvas.height
       );
       for (let i = 0; i < backupData.data.length; i += 4) {
-        if (backupData.data[i + 3] == 255) backupData.data[i + 3] = 0;
-        else backupData.data[i + 3] = 255;
-        backupData.data[i] = 0;
-        backupData.data[i + 1] = 0;
-        backupData.data[i + 2] = 0;
+
+        if (backupData.data[i + 3] == 255 && backupData.data[i] == 0){
+          backupData.data[i + 3] = 0;
+        }
+        else if(backupData.data[i + 3] == 255 && backupData.data[i] == 255){
+          backupData.data[i + 3] = 80;
+        }
+        else{
+          backupData.data[i + 3] = 255;
+          backupData.data[i] = 0;
+          backupData.data[i + 1] = 0;
+          backupData.data[i + 2] = 0;
+
+        }
+
+
       }
       backupCtx.globalCompositeOperation = "source-over";
       backupCtx.putImageData(backupData, 0, 0);
+
+      const coords = {
+      };
+
+      this.coords.forEach((item, index) => {
+        const jsonItem = JSON.stringify(item);
+        coords[index] = jsonItem;
+      });
+
       const formData = new FormData();
       const filename = "clipspace-mask-" + performance.now() + ".png";
       const item = {
@@ -917,6 +944,7 @@ class SAMEditorDialog extends ComfyDialog {
         if (index >= 0) ComfyApp.clipspace.widgets[index].value = item;
       }
       const dataURL = backupCanvas.toDataURL();
+
       const blob = dataURLToBlob(dataURL);
       let original_url = new URL(this.image.src);
       const original_ref = {
@@ -926,9 +954,6 @@ class SAMEditorDialog extends ComfyDialog {
       if (original_subfolder) original_ref.subfolder = original_subfolder;
       let original_type = original_url.searchParams.get("type");
       if (original_type) original_ref.type = original_type;
-      console.log("why send")
-      console.log(original_ref)
-      console.log(JSON.stringify(original_ref))
       formData.append("image", blob, filename);
       formData.append("original_ref", JSON.stringify(original_ref));
       formData.append("type", "input");
@@ -940,17 +965,10 @@ class SAMEditorDialog extends ComfyDialog {
       const samData = new FormData();
       const numItems = this.coords.length;
 
-      const coords = {
-      };
-
-      this.coords.forEach((item, index) => {
-        const jsonItem = JSON.stringify(item);
-        coords[index] = jsonItem;
-      });
-
       samData.append('nums', numItems);
       samData.append('coords', JSON.stringify(coords));
       samData.append('mode', (this.mode === "point") ? 1 : 0);
+      samData.append('filename', filename);
       await uploadSamPrompt(samData)
       this.close();
     }
@@ -961,26 +979,19 @@ class SAMEditorDialog extends ComfyDialog {
     }
     add_coords(){
       if(this.mode === "point"){
-        console.log("point")
-        console.log(this.coords)
         this.coords.push({
           "startx": this.startx,
           "starty": this.starty,
           "pointType": ((this.brush_color_mode === "remain") ? 1 : 0)
         });
-        console.log(this.coords)
       }
       else{
-        console.log("box")
-        console.log(this.coords)
         this.coords.push({
           "startx": this.startx,
           "starty": this.starty,
           "endx": this.endx,
           "endy": this.endy
         });
-        console.log("box")
-        console.log(this.coords)
       }
     }
 
@@ -1005,9 +1016,6 @@ class SAMEditorDialog extends ComfyDialog {
       while (this.coords.length > 0) {
         this.coords.pop();
       }
-      console.log("resetHistory")
-      console.log(this.coords.length)
-      console.log(this.history.length)
     }
 
   }
