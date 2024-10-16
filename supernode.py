@@ -26,6 +26,8 @@ from .utils import (
     serialize_and_encode,
 )
 
+BIZYAIR_SERVER_ADDRESS = "http://127.0.0.1:8000"
+
 
 class INFER_MODE(Enum):
     auto = 0
@@ -436,11 +438,9 @@ class BizyAirSegmentAnythingBox:
 
         json_msg = send_get_request("http://127.0.0.1:9999/api/bizyair/getsam")
         json_msg = json.loads(json_msg)
-        print("why json_msg:", json_msg)
-        is_box = json_msg["mode"] == EDIT_MODE.box.value
-        assert is_box
+
         coordinates = [
-            json.loads(json_msg["coords"][key]) for key in json_msg["coords"]
+            json.loads(json_msg["box_coords"][key]) for key in json_msg["box_coords"]
         ]
         input_box = [
             [
@@ -603,10 +603,9 @@ class BizyAirSegmentAnythingPoint:
 
         json_msg = send_get_request("http://127.0.0.1:9999/api/bizyair/getsam")
         json_msg = json.loads(json_msg)
-        is_point = json_msg["mode"] == EDIT_MODE.point.value
-        assert is_point
         coordinates = [
-            json.loads(json_msg["coords"][key]) for key in json_msg["coords"]
+            json.loads(json_msg["point_coords"][key])
+            for key in json_msg["point_coords"]
         ]
         input_points = [
             [float(coord["startx"]), float(coord["starty"])] for coord in coordinates
