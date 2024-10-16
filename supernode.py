@@ -39,9 +39,6 @@ class EDIT_MODE(Enum):
     point = 1
 
 
-BIZYAIR_SERVER_ADDRESS = "http://127.0.0.1:8000"
-
-
 class SuperResolution:
     API_URL = f"{BIZYAIR_SERVER_ADDRESS}/supernode/superresolution"
 
