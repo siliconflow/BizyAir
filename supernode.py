@@ -18,6 +18,7 @@ from bizyair.image_utils import (
     encode_image_to_base64,
 )
 
+from .showcase import SAM_COORDINATE
 from .utils import (
     decode_and_deserialize,
     get_api_key,
@@ -436,11 +437,9 @@ class BizyAirSegmentAnythingBox:
             w <= SIZE_LIMIT and h <= SIZE_LIMIT
         ), f"width and height must be less than {SIZE_LIMIT}x{SIZE_LIMIT}, but got {w} and {h}"
 
-        json_msg = send_get_request("http://127.0.0.1:9999/api/bizyair/getsam")
-        json_msg = json.loads(json_msg)
-
         coordinates = [
-            json.loads(json_msg["box_coords"][key]) for key in json_msg["box_coords"]
+            eval(SAM_COORDINATE["box_coords"][key])
+            for key in SAM_COORDINATE["box_coords"]
         ]
         input_box = [
             [
@@ -504,9 +503,6 @@ class BizyAirSegmentAnythingBox:
         ).to(device)
         img_mask = img_mask.mean(dim=-1)
         img_mask = img_mask.unsqueeze(0)
-
-        coord = send_get_request("http://127.0.0.1:9999/api/bizyair/getsam")
-        coord = json.loads(coord)
         return (img, img_mask)
 
     @classmethod
@@ -600,16 +596,15 @@ class BizyAirSegmentAnythingPoint:
         assert (
             w <= SIZE_LIMIT and h <= SIZE_LIMIT
         ), f"width and height must be less than {SIZE_LIMIT}x{SIZE_LIMIT}, but got {w} and {h}"
-
-        json_msg = send_get_request("http://127.0.0.1:9999/api/bizyair/getsam")
-        json_msg = json.loads(json_msg)
         coordinates = [
-            json.loads(json_msg["point_coords"][key])
-            for key in json_msg["point_coords"]
+            eval(SAM_COORDINATE["point_coords"][key])
+            for key in SAM_COORDINATE["point_coords"]
         ]
+
         input_points = [
             [float(coord["startx"]), float(coord["starty"])] for coord in coordinates
         ]
+
         input_label = [coord["pointType"] for coord in coordinates]
         payload = {
             "image": None,
@@ -664,9 +659,6 @@ class BizyAirSegmentAnythingPoint:
         img_mask = img_mask.mean(dim=-1)
         img_mask = img_mask.unsqueeze(0)
 
-        coord = send_get_request("http://127.0.0.1:9999/api/bizyair/getsam")
-        coord = json.loads(coord)
-        print("why coord:", coord)
         return (img, img_mask)
 
     @classmethod
