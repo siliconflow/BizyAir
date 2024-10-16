@@ -1,7 +1,9 @@
 import { dialog } from '../subassembly/dialog.js';
 import { $el } from "../../../scripts/ui.js";
-import { delModels, models_files, model_types, change_public } from "../apis.js"
+import { delModels, models_files, model_types, change_public, getDescription, putDescription } from "../apis.js"
 import { subscribe, unsubscribe } from '../subassembly/subscribers.js'
+import { tooltip } from  '../subassembly/tooltip.js'
+import { toast } from '../subassembly/toast.js'
 
 export const modelList = async () => {
     let isPublic = 'false';
@@ -12,12 +14,14 @@ export const modelList = async () => {
     const getData = async () => {
         const elItemBody = document.querySelector('#bizyair-model-list-item-body')
         return models_files({type, public: isPublic}).then(res => {
-            if (res.code == 20000) {
+            if (res.code === 20000) {
                 elItemBody.innerHTML = ''
                 const elData = elDataItem(res.data)
-                elData.length && elData.forEach(ele => {
-                    elItemBody.appendChild(ele)
-                });
+                if (elData.length) {
+                    for (const ele of elData) {
+                        elItemBody.appendChild(ele)
+                    }
+                }
             }
         })
     }
@@ -34,6 +38,62 @@ export const modelList = async () => {
             $el('div.bizyair-flex-item-avaulable', {}, [' '])
         ]))
     }
+    const saveDescription = async (e) => {
+        const description = document.querySelector('textarea.bizyair-model-details-item-value').value
+        await putDescription({
+            type,
+            name: e.name,
+            description
+        })
+        toast('Save successfully')
+    }
+    const detailsItem = (label, value) => {
+        return $el('div.bizyair-model-details-item', {}, [
+            $el('div.bizyair-model-details-item-label', {}, [label]),
+            $el('div.bizyair-model-details-item-value', {}, [value])
+        ])
+    }
+    const showDetails = async (e, ele) => {
+        console.log(e, ele)
+        let descriptionParam = {
+            name: e.name,
+            type
+        }
+        if (isPublic === 'true') {
+            descriptionParam = {
+                name: e.name,
+                type,
+                share_id: JSON.parse(sessionStorage.getItem('userInfo')).share_id
+            }
+        }
+        const res = await getDescription(descriptionParam)
+        // putDescription
+        dialog({
+            title: "Details",
+            content: $el('div.bizyair-model-details', {}, [
+                detailsItem('Name', e.name),
+                detailsItem('isPublic', isPublic === 'true' ? 'Yes' : 'No'),
+                detailsItem('Number of files', e.list.length),
+                (
+                    isPublic === 'true' ?
+                    detailsItem('Share ID', JSON.parse(sessionStorage.getItem('userInfo')).share_id)
+                    : ''
+                ),
+                detailsItem('Description', $el('div.bizyair-model-details-item-value-description', {}, [
+                    $el('textarea.bizyair-model-details-item-value', {
+                        rows: 6,
+                        id: 'description-textarea'
+                    }, [res.data.description ? res.data.description : ''])
+                ])),
+                detailsItem(' ', $el('button.bizyair-model-details-item-button', {
+                    id: 'description-save',
+                    onclick: () => saveDescription(e)
+                }, ['Save'])),
+            ]),
+            noText: "Close",
+        })
+    }
+
     const del = (name, ele) => {
         dialog({
             title: "This operation cannot be undone.",
@@ -45,7 +105,7 @@ export const modelList = async () => {
                     type,
                     name,
                 }).then(res => {
-                    if (res.code == 20000) {
+                    if (res.code === 20000) {
                         ele.closest('.bizyair-model-list-item').remove()
                     }
                 })
@@ -53,6 +113,7 @@ export const modelList = async () => {
             }
         })
     }
+
     const share = (data, ele) => {
         const changePublic = (publicStatus) => {
             change_public({
@@ -60,8 +121,9 @@ export const modelList = async () => {
                 name: data.name,
                 public: publicStatus
             }).then(res => {
-                if (res.code == 20000) {
+                if (res.code === 20000) {
                     ele.closest('.bizyair-model-list-item').remove()
+                    toast('Share successfully')
                 }
             })
         }
@@ -73,7 +135,7 @@ export const modelList = async () => {
             });
             return
         }
-        if (data.list[0] && data.list[0].public) {
+        if (data.list[0]?.public) {
             dialog({
                 content: "Are you sure you want to cancel this?",
                 yesText: "Yes",
@@ -89,8 +151,8 @@ export const modelList = async () => {
     }
 
     const handleItemLis = (ele) => {
-        ele.className = ele.className == 'bizyair-icon-fold' ? 'bizyair-icon-fold unfold' : 'bizyair-icon-fold';
-        ele.closest('.bizyair-model-list-item').querySelector('.bizyair-model-list-item-lis').style.display = ele.closest('.bizyair-model-list-item').querySelector('.bizyair-model-list-item-lis').style.display == 'none' ? 'block' : 'none'
+        ele.className = ele.className === 'bizyair-icon-fold' ? 'bizyair-icon-fold unfold' : 'bizyair-icon-fold';
+        ele.closest('.bizyair-model-list-item').querySelector('.bizyair-model-list-item-lis').style.display = ele.closest('.bizyair-model-list-item').querySelector('.bizyair-model-list-item-lis').style.display === 'none' ? 'block' : 'none'
     }
 
     const elOptions = typeList.map(item => $el("option", { value: item.value }, [item.label]));
@@ -103,20 +165,39 @@ export const modelList = async () => {
                     }
                 }, ['']),
                 $el('span.bizyair-model-list-content', {}, [
-                    $el('span', {}, [e.name]),
+                    $el('span.bizyair-model-list-name', {
+                        // onmouseover: ($event) => handleItemMouseover($event, e),
+                        // onmouseout: () => handleItemMouseout(e)
+                    }, [e.name]),
                     $el('span.bizyair-model-handle', {}, [
-                        (isPublic !== 'true' ?
-                            $el('span.bizyair-icon-delete', {
+                        tooltip({
+                            tips: 'Details',
+                            content: $el('span.bizyair-icon-operate.bizyair-icon-more', {
                                 onclick: function() {
-                                    del(e.name, this)
+                                    showDetails(e, this)
                                 }
-                            }) : ''
-                        ),
-                        $el(`span.bizyair-icon-share${isPublic === 'true' ? '.bizyair-icon-unshared' : ''}`, {
-                            onclick: function() {
-                                share(e, this)
-                            }
+                            })
                         }),
+                        (isPublic !== 'true' ?
+                            tooltip({
+                                tips: 'Delete',
+                                content: $el('span.bizyair-icon-operate.bizyair-icon-delete', {
+                                    onclick: function() {
+                                        del(e.name, this)
+                                    }
+                                })
+                            })
+                            : ''
+                        ),
+                        tooltip({
+                            tips: isPublic === 'true' ? 'Cancel sharing' : 'Share',
+                            content: $el(`span.bizyair-icon-operate.bizyair-icon-share${isPublic === 'true' ? '.bizyair-icon-unshared' : ''}`, {
+                                onclick: function() {
+                                    share(e, this)
+                                }
+                            })
+                        }),
+
                     ]),
                 ]),
             ]),
@@ -155,7 +236,7 @@ export const modelList = async () => {
                         type: 'radio',
                         name: 'isPublic',
                         value: 'false',
-                        checked: isPublic == 'false',
+                        checked: isPublic === 'false',
                         onchange: (e) => changePublic(e)
                     }),
                     'No'
@@ -184,7 +265,7 @@ export const modelList = async () => {
     ]);
     const fnMessage = (data) => {
         const res = JSON.parse(data.data);
-        if (res && res.type == "synced") {
+        if (res && res.type === "synced") {
             getData();
         }
     }

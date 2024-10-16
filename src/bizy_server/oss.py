@@ -38,7 +38,7 @@ class AliOssStorageClient:
             total=total_size,
             unit="B",
             unit_scale=True,
-            desc=f"Uploading {os.path.basename(file_path)}",
+            desc=f"\033[94m[BizyAir]\033[0m Uploading {os.path.basename(file_path)}",
         )
         # 维护累计发送的字节数
         bytes_uploaded = 0
@@ -56,7 +56,7 @@ class AliOssStorageClient:
                 object_name, file_path, progress_callback=progress_callback
             )
         except oss2.exceptions.OssError as e:
-            logging.error(f"Failed to upload file: {e}")
+            logging.error(f"\033[31m[BizyAir]\033[0m Failed to upload file: {e}")
             raise e
         finally:
             progress_bar.close()
@@ -69,7 +69,7 @@ class AliOssStorageClient:
             total=total_size,
             unit="B",
             unit_scale=True,
-            desc=f"Uploading {os.path.basename(file_path)}",
+            desc=f"\033[94m[BizyAir]\033[0m Uploading {os.path.basename(file_path)}",
         )
 
         # 维护累计发送的字节数

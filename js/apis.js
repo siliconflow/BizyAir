@@ -7,19 +7,19 @@ function customFetch(url, options = {}) {
     if (fetchCache.has(url)) {
         const lastFetchTime = fetchCache.get(url);
         if (now - lastFetchTime < 1200) {
-            console.log(`请求过于频繁，忽略请求：${url}`);
-            dialog({
-                content: "The request is too frequent.",
-                type: 'warning',
-                noText: 'Close',
-            })
+            // console.log(`请求过于频繁，忽略请求：${url}`);
+            // dialog({
+            //     content: "The request is too frequent.",
+            //     type: 'warning',
+            //     noText: 'Close',
+            // })
             return Promise.resolve(null);
         }
     }
     fetchCache.set(url, now);
     return window.fetch(url, options)
         .then(response => {
-            if (response.status == 404) {
+            if (response.status === 404) {
                 dialog({
                     content: "You may be missing dependencies at the moment. For details, please refer to the ComfyUI logs.",
                     type: 'error'
@@ -53,28 +53,28 @@ function customFetch(url, options = {}) {
 
 
 export function check_model_exists ( type, name ) {
-    return customFetch(`/bizyair/modelhost/check_model_exists`, {
+    return customFetch('/bizyair/modelhost/check_model_exists', {
         method: 'POST',
         body: JSON.stringify({ type, name })
     })
 }
 
 export function model_upload ( data ) {
-    return customFetch(`/bizyair/modelhost/model_upload`, {
+    return customFetch('/bizyair/modelhost/model_upload', {
         method: 'POST',
         body: JSON.stringify(data)
     })
 }
 
 export function file_upload ( data ) {
-    return customFetch(`/bizyair/modelhost/file_upload`, {
+    return customFetch('/bizyair/modelhost/file_upload', {
         method: 'POST',
         body: data
     })
 }
 
 export function set_api_key ( data ) {
-    return customFetch(`/bizyair/set_api_key`, {
+    return customFetch('/bizyair/set_api_key', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
@@ -88,11 +88,11 @@ export function models_files ( data ) {
 }
 
 export function change_public ( data ) {
-    return customFetch(`/bizyair/modelhost/models/change_public`, {method: 'PUT', body: JSON.stringify(data)})
+    return customFetch('/bizyair/modelhost/models/change_public', {method: 'PUT', body: JSON.stringify(data)})
 }
 
 export function model_types () {
-    return customFetch(`/bizyair/modelhost/model_types`, {method: 'GET'})
+    return customFetch('/bizyair/modelhost/model_types', {method: 'GET'})
 }
 
 export function check_folder (url) {
@@ -107,11 +107,35 @@ export function submit_upload (data) {
 }
 
 export function delModels ( data ) {
-    return customFetch(`/bizyair/modelhost/models`, {
+    return customFetch('/bizyair/modelhost/models', {
         method: 'DELETE',
         body: JSON.stringify({
             type: data.type,
             name: data.name,
         }),
+    })
+}
+
+export function getUserInfo () {
+    return customFetch('/bizyair/user/info', { method: 'get' })
+}
+
+export function putShareId (data) {
+    return customFetch('/bizyair/user/share_id', {
+        method: 'put',
+        body: JSON.stringify(data)
+    })
+}
+
+export function getDescription (data) {
+    return customFetch(`/bizyair/modelhost/models/description?${new URLSearchParams(data).toString()}`, {
+        method: 'get'
+    })
+}
+
+export function putDescription (data) {
+    return customFetch('/bizyair/modelhost/models/description', {
+        method: 'put',
+        body: JSON.stringify(data)
     })
 }

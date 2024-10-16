@@ -76,7 +76,7 @@ export const styleDialog = `
     right: 0;
     padding: 10px 0;
     border-radius: 8px 0 0 8px;
-    z-index: 10000;
+    z-index: 100000;
     display: flex;
     align-items: center;
     min-width: 240px;
@@ -136,5 +136,47 @@ export const styleDialog = `
 }
 .bizyair-toast-error .bizyair-toast-close{
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1em' height='1em' viewBox='0 0 24 24'%3E%3Cpath fill='%23f56c6c' d='M3 16.74L7.76 12L3 7.26L7.26 3L12 7.76L16.74 3L21 7.26L16.24 12L21 16.74L16.74 21L12 16.24L7.26 21zm9-3.33l4.74 4.75l1.42-1.42L13.41 12l4.75-4.74l-1.42-1.42L12 10.59L7.26 5.84L5.84 7.26L10.59 12l-4.75 4.74l1.42 1.42z'/%3E%3C/svg%3E")
+}
+
+.bizyair-tooltip{
+    position: relative;
+}
+.bizyair-tooltip-content{
+    position: absolute;
+    background-color: var(--comfy-input-bg);
+    border: 1px solid var(--border-color);
+    padding: 5px 10px;
+    border-radius: 8px;
+    color: var(--input-text);
+    right: 0;
+    line-height: 30px;
+    top: -40px;
+    white-space: nowrap;
+    font-size: 18px;
+    font-weight: bold;
+}
+.bizyair-drawer{
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.6);
+}
+.bizyair-icon-close{
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    width: 24px;
+    height: 24px;
+}
+.bizyair-drawer-content{
+    position: absolute;
+    top: 0;
+    transform: scale(1);
+    padding: 20px;
+    min-width: 400px;
+    height: 100vh;
+    background-color: var(--comfy-input-bg);
 }
 `
