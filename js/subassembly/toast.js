@@ -23,6 +23,12 @@ export function toast(params) {
     const style = {
         top: `${document.querySelectorAll('.bizyair-toast').length * 60 + 100}px`
     }
+    if (params.center) {
+        style.top = `${document.querySelectorAll('.bizyair-toast').length * 60 + 20}px`
+        style.right = 'auto';
+        style.left = '50%';
+        style.transform = 'translate(-50%, 0)';
+    }
     let iTime = null;
     toastParams.type = toastParams.type || 'succeed';
     $el(`div.bizyair-toast${toastParams.type ? `.bizyair-toast-${toastParams.type}` : ''}`, {

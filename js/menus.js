@@ -2,14 +2,14 @@ import { app } from "../../scripts/app.js";
 import { $el } from "../../scripts/ui.js";
 import { exampleBtn } from "./itemButton/btnExample.js";
 import { apiKeyBtn } from "./itemButton/btnApiKey.js";
-import { myInfoBtn } from "./itemButton/myInfo.js";
+import { profileBtn } from "./itemButton/profile.js";
 import { modelBtn } from "./itemButton/btnModel.js";
 import { newsBtn } from "./itemButton/btnNews.js";
 import { styleExample } from "./subassembly/styleExample.js";
 import { styleMenus } from "./subassembly/styleMenus.js";
 import { styleUploadFile } from "./subassembly/styleUploadFile.js";
 import { styleDialog } from './subassembly/styleDialog.js';
-import { styleMyInfo } from './subassembly/styleMyInfo.js';
+import { styleProfile } from './subassembly/styleProfile.js';
 import { notifySubscribers, subscribe } from './subassembly/subscribers.js'
 import { WebSocketClient } from './subassembly/socket.js'
 import { toast } from './subassembly/toast.js'
@@ -109,12 +109,12 @@ app.registerExtension({
             parent: document.head,
         });
         $el("style", {
-            textContent: styleMyInfo,
+            textContent: styleProfile,
             parent: document.head,
         });
         getUserInfo().then(info => {
             sessionStorage.setItem('userInfo', JSON.stringify(info.data))
-            userMenu = info?.data ? myInfoBtn() : apiKeyBtn
+            userMenu = info?.data ? profileBtn() : apiKeyBtn
             new FloatingButton();
         }).catch(() => {
             new FloatingButton();
@@ -132,7 +132,7 @@ app.registerExtension({
             document.querySelector('.comfy-floating-button').remove()
             getUserInfo().then(info => {
                 sessionStorage.setItem('userInfo', JSON.stringify(info.data))
-                userMenu = info?.data ? myInfoBtn() : apiKeyBtn
+                userMenu = info?.data ? profileBtn() : apiKeyBtn
                 new FloatingButton();
             }).catch(() => {
                 new FloatingButton();

@@ -1,13 +1,13 @@
-export const styleMyInfo = `
-.bizyair-myinfo-primary {
+export const styleProfile = `
+.bizyair-profile-primary {
     line-height: 40px;
 }
-.bizyair-myinfo-primary-box {
+.bizyair-profile-primary-box {
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
-.bizyair-myinfo-operate {
+.bizyair-profile-operate {
     display: flex;
     justify-content: space-between;
     align-items: center;

@@ -177,7 +177,6 @@ export const styleDialog = `
     padding: 20px;
     min-width: 400px;
     height: 100vh;
-    overflow-y: auto;
     background-color: var(--comfy-input-bg);
 }
 `

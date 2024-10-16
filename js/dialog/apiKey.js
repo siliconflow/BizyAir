@@ -2,6 +2,7 @@ import { dialog } from '../subassembly/dialog.js';
 import { $el } from "../../../scripts/ui.js";
 import { openOAuthPopup } from "./oauth.js";
 import { notifySubscribers } from "../subassembly/subscribers.js";
+import { toast } from '../subassembly/toast.js';
 
 export function apiKey() {
     async function toSubmit() {
@@ -24,11 +25,21 @@ export function apiKey() {
             body: `api_key=${encodeURIComponent(apiKey.value)}`
         });
         if (response.ok) {
-            alert('API Key set successfully!');
+            // alert('API Key set successfully!');
+            toast({
+                content: 'API Key set successfully!',
+                type: 'succeed',
+                center: true
+            })
             setCookie('api_key', apiKey.value, 30);
             notifySubscribers('loginRefresh', apiKey.value)
         } else {
-            alert(`Failed to set API Key: ${await response.text()}`);
+            // alert(`Failed to set API Key: ${await response.text()}`);
+            toast({
+                content: `Failed to set API Key: ${await response.text()}`,
+                type: 'error',
+                center: true
+            })
         }
         return response
     }
