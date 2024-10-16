@@ -7,8 +7,7 @@ export const openOAuthPopup = async (setKey) => {
   window.addEventListener('message', (event) => {
       if (event.data.length > 0 && event.data[0]['secretKey'] !== undefined) {
           setKey(event.data[0]['secretKey']);
+          popup.close();
       }
-      popup.close();
   });
-  window.postMessage
 }
