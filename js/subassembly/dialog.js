@@ -2,18 +2,18 @@ import { $el } from "../../../scripts/ui.js";
 
 
 function generateUUID() {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-        var r = window.crypto.getRandomValues(new Uint8Array(1))[0] % 16 | (c === 'x' ? 0 : 8);
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+        const r = window.crypto.getRandomValues(new Uint8Array(1))[0] % 16 | (c === 'x' ? 0 : 8);
         return r.toString(16);
     });
 }
 let dialogStack = [];
 export function dialog(params) {
-    const id = 'bizyair-dialog' + generateUUID();
-    const style = {}
+    const id = `bizyair-dialog${generateUUID()}`;
+    const style = {};
     let h = 'calc(80vh - 40px - 40px)';
     if (params.yesText || params.noText || params.neutralText) {
-        h = 'calc(80vh - 40px - 40px - 34px)'
+        h = 'calc(80vh - 40px - 40px - 34px)';
     }
     if (params.title) {
         h = 'calc(80vh - 40px - 40px - 34px - 48px)'
@@ -23,9 +23,9 @@ export function dialog(params) {
             return $el("div.bizyair-new-dialog-body", {
                 style: { maxHeight: h }
             }, [
-                (params.type && params.type == 'succeed'? $el('div.bizyair-new-dialog-icon.bizyair-new-dialog-succeed', {}, []): ''),
-                (params.type && params.type == 'warning'? $el('div.bizyair-new-dialog-icon.bizyair-new-dialog-warning', {}, []): ''),
-                (params.type && params.type == 'error'? $el('div.bizyair-new-dialog-icon.bizyair-new-dialog-error', {}, []): ''),
+                (params.type && params.type === 'succeed' ? $el('div.bizyair-new-dialog-icon.bizyair-new-dialog-succeed', {}, []) : ''),
+                (params.type && params.type === 'warning' ? $el('div.bizyair-new-dialog-icon.bizyair-new-dialog-warning', {}, []) : ''),
+                (params.type && params.type === 'error' ? $el('div.bizyair-new-dialog-icon.bizyair-new-dialog-error', {}, []) : ''),
                 params.content
             ])
         }
@@ -43,11 +43,11 @@ export function dialog(params) {
     }, [
         $el("div.bizyair-dialog-content", {
             style,
-            onclick: function (e) {
+            onclick: (e) => {
                 e.stopPropagation();
             }
         }, [
-            (params.title ? $el("p.bizyair-new-dialog-title", { }, [params.title]) : ''),
+            (params.title ? $el("p.bizyair-new-dialog-title", {}, [params.title]) : ''),
             setContent(),
             $el('div.bizyair-new-dialog-footer', {}, [
                 (params.yesText ? $el("button.bizyair-new-dialog-btn", {
@@ -91,7 +91,7 @@ export function dialog(params) {
             ]),
         ])
     ]);
-    const fnEscapeClose = async function (e) {
+    const fnEscapeClose = async (e) => {
         if (e.key === "Escape") {
             const topDialog = dialogStack[dialogStack.length - 1];
 
@@ -102,7 +102,7 @@ export function dialog(params) {
                 removeDialog(el);
             }
         }
-    }
+    };
     dialogStack.push(el);
 
     if (!params.onEscape) {

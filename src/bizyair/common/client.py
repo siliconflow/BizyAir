@@ -11,7 +11,7 @@ __all__ = ["send_request"]
 
 from dataclasses import dataclass, field
 
-from .env_var import BIZYAIR_API_KEY, BIZYAIR_DEBUG
+from .env_var import BIZYAIR_API_KEY, BIZYAIR_DEBUG, BIZYAIR_SERVER_ADDRESS
 
 IS_API_KEY_VALID = None
 
@@ -44,10 +44,10 @@ def validate_api_key(api_key: str = None) -> bool:
     if not api_key or not isinstance(api_key, str):
         warnings.warn("API key is not set.")
         return False
-    if api_key_state.current_api_key == api_key and api_key_state.is_valid is not None:
-        return api_key_state.is_valid
+    # if api_key_state.current_api_key == api_key and api_key_state.is_valid is not None:
+    #     return api_key_state.is_valid
     api_key_state.current_api_key = api_key
-    url = "https://api.siliconflow.cn/v1/user/info"
+    url = f"{BIZYAIR_SERVER_ADDRESS}/user/info"
     headers = {"accept": "application/json", "authorization": f"Bearer {api_key}"}
 
     try:

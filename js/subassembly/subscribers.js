@@ -18,6 +18,8 @@ export function unsubscribe(key, callback) {
 
 export function notifySubscribers(key, data) {
   if (subscribers.has(key)) {
-    subscribers.get(key).forEach(callback => callback(data));
+    for (const callback of subscribers.get(key)) {
+      callback(data);
+    }
   }
 }

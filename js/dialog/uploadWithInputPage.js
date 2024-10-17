@@ -2,6 +2,7 @@ import { $el } from "../../../scripts/ui.js";
 import { check_model_exists, model_types, check_folder, submit_upload } from "../apis.js"
 import { dialog } from '../subassembly/dialog.js';
 import { subscribe, unsubscribe } from '../subassembly/subscribers.js'
+import { tooltip } from  '../subassembly/tooltip.js'
 
 export const uploadWithInputPage = async () => {
     const Q = (selector) => document.querySelector(selector);
@@ -21,14 +22,10 @@ export const uploadWithInputPage = async () => {
                 }, [
                     ...elOptions
                 ]),
-                $el("i.bizyair-form-qa", {
-                    onmouseover: function () {
-                        temp.showQA(this, 'Model types.')
-                    },
-                    onmouseout: function () {
-                        temp.hideQA(this)
-                    }
-                }, ['?']),
+                tooltip({
+                    tips: 'Model types.',
+                    content: $el("i.bizyair-form-qa", {}, ['?'])
+                })
             ]),
             $el("div.bizyair-form-item", {}, [
                 $el("span.bizyair-form-label", {}, ['Name']),
@@ -40,14 +37,10 @@ export const uploadWithInputPage = async () => {
                         this.className = this.className.replace(/cm-input-item-error/g, '')
                     }
                 }),
-                $el("i.bizyair-form-qa", {
-                    onmouseover: function () {
-                        temp.showQA(this, 'Remote folder name of the model')
-                    },
-                    onmouseout: function () {
-                        temp.hideQA(this)
-                    }
-                }, ['?']),
+                tooltip({
+                    tips: 'Remote folder name of the model',
+                    content: $el("i.bizyair-form-qa", {}, ['?'])
+                })
             ]),
             $el("div.bizyair-form-item", {}, [
                 $el("span.bizyair-form-label", {}, ['Local Path']),
@@ -60,14 +53,10 @@ export const uploadWithInputPage = async () => {
                         temp.onFileMultiChange(e)
                     }
                 }),
-                $el("i.bizyair-form-qa", {
-                    onmouseover: function () {
-                        temp.showQA(this, 'Please specify the ABSOLUTE PATH of the directory to be uploaded.')
-                    },
-                    onmouseout: function () {
-                        temp.hideQA(this)
-                    }
-                }, ['?']),
+                tooltip({
+                    tips: 'Please specify the ABSOLUTE PATH of the directory to be uploaded.',
+                    content: $el("i.bizyair-form-qa", {}, ['?'])
+                })
             ]),
             $el("br", {}, []),
             $el('ul.bizyair-file-list', {}, []),
@@ -77,25 +66,25 @@ export const uploadWithInputPage = async () => {
             }, ["Please do not close this dialog box or perform any other operations while the file is uploading."]),
         ]
         ),
-        showQA(ele, text) {
-            $el('span.bizyair-form-qa-hint', {
-                parent: ele,
-            }, [text])
-        },
-        hideQA(ele) {
-            ele.querySelector('.bizyair-form-qa-hint').remove()
-        },
         queryExists() {
             const type = Q('select.cm-input-item').value
             const name = Q('input.cm-input-item').value
             check_model_exists(type, name).then(data => {
                 if (data.code === 20000) {
+                    if (data.data.public) {
+                        dialog({
+                            type: 'warning',
+                            content: "This model has already been published and cannot be overwritten.",
+                            noText: 'Close'
+                        })
+                        return
+                    }
                     if (data.data.exists) {
                         this.confirmExists()
                     } else {
-                        QAll('.spinner-container').forEach(e => {
+                        for (const e of QAll('.spinner-container')) {
                             e.innerHTML = `<span class="spinner"></span>`
-                        })
+                        }
                         this.todoUpload()
                     }
                 }
@@ -109,17 +98,18 @@ export const uploadWithInputPage = async () => {
                 yesText: "Yes",
                 noText: "No",
                 onYes: () => {
-                    QAll('.spinner-container').forEach(e => {
+
+                    for (const e of QAll('.spinner-container')) {
                         e.innerHTML = `<span class="spinner"></span>`
-                    })
+                    }
                     this.todoUpload();
                     return true
                 },
                 onNo: () => {
                     this.unDisabledInput()
-                    QAll('.spinner-container').forEach(e => {
+                    for (const e of QAll('.spinner-container')) {
                         e.innerHTML = ''
-                    })
+                    }
                 }
             })
         },
@@ -148,7 +138,7 @@ export const uploadWithInputPage = async () => {
                 elInput.className = `${elInput.className} cm-input-item-error`
                 return
             }
-            if (/^[A-Za-z0-9\u4e00-\u9fa5]([A-Za-z0-9\u4e00-\u9fa5-_]*)$/.test(elInput.value) == false) {
+            if (/^[A-Za-z0-9\u4e00-\u9fa5]([A-Za-z0-9\u4e00-\u9fa5-_]*)$/.test(elInput.value) === false) {
                 dialog({
                     type: 'warning',
                     content: "Please enter English letters, Chinese characters, numbers, or - or _.",
@@ -157,7 +147,7 @@ export const uploadWithInputPage = async () => {
                 elInput.className = `${elInput.className} cm-input-item-error`
                 return
             }
-            if (cmFileList.querySelectorAll('li').length == 0) {
+            if (cmFileList.querySelectorAll('li').length === 0) {
                 dialog({
                     type: 'warning',
                     content: "Please select files",
@@ -202,14 +192,14 @@ export const uploadWithInputPage = async () => {
             check_folder(e.target.value).then(data => {
                 this.filesAry = data.data.files
                 this.uploadId = data.data.upload_id
-                data.data.files.forEach(file => {
+                for (const file of data.data.files) {
                     Q('.bizyair-file-list').appendChild(
                         $el('li', {}, [
                             $el("span", {}, [`${file.path}`]),
                             $el("span.spinner-container", {}, []),
                         ])
                     )
-                })
+                }
             })
         },
         redraw() {
@@ -220,7 +210,7 @@ export const uploadWithInputPage = async () => {
     }
     const fnMessage = (data) => {
         const res = JSON.parse(data.data);
-        if (res.type == "progress") {
+        if (res.type === "progress") {
             const cmFileList = QAll('.bizyair-file-list li');
             const index = temp.filesAry.map(e => e.path).indexOf(res.data.path)
             if (index !== -1) {
@@ -228,8 +218,8 @@ export const uploadWithInputPage = async () => {
                 Q('.bizyair-file-list').scrollTop = cmFileList[index].offsetTop - 134;
             }
         }
-        if (res.type == "status") {
-            if (res.data.status == "finish") {
+        if (res.type === "status") {
+            if (res.data.status === "finish") {
                 Q('#bizyair-upload-submit').style.display = 'none'
                 temp.unDisabledInput()
                 Q('#tips-in-upload').style.display = 'none'
