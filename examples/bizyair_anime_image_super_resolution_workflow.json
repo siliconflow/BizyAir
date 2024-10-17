@@ -3,16 +3,44 @@
   "last_link_id": 47,
   "nodes": [
     {
+      "id": 35,
+      "type": "PreviewImage",
+      "pos": {
+        "0": 1771,
+        "1": 566
+      },
+      "size": [
+        316,
+        333
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 47,
+          "label": "images"
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "shape": 1
+    },
+    {
       "id": 34,
       "type": "BizyAirSuperResolution",
-      "pos": [
-        2158,
-        623
-      ],
-      "size": {
-        "0": 315,
-        "1": 58
+      "pos": {
+        "0": 1384,
+        "1": 580
       },
+      "size": [
+        351,
+        309
+      ],
       "flags": {},
       "order": 1,
       "mode": 0,
@@ -20,7 +48,8 @@
         {
           "name": "image",
           "type": "IMAGE",
-          "link": 46
+          "link": 46,
+          "label": "image"
         }
       ],
       "outputs": [
@@ -30,8 +59,9 @@
           "links": [
             47
           ],
+          "slot_index": 0,
           "shape": 3,
-          "slot_index": 0
+          "label": "IMAGE"
         }
       ],
       "properties": {
@@ -39,22 +69,24 @@
       },
       "widgets_values": [
         "2x"
-      ]
+      ],
+      "shape": 1
     },
     {
       "id": 33,
       "type": "LoadImage",
-      "pos": [
-        1830,
-        614
-      ],
+      "pos": {
+        "0": 1008,
+        "1": 565
+      },
       "size": [
-        315,
-        314
+        338,
+        331
       ],
       "flags": {},
       "order": 0,
       "mode": 0,
+      "inputs": [],
       "outputs": [
         {
           "name": "IMAGE",
@@ -62,14 +94,16 @@
           "links": [
             46
           ],
+          "slot_index": 0,
           "shape": 3,
-          "slot_index": 0
+          "label": "IMAGE"
         },
         {
           "name": "MASK",
           "type": "MASK",
           "links": null,
-          "shape": 3
+          "shape": 3,
+          "label": "MASK"
         }
       ],
       "properties": {
@@ -78,32 +112,8 @@
       "widgets_values": [
         "葫芦娃吐火.webp",
         "image"
-      ]
-    },
-    {
-      "id": 35,
-      "type": "PreviewImage",
-      "pos": [
-        2165,
-        721
       ],
-      "size": [
-        321.3333740234375,
-        364.0000305175781
-      ],
-      "flags": {},
-      "order": 2,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "images",
-          "type": "IMAGE",
-          "link": 47
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "PreviewImage"
-      }
+      "shape": 1
     }
   ],
   "links": [
@@ -124,15 +134,52 @@
       "IMAGE"
     ]
   ],
-  "groups": [],
+  "groups": [
+    {
+      "title": "参考图",
+      "bounding": [
+        990,
+        488,
+        373,
+        429
+      ],
+      "color": "#3f789e",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "title": "预览图",
+      "bounding": [
+        1753,
+        488,
+        347,
+        428
+      ],
+      "color": "#444",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "title": "图像处理",
+      "bounding": [
+        1365,
+        488,
+        386,
+        428
+      ],
+      "color": "#b58b2a",
+      "font_size": 24,
+      "flags": {}
+    }
+  ],
   "config": {},
   "extra": {
     "ds": {
       "scale": 1,
-      "offset": {
-        "0": -918,
-        "1": -317.33331298828125
-      }
+      "offset": [
+        -891,
+        -226
+      ]
     }
   },
   "version": 0.4
