@@ -9,6 +9,8 @@ from bizyair.path_utils import path_manager as folder_paths
 LOGO = "☁️"
 PREFIX = f"{LOGO}BizyAir"
 
+MAX_RESOLUTION = 16384  # https://github.com/comfyanonymous/ComfyUI/blob/7390ff3b1ec2e15017ba4a52d6eaabc4aa4636e3/nodes.py#L45
+
 
 class ProgressCallback:
     def __init__(self, total=None) -> None:
@@ -817,3 +819,140 @@ class SharedLoraLoader(BizyAir_LoraLoader):
             strength_model=strength_model,
             strength_clip=strength_clip,
         )
+
+
+class ConditioningCombine(BizyAirBaseNode):
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "conditioning_1": (data_types.CONDITIONING,),
+                "conditioning_2": (data_types.CONDITIONING,),
+            }
+        }
+
+    RETURN_TYPES = (data_types.CONDITIONING,)
+    # FUNCTION = "combine"
+    NODE_DISPLAY_NAME = "Conditioning (Combine)"
+    CATEGORY = "conditioning"
+
+
+class ConditioningAverage(BizyAirBaseNode):
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "conditioning_to": (data_types.CONDITIONING,),
+                "conditioning_from": (data_types.CONDITIONING,),
+                "conditioning_to_strength": (
+                    "FLOAT",
+                    {"default": 1.0, "min": 0.0, "max": 1.0, "step": 0.01},
+                ),
+            }
+        }
+
+    RETURN_TYPES = (data_types.CONDITIONING,)
+    # FUNCTION = "addWeighted"
+    NODE_DISPLAY_NAME = "Conditioning (Average)"
+    CATEGORY = "conditioning"
+
+
+class ConditioningConcat(BizyAirBaseNode):
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "conditioning_to": (data_types.CONDITIONING,),
+                "conditioning_from": (data_types.CONDITIONING,),
+            }
+        }
+
+    RETURN_TYPES = (data_types.CONDITIONING,)
+    # FUNCTION = "concat"
+    NODE_DISPLAY_NAME = "Conditioning (Concat)"
+    CATEGORY = "conditioning"
+
+
+class ConditioningSetArea(BizyAirBaseNode):
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "conditioning": (data_types.CONDITIONING,),
+                "width": (
+                    "INT",
+                    {"default": 64, "min": 64, "max": MAX_RESOLUTION, "step": 8},
+                ),
+                "height": (
+                    "INT",
+                    {"default": 64, "min": 64, "max": MAX_RESOLUTION, "step": 8},
+                ),
+                "x": (
+                    "INT",
+                    {"default": 0, "min": 0, "max": MAX_RESOLUTION, "step": 8},
+                ),
+                "y": (
+                    "INT",
+                    {"default": 0, "min": 0, "max": MAX_RESOLUTION, "step": 8},
+                ),
+                "strength": (
+                    "FLOAT",
+                    {"default": 1.0, "min": 0.0, "max": 10.0, "step": 0.01},
+                ),
+            }
+        }
+
+    RETURN_TYPES = (data_types.CONDITIONING,)
+    # FUNCTION = "append"
+    NODE_DISPLAY_NAME = "Conditioning (Set Area)"
+    CATEGORY = "conditioning"
+
+
+class ConditioningSetAreaPercentage(BizyAirBaseNode):
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "conditioning": (data_types.CONDITIONING,),
+                "width": (
+                    "FLOAT",
+                    {"default": 1.0, "min": 0, "max": 1.0, "step": 0.01},
+                ),
+                "height": (
+                    "FLOAT",
+                    {"default": 1.0, "min": 0, "max": 1.0, "step": 0.01},
+                ),
+                "x": ("FLOAT", {"default": 0, "min": 0, "max": 1.0, "step": 0.01}),
+                "y": ("FLOAT", {"default": 0, "min": 0, "max": 1.0, "step": 0.01}),
+                "strength": (
+                    "FLOAT",
+                    {"default": 1.0, "min": 0.0, "max": 10.0, "step": 0.01},
+                ),
+            }
+        }
+
+    RETURN_TYPES = (data_types.CONDITIONING,)
+    # FUNCTION = "append"
+    NODE_DISPLAY_NAME = "Conditioning (Set Area with Percentage)"
+    CATEGORY = "conditioning"
+
+
+class ConditioningSetMask(BizyAirBaseNode):
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "conditioning": (data_types.CONDITIONING,),
+                "mask": ("MASK",),
+                "strength": (
+                    "FLOAT",
+                    {"default": 1.0, "min": 0.0, "max": 10.0, "step": 0.01},
+                ),
+                "set_cond_area": (["default", "mask bounds"],),
+            }
+        }
+
+    RETURN_TYPES = (data_types.CONDITIONING,)
+    # FUNCTION = "append"
+    NODE_DISPLAY_NAME = "Conditioning (Set Mask)"
+    CATEGORY = "conditioning"
