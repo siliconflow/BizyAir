@@ -6,12 +6,13 @@ from aiohttp import web
 from server import PromptServer
 
 from bizyair.common.env_var import BIZYAIR_SERVER_ADDRESS
-from bizyair.image_utils import decode_data, encode_data
+from bizyair.image_utils import decode_data, encode_comfy_image, encode_data
 
 from .utils import (
     decode_and_deserialize,
     get_api_key,
     get_llm_response,
+    get_vlm_response,
     send_post_request,
     serialize_and_encode,
 )
@@ -30,7 +31,6 @@ async def fetch_all_models(api_key):
                 if response.status == 200:
                     data = await response.json()
                     all_models = [model["id"] for model in data["data"]]
-                    print("获取到的完整模型列表:", all_models)  # 打印完整列表
                     return all_models
                 else:
                     print(f"Error fetching models: HTTP Status {response.status}")
@@ -125,26 +125,24 @@ class SiliconCloudVLMAPI:
 
     @classmethod
     def INPUT_TYPES(s):
-        default_system_prompt = """你是一个 stable diffusion prompt 专家，为我生成适用于 Stable Diffusion 模型的prompt。 我给你相关的单词，你帮我扩写为适合 Stable Diffusion 文生图的 prompt。要求： 1. 英文输出 2. 除了 prompt 外，不要输出任何其它的信息 """
         return {
             "required": {
                 "model": ((), {}),
                 "system_prompt": (
                     "STRING",
                     {
-                        "default": default_system_prompt,
+                        "default": "你是一个能分析图像的AI助手。请仔细观察图像，并根据用户的问题提供详细、准确的描述。",
                         "multiline": True,
-                        "dynamicPrompts": True,
                     },
                 ),
                 "user_prompt": (
                     "STRING",
                     {
-                        "default": "小猫，梵高风格",
+                        "default": "请描述这张图片的内容，并指出任何有趣或不寻常的细节。",
                         "multiline": True,
-                        "dynamicPrompts": True,
                     },
                 ),
+                "images": ("IMAGE",),
                 "max_tokens": ("INT", {"default": 512, "min": 100, "max": 1e5}),
                 "temperature": (
                     "FLOAT",
@@ -159,14 +157,25 @@ class SiliconCloudVLMAPI:
     CATEGORY = "☁️BizyAir/AI Assistants"
 
     def get_vlm_model_response(
-        self, model, system_prompt, user_prompt, max_tokens, temperature
+        self, model, system_prompt, user_prompt, images, max_tokens, temperature
     ):
         if model == "No VLM Enhancement":
-            return {"ui": {"text": (user_prompt,)}, "result": (user_prompt,)}
-        response = get_llm_response(
+            return (user_prompt,)
+
+        # 使用 encode_comfy_image 函数编码图像批次
+        encoded_images_json = encode_comfy_image(
+            images, image_format="WEBP", lossless=True
+        )
+        encoded_images_dict = json.loads(encoded_images_json)
+
+        # 提取所有编码后的图像
+        base64_images = list(encoded_images_dict.values())
+
+        response = get_vlm_response(
             model,
             system_prompt,
             user_prompt,
+            base64_images,
             max_tokens,
             temperature,
         )

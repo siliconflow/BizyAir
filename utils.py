@@ -5,7 +5,7 @@ import pickle
 import urllib.parse
 import urllib.request
 import zlib
-from typing import Tuple, Union
+from typing import List, Tuple, Union
 
 import numpy as np
 
@@ -156,5 +156,53 @@ def get_llm_response(
         "stream": False,
         "n": 1,
     }
+    response = send_post_request(api_url, headers=headers, payload=payload)
+    return response
+
+
+def get_vlm_response(
+    model: str,
+    system_prompt: str,
+    user_prompt: str,
+    base64_images: List[str],
+    max_tokens: int = 1024,
+    temperature: float = 0.7,
+):
+    api_url = "https://api.siliconflow.cn/v1/chat/completions"
+    API_KEY = get_api_key()
+    headers = {
+        "accept": "application/json",
+        "content-type": "application/json",
+        "Authorization": f"Bearer {API_KEY}",
+    }
+
+    messages = [
+        {"role": "system", "content": [{"type": "text", "text": system_prompt}]},
+    ]
+
+    user_content = []
+    for base64_image in base64_images:
+        user_content.append(
+            {
+                "type": "image_url",
+                "image_url": {"url": f"data:image/webp;base64,{base64_image}"},
+            }
+        )
+    user_content.append({"type": "text", "text": user_prompt})
+
+    messages.append({"role": "user", "content": user_content})
+
+    payload = {
+        "model": model,
+        "messages": messages,
+        "max_tokens": max_tokens,
+        "temperature": temperature,
+        "top_p": 0.9,
+        "top_k": 50,
+        "stream": False,
+        "n": 1,
+        "detail": "auto",
+    }
+
     response = send_post_request(api_url, headers=headers, payload=payload)
     return response
