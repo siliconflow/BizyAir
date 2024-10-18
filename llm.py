@@ -17,10 +17,7 @@ from .utils import (
 )
 
 
-@PromptServer.instance.routes.post("/bizyair/get_silicon_cloud_models")
-async def get_silicon_cloud_models_endpoint(request):
-    data = await request.json()
-    api_key = data.get("api_key", get_api_key())
+async def fetch_all_models(api_key):
     url = "https://api.siliconflow.cn/v1/models"
     headers = {"accept": "application/json", "authorization": f"Bearer {api_key}"}
     params = {"type": "text", "sub_type": "chat"}
@@ -32,20 +29,38 @@ async def get_silicon_cloud_models_endpoint(request):
             ) as response:
                 if response.status == 200:
                     data = await response.json()
-                    models = [model["id"] for model in data["data"]]
-                    models.append("No LLM Enhancement")
-                    return web.json_response(models)
+                    all_models = [model["id"] for model in data["data"]]
+                    print("获取到的完整模型列表:", all_models)  # 打印完整列表
+                    return all_models
                 else:
                     print(f"Error fetching models: HTTP Status {response.status}")
-                    return web.json_response(
-                        ["Error fetching models"], status=response.status
-                    )
+                    return []
     except aiohttp.ClientError as e:
         print(f"Error fetching models: {e}")
-        return web.json_response(["Error fetching models"], status=500)
+        return []
     except asyncio.exceptions.TimeoutError:
         print("Request to fetch models timed out")
-        return web.json_response(["Request timed out"], status=504)
+        return []
+
+
+@PromptServer.instance.routes.post("/bizyair/get_silicon_cloud_llm_models")
+async def get_silicon_cloud_llm_models_endpoint(request):
+    data = await request.json()
+    api_key = data.get("api_key", get_api_key())
+    all_models = await fetch_all_models(api_key)
+    llm_models = [model for model in all_models if "vl" not in model.lower()]
+    llm_models.append("No LLM Enhancement")
+    return web.json_response(llm_models)
+
+
+@PromptServer.instance.routes.post("/bizyair/get_silicon_cloud_vlm_models")
+async def get_silicon_cloud_vlm_models_endpoint(request):
+    data = await request.json()
+    api_key = data.get("api_key", get_api_key())
+    all_models = await fetch_all_models(api_key)
+    vlm_models = [model for model in all_models if "vl" in model.lower()]
+    vlm_models.append("No VLM Enhancement")
+    return web.json_response(vlm_models)
 
 
 class SiliconCloudLLMAPI:
@@ -85,13 +100,68 @@ class SiliconCloudLLMAPI:
     RETURN_TYPES = ("STRING",)
     FUNCTION = "get_llm_model_response"
     OUTPUT_NODE = False
-
     CATEGORY = "☁️BizyAir/AI Assistants"
 
     def get_llm_model_response(
         self, model, system_prompt, user_prompt, max_tokens, temperature
     ):
         if model == "No LLM Enhancement":
+            return {"ui": {"text": (user_prompt,)}, "result": (user_prompt,)}
+        response = get_llm_response(
+            model,
+            system_prompt,
+            user_prompt,
+            max_tokens,
+            temperature,
+        )
+        ret = json.loads(response)
+        text = ret["choices"][0]["message"]["content"]
+        return {"ui": {"text": (text,)}, "result": (text,)}
+
+
+class SiliconCloudVLMAPI:
+    def __init__(self):
+        pass
+
+    @classmethod
+    def INPUT_TYPES(s):
+        default_system_prompt = """你是一个 stable diffusion prompt 专家，为我生成适用于 Stable Diffusion 模型的prompt。 我给你相关的单词，你帮我扩写为适合 Stable Diffusion 文生图的 prompt。要求： 1. 英文输出 2. 除了 prompt 外，不要输出任何其它的信息 """
+        return {
+            "required": {
+                "model": ((), {}),
+                "system_prompt": (
+                    "STRING",
+                    {
+                        "default": default_system_prompt,
+                        "multiline": True,
+                        "dynamicPrompts": True,
+                    },
+                ),
+                "user_prompt": (
+                    "STRING",
+                    {
+                        "default": "小猫，梵高风格",
+                        "multiline": True,
+                        "dynamicPrompts": True,
+                    },
+                ),
+                "max_tokens": ("INT", {"default": 512, "min": 100, "max": 1e5}),
+                "temperature": (
+                    "FLOAT",
+                    {"default": 0.7, "min": 0.0, "max": 2.0, "step": 0.01},
+                ),
+            }
+        }
+
+    RETURN_TYPES = ("STRING",)
+    FUNCTION = "get_vlm_model_response"
+    OUTPUT_NODE = False
+    CATEGORY = "☁️BizyAir/AI Assistants"
+
+    def get_vlm_model_response(
+        self, model, system_prompt, user_prompt, max_tokens, temperature
+    ):
+        if model == "No VLM Enhancement":
             return {"ui": {"text": (user_prompt,)}, "result": (user_prompt,)}
         response = get_llm_response(
             model,
@@ -193,9 +263,11 @@ class BizyAirJoyCaption:
 
 NODE_CLASS_MAPPINGS = {
     "BizyAirSiliconCloudLLMAPI": SiliconCloudLLMAPI,
+    "BizyAirSiliconCloudVLMAPI": SiliconCloudVLMAPI,
     "BizyAirJoyCaption": BizyAirJoyCaption,
 }
 NODE_DISPLAY_NAME_MAPPINGS = {
     "BizyAirSiliconCloudLLMAPI": "☁️BizyAir SiliconCloud LLM API",
+    "BizyAirSiliconCloudVLMAPI": "☁️BizyAir SiliconCloud VLM API",
     "BizyAirJoyCaption": "☁️BizyAir Joy Caption",
 }
