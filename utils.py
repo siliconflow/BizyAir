@@ -167,6 +167,7 @@ def get_vlm_response(
     base64_images: List[str],
     max_tokens: int = 1024,
     temperature: float = 0.7,
+    detail: str = "auto",
 ):
     api_url = "https://api.siliconflow.cn/v1/chat/completions"
     API_KEY = get_api_key()
@@ -177,7 +178,14 @@ def get_vlm_response(
     }
 
     messages = [
-        {"role": "system", "content": [{"type": "text", "text": system_prompt}]},
+        {
+            "role": "user",
+            "content": [{"type": "text", "text": system_prompt}],
+        },  # 此方法皆适用于两种 VL 模型
+        # {
+        #     "role": "system",
+        #     "content": system_prompt,
+        # },  # role 为 "system" 的这种方式只适用于 QwenVL 系列模型,并不适用于 InternVL 系列模型
     ]
 
     user_content = []
@@ -185,7 +193,10 @@ def get_vlm_response(
         user_content.append(
             {
                 "type": "image_url",
-                "image_url": {"url": f"data:image/webp;base64,{base64_image}"},
+                "image_url": {
+                    "url": f"data:image/webp;base64,{base64_image}",
+                    "detail": detail,
+                },
             }
         )
     user_content.append({"type": "text", "text": user_prompt})
@@ -201,7 +212,6 @@ def get_vlm_response(
         "top_k": 50,
         "stream": False,
         "n": 1,
-        "detail": "auto",
     }
 
     response = send_post_request(api_url, headers=headers, payload=payload)

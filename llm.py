@@ -148,6 +148,7 @@ class SiliconCloudVLMAPI:
                     "FLOAT",
                     {"default": 0.7, "min": 0.0, "max": 2.0, "step": 0.01},
                 ),
+                "detail": (["auto", "low", "high"], {"default": "auto"}),
             }
         }
 
@@ -157,7 +158,7 @@ class SiliconCloudVLMAPI:
     CATEGORY = "☁️BizyAir/AI Assistants"
 
     def get_vlm_model_response(
-        self, model, system_prompt, user_prompt, images, max_tokens, temperature
+        self, model, system_prompt, user_prompt, images, max_tokens, temperature, detail
     ):
         if model == "No VLM Enhancement":
             return (user_prompt,)
@@ -178,6 +179,7 @@ class SiliconCloudVLMAPI:
             base64_images,
             max_tokens,
             temperature,
+            detail,
         )
         ret = json.loads(response)
         text = ret["choices"][0]["message"]["content"]
