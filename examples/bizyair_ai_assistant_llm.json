@@ -1,0 +1,105 @@
+{
+  "last_node_id": 2,
+  "last_link_id": 1,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "BizyAirSiliconCloudLLMAPI",
+      "pos": {
+        "0": 573,
+        "1": 245
+      },
+      "size": [
+        425.5,
+        358.5
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": [
+            1
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAirSiliconCloudLLMAPI"
+      },
+      "widgets_values": [
+        "01-ai/Yi-1.5-6B-Chat",
+        "你是一个 stable diffusion prompt 专家，为我生成适用于 Stable Diffusion 模型的prompt。 我给你相关的单词，你帮我扩写为适合 Stable Diffusion 文生图的 prompt。要求： 1. 英文输出 2. 除了 prompt 外，不要输出任何其它的信息 ",
+        "小猫，梵高风格",
+        512,
+        0.7,
+        "\"Create an image of a cat in the style of Vincent van Gogh, using Stable Diffusion. Focus on capturing the post-impressionist brushstrokes, vibrant colors (such as yellows, blues, and oranges), and the unique texture of the cat's fur and the surrounding environment, which is a sunny meadow with wild flowers in rich, bold colors and the cat's eyes expressing emotion, possibly looking towards the horizon where the wild, thick green trees start. Ensure the final image has the same dreamlike, almost surreal quality as some of Van Gogh's most famous works like 'The Starry Night'.\""
+      ]
+    },
+    {
+      "id": 2,
+      "type": "ShowText|pysssss",
+      "pos": {
+        "0": 1120,
+        "1": 253
+      },
+      "size": [
+        320,
+        316
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "link": 1,
+          "widget": {
+            "name": "text"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": null,
+          "shape": 6
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ShowText|pysssss"
+      },
+      "widgets_values": [
+        "",
+        "\"Create an image of a cat in the style of Vincent van Gogh, using Stable Diffusion. Focus on capturing the post-impressionist brushstrokes, vibrant colors (such as yellows, blues, and oranges), and the unique texture of the cat's fur and the surrounding environment, which is a sunny meadow with wild flowers in rich, bold colors and the cat's eyes expressing emotion, possibly looking towards the horizon where the wild, thick green trees start. Ensure the final image has the same dreamlike, almost surreal quality as some of Van Gogh's most famous works like 'The Starry Night'.\""
+      ]
+    }
+  ],
+  "links": [
+    [
+      1,
+      1,
+      0,
+      2,
+      0,
+      "STRING"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 1,
+      "offset": [
+        0,
+        0
+      ]
+    }
+  },
+  "version": 0.4
+}

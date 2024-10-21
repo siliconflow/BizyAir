@@ -1,0 +1,192 @@
+{
+  "last_node_id": 4,
+  "last_link_id": 3,
+  "nodes": [
+    {
+      "id": 2,
+      "type": "BizyAir_LoadImageURL",
+      "pos": {
+        "0": 135,
+        "1": 179
+      },
+      "size": {
+        "0": 400,
+        "1": 200
+      },
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            1,
+            3
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_LoadImageURL"
+      },
+      "widgets_values": [
+        "https://bkimg.cdn.bcebos.com/pic/f703738da977391276bc886af3198618367ae227?x-bce-process=image/format,f_auto/quality,Q_70/resize,m_lfit,limit_1,w_536"
+      ]
+    },
+    {
+      "id": 4,
+      "type": "PreviewImage",
+      "pos": {
+        "0": 576,
+        "1": 406
+      },
+      "size": [
+        210,
+        246
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 3
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      }
+    },
+    {
+      "id": 3,
+      "type": "ShowText|pysssss",
+      "pos": {
+        "0": 1382,
+        "1": 263
+      },
+      "size": [
+        374.5,
+        266.5
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "link": 2,
+          "widget": {
+            "name": "text"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": null,
+          "shape": 6
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ShowText|pysssss"
+      },
+      "widgets_values": [
+        "",
+        "这幅画是列奥纳多·达·芬奇的《蒙娜丽莎》。画中是一位女性，她穿着一件黑色的长袍，披着一条绿色的披肩。她的头发是棕色的，披散在肩上。她的双手交叉放在胸前，手指交叉。她的背景是一片风景，有山丘和河流。这幅画的有趣之处在于蒙娜丽莎的微笑，她的微笑既神秘又温暖，给人一种宁静的感觉。此外，她的双手的姿势也很独特，交叉的手指形成了一个三角形，这可能是达·芬奇的一种艺术表现手法。"
+      ]
+    },
+    {
+      "id": 1,
+      "type": "BizyAirSiliconCloudVLMAPI",
+      "pos": {
+        "0": 858,
+        "1": 184
+      },
+      "size": [
+        472.5,
+        431
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": [
+            2
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAirSiliconCloudVLMAPI"
+      },
+      "widgets_values": [
+        "OpenGVLab/InternVL2-26B",
+        "你是一个能分析图像的AI助手。请仔细观察图像，并根据用户的问题提供详细、准确的描述。",
+        "请描述这张图片的内容，并指出任何有趣或不寻常的细节。",
+        512,
+        0.7,
+        "auto",
+        "这幅画是列奥纳多·达·芬奇的《蒙娜丽莎》。画中是一位女性，她穿着一件黑色的长袍，披着一条绿色的披肩。她的头发是棕色的，披散在肩上。她的双手交叉放在胸前，手指交叉。她的背景是一片风景，有山丘和河流。这幅画的有趣之处在于蒙娜丽莎的微笑，她的微笑既神秘又温暖，给人一种宁静的感觉。此外，她的双手的姿势也很独特，交叉的手指形成了一个三角形，这可能是达·芬奇的一种艺术表现手法。"
+      ]
+    }
+  ],
+  "links": [
+    [
+      1,
+      2,
+      0,
+      1,
+      0,
+      "IMAGE"
+    ],
+    [
+      2,
+      1,
+      0,
+      3,
+      0,
+      "STRING"
+    ],
+    [
+      3,
+      2,
+      0,
+      4,
+      0,
+      "IMAGE"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 1,
+      "offset": [
+        -83,
+        11
+      ]
+    }
+  },
+  "version": 0.4
+}
