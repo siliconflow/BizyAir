@@ -1,5 +1,5 @@
 # BizyAir
-- [2024/10/21] 🌩️ BizyAir supports VLModels. We add a tutorial for utilizing the LLM node. [AI Assistant](https://siliconflow.github.io/BizyAir/ai-assistants/introduce.html)
+- [2024/10/21] 🌩️ BizyAir supports VLModels. We add a tutorial for utilizing the VLM node. [AI Assistant](https://siliconflow.github.io/BizyAir/ai-assistants/introduce.html)
 - [2024/10/11] 🌩️ BizyAir supports PuLID for Flux. [FLUX PuLID workflow](./examples/bizyair_flux_pulid.json)
 - [2024/09/29] 🌩️ BizyAir has support to share your custom LoRAs. [Share Your LoRAs](http://bizyair.siliconflow.cn/model-host/sharemodel.html)
 - [2024/09/19] 🌩️ BizyAir has updated the model upload feature, allowing the upload process to display a progress bar, and the size of the models uploaded is no longer restricted by ComfyUI. (https://siliconflow.github.io/BizyAir/model-host/introduce.html)
