@@ -1,6 +1,6 @@
 ## ☁️BizyAir SiliconCloud LLM API
 
-The ☁️BizyAir SiliconCloud LLM API node is a cloud-based AI assistant that provides a set of APIs to help you build conversational interfaces.
+The "☁️BizyAir SiliconCloud LLM API" node is a cloud-based AI assistant that provides a set of APIs to help you build conversational interfaces.
 
 ### Key Features:
 
@@ -18,7 +18,7 @@ For the most current information on available models and pricing, please refer t
 
 ## ☁️BizyAir SiliconCloud VLM API
 
-The ☁️BizyAir SiliconCloud VLM API node is a cloud-based AI assistant that provides a set of APIs to help you build conversational interfaces.
+The "☁️BizyAir SiliconCloud VLM API" node is a cloud-based AI assistant that provides a set of APIs to help you build conversational interfaces.
 
 ### Key Features:
 
