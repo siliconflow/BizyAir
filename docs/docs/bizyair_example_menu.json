@@ -1,0 +1,35 @@
+{
+    "FLUX": {
+        "FLUX-schnell Text to Image(4 steps)": "bizyair_flux_schnell_workflow.json",
+        "FLUX-dev Text to Image": "bizyair_flux_dev_workflow.json",
+        "FLUX-dev Image to Image": "bizyair_flux_img2img_workflow.json",
+        "FLUX Simple Lora ": "bizyair_flux_simple_lora_workflow.json",
+        "FLUX PuLID": "bizyair_flux_pulid.json"
+    },
+    "ControlNet Union": {
+        "Generate an image from a line drawing": "bizyair_showcase_interior_design.json",
+        "Design a submarine like a great white shark": "bizyair_showcase_shark_submarine.json",
+        "All types of ControlNet preprocessors": "bizyair_controlnet_preprocessor_workflow.json"
+    },
+    "SD15": {
+        "UltimateSDUpscale": "bizyair_ultimate_sd_upscale.json"
+    },
+    "SDXL": {
+        "Text to Image by BizyAir KSampler": "bizyair_showcase_ksampler_txt2img.json",
+        "Image to Image by BizyAir KSampler": "bizyair_showcase_ksampler_img2img.json",
+        "LoRA workflow by BizyAir KSampler": "bizyair_showcase_ksampler_lora.json",
+        "ControlNet workflow by BizyAir KSampler": "bizyair_showcase_ksampler_controlnet.json",
+        "IP Adapter workflow by BizyAir KSampler": "bizyair_showcase_ksampler_ipadapter.json",
+        "InstantID Basic workflow by BizyAir KSampler": "bizyair_sdxl_InstantID_basic.json"
+    },
+    "Kolors": {
+        "Kolors Text to Image": "bizyair_kolors_txt2img.json",
+        "Kolors ControlNet Depth": "bizyair_kolors_controlnet.json",
+        "Kolors Inpainting": "bizyair_kolors_inpainting.json",
+        "Kolors IP-Adapter": "bizyair_kolors_ipa.json"
+    },
+    "Remove the background from the image": "bizyair_showcase_remove_background.json",
+    "Super Resolution": "bizyair_showcase_realistic_superresolution.json",
+    "Recreate an existing image": "bizyair_flux_joycaption_img2img_workflow.json",
+    "Text Guided Segment Anything": "bizyair_text_guided_segment-anything.json"
+}
