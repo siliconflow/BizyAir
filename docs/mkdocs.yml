@@ -108,5 +108,7 @@ nav:
     - Controlnet Union: controlnet-union/introduce.md
     - Controlnet Preprocessing: controlnet-preprocessor/introduce.md
   - Kolors: kolors/introduce.md
-  - Model Host: model-host/introduce.md
+  - Model Host:
+    - Upload Custom Models: model-host/introduce.md
+    - Share Your Models: model-host/sharemodel.md
   - Others: others/index.md

@@ -32,13 +32,44 @@ class AliOssStorageClient:
             f"New OSS storage client initialized: {self.bucket_name} in {self.region}"
         )
 
+    def sync_upload_file(self, file_path, object_name):
+        total_size = os.path.getsize(file_path)
+        progress_bar = tqdm(
+            total=total_size,
+            unit="B",
+            unit_scale=True,
+            desc=f"\033[94m[BizyAir]\033[0m Uploading {os.path.basename(file_path)}",
+        )
+        # 维护累计发送的字节数
+        bytes_uploaded = 0
+
+        def progress_callback(bytes_sent, total_bytes):
+            nonlocal bytes_uploaded
+            progress_increment = bytes_sent - bytes_uploaded
+            progress_bar.update(progress_increment)
+            bytes_uploaded = bytes_sent  # 更新累计已发送的字节数
+            if self.onUploading:
+                self.onUploading(bytes_sent, total_bytes)
+
+        try:
+            self.bucket.put_object_from_file(
+                object_name, file_path, progress_callback=progress_callback
+            )
+        except oss2.exceptions.OssError as e:
+            logging.error(f"\033[31m[BizyAir]\033[0m Failed to upload file: {e}")
+            raise e
+        finally:
+            progress_bar.close()
+
+        return f"{self.bucket_name}/{self.region}/{object_name}"
+
     async def upload_file(self, file_path, object_name):
         total_size = os.path.getsize(file_path)
         progress_bar = tqdm(
             total=total_size,
             unit="B",
             unit_scale=True,
-            desc=f"Uploading {os.path.basename(file_path)}",
+            desc=f"\033[94m[BizyAir]\033[0m Uploading {os.path.basename(file_path)}",
         )
 
         # 维护累计发送的字节数

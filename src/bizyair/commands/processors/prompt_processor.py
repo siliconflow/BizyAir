@@ -27,11 +27,6 @@ def is_link(obj):
 from dataclasses import dataclass
 
 
-@dataclass
-class NodeUsageState:
-    loras = []
-
-
 class SearchServiceRouter(Processor):
     def process(self, prompt: Dict[str, Dict[str, Any]], last_node_ids: List[str]):
         if BIZYAIR_DEV_REQUEST_URL:
@@ -41,17 +36,15 @@ class SearchServiceRouter(Processor):
         queue = deque(last_node_ids)
         visited = {key: True for key in last_node_ids}
         results = []
-        node_usage_state = NodeUsageState()
+        class_type_table = {
+            node_data["class_type"]: True for node_data in prompt.values()
+        }
         while queue:
             vertex = queue.popleft()
             if BIZYAIR_DEBUG:
                 print(vertex, end="->")
-            class_type = prompt[vertex]["class_type"]
 
-            if class_type == "LoraLoader":
-                node_usage_state.loras.append(prompt[vertex])
-
-            url = guess_url_from_node(prompt[vertex], node_usage_state)
+            url = guess_url_from_node(prompt[vertex], class_type_table)
             if url:
                 results.append(url)
             for _, in_data in prompt[vertex].get("inputs", {}).items():
