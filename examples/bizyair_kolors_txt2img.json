@@ -3,116 +3,11 @@
   "last_link_id": 154,
   "nodes": [
     {
-      "id": 70,
-      "type": "BizyAir_MZ_KolorsUNETLoaderV2",
-      "pos": {
-        "0": 634.83935546875,
-        "1": 1258.90087890625
-      },
-      "size": [
-        468.07442207812574,
-        67.62702970234545
-      ],
-      "flags": {},
-      "order": 0,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [
-        {
-          "name": "model",
-          "type": "BIZYAIR_MODEL",
-          "links": [
-            125
-          ],
-          "slot_index": 0,
-          "shape": 3,
-          "label": "model"
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "BizyAir_MZ_KolorsUNETLoaderV2"
-      },
-      "widgets_values": [
-        "kolors/Kolors.safetensors"
-      ],
-      "shape": 1
-    },
-    {
-      "id": 81,
-      "type": "BizyAir_MinusZoneChatGLM3TextEncode",
-      "pos": {
-        "0": 1133,
-        "1": 1504
-      },
-      "size": [
-        377.05442207812575,
-        256.75702970234533
-      ],
-      "flags": {},
-      "order": 1,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [
-        {
-          "name": "BIZYAIR_CONDITIONING",
-          "type": "BIZYAIR_CONDITIONING",
-          "links": [
-            154
-          ],
-          "slot_index": 0,
-          "shape": 3,
-          "label": "BIZYAIR_CONDITIONING"
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "BizyAir_MinusZoneChatGLM3TextEncode"
-      },
-      "widgets_values": [
-        "nsfw，脸部阴影，低分辨率，jpeg伪影、模糊、糟糕，黑脸，霓虹灯"
-      ],
-      "shape": 1
-    },
-    {
-      "id": 80,
-      "type": "BizyAir_MinusZoneChatGLM3TextEncode",
-      "pos": {
-        "0": 1134,
-        "1": 1262
-      },
-      "size": [
-        373.6344220781259,
-        196.2570297023451
-      ],
-      "flags": {},
-      "order": 2,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [
-        {
-          "name": "BIZYAIR_CONDITIONING",
-          "type": "BIZYAIR_CONDITIONING",
-          "links": [
-            152
-          ],
-          "slot_index": 0,
-          "shape": 3,
-          "label": "BIZYAIR_CONDITIONING"
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "BizyAir_MinusZoneChatGLM3TextEncode"
-      },
-      "widgets_values": [
-        "真实的照片,20岁女生,红色外套,城市夜景"
-      ],
-      "shape": 1
-    },
-    {
       "id": 86,
       "type": "PreviewImage",
       "pos": {
-        "0": 1921,
-        "1": 1260
+        "0": 2143.0849609375,
+        "1": 1280.9951171875
       },
       "size": {
         "0": 368.9090881347656,
@@ -133,19 +28,20 @@
       "properties": {
         "Node name for S&R": "PreviewImage"
       },
+      "widgets_values": [],
       "shape": 1
     },
     {
       "id": 73,
       "type": "BizyAir_KSampler",
       "pos": {
-        "0": 1549,
-        "1": 1261
+        "0": 1308.774169921875,
+        "1": 1282.923583984375
       },
-      "size": [
-        326.4744220781254,
-        494.91702970234496
-      ],
+      "size": {
+        "0": 326.47442626953125,
+        "1": 494.9170227050781
+      },
       "flags": {},
       "order": 6,
       "mode": 0,
@@ -203,51 +99,15 @@
       "shape": 1
     },
     {
-      "id": 85,
-      "type": "EmptyLatentImage",
-      "pos": {
-        "0": 646,
-        "1": 1635
-      },
-      "size": [
-        445.764422078126,
-        112.66702970234405
-      ],
-      "flags": {},
-      "order": 3,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [
-        {
-          "name": "LATENT",
-          "type": "LATENT",
-          "links": [
-            144
-          ],
-          "shape": 3,
-          "label": "LATENT"
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "EmptyLatentImage"
-      },
-      "widgets_values": [
-        16,
-        1024,
-        1
-      ],
-      "shape": 1
-    },
-    {
       "id": 76,
       "type": "BizyAir_VAEDecode",
       "pos": {
-        "0": 648,
-        "1": 1530
+        "0": 1679.92822265625,
+        "1": 1568.1435546875
       },
       "size": [
-        443.13442207812614,
-        58.74702970234398
+        430.4276146583006,
+        197.4331889984992
       ],
       "flags": {},
       "order": 7,
@@ -281,21 +141,22 @@
       "properties": {
         "Node name for S&R": "BizyAir_VAEDecode"
       },
+      "widgets_values": [],
       "shape": 1
     },
     {
       "id": 75,
       "type": "BizyAir_VAELoader",
       "pos": {
-        "0": 646,
-        "1": 1425
+        "0": 1674.92822265625,
+        "1": 1283.1435546875
       },
       "size": [
-        446.60442207812616,
-        58
+        429.5712146583005,
+        215.96698899849935
       ],
       "flags": {},
-      "order": 4,
+      "order": 0,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -322,15 +183,15 @@
       "id": 91,
       "type": "Note",
       "pos": {
-        "0": 620,
-        "1": 1094
+        "0": 645,
+        "1": 1024
       },
-      "size": [
-        1688.444422078126,
-        78.6970297023438
-      ],
+      "size": {
+        "0": 1688.4444580078125,
+        "1": 78.69702911376953
+      },
       "flags": {},
-      "order": 5,
+      "order": 1,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -342,6 +203,147 @@
       ],
       "color": "#432",
       "bgcolor": "#653"
+    },
+    {
+      "id": 81,
+      "type": "BizyAir_MinusZoneChatGLM3TextEncode",
+      "pos": {
+        "0": 890.9641723632812,
+        "1": 1518.8515625
+      },
+      "size": {
+        "0": 377.0544128417969,
+        "1": 256.75701904296875
+      },
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "BIZYAIR_CONDITIONING",
+          "type": "BIZYAIR_CONDITIONING",
+          "links": [
+            154
+          ],
+          "slot_index": 0,
+          "shape": 3,
+          "label": "BIZYAIR_CONDITIONING"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_MinusZoneChatGLM3TextEncode"
+      },
+      "widgets_values": [
+        "nsfw，脸部阴影，低分辨率，jpeg伪影、模糊、糟糕，黑脸，霓虹灯"
+      ],
+      "shape": 1
+    },
+    {
+      "id": 80,
+      "type": "BizyAir_MinusZoneChatGLM3TextEncode",
+      "pos": {
+        "0": 894.9641723632812,
+        "1": 1276.8515625
+      },
+      "size": {
+        "0": 373.6344299316406,
+        "1": 196.2570343017578
+      },
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "BIZYAIR_CONDITIONING",
+          "type": "BIZYAIR_CONDITIONING",
+          "links": [
+            152
+          ],
+          "slot_index": 0,
+          "shape": 3,
+          "label": "BIZYAIR_CONDITIONING"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_MinusZoneChatGLM3TextEncode"
+      },
+      "widgets_values": [
+        "真实的照片,20岁女生,红色外套,城市夜景"
+      ],
+      "shape": 1
+    },
+    {
+      "id": 70,
+      "type": "BizyAir_MZ_KolorsUNETLoaderV2",
+      "pos": {
+        "0": 402,
+        "1": 1283
+      },
+      "size": [
+        460.80421465830113,
+        490.11268899849983
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "model",
+          "type": "BIZYAIR_MODEL",
+          "links": [
+            125
+          ],
+          "slot_index": 0,
+          "shape": 3,
+          "label": "model"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_MZ_KolorsUNETLoaderV2"
+      },
+      "widgets_values": [
+        "kolors/Kolors.safetensors"
+      ],
+      "shape": 1
+    },
+    {
+      "id": 85,
+      "type": "EmptyLatentImage",
+      "pos": {
+        "0": 900.34326171875,
+        "1": 1876.0048828125
+      },
+      "size": [
+        370.619152939551,
+        119.36380618599969
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            144
+          ],
+          "shape": 3,
+          "label": "LATENT"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "EmptyLatentImage"
+      },
+      "widgets_values": [
+        16,
+        1024,
+        1
+      ],
+      "shape": 1
     }
   ],
   "links": [
@@ -404,12 +406,12 @@
   ],
   "groups": [
     {
-      "title": "VAE",
+      "title": "VAE解码器",
       "bounding": [
-        631,
-        1343,
-        472,
-        420
+        1660,
+        1201,
+        461,
+        595
       ],
       "color": "#3f789e",
       "font_size": 24,
@@ -418,8 +420,8 @@
     {
       "title": "采样器",
       "bounding": [
-        1527,
-        1180,
+        1287,
+        1202,
         369,
         594
       ],
@@ -430,10 +432,10 @@
     {
       "title": "模型",
       "bounding": [
-        620,
-        1180,
-        496,
-        594
+        381,
+        1201,
+        499,
+        597
       ],
       "color": "#a1309b",
       "font_size": 24,
@@ -442,10 +444,10 @@
     {
       "title": "提示词",
       "bounding": [
-        1118,
-        1180,
-        405,
-        594
+        880,
+        1200,
+        407,
+        598
       ],
       "color": "#b58b2a",
       "font_size": 24,
@@ -454,12 +456,24 @@
     {
       "title": "预览图",
       "bounding": [
-        1899,
-        1180,
+        2121,
+        1201,
         412,
         594
       ],
       "color": "#444",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "title": "垫图",
+      "bounding": [
+        880,
+        1801,
+        407,
+        212
+      ],
+      "color": "#3f789e",
       "font_size": 24,
       "flags": {}
     }
@@ -467,10 +481,10 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 0.8264462809917354,
+      "scale": 0.6209213230591555,
       "offset": [
-        -349.6644220781257,
-        -925.8570297023442
+        -195.8958925683013,
+        -815.7958801885002
       ]
     },
     "workspace_info": {

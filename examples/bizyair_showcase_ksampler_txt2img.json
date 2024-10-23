@@ -3,153 +3,16 @@
   "last_link_id": 84,
   "nodes": [
     {
-      "id": 34,
-      "type": "BizyAir_VAEDecode",
-      "pos": {
-        "0": 443.4000244140625,
-        "1": -203.79978942871094
-      },
-      "size": [
-        189.71659000422278,
-        135.13389734016448
-      ],
-      "flags": {},
-      "order": 6,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "samples",
-          "type": "LATENT",
-          "link": 45,
-          "label": "samples"
-        },
-        {
-          "name": "vae",
-          "type": "BIZYAIR_VAE",
-          "link": 44,
-          "label": "vae"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
-            46
-          ],
-          "slot_index": 0,
-          "shape": 3,
-          "label": "IMAGE"
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "BizyAir_VAEDecode"
-      },
-      "shape": 1
-    },
-    {
-      "id": 54,
-      "type": "EmptyLatentImage",
-      "pos": {
-        "0": 649.4000244140625,
-        "1": -202.79978942871094
-      },
-      "size": [
-        221.61659000422264,
-        133.43389734016444
-      ],
-      "flags": {},
-      "order": 0,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [
-        {
-          "name": "LATENT",
-          "type": "LATENT",
-          "links": [
-            84
-          ],
-          "slot_index": 0,
-          "shape": 3,
-          "label": "LATENT"
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "EmptyLatentImage"
-      },
-      "widgets_values": [
-        1024,
-        1024,
-        1
-      ],
-      "shape": 1
-    },
-    {
-      "id": 28,
-      "type": "BizyAir_CheckpointLoaderSimple",
-      "pos": {
-        "0": 434,
-        "1": -392
-      },
-      "size": [
-        450.51659000422273,
-        98
-      ],
-      "flags": {},
-      "order": 1,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [
-        {
-          "name": "model",
-          "type": "BIZYAIR_MODEL",
-          "links": [
-            81
-          ],
-          "shape": 3,
-          "label": "model"
-        },
-        {
-          "name": "clip",
-          "type": "BIZYAIR_CLIP",
-          "links": [
-            82,
-            83
-          ],
-          "slot_index": 1,
-          "shape": 3,
-          "label": "clip"
-        },
-        {
-          "name": "vae",
-          "type": "BIZYAIR_VAE",
-          "links": [
-            44
-          ],
-          "slot_index": 2,
-          "shape": 3,
-          "label": "vae"
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "BizyAir_CheckpointLoaderSimple"
-      },
-      "widgets_values": [
-        "sdxl/Juggernaut-XL_v9_RunDiffusionPhoto_v2.safetensors"
-      ],
-      "shape": 1
-    },
-    {
       "id": 32,
       "type": "BizyAir_CLIPTextEncode",
       "pos": {
-        "0": 918.199951171875,
-        "1": -236
+        "0": 550.4014892578125,
+        "1": -216.39996337890625
       },
-      "size": [
-        382.51659000422273,
-        179.3338973401644
-      ],
+      "size": {
+        "0": 382.5166015625,
+        "1": 179.33389282226562
+      },
       "flags": {},
       "order": 3,
       "mode": 0,
@@ -185,13 +48,13 @@
       "id": 31,
       "type": "BizyAir_CLIPTextEncode",
       "pos": {
-        "0": 917.199951171875,
-        "1": -390
+        "0": 549.4014892578125,
+        "1": -370.39996337890625
       },
-      "size": [
-        383.7165900042228,
-        115.83389734016436
-      ],
+      "size": {
+        "0": 383.7165832519531,
+        "1": 115.83390045166016
+      },
       "flags": {},
       "order": 4,
       "mode": 0,
@@ -227,13 +90,13 @@
       "id": 27,
       "type": "BizyAir_KSampler",
       "pos": {
-        "0": 1337,
-        "1": -391
+        "0": 969.4016723632812,
+        "1": -372.59979248046875
       },
-      "size": [
-        288.3165900042227,
-        328.2338973401643
-      ],
+      "size": {
+        "0": 288.31658935546875,
+        "1": 328.23388671875
+      },
       "flags": {},
       "order": 5,
       "mode": 0,
@@ -296,13 +159,13 @@
       "id": 35,
       "type": "PreviewImage",
       "pos": {
-        "0": 1671.199951171875,
-        "1": -390.20001220703125
+        "0": 1556.399169921875,
+        "1": -370.60003662109375
       },
-      "size": [
-        281.21659000422255,
-        329.2338973401644
-      ],
+      "size": {
+        "0": 281.2165832519531,
+        "1": 329.23388671875
+      },
       "flags": {},
       "order": 7,
       "mode": 0,
@@ -318,21 +181,68 @@
       "properties": {
         "Node name for S&R": "PreviewImage"
       },
+      "widgets_values": [],
+      "shape": 1
+    },
+    {
+      "id": 34,
+      "type": "BizyAir_VAEDecode",
+      "pos": {
+        "0": 1299.0010986328125,
+        "1": -376.0000305175781
+      },
+      "size": [
+        220.32873802008044,
+        326.9124647903053
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 45,
+          "label": "samples"
+        },
+        {
+          "name": "vae",
+          "type": "BIZYAIR_VAE",
+          "link": 44,
+          "label": "vae"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            46
+          ],
+          "slot_index": 0,
+          "shape": 3,
+          "label": "IMAGE"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_VAEDecode"
+      },
+      "widgets_values": [],
       "shape": 1
     },
     {
       "id": 53,
       "type": "Note",
       "pos": {
-        "0": 410,
-        "1": -534
+        "0": 335,
+        "1": -590
       },
-      "size": [
-        1560.056590004222,
-        62.43889734016369
-      ],
+      "size": {
+        "0": 1560.056640625,
+        "1": 62.43889617919922
+      },
       "flags": {},
-      "order": 2,
+      "order": 0,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -344,6 +254,98 @@
       ],
       "color": "#432",
       "bgcolor": "#653"
+    },
+    {
+      "id": 54,
+      "type": "EmptyLatentImage",
+      "pos": {
+        "0": 793.199951171875,
+        "1": 105.80000305175781
+      },
+      "size": {
+        "0": 221.61659240722656,
+        "1": 133.43389892578125
+      },
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            84
+          ],
+          "slot_index": 0,
+          "shape": 3,
+          "label": "LATENT"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "EmptyLatentImage"
+      },
+      "widgets_values": [
+        1024,
+        1024,
+        1
+      ],
+      "shape": 1
+    },
+    {
+      "id": 28,
+      "type": "BizyAir_CheckpointLoaderSimple",
+      "pos": {
+        "0": 67.39997863769531,
+        "1": -371.1998291015625
+      },
+      "size": [
+        451.55685801519826,
+        315.09426337428965
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "model",
+          "type": "BIZYAIR_MODEL",
+          "links": [
+            81
+          ],
+          "shape": 3,
+          "label": "model"
+        },
+        {
+          "name": "clip",
+          "type": "BIZYAIR_CLIP",
+          "links": [
+            82,
+            83
+          ],
+          "slot_index": 1,
+          "shape": 3,
+          "label": "clip"
+        },
+        {
+          "name": "vae",
+          "type": "BIZYAIR_VAE",
+          "links": [
+            44
+          ],
+          "slot_index": 2,
+          "shape": 3,
+          "label": "vae"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_CheckpointLoaderSimple"
+      },
+      "widgets_values": [
+        "sdxl/Juggernaut-XL_v9_RunDiffusionPhoto_v2.safetensors"
+      ],
+      "shape": 1
     }
   ],
   "links": [
@@ -422,10 +424,22 @@
   ],
   "groups": [
     {
+      "title": "垫图",
+      "bounding": [
+        770,
+        37,
+        270,
+        210
+      ],
+      "color": "#3f789e",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
       "title": "预览图",
       "bounding": [
-        1651,
-        -472,
+        1536,
+        -452,
         319,
         422
       ],
@@ -436,8 +450,8 @@
     {
       "title": "提示词",
       "bounding": [
-        904,
-        -470,
+        536,
+        -450,
         410,
         421
       ],
@@ -448,10 +462,10 @@
     {
       "title": "VAE",
       "bounding": [
-        427,
-        -278,
-        458,
-        219
+        1282,
+        -451,
+        252,
+        420
       ],
       "color": "#3f789e",
       "font_size": 24,
@@ -460,8 +474,8 @@
     {
       "title": "模型",
       "bounding": [
-        411,
-        -471,
+        44,
+        -450,
         491,
         422
       ],
@@ -472,8 +486,8 @@
     {
       "title": "采样器",
       "bounding": [
-        1315,
-        -470,
+        947,
+        -451,
         333,
         421
       ],
@@ -485,10 +499,10 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 0.8264462809917354,
+      "scale": 0.751314800901578,
       "offset": [
-        -347.50819000422234,
-        779.6535026598365
+        -37.134836652893696,
+        708.2955657272726
       ]
     }
   },

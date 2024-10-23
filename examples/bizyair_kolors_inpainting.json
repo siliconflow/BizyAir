@@ -6,13 +6,13 @@
       "id": 29,
       "type": "BizyAir_MinusZoneChatGLM3TextEncode",
       "pos": {
-        "0": 600,
-        "1": 963
+        "0": 285.1164855957031,
+        "1": 1016.7921142578125
       },
-      "size": [
-        422.22924275316063,
-        256.3384307183635
-      ],
+      "size": {
+        "0": 422.229248046875,
+        "1": 256.33843994140625
+      },
       "flags": {},
       "order": 0,
       "mode": 0,
@@ -41,13 +41,13 @@
       "id": 37,
       "type": "BizyAirGenerateLightningImage",
       "pos": {
-        "0": 602,
-        "1": 627
+        "0": 287.1164855957031,
+        "1": 680.7921142578125
       },
-      "size": [
-        421.7651427531607,
-        289.26973071836346
-      ],
+      "size": {
+        "0": 421.76513671875,
+        "1": 289.2697448730469
+      },
       "flags": {},
       "order": 1,
       "mode": 0,
@@ -84,13 +84,13 @@
       "id": 30,
       "type": "BizyAir_MinusZoneChatGLM3TextEncode",
       "pos": {
-        "0": 598,
-        "1": 498
+        "0": 283.1164855957031,
+        "1": 551.7920532226562
       },
-      "size": [
-        430.7651427531607,
-        82.74213071836357
-      ],
+      "size": {
+        "0": 430.76513671875,
+        "1": 82.74213409423828
+      },
       "flags": {},
       "order": 2,
       "mode": 0,
@@ -119,13 +119,13 @@
       "id": 28,
       "type": "BizyAir_KSampler",
       "pos": {
-        "0": 1072,
-        "1": 496.45684814453125
+        "0": 1436,
+        "1": 548
       },
-      "size": [
-        409.5643427531609,
-        722.8025307183636
-      ],
+      "size": {
+        "0": 409.5643310546875,
+        "1": 722.8025512695312
+      },
       "flags": {},
       "order": 10,
       "mode": 0,
@@ -171,7 +171,7 @@
         "Node name for S&R": "BizyAir_KSampler"
       },
       "widgets_values": [
-        12,
+        13,
         "increment",
         20,
         5,
@@ -182,75 +182,102 @@
       "shape": 1
     },
     {
-      "id": 39,
-      "type": "PreviewImage",
+      "id": 36,
+      "type": "BizyAirRemoveBackground",
       "pos": {
-        "0": 1529,
-        "1": 499
+        "0": 768,
+        "1": 549
       },
       "size": [
-        457.5352427531607,
-        275.2520307183636
+        312.06341667298534,
+        242.0471057508987
       ],
       "flags": {},
-      "order": 7,
+      "order": 6,
       "mode": 0,
       "inputs": [
         {
-          "name": "images",
+          "name": "image",
           "type": "IMAGE",
-          "link": 51,
-          "label": "images"
+          "link": 48,
+          "label": "image"
         }
       ],
-      "outputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [],
+          "slot_index": 0,
+          "shape": 3,
+          "label": "IMAGE"
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": [
+            54
+          ],
+          "slot_index": 1,
+          "shape": 3,
+          "label": "MASK"
+        }
+      ],
       "properties": {
-        "Node name for S&R": "PreviewImage"
+        "Node name for S&R": "BizyAirRemoveBackground"
       },
+      "widgets_values": [],
       "shape": 1
     },
     {
-      "id": 41,
-      "type": "PreviewImage",
+      "id": 27,
+      "type": "BizyAir_VAELoader",
       "pos": {
-        "0": 1531,
-        "1": 838
+        "0": 761,
+        "1": 920
       },
       "size": [
-        453.5352427531607,
-        374.44873071836355
+        284.3967720729852,
+        354.2776636508986
       ],
       "flags": {},
-      "order": 12,
+      "order": 3,
       "mode": 0,
-      "inputs": [
+      "inputs": [],
+      "outputs": [
         {
-          "name": "images",
-          "type": "IMAGE",
-          "link": 53,
+          "name": "vae",
+          "type": "BIZYAIR_VAE",
+          "links": [
+            30,
+            36
+          ],
           "slot_index": 0,
-          "label": "images"
+          "shape": 3,
+          "label": "vae"
         }
       ],
-      "outputs": [],
       "properties": {
-        "Node name for S&R": "PreviewImage"
+        "Node name for S&R": "BizyAir_VAELoader"
       },
+      "widgets_values": [
+        "sdxl/sdxl_vae.safetensors"
+      ],
       "shape": 1
     },
     {
       "id": 25,
       "type": "BizyAir_MZ_KolorsUNETLoaderV2",
       "pos": {
-        "0": 93,
-        "1": 490
+        "0": -232,
+        "1": 552
       },
       "size": [
-        447.3673419431608,
-        80.61985416836421
+        466.9653977891862,
+        723.2855281425987
       ],
       "flags": {},
-      "order": 3,
+      "order": 4,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -277,12 +304,12 @@
       "id": 32,
       "type": "BizyAir_VAEDecode",
       "pos": {
-        "0": 114,
-        "1": 915
+        "0": 1891,
+        "1": 559
       },
       "size": [
-        419.52735820421606,
-        46
+        422.0064507891848,
+        145.700691142599
       ],
       "flags": {},
       "order": 11,
@@ -317,18 +344,19 @@
       "properties": {
         "Node name for S&R": "BizyAir_VAEDecode"
       },
+      "widgets_values": [],
       "shape": 1
     },
     {
       "id": 26,
       "type": "BizyAir_VAEEncodeForInpaint",
       "pos": {
-        "0": 112,
-        "1": 776
+        "0": 1070,
+        "1": 910
       },
       "size": [
-        423.3804484731612,
-        98
+        310.79998779296875,
+        360.1273441117987
       ],
       "flags": {},
       "order": 9,
@@ -374,51 +402,15 @@
       "shape": 1
     },
     {
-      "id": 27,
-      "type": "BizyAir_VAELoader",
-      "pos": {
-        "0": 112,
-        "1": 672
-      },
-      "size": [
-        425.60694275316075,
-        67.71613071836362
-      ],
-      "flags": {},
-      "order": 4,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [
-        {
-          "name": "vae",
-          "type": "BIZYAIR_VAE",
-          "links": [
-            30,
-            36
-          ],
-          "slot_index": 0,
-          "shape": 3,
-          "label": "vae"
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "BizyAir_VAELoader"
-      },
-      "widgets_values": [
-        "sdxl/sdxl_vae.safetensors"
-      ],
-      "shape": 1
-    },
-    {
       "id": 43,
       "type": "InvertMask",
       "pos": {
-        "0": 113,
-        "1": 1069
+        "0": 1106,
+        "1": 553
       },
       "size": [
-        422.43173137316137,
-        51.681481228363964
+        279.2171329729854,
+        230.6625005508987
       ],
       "flags": {},
       "order": 8,
@@ -446,66 +438,50 @@
       "properties": {
         "Node name for S&R": "InvertMask"
       },
+      "widgets_values": [],
       "shape": 1
     },
     {
-      "id": 36,
-      "type": "BizyAirRemoveBackground",
+      "id": 41,
+      "type": "PreviewImage",
       "pos": {
-        "0": 115,
-        "1": 1164
+        "0": 2371,
+        "1": 542
       },
       "size": [
-        420.43173137316137,
-        46
+        452.64921975848665,
+        727.7408880076996
       ],
       "flags": {},
-      "order": 6,
+      "order": 12,
       "mode": 0,
       "inputs": [
         {
-          "name": "image",
+          "name": "images",
           "type": "IMAGE",
-          "link": 48,
-          "label": "image"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [],
+          "link": 53,
           "slot_index": 0,
-          "shape": 3,
-          "label": "IMAGE"
-        },
-        {
-          "name": "MASK",
-          "type": "MASK",
-          "links": [
-            54
-          ],
-          "slot_index": 1,
-          "shape": 3,
-          "label": "MASK"
+          "label": "images"
         }
       ],
+      "outputs": [],
       "properties": {
-        "Node name for S&R": "BizyAirRemoveBackground"
+        "Node name for S&R": "PreviewImage"
       },
+      "widgets_values": [],
       "shape": 1
     },
     {
       "id": 42,
       "type": "Note",
       "pos": {
-        "0": 64,
-        "1": 176
+        "0": -372,
+        "1": -167
       },
-      "size": [
-        1938.815707673161,
-        219.75872002836428
-      ],
+      "size": {
+        "0": 1938.815673828125,
+        "1": 219.7587127685547
+      },
       "flags": {},
       "order": 5,
       "mode": 0,
@@ -519,6 +495,35 @@
       ],
       "color": "#432",
       "bgcolor": "#653"
+    },
+    {
+      "id": 39,
+      "type": "PreviewImage",
+      "pos": {
+        "0": 890,
+        "1": 169
+      },
+      "size": [
+        353.624389258488,
+        247.38227180770014
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 51,
+          "label": "images"
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": [],
+      "shape": 1
     }
   ],
   "links": [
@@ -629,10 +634,22 @@
   ],
   "groups": [
     {
+      "title": "VAE解码",
+      "bounding": [
+        1862,
+        468,
+        476,
+        263
+      ],
+      "color": "#3f789e",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
       "title": "预览图",
       "bounding": [
-        1505,
-        414,
+        2343,
+        470,
         503,
         823
       ],
@@ -643,8 +660,8 @@
     {
       "title": "采样器",
       "bounding": [
-        1048,
-        413,
+        1405,
+        468,
         454,
         823
       ],
@@ -655,8 +672,8 @@
     {
       "title": "模型",
       "bounding": [
-        64,
-        413,
+        -249,
+        468,
         510,
         824
       ],
@@ -667,8 +684,8 @@
     {
       "title": "提示词",
       "bounding": [
-        577,
-        414,
+        262,
+        468,
         468,
         823
       ],
@@ -677,12 +694,12 @@
       "flags": {}
     },
     {
-      "title": "VAE",
+      "title": "VAE编码",
       "bounding": [
-        92,
-        590,
-        461,
-        386
+        735,
+        817,
+        669,
+        477
       ],
       "color": "#3f789e",
       "font_size": 24,
@@ -691,12 +708,24 @@
     {
       "title": "抠图",
       "bounding": [
-        91,
-        989,
-        462,
-        235
+        733,
+        468,
+        671,
+        344
       ],
       "color": "#A88",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "title": "中间生成图",
+      "bounding": [
+        864,
+        90,
+        409,
+        340
+      ],
+      "color": "#444",
       "font_size": 24,
       "flags": {}
     }
@@ -704,10 +733,10 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 0.513158118230707,
+      "scale": 0.5131581182307071,
       "offset": [
-        452.5678383268379,
-        116.75387727163543
+        79.15977240151102,
+        381.21223911229947
       ]
     },
     "workspace_info": {
