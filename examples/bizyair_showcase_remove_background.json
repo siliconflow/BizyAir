@@ -3,19 +3,45 @@
   "last_link_id": 53,
   "nodes": [
     {
-      "id": 38,
-      "type": "BizyAirGenerateLightningImage",
-      "pos": [
-        821,
-        197
-      ],
+      "id": 41,
+      "type": "Note",
+      "pos": {
+        "0": 1048,
+        "1": -143
+      },
       "size": {
-        "0": 398.97265625,
-        "1": 220
+        "0": 929.72265625,
+        "1": 63.52081298828125
       },
       "flags": {},
       "order": 0,
       "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {
+        "text": ""
+      },
+      "widgets_values": [
+        "这个例子中，先使用 BizyAir Generate Photorealistic Image 节点生成了一张图片，然后使用 BizyAir Remove Image Background 节点将该图片的背景抠除掉。\n\n你可以对比地看到抠除背景前后的两张图片。 "
+      ],
+      "color": "#432",
+      "bgcolor": "#653"
+    },
+    {
+      "id": 38,
+      "type": "BizyAirGenerateLightningImage",
+      "pos": {
+        "0": 365,
+        "1": 168
+      },
+      "size": [
+        413,
+        311
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
       "outputs": [
         {
           "name": "IMAGE",
@@ -24,8 +50,9 @@
             51,
             52
           ],
+          "slot_index": 0,
           "shape": 3,
-          "slot_index": 0
+          "label": "IMAGE"
         }
       ],
       "properties": {
@@ -39,19 +66,20 @@
         1024,
         1.5,
         1
-      ]
+      ],
+      "shape": 1
     },
     {
       "id": 39,
       "type": "PreviewImage",
-      "pos": [
-        1233,
-        195
-      ],
-      "size": {
-        "0": 212.87109375,
-        "1": 310.46612548828125
+      "pos": {
+        "0": 430,
+        "1": -107
       },
+      "size": [
+        208,
+        162
+      ],
       "flags": {},
       "order": 3,
       "mode": 0,
@@ -59,49 +87,27 @@
         {
           "name": "images",
           "type": "IMAGE",
-          "link": 52
+          "link": 52,
+          "label": "images"
         }
       ],
+      "outputs": [],
       "properties": {
         "Node name for S&R": "PreviewImage"
-      }
-    },
-    {
-      "id": 40,
-      "type": "PreviewImage",
-      "pos": [
-        1460,
-        199
-      ],
-      "size": {
-        "0": 212.87109375,
-        "1": 310.46612548828125
       },
-      "flags": {},
-      "order": 4,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "images",
-          "type": "IMAGE",
-          "link": 53,
-          "slot_index": 0
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "PreviewImage"
-      }
+      "widgets_values": [],
+      "shape": 1
     },
     {
       "id": 36,
       "type": "BizyAirRemoveBackground",
-      "pos": [
-        830,
-        460
-      ],
+      "pos": {
+        "0": 823,
+        "1": 175
+      },
       "size": [
-        384.16796875,
-        46
+        392,
+        304
       ],
       "flags": {},
       "order": 2,
@@ -110,7 +116,8 @@
         {
           "name": "image",
           "type": "IMAGE",
-          "link": 51
+          "link": 51,
+          "label": "image"
         }
       ],
       "outputs": [
@@ -120,42 +127,53 @@
           "links": [
             53
           ],
+          "slot_index": 0,
           "shape": 3,
-          "slot_index": 0
+          "label": "IMAGE"
         },
         {
           "name": "MASK",
           "type": "MASK",
           "links": null,
-          "shape": 3
+          "shape": 3,
+          "label": "MASK"
         }
       ],
       "properties": {
         "Node name for S&R": "BizyAirRemoveBackground"
-      }
+      },
+      "widgets_values": [],
+      "shape": 1
     },
     {
-      "id": 41,
-      "type": "Note",
-      "pos": [
-        566,
-        200
-      ],
+      "id": 40,
+      "type": "PreviewImage",
+      "pos": {
+        "0": 1252,
+        "1": 165
+      },
       "size": [
-        241.35546875,
-        302.44268798828125
+        358,
+        313
       ],
       "flags": {},
-      "order": 1,
+      "order": 4,
       "mode": 0,
-      "properties": {
-        "text": ""
-      },
-      "widgets_values": [
-        "这个例子中，先使用 BizyAir Generate Photorealistic Image 节点生成了一张图片，然后使用 BizyAir Remove Image Background 节点将该图片的背景抠除掉。\n\n你可以对比地看到抠除背景前后的两张图片。 "
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 53,
+          "slot_index": 0,
+          "label": "images"
+        }
       ],
-      "color": "#432",
-      "bgcolor": "#653"
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": [],
+      "shape": 1
     }
   ],
   "links": [
@@ -184,15 +202,64 @@
       "IMAGE"
     ]
   ],
-  "groups": [],
+  "groups": [
+    {
+      "title": "中间预览图",
+      "bounding": [
+        418,
+        -174,
+        230,
+        233
+      ],
+      "color": "#b06634",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "title": "模型",
+      "bounding": [
+        802,
+        87,
+        421,
+        412
+      ],
+      "color": "#a1309b",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "title": "预览图",
+      "bounding": [
+        1224,
+        88,
+        408,
+        411
+      ],
+      "color": "#8A8",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "title": "提示词",
+      "bounding": [
+        341,
+        87,
+        459,
+        413
+      ],
+      "color": "#3f789e",
+      "font_size": 24,
+      "flags": {}
+    }
+  ],
   "config": {},
   "extra": {
     "ds": {
-      "scale": 1,
-      "offset": {
-        "0": 73.27734375,
-        "1": 64.47918701171875
-      }
+      "scale": 0.8264462809917354,
+      "offset": [
+        -70.89999999999966,
+        350.2
+      ]
     }
   },
   "version": 0.4

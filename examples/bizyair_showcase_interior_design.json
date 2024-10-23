@@ -3,15 +3,86 @@
   "last_link_id": 81,
   "nodes": [
     {
+      "id": 63,
+      "type": "BizyAirGenerateLightningImage",
+      "pos": {
+        "0": -16.400287628173828,
+        "1": 700.99951171875
+      },
+      "size": {
+        "0": 390.3213195800781,
+        "1": 601.9373779296875
+      },
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            74,
+            75
+          ],
+          "slot_index": 0,
+          "shape": 3,
+          "label": "IMAGE"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAirGenerateLightningImage"
+      },
+      "widgets_values": [
+        "a living room",
+        493871336398282,
+        "fixed",
+        1024,
+        1024,
+        1.5,
+        1
+      ],
+      "shape": 1
+    },
+    {
+      "id": 72,
+      "type": "PreviewImage",
+      "pos": {
+        "0": 415,
+        "1": 910
+      },
+      "size": [
+        400.96757000000025,
+        380.63805999999977
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 80,
+          "label": "images"
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": [],
+      "shape": 1
+    },
+    {
       "id": 67,
       "type": "BizyAirCannyEdgePreprocessor",
-      "pos": [
-        420,
-        640
-      ],
+      "pos": {
+        "0": 414,
+        "1": 723
+      },
       "size": {
-        "0": 390.9926452636719,
-        "1": 106
+        "0": 395.78131103515625,
+        "1": 117.03739929199219
       },
       "flags": {},
       "order": 3,
@@ -20,7 +91,8 @@
         {
           "name": "image",
           "type": "IMAGE",
-          "link": 75
+          "link": 75,
+          "label": "image"
         }
       ],
       "outputs": [
@@ -31,30 +103,32 @@
             77,
             80
           ],
+          "slot_index": 0,
           "shape": 3,
-          "slot_index": 0
+          "label": "IMAGE"
         }
       ],
       "properties": {
         "Node name for S&R": "BizyAirCannyEdgePreprocessor"
       },
       "widgets_values": [
-        100,
+        96,
         200,
         512
-      ]
+      ],
+      "shape": 1
     },
     {
       "id": 69,
       "type": "StableDiffusionXLControlNetUnionPipeline",
-      "pos": [
-        840,
-        590
-      ],
-      "size": {
-        "0": 576.3480834960938,
-        "1": 414
+      "pos": {
+        "0": 862,
+        "1": 708
       },
+      "size": [
+        416.18394000000035,
+        574.5855099999999
+      ],
       "flags": {},
       "order": 4,
       "mode": 0,
@@ -62,32 +136,44 @@
         {
           "name": "openpose_image",
           "type": "IMAGE",
-          "link": null
+          "link": null,
+          "label": "openpose_image",
+          "shape": 7
         },
         {
           "name": "depth_image",
           "type": "IMAGE",
-          "link": null
+          "link": null,
+          "label": "depth_image",
+          "shape": 7
         },
         {
           "name": "hed_pidi_scribble_ted_image",
           "type": "IMAGE",
-          "link": null
+          "link": null,
+          "label": "hed_pidi_scribble_ted_image",
+          "shape": 7
         },
         {
           "name": "canny_lineart_anime_lineart_mlsd_image",
           "type": "IMAGE",
-          "link": 77
+          "link": 77,
+          "label": "canny_lineart_anime_lineart_mlsd_image",
+          "shape": 7
         },
         {
           "name": "normal_image",
           "type": "IMAGE",
-          "link": null
+          "link": null,
+          "label": "normal_image",
+          "shape": 7
         },
         {
           "name": "segment_image",
           "type": "IMAGE",
-          "link": null
+          "link": null,
+          "label": "segment_image",
+          "shape": 7
         }
       ],
       "outputs": [
@@ -97,8 +183,9 @@
           "links": [
             81
           ],
+          "slot_index": 0,
           "shape": 3,
-          "slot_index": 0
+          "label": "IMAGE"
         }
       ],
       "properties": {
@@ -114,62 +201,54 @@
         "watermark, text",
         0,
         0.5
-      ]
+      ],
+      "shape": 1
     },
     {
-      "id": 63,
-      "type": "BizyAirGenerateLightningImage",
-      "pos": [
-        410,
-        810
-      ],
-      "size": {
-        "0": 393.21099853515625,
-        "1": 220
+      "id": 73,
+      "type": "PreviewImage",
+      "pos": {
+        "0": 1334.779052734375,
+        "1": 714
       },
+      "size": [
+        360.9165400000004,
+        570.1960199999999
+      ],
       "flags": {},
-      "order": 0,
+      "order": 6,
       "mode": 0,
-      "inputs": [],
-      "outputs": [
+      "inputs": [
         {
-          "name": "IMAGE",
+          "name": "images",
           "type": "IMAGE",
-          "links": [
-            74,
-            75
-          ],
-          "shape": 3,
-          "slot_index": 0
+          "link": 81,
+          "label": "images"
         }
       ],
+      "outputs": [],
       "properties": {
-        "Node name for S&R": "BizyAirGenerateLightningImage"
+        "Node name for S&R": "PreviewImage"
       },
-      "widgets_values": [
-        "a living room",
-        493871336398282,
-        "fixed",
-        1024,
-        1024,
-        1.5,
-        1
-      ]
+      "widgets_values": [],
+      "shape": 1
     },
     {
       "id": 74,
       "type": "Note",
-      "pos": [
-        430,
-        1080
-      ],
+      "pos": {
+        "0": 721,
+        "1": 395
+      },
       "size": {
-        "0": 377.661376953125,
-        "1": 264.20611572265625
+        "0": 1202.641357421875,
+        "1": 148.23739624023438
       },
       "flags": {},
       "order": 1,
       "mode": 0,
+      "inputs": [],
+      "outputs": [],
       "properties": {
         "text": ""
       },
@@ -182,14 +261,14 @@
     {
       "id": 66,
       "type": "PreviewImage",
-      "pos": [
-        840,
-        1040
-      ],
-      "size": {
-        "0": 319.8609924316406,
-        "1": 342.8357849121094
+      "pos": {
+        "0": 276,
+        "1": 346
       },
+      "size": [
+        300.5491943359375,
+        246
+      ],
       "flags": {},
       "order": 2,
       "mode": 0,
@@ -197,62 +276,16 @@
         {
           "name": "images",
           "type": "IMAGE",
-          "link": 74
+          "link": 74,
+          "label": "images"
         }
       ],
+      "outputs": [],
       "properties": {
         "Node name for S&R": "PreviewImage"
-      }
-    },
-    {
-      "id": 72,
-      "type": "PreviewImage",
-      "pos": [
-        1170,
-        1040
-      ],
-      "size": {
-        "0": 319.8609924316406,
-        "1": 342.8357849121094
       },
-      "flags": {},
-      "order": 5,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "images",
-          "type": "IMAGE",
-          "link": 80
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "PreviewImage"
-      }
-    },
-    {
-      "id": 73,
-      "type": "PreviewImage",
-      "pos": [
-        1511,
-        1041
-      ],
-      "size": {
-        "0": 319.8609924316406,
-        "1": 342.8357849121094
-      },
-      "flags": {},
-      "order": 6,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "images",
-          "type": "IMAGE",
-          "link": 81
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "PreviewImage"
-      }
+      "widgets_values": [],
+      "shape": 1
     }
   ],
   "links": [
@@ -297,15 +330,76 @@
       "IMAGE"
     ]
   ],
-  "groups": [],
+  "groups": [
+    {
+      "title": "预览图",
+      "bounding": [
+        1304,
+        623,
+        414,
+        697
+      ],
+      "color": "#8A8",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "title": "边缘检测模型",
+      "bounding": [
+        398,
+        622,
+        436,
+        700
+      ],
+      "color": "#a1309b",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "title": "提示词",
+      "bounding": [
+        -37,
+        622,
+        433,
+        699
+      ],
+      "color": "#b58b2a",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "title": "模型",
+      "bounding": [
+        835,
+        622,
+        467,
+        699
+      ],
+      "color": "#3f789e",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "title": "中间预览图",
+      "bounding": [
+        233,
+        271,
+        393,
+        332
+      ],
+      "color": "#8A8",
+      "font_size": 24,
+      "flags": {}
+    }
+  ],
   "config": {},
   "extra": {
     "ds": {
-      "scale": 0.9090909090909114,
-      "offset": {
-        "0": 351.868691104778,
-        "1": -335.9473992739569
-      }
+      "scale": 0.620921323059155,
+      "offset": [
+        237.30596999999975,
+        -105.30269999999958
+      ]
     }
   },
   "version": 0.4
