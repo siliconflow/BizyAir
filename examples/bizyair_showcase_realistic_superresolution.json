@@ -6,12 +6,12 @@
       "id": 1,
       "type": "BizyAirGenerateLightningImage",
       "pos": {
-        "0": 696.7761840820312,
-        "1": 274.08447265625
+        "0": 690,
+        "1": 272
       },
       "size": [
-        400.8069843368345,
-        237.85417734037037
+        336,
+        220
       ],
       "flags": {},
       "order": 0,
@@ -45,15 +45,44 @@
       "shape": 1
     },
     {
+      "id": 4,
+      "type": "PreviewImage",
+      "pos": {
+        "0": 700,
+        "1": 530
+      },
+      "size": [
+        325.040678900001,
+        205.52818099999945
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 3,
+          "label": "images"
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": [],
+      "shape": 1
+    },
+    {
       "id": 2,
       "type": "BizyAirAuraSR",
       "pos": {
-        "0": 698.7761840820312,
-        "1": 562.0845336914062
+        "0": 1062,
+        "1": 274
       },
       "size": [
-        396.5964875315095,
-        108.15880897432453
+        415.58067890000075,
+        454.26818099999946
       ],
       "flags": {},
       "order": 1,
@@ -81,46 +110,19 @@
       "properties": {
         "Node name for S&R": "BizyAirAuraSR"
       },
-      "shape": 1
-    },
-    {
-      "id": 4,
-      "type": "PreviewImage",
-      "pos": {
-        "0": 1151,
-        "1": 277
-      },
-      "size": [
-        414.87777061974543,
-        386.31682175302467
-      ],
-      "flags": {},
-      "order": 2,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "images",
-          "type": "IMAGE",
-          "link": 3,
-          "label": "images"
-        }
-      ],
-      "outputs": [],
-      "properties": {
-        "Node name for S&R": "PreviewImage"
-      },
+      "widgets_values": [],
       "shape": 1
     },
     {
       "id": 3,
       "type": "PreviewImage",
       "pos": {
-        "0": 1596,
-        "1": 277
+        "0": 1519,
+        "1": 293
       },
       "size": [
-        411.160175105633,
-        383.4326230308948
+        385.71067890000086,
+        401.3881809999996
       ],
       "flags": {},
       "order": 3,
@@ -137,6 +139,7 @@
       "properties": {
         "Node name for S&R": "PreviewImage"
       },
+      "widgets_values": [],
       "shape": 1
     }
   ],
@@ -168,26 +171,38 @@
   ],
   "groups": [
     {
-      "title": "预览图",
+      "title": "模型",
       "bounding": [
-        1113,
-        192,
-        911,
-        497
+        1049,
+        195,
+        443,
+        551
       ],
       "color": "#b58b2a",
       "font_size": 24,
       "flags": {}
     },
     {
-      "title": "模型",
+      "title": "提示词和中间预览图",
       "bounding": [
         678,
         193,
-        433,
-        496
+        369,
+        553
       ],
       "color": "#3f789e",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "title": "预览图",
+      "bounding": [
+        1494,
+        194,
+        430,
+        549
+      ],
+      "color": "#444",
       "font_size": 24,
       "flags": {}
     }
@@ -195,10 +210,10 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 0.6934334949441341,
+      "scale": 0.7513148009015781,
       "offset": [
-        -279.52514054977274,
-        103.88003833355094
+        -382.5306789000013,
+        204.27881900000017
       ]
     }
   },

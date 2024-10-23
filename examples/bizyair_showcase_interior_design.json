@@ -3,197 +3,16 @@
   "last_link_id": 81,
   "nodes": [
     {
-      "id": 69,
-      "type": "StableDiffusionXLControlNetUnionPipeline",
-      "pos": {
-        "0": 417,
-        "1": 705
-      },
-      "size": [
-        398.3613088952169,
-        430.5873992739548
-      ],
-      "flags": {},
-      "order": 4,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "openpose_image",
-          "type": "IMAGE",
-          "link": null,
-          "label": "openpose_image"
-        },
-        {
-          "name": "depth_image",
-          "type": "IMAGE",
-          "link": null,
-          "label": "depth_image"
-        },
-        {
-          "name": "hed_pidi_scribble_ted_image",
-          "type": "IMAGE",
-          "link": null,
-          "label": "hed_pidi_scribble_ted_image"
-        },
-        {
-          "name": "canny_lineart_anime_lineart_mlsd_image",
-          "type": "IMAGE",
-          "link": 77,
-          "label": "canny_lineart_anime_lineart_mlsd_image"
-        },
-        {
-          "name": "normal_image",
-          "type": "IMAGE",
-          "link": null,
-          "label": "normal_image"
-        },
-        {
-          "name": "segment_image",
-          "type": "IMAGE",
-          "link": null,
-          "label": "segment_image"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
-            81
-          ],
-          "slot_index": 0,
-          "shape": 3,
-          "label": "IMAGE"
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "StableDiffusionXLControlNetUnionPipeline"
-      },
-      "widgets_values": [
-        1,
-        "fixed",
-        20,
-        1,
-        4.9,
-        "Stylish modern bedroom with a monochrome color palette, featuring sleek furniture and contemporary decor elements, minimalistic design, large windows with natural light, and a tranquil ambiance.",
-        "watermark, text",
-        0,
-        0.5
-      ],
-      "shape": 1
-    },
-    {
-      "id": 67,
-      "type": "BizyAirCannyEdgePreprocessor",
-      "pos": {
-        "0": 420,
-        "1": 1189
-      },
-      "size": [
-        395.78130889521697,
-        117.03739927395486
-      ],
-      "flags": {},
-      "order": 3,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "image",
-          "type": "IMAGE",
-          "link": 75,
-          "label": "image"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
-            77,
-            80
-          ],
-          "slot_index": 0,
-          "shape": 3,
-          "label": "IMAGE"
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "BizyAirCannyEdgePreprocessor"
-      },
-      "widgets_values": [
-        100,
-        200,
-        512
-      ],
-      "shape": 1
-    },
-    {
-      "id": 72,
-      "type": "PreviewImage",
-      "pos": {
-        "0": 1287.800048828125,
-        "1": 918
-      },
-      "size": [
-        296.54130889521684,
-        174.44739927395494
-      ],
-      "flags": {},
-      "order": 5,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "images",
-          "type": "IMAGE",
-          "link": 80,
-          "label": "images"
-        }
-      ],
-      "outputs": [],
-      "properties": {
-        "Node name for S&R": "PreviewImage"
-      },
-      "shape": 1
-    },
-    {
-      "id": 73,
-      "type": "PreviewImage",
-      "pos": {
-        "0": 1287.800048828125,
-        "1": 1134
-      },
-      "size": [
-        296.121308895217,
-        167.30739927395507
-      ],
-      "flags": {},
-      "order": 6,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "images",
-          "type": "IMAGE",
-          "link": 81,
-          "label": "images"
-        }
-      ],
-      "outputs": [],
-      "properties": {
-        "Node name for S&R": "PreviewImage"
-      },
-      "shape": 1
-    },
-    {
       "id": 63,
       "type": "BizyAirGenerateLightningImage",
       "pos": {
-        "0": 856,
-        "1": 703
+        "0": -16.400287628173828,
+        "1": 700.99951171875
       },
-      "size": [
-        390.32130889521704,
-        601.937399273955
-      ],
+      "size": {
+        "0": 390.3213195800781,
+        "1": 601.9373779296875
+      },
       "flags": {},
       "order": 0,
       "mode": 0,
@@ -226,16 +45,205 @@
       "shape": 1
     },
     {
+      "id": 72,
+      "type": "PreviewImage",
+      "pos": {
+        "0": 415,
+        "1": 910
+      },
+      "size": [
+        400.96757000000025,
+        380.63805999999977
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 80,
+          "label": "images"
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": [],
+      "shape": 1
+    },
+    {
+      "id": 67,
+      "type": "BizyAirCannyEdgePreprocessor",
+      "pos": {
+        "0": 414,
+        "1": 723
+      },
+      "size": {
+        "0": 395.78131103515625,
+        "1": 117.03739929199219
+      },
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 75,
+          "label": "image"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            77,
+            80
+          ],
+          "slot_index": 0,
+          "shape": 3,
+          "label": "IMAGE"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAirCannyEdgePreprocessor"
+      },
+      "widgets_values": [
+        96,
+        200,
+        512
+      ],
+      "shape": 1
+    },
+    {
+      "id": 69,
+      "type": "StableDiffusionXLControlNetUnionPipeline",
+      "pos": {
+        "0": 862,
+        "1": 708
+      },
+      "size": [
+        416.18394000000035,
+        574.5855099999999
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "openpose_image",
+          "type": "IMAGE",
+          "link": null,
+          "label": "openpose_image",
+          "shape": 7
+        },
+        {
+          "name": "depth_image",
+          "type": "IMAGE",
+          "link": null,
+          "label": "depth_image",
+          "shape": 7
+        },
+        {
+          "name": "hed_pidi_scribble_ted_image",
+          "type": "IMAGE",
+          "link": null,
+          "label": "hed_pidi_scribble_ted_image",
+          "shape": 7
+        },
+        {
+          "name": "canny_lineart_anime_lineart_mlsd_image",
+          "type": "IMAGE",
+          "link": 77,
+          "label": "canny_lineart_anime_lineart_mlsd_image",
+          "shape": 7
+        },
+        {
+          "name": "normal_image",
+          "type": "IMAGE",
+          "link": null,
+          "label": "normal_image",
+          "shape": 7
+        },
+        {
+          "name": "segment_image",
+          "type": "IMAGE",
+          "link": null,
+          "label": "segment_image",
+          "shape": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            81
+          ],
+          "slot_index": 0,
+          "shape": 3,
+          "label": "IMAGE"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "StableDiffusionXLControlNetUnionPipeline"
+      },
+      "widgets_values": [
+        1,
+        "fixed",
+        20,
+        1,
+        4.9,
+        "Stylish modern bedroom with a monochrome color palette, featuring sleek furniture and contemporary decor elements, minimalistic design, large windows with natural light, and a tranquil ambiance.",
+        "watermark, text",
+        0,
+        0.5
+      ],
+      "shape": 1
+    },
+    {
+      "id": 73,
+      "type": "PreviewImage",
+      "pos": {
+        "0": 1334.779052734375,
+        "1": 714
+      },
+      "size": [
+        360.9165400000004,
+        570.1960199999999
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 81,
+          "label": "images"
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": [],
+      "shape": 1
+    },
+    {
       "id": 74,
       "type": "Note",
       "pos": {
-        "0": 397,
-        "1": 467
+        "0": 721,
+        "1": 395
       },
-      "size": [
-        1202.6413088952172,
-        148.23739927395502
-      ],
+      "size": {
+        "0": 1202.641357421875,
+        "1": 148.23739624023438
+      },
       "flags": {},
       "order": 1,
       "mode": 0,
@@ -254,12 +262,12 @@
       "id": 66,
       "type": "PreviewImage",
       "pos": {
-        "0": 1285,
-        "1": 699
+        "0": 276,
+        "1": 346
       },
       "size": [
-        300.54920889521713,
-        173.28429927395473
+        300.5491943359375,
+        246
       ],
       "flags": {},
       "order": 2,
@@ -276,6 +284,7 @@
       "properties": {
         "Node name for S&R": "PreviewImage"
       },
+      "widgets_values": [],
       "shape": 1
     }
   ],
@@ -323,19 +332,19 @@
   ],
   "groups": [
     {
-      "title": "提示词",
+      "title": "预览图",
       "bounding": [
-        834,
-        622,
-        433,
-        699
+        1304,
+        623,
+        414,
+        697
       ],
-      "color": "#b58b2a",
+      "color": "#8A8",
       "font_size": 24,
       "flags": {}
     },
     {
-      "title": "模型",
+      "title": "边缘检测模型",
       "bounding": [
         398,
         622,
@@ -347,12 +356,36 @@
       "flags": {}
     },
     {
-      "title": "预览图",
+      "title": "提示词",
       "bounding": [
-        1269,
+        -37,
         622,
-        333,
-        697
+        433,
+        699
+      ],
+      "color": "#b58b2a",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "title": "模型",
+      "bounding": [
+        835,
+        622,
+        467,
+        699
+      ],
+      "color": "#3f789e",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "title": "中间预览图",
+      "bounding": [
+        233,
+        271,
+        393,
+        332
       ],
       "color": "#8A8",
       "font_size": 24,
@@ -364,8 +397,8 @@
     "ds": {
       "scale": 0.620921323059155,
       "offset": [
-        114.44117110478287,
-        -213.6451092739549
+        237.30596999999975,
+        -105.30269999999958
       ]
     }
   },
