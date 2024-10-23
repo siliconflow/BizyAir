@@ -1,6 +1,9 @@
 import { dialog } from '../subassembly/dialog.js';
 import { $el } from "../../../scripts/ui.js";
 import { openOAuthPopup } from "./oauth.js";
+import { notifySubscribers } from "../subassembly/subscribers.js";
+import { toast } from '../subassembly/toast.js';
+
 export function apiKey() {
     async function toSubmit() {
         const apiKey = document.querySelector('#bizyair-api-key');
@@ -22,21 +25,32 @@ export function apiKey() {
             body: `api_key=${encodeURIComponent(apiKey.value)}`
         });
         if (response.ok) {
-            alert('API Key set successfully!');
+            // alert('API Key set successfully!');
+            toast({
+                content: 'API Key set successfully!',
+                type: 'succeed',
+                center: true
+            })
             setCookie('api_key', apiKey.value, 30);
+            notifySubscribers('loginRefresh', apiKey.value)
         } else {
-            alert('Failed to set API Key: ' + await response.text());
+            // alert(`Failed to set API Key: ${await response.text()}`);
+            toast({
+                content: `Failed to set API Key: ${await response.text()}`,
+                type: 'error',
+                center: true
+            })
         }
         return response
     }
     function setCookie(name, value, days) {
-        var expires = "";
+        let expires = "";
         if (days) {
-            var date = new Date();
+            const date = new Date();
             date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-            expires = "; expires=" + date.toUTCString();
+            expires = `; expires=${date.toUTCString()}`;
         }
-        document.cookie = name + "=" + (value || "") + expires + "; path=/";
+        document.cookie = `${name}=${value || ""}${expires}; path=/`;
     }
     const content =
         $el("div.comfy-modal-content-sml",
@@ -49,7 +63,19 @@ export function apiKey() {
                         this.className = 'cm-input-item'
                     }
                 }),
-                $el('p.confirm-word', {}, ['Please', $el('a.bizyair-link', {  href: '', target: '_blank', onclick: () => openOAuthPopup((key) => document.querySelector('#bizyair-api-key').value = key  ) }, ['click to login']), " and autofill the key,"]),
+                $el('p.confirm-word', {}, [
+                    'Please',
+                    $el('a.bizyair-link', {
+                        href: '',
+                        target: '_blank',
+                        onclick: () => {
+                            openOAuthPopup((key) => {
+                                document.querySelector('#bizyair-api-key').value = key;
+                            });
+                        }
+                    }, ['click to login']),
+                    " and autofill the key,"
+                ]),
                 $el('p.confirm-word', {}, ['or visit', $el('a.bizyair-link', { href: 'https://cloud.siliconflow.cn', target: '_blank' }, ['https://cloud.siliconflow.cn']), " to get your key and input manually."]),
                 $el('p.confirm-word', {}, [
                     "Setting the API Key signifies agreement to the",

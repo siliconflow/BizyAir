@@ -17,20 +17,17 @@ INVALID_SHARE_ID = ErrorNo(400, 400104, None, "Invalid share id")
 EMPTY_ABS_FOLDER_ERR = ErrorNo(400, 400111, None, "The upload path cannot be empty.")
 NO_ABS_PATH_ERR = ErrorNo(400, 400112, None, "The upload path is not an absolute path.")
 PATH_NOT_EXISTS_ERR = ErrorNo(400, 400113, None, "The upload path does not exist.")
-FILE_NOT_EXISTS_ERR = ErrorNo(400, 400114, None, "The file does not exist.")
+INVALID_CLIENT_ID_ERR = ErrorNo(400, 400114, None, "Invalid client id")
 NO_PUBLIC_FLAG_ERR = ErrorNo(
     400, 400115, None, 'The parameter "public" is not provided.'
 )
-INVALID_CLIENT_ID_ERR = ErrorNo(400, 400114, None, "Invalid client id")
+FILE_NOT_EXISTS_ERR = ErrorNo(400, 400116, None, "The file does not exist.")
+NO_SHARE_ID_ERR = ErrorNo(
+    400, 400117, None, 'The parameter "share_id" is not provided.'
+)
+INVALID_DESCRIPTION = ErrorNo(400, 400118, None, "Invalid description")
 INVALID_API_KEY_ERR = ErrorNo(401, 401000, None, "Invalid API key")
 INVALID_USER_ERR = ErrorNo(401, 401001, None, "Invalid user")
-
-FILE_UPLOAD_SIZE_LIMIT_ERR = ErrorNo(
-    413,
-    413000,
-    None,
-    'File size exceeds the allowed limit. Please use the "--max-upload-size" to specify the upload file size limit, default is 100MB.',
-)
 
 CHECK_MODEL_EXISTS_ERR = ErrorNo(500, 500100, None, "Failed to check model")
 SIGN_FILE_ERR = ErrorNo(500, 500101, None, "Failed to sign file")
@@ -49,3 +46,6 @@ DELETE_MODEL_ERR = ErrorNo(500, 500110, None, "Failed to delete model")
 GET_USER_INFO_ERR = ErrorNo(500, 500111, None, "Failed to get user info")
 LIST_MODEL_ERR = ErrorNo(500, 500112, None, "Failed to list model")
 CHANGE_PUBLIC_ERR = ErrorNo(500, 500113, None, "Failed to change public")
+UPDATE_SHATE_ID_ERR = ErrorNo(500, 500114, None, "Failed to update share id")
+GET_DESCRIPTION_ERR = ErrorNo(500, 500115, None, "Failed to get description")
+UPDATE_DESCRIPTION_ERR = ErrorNo(500, 500116, None, "Failed to update description")

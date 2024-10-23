@@ -2,22 +2,27 @@ import { app } from "../../scripts/app.js";
 import { $el } from "../../scripts/ui.js";
 import { exampleBtn } from "./itemButton/btnExample.js";
 import { apiKeyBtn } from "./itemButton/btnApiKey.js";
+import { profileBtn } from "./itemButton/profile.js";
 import { modelBtn } from "./itemButton/btnModel.js";
 import { newsBtn } from "./itemButton/btnNews.js";
 import { styleExample } from "./subassembly/styleExample.js";
 import { styleMenus } from "./subassembly/styleMenus.js";
 import { styleUploadFile } from "./subassembly/styleUploadFile.js";
 import { styleDialog } from './subassembly/styleDialog.js';
-import { notifySubscribers } from './subassembly/subscribers.js'
+import { styleProfile } from './subassembly/styleProfile.js';
+import { notifySubscribers, subscribe } from './subassembly/subscribers.js'
 import { WebSocketClient } from './subassembly/socket.js'
 import { toast } from './subassembly/toast.js'
+import { getUserInfo } from './apis.js'
+
+let userMenu = apiKeyBtn
 
 class FloatingButton {
     constructor(show_cases) {
         this.show_cases = show_cases
         this.button = $el("div.comfy-floating-button", {
             parent: document.body,
-            style: { top: app.menu.element.style.display == 'none' ? '': '60px' },
+            style: { top: app.menu.element.style.display === 'none' ? '': '60px' },
             onmousedown: (e) => this.startDrag(e),
         }, [
             $el("h2.bizyair-logo"),
@@ -25,7 +30,7 @@ class FloatingButton {
                 $el('strong', {}, ['BizyAir']),
                 $el("div.bizyair-menu-item", {}, [
                     exampleBtn,
-                    apiKeyBtn,
+                    userMenu,
                     modelBtn,
                     newsBtn,
                 ]),
@@ -44,11 +49,7 @@ class FloatingButton {
     }
 
     getDisplayStyle(element) {
-        if (element.currentStyle) {
-            return element.currentStyle.display;
-        } else {
-            return window.getComputedStyle(element).display;
-        }
+        return element.currentStyle ? element.currentStyle.display : window.getComputedStyle(element).display;
     }
 
     startDrag(e) {
@@ -63,8 +64,8 @@ class FloatingButton {
 
     doDrag(e) {
         if (this.dragging) {
-            this.button.style.left = (e.clientX - this.offsetX) + 'px';
-            this.button.style.top = (e.clientY - this.offsetY) + 'px';
+            this.button.style.left = `${e.clientX - this.offsetX}px`;
+            this.button.style.top = `${e.clientY - this.offsetY}px`;
             this.button.style.bottom = 'auto';
             this.button.style.right = 'auto';
         }
@@ -107,15 +108,35 @@ app.registerExtension({
             textContent: styleDialog,
             parent: document.head,
         });
-        new FloatingButton();
+        $el("style", {
+            textContent: styleProfile,
+            parent: document.head,
+        });
+        getUserInfo().then(info => {
+            sessionStorage.setItem('userInfo', JSON.stringify(info.data))
+            userMenu = info?.data ? profileBtn() : apiKeyBtn
+            new FloatingButton();
+        }).catch(() => {
+            new FloatingButton();
+        })
 
         const wsClient = new WebSocketClient(`ws://${location.host}/bizyair/modelhost/ws?clientId=${sessionStorage.getItem('clientId')}`);
-        wsClient.onMessage = function(message) {
+        wsClient.onMessage = message => {
             notifySubscribers('socketMessage', message);
             const res = JSON.parse(message.data);
-            if (res && res.type == 'errors') {
+            if (res && res.type === 'errors') {
                 toast.error(res.data.message)
             }
         }
+        subscribe('loginRefresh', () => {
+            document.querySelector('.comfy-floating-button').remove()
+            getUserInfo().then(info => {
+                sessionStorage.setItem('userInfo', JSON.stringify(info.data))
+                userMenu = info?.data ? profileBtn() : apiKeyBtn
+                new FloatingButton();
+            }).catch(() => {
+                new FloatingButton();
+            })
+        })
     },
 });
