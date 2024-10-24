@@ -271,10 +271,11 @@ class BizyAirJoyCaption:
         caption = msg["data"]
         return {"ui": {"text": (caption,)}, "result": (caption,)}
 
+
 class BizyAirJoyCaption2:
     def __init__(self):
         pass
-    
+
     # refer to: https://huggingface.co/spaces/fancyfeast/joy-caption-pre-alpha
     API_URL = f"{BIZYAIR_SERVER_ADDRESS}/supernode/joycaption2"
 
@@ -305,43 +306,44 @@ class BizyAirJoyCaption2:
                         "display": "number",
                     },
                 ),
-                "caption_type":(
-                    ["Descriptive",
-                    "Descriptive (Informal)", 
-                    "Training Prompt", 
-                    "MidJourney", 
-                    "Booru tag list",
-                    "Booru-like tag list",
-                    "Art Critic",
-                    "Product Listing",
-                    "Social Media Post"
+                "caption_type": (
+                    [
+                        "Descriptive",
+                        "Descriptive (Informal)",
+                        "Training Prompt",
+                        "MidJourney",
+                        "Booru tag list",
+                        "Booru-like tag list",
+                        "Art Critic",
+                        "Product Listing",
+                        "Social Media Post",
                     ],
                 ),
-                "caption_length":(
-                    ["any", "very short", "short", "medium-length", "long", "very long"] + 
-                    [str(i) for i in range(20, 261, 10)],
+                "caption_length": (
+                    ["any", "very short", "short", "medium-length", "long", "very long"]
+                    + [str(i) for i in range(20, 261, 10)],
                 ),
-                "extra_options":(
+                "extra_options": (
                     "STRING",
                     {
                         "default": "If there is a person/character in the image you must refer to them as {name}.",
                         "tooltip": "Extra options for the model",
                         "multiline": True,
-                    }
+                    },
                 ),
-                "name_input":(
+                "name_input": (
                     "STRING",
                     {
                         "default": "Jack",
                         "tooltip": "Name input is only used if an Extra Option is selected that requires it.",
-                    }
+                    },
                 ),
-                "custom_prompt":(
+                "custom_prompt": (
                     "STRING",
                     {
                         "default": "",
                         "multiline": True,
-                    }
+                    },
                 ),
             }
         }
@@ -351,7 +353,18 @@ class BizyAirJoyCaption2:
 
     CATEGORY = "☁️BizyAir/AI Assistants"
 
-    def joycaption2(self, image, do_sample, temperature, max_tokens, caption_type, caption_length, extra_options, name_input, custom_prompt):
+    def joycaption2(
+        self,
+        image,
+        do_sample,
+        temperature,
+        max_tokens,
+        caption_type,
+        caption_length,
+        extra_options,
+        name_input,
+        custom_prompt,
+    ):
         API_KEY = get_api_key()
         SIZE_LIMIT = 1536
         # device = image.device
@@ -370,7 +383,6 @@ class BizyAirJoyCaption2:
             "extra_options": [extra_options],
             "name_input": name_input,
             "custom_prompt": custom_prompt,
-
         }
         auth = f"Bearer {API_KEY}"
         headers = {
@@ -407,6 +419,7 @@ class BizyAirJoyCaption2:
 
         caption = msg["data"]
         return {"ui": {"text": (caption,)}, "result": (caption,)}
+
 
 NODE_CLASS_MAPPINGS = {
     "BizyAirSiliconCloudLLMAPI": SiliconCloudLLMAPI,
