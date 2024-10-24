@@ -1,3 +1,4 @@
+# sd3.5
 from bizyair import BizyAirBaseNode, BizyAirNodeIO, data_types
 from bizyair.path_utils import path_manager as folder_paths
 
