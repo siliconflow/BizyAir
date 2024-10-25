@@ -220,23 +220,20 @@ def get_filename_list(folder_name, *, verbose=BIZYAIR_DEBUG):
 
 
 def recursive_extract_models(data: Any, prefix_path: str = "") -> List[str]:
-    def merge_paths(base_path: str, new_path: str) -> str:
-        if base_path == "":
-            return new_path
-        else:
-            return f"{base_path}/{new_path}"
+    def merge_paths(base_path: str, new_path: Any) -> str:
+        if not isinstance(new_path, str):
+            return base_path
+        return f"{base_path}/{new_path}" if base_path else new_path
 
     results: List[str] = []
     if isinstance(data, dict):
         for key, value in data.items():
-            results.extend(
-                recursive_extract_models(value, merge_paths(prefix_path, key))
-            )
+            new_prefix = merge_paths(prefix_path, key)
+            results.extend(recursive_extract_models(value, new_prefix))
     elif isinstance(data, list):
         for item in data:
-            results.extend(
-                recursive_extract_models(item, merge_paths(prefix_path, str(item)))
-            )
+            new_prefix = merge_paths(prefix_path, item)
+            results.extend(recursive_extract_models(item, new_prefix))
     elif isinstance(data, str) and prefix_path.endswith(data):
         return filter_files_extensions([prefix_path], supported_pt_extensions)
 

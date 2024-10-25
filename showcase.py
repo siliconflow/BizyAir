@@ -35,7 +35,7 @@ async def get_bizyair_news(base_url="https://bizyair.siliconflow.cn"):
                     print(f"Failed to fetch bznews.json: HTTP Status {response.status}")
                     return {}
     except aiohttp.ClientError as e:
-        print(f"Error fetching news.json: {e}")
+        print(f"Error fetching bznews.json: {e}")
         return {}
     except asyncio.exceptions.TimeoutError as e:
         print(f"Request bizyair news timed out: {e}")
