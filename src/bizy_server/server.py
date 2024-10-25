@@ -10,17 +10,7 @@ import bizyair
 import bizyair.common
 
 from .api_client import APIClient
-from .errno import (
-    EMPTY_ABS_FOLDER_ERR,
-    EMPTY_UPLOAD_ID_ERR,
-    INVALID_CLIENT_ID_ERR,
-    INVALID_UPLOAD_ID_ERR,
-    NO_ABS_PATH_ERR,
-    PATH_NOT_EXISTS_ERR,
-    NOT_A_FILE_ERR,
-    NOT_ALLOWED_EXT_NAME_ERR,
-    ErrorNo,
-)
+from .errno import errnos, ErrorNo
 from .error_handler import ErrorHandler
 from .execution import UploadQueue
 from .resp import ErrResponse, OKResponse
@@ -64,7 +54,7 @@ class BizyAirServer:
         @self.prompt_server.routes.get(f"/{COMMUNITY_API}/base_model_types")
         async def list_base_model_types(request):
             return OKResponse(base_model_types())
-        
+
         @self.prompt_server.routes.get(f"/{USER_API}/info")
         async def user_info(request):
             info, err = await self.api_client.user_info()
@@ -109,19 +99,19 @@ class BizyAirServer:
             absolute_path = request.rel_url.query.get("absolute_path")
 
             if not is_string_valid(absolute_path):
-                return ErrResponse(EMPTY_ABS_FOLDER_ERR)
+                return ErrResponse(errnos.EMPTY_ABS_PATH)
 
             if not os.path.isabs(absolute_path):
-                return ErrResponse(NO_ABS_PATH_ERR)
+                return ErrResponse(errnos.NO_ABS_PATH)
 
             if not os.path.exists(absolute_path):
-                return ErrResponse(PATH_NOT_EXISTS_ERR)
+                return ErrResponse(errnos.PATH_NOT_EXISTS)
 
             if not os.path.isfile(absolute_path):
-                return ErrResponse(NOT_A_FILE_ERR)
-            
+                return ErrResponse(errnos.NOT_A_FILE)
+
             if not is_allow_ext_name(absolute_path):
-                return ErrResponse(NOT_ALLOWED_EXT_NAME_ERR)
+                return ErrResponse(errnos.NOT_ALLOWED_EXT_NAME)
 
             file_size = os.path.getsize(absolute_path)
             relative_path = os.path.basename(absolute_path)
@@ -140,25 +130,63 @@ class BizyAirServer:
         async def submit_upload(request):
             sid = request.rel_url.query.get("clientId", "")
             if not is_string_valid(sid):
-                return ErrResponse(INVALID_CLIENT_ID_ERR)
+                return ErrResponse(errnos.INVALID_CLIENT_ID)
 
             json_data = await request.json()
-            err = check_str_param(json_data, "upload_id", EMPTY_UPLOAD_ID_ERR)
+            err = check_str_param(json_data, "upload_id", errnos.EMPTY_UPLOAD_ID)
             if err is not None:
                 return err
 
             upload_id = json_data.get("upload_id")
             if upload_id not in self.uploads:
-                return ErrResponse(INVALID_UPLOAD_ID_ERR)
+                return ErrResponse(errnos.INVALID_UPLOAD_ID)
 
             self.uploads[upload_id]["sid"] = sid
             self.upload_queue.put(self.uploads[upload_id])
 
+            return OKResponse(None)
+        
+        @self.prompt_server.routes.post(f"/{COMMUNITY_API}/models")
+        async def commit_bizy_model(request):
+            json_data = await request.json()
+            
+            # 校验name和type
+            err = check_str_param(json_data, "name", errnos.INVALID_NAME)
+            if err:
+                return err
+            
+            err = check_type(json_data)
+            if err:
+                return err
+            
+            # 校验versions
+            if "versions" not in json_data or not isinstance(json_data["versions"], list):
+                return ErrResponse(errnos.INVALID_VERSIONS)
+            
+            versions = json_data["versions"]
+            version_names = set()
+            
+            for version in versions:
+                # 检查version是否重复
+                if version.get("version") in version_names:
+                    return ErrResponse(errnos.DUPLICATE_VERSION)
+                version_names.add(version.get("version"))
+                
+                # 检查base_model, path和sign是否有值
+                for field in ["base_model", "path", "sign"]:
+                    if not is_string_valid(version.get(field)):
+                        return ErrResponse(errnos.INVALID_VERSION_FIELD(field))
+            
+            # 调用API提交模型
+            resp, err = await self.api_client.commit_bizy_model(payload=json_data)
+            if err:
+                return ErrResponse(err)
+
             # enable refresh for lora
             # TODO: enable refresh for other types
             bizyair.path_utils.path_manager.enable_refresh_options("loras")
-            return OKResponse(None)
-
+            
+            return OKResponse(resp)
 
     async def send_json(self, event, data, sid=None):
         message = {"type": event, "data": data}
@@ -181,9 +209,9 @@ class BizyAirServer:
         try:
             await function(message)
         except (
-            aiohttp.ClientError,
-            aiohttp.ClientPayloadError,
-            ConnectionResetError,
+                aiohttp.ClientError,
+                aiohttp.ClientPayloadError,
+                ConnectionResetError,
         ) as err:
             logging.warning("send error: {}".format(err))
 

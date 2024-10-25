@@ -9,7 +9,7 @@ import aiofiles
 import crcmod
 import oss2
 
-from .errno import FILE_NOT_EXISTS_ERR, UPLOAD_ERR
+from .errno import errnos
 from .error_handler import ErrorHandler
 from .oss import AliOssStorageClient
 from .utils import is_string_valid
@@ -63,7 +63,7 @@ class UploadManager:
             filename = file["path"]
             filepath = os.path.abspath(os.path.join(root_dir, filename))
             if not os.path.exists(filepath):
-                self.server.send_sync_error(err=FILE_NOT_EXISTS_ERR, sid=sid)
+                self.server.send_sync_error(err=errnos.FILE_NOT_EXISTS, sid=sid)
                 return
 
             sha256sum = await self.calculate_hash(filepath)
@@ -117,7 +117,7 @@ class UploadManager:
                     )
                 except oss2.exceptions.OssError as e:
                     print(f"\033[31m[BizyAir]\033[0m OSS err:{str(e)}")
-                    self.server.send_sync_error(UPLOAD_ERR, sid)
+                    self.server.send_sync_error(errnos.UPLOAD, sid)
                     return
 
                 commit_data, err = await self.server.api_client.commit_file(

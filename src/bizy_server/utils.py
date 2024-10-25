@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 
-from .errno import INVALID_TYPE
+from .errno import errnos
 from .resp import ErrResponse
 
 TYPE_OPTIONS = {
@@ -16,7 +16,6 @@ BASE_MODEL_TYPE_OPTIONS = {
     "SD3.5": "SD3.5",
     "PONY": "PONY"
 }
-
 
 ALLOW_TYPES = list(TYPE_OPTIONS.values())
 ALLOW_BASE_MODEL_TYPES = list(BASE_MODEL_TYPE_OPTIONS.values())
@@ -54,9 +53,9 @@ def check_str_param(json_data, param_name: str, err):
 
 def check_type(json_data):
     if "type" not in json_data:
-        return ErrResponse(INVALID_TYPE)
+        return ErrResponse(errnos.INVALID_TYPE)
     if not is_string_valid(json_data["type"]) or json_data["type"] not in ALLOW_TYPES:
-        return ErrResponse(INVALID_TYPE)
+        return ErrResponse(errnos.INVALID_TYPE)
     return None
 
 
@@ -66,11 +65,13 @@ def types():
         types.append({"label": k, "value": v})
     return types
 
+
 def base_model_types():
     base_model_types = []
     for k, v in BASE_MODEL_TYPE_OPTIONS.items():
         base_model_types.append({"label": k, "value": v})
     return base_model_types
+
 
 def is_allow_ext_name(local_file_name):
     if not os.path.isfile(local_file_name):
