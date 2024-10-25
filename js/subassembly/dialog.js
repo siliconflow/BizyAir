@@ -63,7 +63,7 @@ export function dialog(params) {
                         }
                         removeDialog(document.getElementById(id))
                     }
-                }): ''),
+                }) : ''),
                 (params.neutralText ? $el("button.bizyair-new-dialog-btn", {
                     type: "button",
                     textContent: params.neutralText,
@@ -77,7 +77,7 @@ export function dialog(params) {
                         }
                         removeDialog(document.getElementById(id))
                     }
-                }): ''),
+                }) : ''),
                 (params.noText ? $el("button.bizyair-new-dialog-btn", {
                     type: "button",
                     textContent: params.noText,
@@ -87,7 +87,7 @@ export function dialog(params) {
                         }
                         removeDialog(document.getElementById(id))
                     }
-                }): '')
+                }) : '')
             ]),
         ])
     ]);
@@ -117,10 +117,18 @@ export function dialog(params) {
             el.style.opacity = '0';
             setTimeout(() => {
                 el.remove();
+                if (params.onClose) {
+                    params.onClose();
+                }
             }, 200);
         });
         document.removeEventListener("keydown", fnEscapeClose);
         dialogStack = dialogStack.filter(d => d !== el);
+    }
+    return {
+        close: () => {
+            removeDialog(document.getElementById(id))
+        }
     }
 }
 dialog.succeed = params => {
