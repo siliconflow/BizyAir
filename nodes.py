@@ -961,9 +961,9 @@ class ConditioningSetMask(BizyAirBaseNode):
 class ConditioningZeroOut(BizyAirBaseNode):
     @classmethod
     def INPUT_TYPES(s):
-        return {"required": {"conditioning": ("CONDITIONING",)}}
+        return {"required": {"conditioning": (data_types.CONDITIONING,)}}
 
-    RETURN_TYPES = ("CONDITIONING",)
+    RETURN_TYPES = (data_types.CONDITIONING,)
     # FUNCTION = "zero_out"
 
     CATEGORY = "advanced/conditioning"
@@ -974,7 +974,7 @@ class ConditioningSetTimestepRange(BizyAirBaseNode):
     def INPUT_TYPES(s):
         return {
             "required": {
-                "conditioning": ("CONDITIONING",),
+                "conditioning": (data_types.CONDITIONING,),
                 "start": (
                     "FLOAT",
                     {"default": 0.0, "min": 0.0, "max": 1.0, "step": 0.001},
@@ -986,7 +986,7 @@ class ConditioningSetTimestepRange(BizyAirBaseNode):
             }
         }
 
-    RETURN_TYPES = ("CONDITIONING",)
+    RETURN_TYPES = (data_types.CONDITIONING,)
     # FUNCTION = "set_range"
 
     CATEGORY = "advanced/conditioning"
