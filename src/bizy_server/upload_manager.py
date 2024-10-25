@@ -52,7 +52,7 @@ class UploadManager:
             data={
                 "status": "starting",
                 "upload_id": upload_id,
-                "message": f"start uploading",
+                "message": "start uploading",
             },
             sid=sid,
         )
@@ -136,15 +136,6 @@ class UploadManager:
 
             model_files.append({"sign": sha256sum, "path": filename})
 
-        commit_ret, err = await self.server.api_client.commit_model(
-            model_files=model_files,
-            model_name=item["name"],
-            model_type=item["type"],
-            overwrite=True,
-        )
-        if err is not None:
-            self.server.send_sync_error(err, sid)
-            return
 
         print("\033[32m[BizyAir]\033[0m Uploaded successfully")
 
@@ -153,49 +144,51 @@ class UploadManager:
             data={
                 "status": "finish",
                 "upload_id": upload_id,
-                "message": f"uploading finished",
+                "model_files": model_files,
+                "message": "uploading finished",
             },
             sid=sid,
         )
 
-        def check_sync_status():
-            while True:
-                future = asyncio.run_coroutine_threadsafe(
-                    self.server.api_client.get_models(
-                        {"type": item["type"], "available": True}
-                    ),
-                    self.server.loop,
-                )
+        # TODO 
+        # def check_sync_status():
+        #     while True:
+        #         future = asyncio.run_coroutine_threadsafe(
+        #             self.server.api_client.get_models(
+        #                 {"type": item["type"], "available": True}
+        #             ),
+        #             self.server.loop,
+        #         )
 
-                models, err = future.result(timeout=2)
+        #         models, err = future.result(timeout=2)
 
-                if err is not None:
-                    self.server.send_sync(
-                        event="error",
-                        data={
-                            "message": err.message,
-                            "code": err.code,
-                            "data": err.data,
-                        },
-                        sid=sid,
-                    )
-                    return
-                # 遍历models, 看当前name的model是否存在
-                for model in models:
-                    if model["name"] == item["name"]:
-                        self.server.send_sync(
-                            event="synced",
-                            data={
-                                "model_type": item["type"],
-                                "model_name": item["name"],
-                            },
-                            sid=sid,
-                        )
-                        return
+        #         if err is not None:
+        #             self.server.send_sync(
+        #                 event="error",
+        #                 data={
+        #                     "message": err.message,
+        #                     "code": err.code,
+        #                     "data": err.data,
+        #                 },
+        #                 sid=sid,
+        #             )
+        #             return
+        #         # 遍历models, 看当前name的model是否存在
+        #         for model in models:
+        #             if model["name"] == item["name"]:
+        #                 self.server.send_sync(
+        #                     event="synced",
+        #                     data={
+        #                         "model_type": item["type"],
+        #                         "model_name": item["name"],
+        #                     },
+        #                     sid=sid,
+        #                 )
+        #                 return
 
-                time.sleep(5)
+        #         time.sleep(5)
 
-        threading.Thread(
-            target=check_sync_status,
-            daemon=True,
-        ).start()
+        # threading.Thread(
+        #     target=check_sync_status,
+        #     daemon=True,
+        # ).start()

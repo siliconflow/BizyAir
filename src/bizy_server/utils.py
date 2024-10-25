@@ -5,10 +5,22 @@ from .errno import INVALID_TYPE
 from .resp import ErrResponse
 
 TYPE_OPTIONS = {
-    "lora": "bizyair/lora",
-    # "other": "other",
+    "LoRA": "LoRA",
+    "Checkpoint": "Checkpoint",
 }
+
+BASE_MODEL_TYPE_OPTIONS = {
+    "FLUX": "FLUX",
+    "SDXL": "SDXL",
+    "SD1.5": "SD1.5",
+    "SD3.5": "SD3.5",
+    "PONY": "PONY"
+}
+
+
 ALLOW_TYPES = list(TYPE_OPTIONS.values())
+ALLOW_BASE_MODEL_TYPES = list(BASE_MODEL_TYPE_OPTIONS.values())
+ALLOW_UPLOADABLE_EXT_NAMES = [".safetensors", ".pth", ".bin", ".pt", ".ckpt"]
 
 current_path = os.path.abspath(os.path.dirname(__file__))
 
@@ -48,8 +60,20 @@ def check_type(json_data):
     return None
 
 
-def list_types():
+def types():
     types = []
     for k, v in TYPE_OPTIONS.items():
         types.append({"label": k, "value": v})
     return types
+
+def base_model_types():
+    base_model_types = []
+    for k, v in BASE_MODEL_TYPE_OPTIONS.items():
+        base_model_types.append({"label": k, "value": v})
+    return base_model_types
+
+def is_allow_ext_name(local_file_name):
+    if not os.path.isfile(local_file_name):
+        return False
+    _, ext = os.path.splitext(local_file_name)
+    return ext.lower() in ALLOW_UPLOADABLE_EXT_NAMES

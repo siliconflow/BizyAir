@@ -12,19 +12,13 @@ import bizyair.common
 from .api_client import APIClient
 from .errno import (
     EMPTY_ABS_FOLDER_ERR,
-    EMPTY_FILES_ERR,
     EMPTY_UPLOAD_ID_ERR,
     INVALID_CLIENT_ID_ERR,
-    INVALID_DESCRIPTION,
-    INVALID_NAME,
-    INVALID_SHARE_ID,
-    INVALID_TYPE,
     INVALID_UPLOAD_ID_ERR,
-    MODEL_ALREADY_EXISTS_ERR,
     NO_ABS_PATH_ERR,
-    NO_PUBLIC_FLAG_ERR,
-    NO_SHARE_ID_ERR,
     PATH_NOT_EXISTS_ERR,
+    NOT_A_FILE_ERR,
+    NOT_ALLOWED_EXT_NAME_ERR,
     ErrorNo,
 )
 from .error_handler import ErrorHandler
@@ -34,14 +28,15 @@ from .upload_manager import UploadManager
 from .utils import (
     check_str_param,
     check_type,
-    get_html_content,
     is_string_valid,
-    list_types,
+    types,
+    base_model_types,
+    is_allow_ext_name,
     to_slash,
 )
 
 API_PREFIX = "bizyair"
-MODEL_HOST_API = f"{API_PREFIX}/modelhost"
+COMMUNITY_API = f"{API_PREFIX}/community"
 USER_API = f"{API_PREFIX}/user"
 
 logging.basicConfig(level=logging.DEBUG)
@@ -62,45 +57,23 @@ class BizyAirServer:
         self.setup_routes()
 
     def setup_routes(self):
-        list_model_html = get_html_content("templates/list_model.html")
-        upload_model_html = get_html_content("templates/upload_model.html")
-
-        @self.prompt_server.routes.get(f"/{MODEL_HOST_API}/list")
-        async def forward_list_model_html(request):
-            return aiohttp.web.Response(text=list_model_html, content_type="text/html")
-
-        @self.prompt_server.routes.get(f"/{MODEL_HOST_API}/upload")
-        async def forward_upload_model_html(request):
-            return aiohttp.web.Response(
-                text=upload_model_html, content_type="text/html"
-            )
-
-        @self.prompt_server.routes.get(f"/{MODEL_HOST_API}/model_types")
+        @self.prompt_server.routes.get(f"/{COMMUNITY_API}/model_types")
         async def list_model_types(request):
-            allow_types = list_types()
+            return OKResponse(types())
 
-            return OKResponse(allow_types)
-
-        @self.prompt_server.routes.post(f"/{MODEL_HOST_API}/check_model_exists")
-        async def check_model_exists(request):
-            json_data = await request.json()
-            err = check_type(json_data)
-            if err is not None:
-                return err
-
-            err = check_str_param(json_data, param_name="name", err=INVALID_TYPE)
-            if err is not None:
-                return err
-
-            exists, err = await self.api_client.check_model(
-                name=json_data["name"], type=json_data["type"]
-            )
+        @self.prompt_server.routes.get(f"/{COMMUNITY_API}/base_model_types")
+        async def list_base_model_types(request):
+            return OKResponse(base_model_types())
+        
+        @self.prompt_server.routes.get(f"/{USER_API}/info")
+        async def user_info(request):
+            info, err = await self.api_client.user_info()
             if err is not None:
                 return ErrResponse(err)
 
-            return OKResponse(exists)
+            return OKResponse(info)
 
-        @self.prompt_server.routes.get(f"/{MODEL_HOST_API}/ws")
+        @self.prompt_server.routes.get(f"/{API_PREFIX}/ws")
         async def websocket_handler(request):
             ws = aiohttp.web.WebSocketResponse()
             await ws.prepare(request)
@@ -131,8 +104,8 @@ class BizyAirServer:
                 self.sockets.pop(sid, None)
             return ws
 
-        @self.prompt_server.routes.get(f"/{MODEL_HOST_API}/check_folder")
-        async def check_folder(request):
+        @self.prompt_server.routes.get(f"/{COMMUNITY_API}/check_local_file")
+        async def check_local_file(request):
             absolute_path = request.rel_url.query.get("absolute_path")
 
             if not is_string_valid(absolute_path):
@@ -144,34 +117,26 @@ class BizyAirServer:
             if not os.path.exists(absolute_path):
                 return ErrResponse(PATH_NOT_EXISTS_ERR)
 
-            relative_paths = []
-            for root, dirs, files in os.walk(absolute_path):
-                # Skip the .git directory
-                if ".git" in dirs:
-                    dirs.remove(".git")
+            if not os.path.isfile(absolute_path):
+                return ErrResponse(NOT_A_FILE_ERR)
+            
+            if not is_allow_ext_name(absolute_path):
+                return ErrResponse(NOT_ALLOWED_EXT_NAME_ERR)
 
-                for file in files:
-                    file_path = os.path.join(root, file)
-                    relative_path = os.path.relpath(file_path, absolute_path)
-                    file_size = os.path.getsize(file_path)
-                    relative_paths.append(
-                        {"path": to_slash(relative_path), "size": file_size}
-                    )
-
-            if len(relative_paths) < 1:
-                return ErrResponse(EMPTY_FILES_ERR)
+            file_size = os.path.getsize(absolute_path)
+            relative_path = os.path.basename(absolute_path)
 
             upload_id = uuid.uuid4().hex
             data = {
                 "upload_id": upload_id,
-                "root": absolute_path,
-                "files": relative_paths,
+                "root": os.path.dirname(absolute_path),
+                "files": [{"path": to_slash(relative_path), "size": file_size}]
             }
             self.uploads[upload_id] = data
 
             return OKResponse(data)
 
-        @self.prompt_server.routes.post(f"/{MODEL_HOST_API}/submit_upload")
+        @self.prompt_server.routes.post(f"/{COMMUNITY_API}/submit_upload")
         async def submit_upload(request):
             sid = request.rel_url.query.get("clientId", "")
             if not is_string_valid(sid):
@@ -186,30 +151,7 @@ class BizyAirServer:
             if upload_id not in self.uploads:
                 return ErrResponse(INVALID_UPLOAD_ID_ERR)
 
-            err = check_type(json_data)
-            if err is not None:
-                return err
-
-            err = check_str_param(json_data, "name", INVALID_NAME)
-            if err is not None:
-                return err
-
-            exists, err = await self.api_client.check_model(
-                type=json_data["type"], name=json_data["name"]
-            )
-            if err is not None:
-                return ErrResponse(err)
-
-            if (
-                exists
-                and "overwrite" not in json_data
-                or json_data["overwrite"] is not True
-            ):
-                return ErrResponse(MODEL_ALREADY_EXISTS_ERR)
-
             self.uploads[upload_id]["sid"] = sid
-            self.uploads[upload_id]["type"] = json_data["type"]
-            self.uploads[upload_id]["name"] = json_data["name"]
             self.upload_queue.put(self.uploads[upload_id])
 
             # enable refresh for lora
@@ -217,175 +159,6 @@ class BizyAirServer:
             bizyair.path_utils.path_manager.enable_refresh_options("loras")
             return OKResponse(None)
 
-        @self.prompt_server.routes.get(f"/{MODEL_HOST_API}/models/files")
-        async def list_model_files(request):
-            err = check_type(request.rel_url.query)
-            if err is not None:
-                return err
-
-            public = False
-            if "public" in request.rel_url.query:
-                public = request.rel_url.query["public"]
-
-            payload = {"type": request.rel_url.query["type"], "public": public}
-
-            if "name" in request.rel_url.query:
-                payload["name"] = request.rel_url.query["name"]
-
-            if "ext_name" in request.rel_url.query:
-                payload["ext_name"] = request.rel_url.query["ext_name"]
-
-            model_files, err = await self.api_client.get_model_files(payload)
-            if err is not None:
-                return ErrResponse(err)
-            return OKResponse(model_files)
-
-        @self.prompt_server.routes.get(f"/{MODEL_HOST_API}" + "/{shareId}/models/files")
-        async def list_share_model_files(request):
-            shareId = request.match_info["shareId"]
-
-            if not is_string_valid(shareId):
-                return ErrResponse(INVALID_SHARE_ID)
-
-            err = check_type(request.rel_url.query)
-            if err is not None:
-                return err
-
-            payload = {
-                "type": request.rel_url.query["type"],
-            }
-
-            if "name" in request.rel_url.query:
-                payload["name"] = request.rel_url.query["name"]
-
-            if "ext_name" in request.rel_url.query:
-                payload["ext_name"] = request.rel_url.query["ext_name"]
-            model_files, err = await self.api_client.get_share_model_files(
-                shareId=shareId, payload=payload
-            )
-            if err is not None:
-                return ErrResponse(err)
-
-            return OKResponse(model_files)
-
-        @self.prompt_server.routes.delete(f"/{MODEL_HOST_API}/models")
-        async def delete_model(request):
-            json_data = await request.json()
-
-            err = check_type(json_data)
-            if err is not None:
-                return err
-
-            err = check_str_param(json_data, "name", INVALID_NAME)
-            if err is not None:
-                return err
-
-            err = await self.api_client.remove_model(
-                model_type=json_data["type"], model_name=json_data["name"]
-            )
-            if err is not None:
-                return ErrResponse(err)
-
-            print("BizyAir: Delete successfully")
-            return OKResponse(None)
-
-        @self.prompt_server.routes.put(f"/{MODEL_HOST_API}/models/change_public")
-        async def change_model_public(request):
-            json_data = await request.json()
-
-            err = check_type(json_data)
-            if err is not None:
-                return err
-
-            err = check_str_param(json_data, "name", INVALID_NAME)
-            if err is not None:
-                return err
-
-            if "public" not in json_data:
-                return ErrResponse(NO_PUBLIC_FLAG_ERR)
-
-            err = await self.api_client.change_public(
-                model_type=json_data["type"],
-                model_name=json_data["name"],
-                public=json_data["public"],
-            )
-            if err is not None:
-                return ErrResponse(err)
-
-            print("BizyAir: Change model visibility successfully")
-            return OKResponse(None)
-
-        @self.prompt_server.routes.get(f"/{USER_API}/info")
-        async def user_info(request):
-            info, err = await self.api_client.user_info()
-            if err is not None:
-                return ErrResponse(err)
-
-            return OKResponse(info)
-
-        @self.prompt_server.routes.put(f"/{USER_API}/share_id")
-        async def update_share_id(request):
-            json_data = await request.json()
-            if "share_id" not in json_data:
-                return ErrResponse(NO_SHARE_ID_ERR)
-
-            ret, err = await self.api_client.update_share_id(
-                share_id=json_data["share_id"]
-            )
-            if err is not None:
-                return ErrResponse(err)
-
-            return OKResponse(ret)
-
-        @self.prompt_server.routes.get(f"/{MODEL_HOST_API}/models/description")
-        async def description(request):
-            err = check_type(request.rel_url.query)
-            if err is not None:
-                return err
-
-            err = check_str_param(request.rel_url.query, "name", INVALID_NAME)
-            if err is not None:
-                return err
-
-            payload = {
-                "type": request.rel_url.query["type"],
-                "name": request.rel_url.query["name"],
-            }
-
-            if "share_id" in request.rel_url.query:
-                payload["share_id"] = request.rel_url.query["share_id"]
-
-            get_desc, err = await self.api_client.get_description(payload)
-            if err is not None:
-                return ErrResponse(err)
-            return OKResponse(get_desc)
-
-        @self.prompt_server.routes.put(f"/{MODEL_HOST_API}/models/description")
-        async def change_description(request):
-            json_data = await request.json()
-
-            err = check_type(json_data)
-            if err is not None:
-                return err
-
-            err = check_str_param(json_data, "name", INVALID_NAME)
-            if err is not None:
-                return err
-
-            err = check_str_param(json_data, "description", INVALID_DESCRIPTION)
-            if err is not None:
-                return err
-
-            payload = {
-                "type": json_data["type"],
-                "name": json_data["name"],
-                "description": json_data["description"],
-            }
-
-            desc, err = await self.api_client.update_description(payload)
-            if err is not None:
-                return ErrResponse(err)
-            return OKResponse(desc)
 
     async def send_json(self, event, data, sid=None):
         message = {"type": event, "data": data}

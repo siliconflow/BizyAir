@@ -26,14 +26,14 @@ NO_SHARE_ID_ERR = ErrorNo(
     400, 400117, None, 'The parameter "share_id" is not provided.'
 )
 INVALID_DESCRIPTION = ErrorNo(400, 400118, None, "Invalid description")
+NOT_A_FILE_ERR = ErrorNo(400, 400119, None, "The path is not a file.")
+NOT_ALLOWED_EXT_NAME_ERR = ErrorNo(400, 400120, None, "Not allowed ext name")
 INVALID_API_KEY_ERR = ErrorNo(401, 401000, None, "Invalid API key")
 INVALID_USER_ERR = ErrorNo(401, 401001, None, "Invalid user")
 
-CHECK_MODEL_EXISTS_ERR = ErrorNo(500, 500100, None, "Failed to check model")
 SIGN_FILE_ERR = ErrorNo(500, 500101, None, "Failed to sign file")
 UPLOAD_ERR = ErrorNo(500, 500102, None, "Failed to upload file")
 COMMIT_FILE_ERR = ErrorNo(500, 500103, None, "Failed to commit file")
-MODEL_ALREADY_EXISTS_ERR = ErrorNo(500, 500104, None, "Model already exists")
 COMMIT_MODEL_ERR = ErrorNo(500, 500105, None, "Failed to commit model")
 INVALID_UPLOAD_ID_ERR = ErrorNo(500, 500106, None, "Invalid upload id")
 EMPTY_FILES_ERR = ErrorNo(500, 500107, None, "Empty files to make a model")
