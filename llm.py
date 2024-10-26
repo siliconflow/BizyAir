@@ -116,7 +116,7 @@ class SiliconCloudLLMAPI:
         )
         ret = json.loads(response)
         text = ret["choices"][0]["message"]["content"]
-        return (text,) # if update ui:  {"ui": {"text": (text,)}, "result": (text,)}
+        return (text,)  # if update ui:  {"ui": {"text": (text,)}, "result": (text,)}
 
 
 class SiliconCloudVLMAPI:
