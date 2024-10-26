@@ -16,10 +16,14 @@ jobs:
       with:
         fetch-depth: 0
 
+    - name: Fetch target branch
+      run: |
+        git fetch origin ${{ github.base_ref }} --depth=1
+
     - name: Check modified files
       id: check_files
       run: |
-        modified_files=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }})
+        modified_files=$(git diff --name-only origin/${{ github.base_ref }}...HEAD)
         only_non_code_files=true
         for file in $modified_files; do
           if [[ "$file" == *.py ]] || [[ "$file" == *.js ]] || [[ "$file" == *.json ]]; then
