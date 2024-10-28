@@ -6,21 +6,19 @@ from aiohttp import web
 from server import PromptServer
 
 from bizyair.common.env_var import BIZYAIR_SERVER_ADDRESS
-from bizyair.image_utils import decode_data, encode_data
+from bizyair.image_utils import decode_data, encode_comfy_image, encode_data
 
 from .utils import (
     decode_and_deserialize,
     get_api_key,
     get_llm_response,
+    get_vlm_response,
     send_post_request,
     serialize_and_encode,
 )
 
 
-@PromptServer.instance.routes.post("/bizyair/get_silicon_cloud_models")
-async def get_silicon_cloud_models_endpoint(request):
-    data = await request.json()
-    api_key = data.get("api_key", get_api_key())
+async def fetch_all_models(api_key):
     url = "https://api.siliconflow.cn/v1/models"
     headers = {"accept": "application/json", "authorization": f"Bearer {api_key}"}
     params = {"type": "text", "sub_type": "chat"}
@@ -32,20 +30,37 @@ async def get_silicon_cloud_models_endpoint(request):
             ) as response:
                 if response.status == 200:
                     data = await response.json()
-                    models = [model["id"] for model in data["data"]]
-                    models.append("No LLM Enhancement")
-                    return web.json_response(models)
+                    all_models = [model["id"] for model in data["data"]]
+                    return all_models
                 else:
                     print(f"Error fetching models: HTTP Status {response.status}")
-                    return web.json_response(
-                        ["Error fetching models"], status=response.status
-                    )
+                    return []
     except aiohttp.ClientError as e:
         print(f"Error fetching models: {e}")
-        return web.json_response(["Error fetching models"], status=500)
+        return []
     except asyncio.exceptions.TimeoutError:
         print("Request to fetch models timed out")
-        return web.json_response(["Request timed out"], status=504)
+        return []
+
+
+@PromptServer.instance.routes.post("/bizyair/get_silicon_cloud_llm_models")
+async def get_silicon_cloud_llm_models_endpoint(request):
+    data = await request.json()
+    api_key = data.get("api_key", get_api_key())
+    all_models = await fetch_all_models(api_key)
+    llm_models = [model for model in all_models if "vl" not in model.lower()]
+    llm_models.append("No LLM Enhancement")
+    return web.json_response(llm_models)
+
+
+@PromptServer.instance.routes.post("/bizyair/get_silicon_cloud_vlm_models")
+async def get_silicon_cloud_vlm_models_endpoint(request):
+    data = await request.json()
+    api_key = data.get("api_key", get_api_key())
+    all_models = await fetch_all_models(api_key)
+    vlm_models = [model for model in all_models if "vl" in model.lower()]
+    vlm_models.append("No VLM Enhancement")
+    return web.json_response(vlm_models)
 
 
 class SiliconCloudLLMAPI:
@@ -85,7 +100,6 @@ class SiliconCloudLLMAPI:
     RETURN_TYPES = ("STRING",)
     FUNCTION = "get_llm_model_response"
     OUTPUT_NODE = False
-
     CATEGORY = "☁️BizyAir/AI Assistants"
 
     def get_llm_model_response(
@@ -99,6 +113,73 @@ class SiliconCloudLLMAPI:
             user_prompt,
             max_tokens,
             temperature,
+        )
+        ret = json.loads(response)
+        text = ret["choices"][0]["message"]["content"]
+        return {"ui": {"text": (text,)}, "result": (text,)}
+
+
+class SiliconCloudVLMAPI:
+    def __init__(self):
+        pass
+
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "model": ((), {}),
+                "system_prompt": (
+                    "STRING",
+                    {
+                        "default": "你是一个能分析图像的AI助手。请仔细观察图像，并根据用户的问题提供详细、准确的描述。",
+                        "multiline": True,
+                    },
+                ),
+                "user_prompt": (
+                    "STRING",
+                    {
+                        "default": "请描述这张图片的内容，并指出任何有趣或不寻常的细节。",
+                        "multiline": True,
+                    },
+                ),
+                "images": ("IMAGE",),
+                "max_tokens": ("INT", {"default": 512, "min": 100, "max": 1e5}),
+                "temperature": (
+                    "FLOAT",
+                    {"default": 0.7, "min": 0.0, "max": 2.0, "step": 0.01},
+                ),
+                "detail": (["auto", "low", "high"], {"default": "auto"}),
+            }
+        }
+
+    RETURN_TYPES = ("STRING",)
+    FUNCTION = "get_vlm_model_response"
+    OUTPUT_NODE = False
+    CATEGORY = "☁️BizyAir/AI Assistants"
+
+    def get_vlm_model_response(
+        self, model, system_prompt, user_prompt, images, max_tokens, temperature, detail
+    ):
+        if model == "No VLM Enhancement":
+            return (user_prompt,)
+
+        # 使用 encode_comfy_image 函数编码图像批次
+        encoded_images_json = encode_comfy_image(
+            images, image_format="WEBP", lossless=True
+        )
+        encoded_images_dict = json.loads(encoded_images_json)
+
+        # 提取所有编码后的图像
+        base64_images = list(encoded_images_dict.values())
+
+        response = get_vlm_response(
+            model,
+            system_prompt,
+            user_prompt,
+            base64_images,
+            max_tokens,
+            temperature,
+            detail,
         )
         ret = json.loads(response)
         text = ret["choices"][0]["message"]["content"]
@@ -193,9 +274,11 @@ class BizyAirJoyCaption:
 
 NODE_CLASS_MAPPINGS = {
     "BizyAirSiliconCloudLLMAPI": SiliconCloudLLMAPI,
+    "BizyAirSiliconCloudVLMAPI": SiliconCloudVLMAPI,
     "BizyAirJoyCaption": BizyAirJoyCaption,
 }
 NODE_DISPLAY_NAME_MAPPINGS = {
     "BizyAirSiliconCloudLLMAPI": "☁️BizyAir SiliconCloud LLM API",
+    "BizyAirSiliconCloudVLMAPI": "☁️BizyAir SiliconCloud VLM API",
     "BizyAirJoyCaption": "☁️BizyAir Joy Caption",
 }
