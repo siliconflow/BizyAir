@@ -1,10 +1,8 @@
 import asyncio
 import json
 import os
-import pickle
 import urllib.error
 import urllib.request
-from enum import Enum
 
 import aiohttp
 import server
