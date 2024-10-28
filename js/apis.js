@@ -7,22 +7,18 @@ function customFetch(url, options = {}) {
     if (fetchCache.has(url)) {
         const lastFetchTime = fetchCache.get(url);
         if (now - lastFetchTime < 1200) {
-            // console.log(`请求过于频繁，忽略请求：${url}`);
-            // dialog({
-            //     content: "The request is too frequent.",
-            //     type: 'warning',
-            //     noText: 'Close',
-            // })
             return Promise.resolve(null);
         }
     }
     fetchCache.set(url, now);
-    return window.fetch(url, options)
+    const host = `${window.location.origin}${window.location.pathname == '/' ? '' : window.location.pathname}`
+    return window.fetch(`${host}${url}`, options)
         .then(response => {
             if (response.status === 404) {
                 dialog({
                     content: "You may be missing dependencies at the moment. For details, please refer to the ComfyUI logs.",
-                    type: 'error'
+                    type: 'error',
+                    noText: 'Close'
                 })
             }
             return response.json();
