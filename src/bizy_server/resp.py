@@ -12,7 +12,7 @@ def JsonResponse(http_status_code, data):
 
 
 def OKResponse(data):
-    return JsonResponse(200, {"message": "success", "code": errnos.OK, "data": data})
+    return JsonResponse(200, {"message": "success", "code": errnos.OK.code, "data": data})
 
 
 def ErrResponse(err: ErrorNo):

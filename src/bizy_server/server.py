@@ -145,38 +145,46 @@ class BizyAirServer:
             self.upload_queue.put(self.uploads[upload_id])
 
             return OKResponse(None)
-        
+
         @self.prompt_server.routes.post(f"/{COMMUNITY_API}/models")
         async def commit_bizy_model(request):
             json_data = await request.json()
-            
+
             # 校验name和type
             err = check_str_param(json_data, "name", errnos.INVALID_NAME)
             if err:
                 return err
             
+            if "/" in json_data["name"]:
+                return ErrResponse(errnos.INVALID_NAME)
+
             err = check_type(json_data)
             if err:
                 return err
-            
+
             # 校验versions
             if "versions" not in json_data or not isinstance(json_data["versions"], list):
                 return ErrResponse(errnos.INVALID_VERSIONS)
-            
+
             versions = json_data["versions"]
             version_names = set()
-            
+
             for version in versions:
                 # 检查version是否重复
                 if version.get("version") in version_names:
                     return ErrResponse(errnos.DUPLICATE_VERSION)
-                version_names.add(version.get("version"))
                 
+                # 检查version字段是否合法
+                if not is_string_valid(version.get("version")) or "/" in version.get("version"):
+                    return ErrResponse(errnos.INVALID_VERSION_NAME)
+
+                version_names.add(version.get("version"))
+
                 # 检查base_model, path和sign是否有值
                 for field in ["base_model", "path", "sign"]:
                     if not is_string_valid(version.get(field)):
                         return ErrResponse(errnos.INVALID_VERSION_FIELD(field))
-            
+
             # 调用API提交模型
             resp, err = await self.api_client.commit_bizy_model(payload=json_data)
             if err:
@@ -185,8 +193,147 @@ class BizyAirServer:
             # enable refresh for lora
             # TODO: enable refresh for other types
             bizyair.path_utils.path_manager.enable_refresh_options("loras")
-            
+
             return OKResponse(resp)
+
+        @self.prompt_server.routes.post(f"/{COMMUNITY_API}/models/query")
+        async def query_my_models(request):
+            # 获取查询参数
+            mode = request.rel_url.query.get("mode", "")
+            if not mode or mode not in ["my", "my_fork", "publicity"]:
+                return ErrResponse(errnos.INVALID_QUERY_MODE)
+
+            current = int(request.rel_url.query.get("current", "1"))
+            page_size = int(request.rel_url.query.get("page_size", "10"))
+            json_data = await request.json()
+            keyword = json_data["keyword"]
+            model_types = json_data.get("model_types", [])
+            base_models = json_data.get("base_models", [])
+
+            if mode in ["my", "my_fork"]:
+                # 调用API查询模型
+                resp, err = await self.api_client.query_models(mode, current, page_size,
+                                                            keyword=keyword,
+                                                            model_types=model_types,
+                                                            base_models=base_models)
+            elif mode == "publicity":
+                # 调用API查询社区模型
+                resp, err = await self.api_client.query_community_models(current, page_size,
+                                                            keyword=keyword,
+                                                            model_types=model_types,
+                                                            base_models=base_models)
+            if err:
+                return ErrResponse(err)
+
+            return OKResponse(resp)
+        
+        @self.prompt_server.routes.get(f"/{COMMUNITY_API}/models/{{model_id}}/detail")
+        async def get_model_detail(request):
+            # 获取路径参数中的模型ID
+            model_id = int(request.match_info["model_id"])
+
+            # 检查model_id是否合法
+            if not model_id or model_id <= 0:
+                return ErrResponse(errnos.INVALID_MODEL_ID)
+
+            source = request.rel_url.query.get("source", "")
+
+            # 调用API获取模型详情
+            resp, err = await self.api_client.get_model_detail(model_id, source)
+            if err:
+                return ErrResponse(err)
+
+            return OKResponse(resp)
+
+        @self.prompt_server.routes.delete(f"/{COMMUNITY_API}/models/{{model_id}}")
+        async def delete_model(request):
+            # 获取路径参数中的模型ID
+            model_id = int(request.match_info["model_id"])
+
+            # 检查model_id是否合法
+            if not model_id or model_id <= 0:
+                return ErrResponse(errnos.INVALID_MODEL_ID)
+
+            # 调用API删除模型
+            resp, err = await self.api_client.delete_bizy_model(model_id)
+            if err:
+                return ErrResponse(err)
+
+            return OKResponse(resp)
+        
+        @self.prompt_server.routes.put(f"/{COMMUNITY_API}/models/{{model_id}}")
+        async def update_model(request):
+            # 获取路径参数中的模型ID
+            model_id = int(request.match_info["model_id"])
+
+            # 检查model_id是否合法
+            if not model_id or model_id <= 0:
+                return ErrResponse(errnos.INVALID_MODEL_ID)
+
+            # 获取请求体数据
+            json_data = await request.json()
+
+            # 校验name和type
+            err = check_str_param(json_data, "name", errnos.INVALID_NAME)
+            if err:
+                return err
+            
+            if "/" in json_data["name"]:
+                return ErrResponse(errnos.INVALID_NAME)
+
+            err = check_type(json_data)
+            if err:
+                return err
+
+            # 校验versions
+            if "versions" not in json_data or not isinstance(json_data["versions"], list):
+                return ErrResponse(errnos.INVALID_VERSIONS)
+
+            versions = json_data["versions"]
+            version_names = set()
+
+            for version in versions:
+                # 检查version是否重复
+                if version.get("version") in version_names:
+                    return ErrResponse(errnos.DUPLICATE_VERSION)
+                
+                # 检查version字段是否合法
+                if not is_string_valid(version.get("version")) or "/" in version.get("version"):
+                    return ErrResponse(errnos.INVALID_VERSION_NAME)
+
+                version_names.add(version.get("version"))
+
+                # 检查base_model, path和sign是否有值
+                for field in ["base_model", "path", "sign"]:
+                    if not is_string_valid(version.get(field)):
+                        return ErrResponse(errnos.INVALID_VERSION_FIELD(field))
+
+
+            # 调用API更新模型
+            _, err = await self.api_client.update_model(model_id, json_data["name"], json_data["type"], versions)
+            if err:
+                return ErrResponse(err)
+
+            return OKResponse(None)
+        
+        @self.prompt_server.routes.post(f"/{COMMUNITY_API}/models/fork/{{model_version_id}}")
+        async def fork_model_version(request):
+            try:
+                # 获取version_id参数
+                version_id = int(request.match_info["model_version_id"])
+                if not version_id or not version_id.isdigit() or int(version_id) <= 0:
+                    return ErrResponse(errnos.INVALID_MODEL_VERSION_ID)
+
+                # 调用API fork模型版本
+                _, err = await self.api_client.fork_model_version(version_id)
+                if err:
+                    return ErrResponse(err)
+
+                return OKResponse(None)
+
+            except Exception as e:
+                print(f"\033[31m[BizyAir]\033[0m Fail to fork model version: {str(e)}")
+                return ErrResponse(errnos.FORK_MODEL_VERSION)
 
     async def send_json(self, event, data, sid=None):
         message = {"type": event, "data": data}
