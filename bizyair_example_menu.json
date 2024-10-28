@@ -32,8 +32,7 @@
         "Kolors IP-Adapter": "bizyair_kolors_ipa.json"
     },
     "Segment Anything": {
-        "Text Guided Segment Anything": "bizyair_text_guided_segment-anything.json",
-        "Point-Box Guided Segment Anything": "bizyair_box_point_guided_segment-anything.json"
+        "Text Guided Segment Anything": "bizyair_text_guided_segment-anything.json"
     },
     "Remove the background from the image": "bizyair_showcase_remove_background.json",
     "Super Resolution": "bizyair_showcase_realistic_superresolution.json",
