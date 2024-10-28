@@ -36,28 +36,6 @@ async def get_bizyair_news(base_url="https://bizyair.siliconflow.cn"):
         return {}
 
 
-# with open(os.path.join(CURRENT_DIR, "bizyair_example_menu.json"), "r") as file:
-#     SHOW_CASES.update(json.load(file))
-# async def get_show_cases(base_url="https://bizyair.siliconflow.cn"):
-#     url = f"{base_url}/bizyair_example_menu.json"
-#     try:
-#         async with aiohttp.ClientSession() as session:
-#             async with session.get(url, timeout=5) as response:
-#                 if response.status == 200:
-#                     data = await response.text()
-#                     return json.loads(data)
-#                 else:
-#                     print(f"Failed to fetch bizyair_example_menu.json: HTTP Status {response.status}")
-#                     return {}
-#     except aiohttp.ClientError as e:
-#         print(f"Error fetching bizyair_example_menu.json: {e}")
-#         return {}
-#     except asyncio.exceptions.TimeoutError as e:
-#         print(f"Request bizyair_example_menu.json timed out: {e}")
-#         return {}
-#     except Exception as e:
-#         print(f"Error fetching BizyAir bizyair_example_menu.json: {type(e).__name__} - {str(e)}")
-#         return {}
 def get_show_cases(base_url="https://bizyair.siliconflow.cn"):
     try:
         with urllib.request.urlopen(f"{base_url}/bizyair_example_menu.json") as url:
@@ -67,10 +45,14 @@ def get_show_cases(base_url="https://bizyair.siliconflow.cn"):
         print(f"Error fetching bizyair_example_menu.json: {e}")
         return {}
     except Exception as e:
-        print(f"Error fetching BizyAir bizyair_example_menu.json: {type(e).__name__} - {str(e)}")
+        print(
+            f"Error fetching BizyAir bizyair_example_menu.json: {type(e).__name__} - {str(e)}"
+        )
         return {}
 
+
 SHOW_CASES.update(get_show_cases())
+
 
 async def get_workflow(filename, base_url="https://bizyair.siliconflow.cn"):
     url = f"{base_url}/examples/{filename}"
@@ -112,8 +94,7 @@ from server import PromptServer
 @PromptServer.instance.routes.get("/bizyair/showcases")
 async def set_api_key_page(request):
     return web.Response(
-        text=json.dumps(SHOW_CASES, ensure_ascii=False), 
-        content_type="application/json"
+        text=json.dumps(SHOW_CASES, ensure_ascii=False), content_type="application/json"
     )
 
 
@@ -155,27 +136,3 @@ async def get_file_content(request):
         text=json.dumps(await get_workflow(filename), ensure_ascii=False),
         content_type="application/json",
     )
-
-    # file_path = os.path.join(CURRENT_DIR, "examples", filename)
-    # if BIZYAIR_DEBUG:
-    #     print(f"request the json workflow: {file_path}")
-    # if not os.path.isfile(file_path):
-    #     return web.Response(
-    #         text=json.dumps({"error": "File not found"}),
-    #         status=404,
-    #         content_type="application/json",
-    #     )
-
-    # try:
-    #     with open(file_path, "r", encoding="utf-8") as file:
-    #         file_content = json.load(file)
-    #         return web.Response(
-    #             text=json.dumps(file_content, ensure_ascii=False),
-    #             content_type="application/json",
-    #         )
-    # except Exception as e:
-    #     return web.Response(
-    #         text=json.dumps({"error": str(e)}),
-    #         status=500,
-    #         content_type="application/json",
-    #     )
