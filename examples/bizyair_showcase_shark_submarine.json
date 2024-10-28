@@ -1,0 +1,320 @@
+{
+  "last_node_id": 76,
+  "last_link_id": 86,
+  "nodes": [
+    {
+      "id": 66,
+      "type": "PreviewImage",
+      "pos": [
+        846,
+        1082
+      ],
+      "size": {
+        "0": 319.8609924316406,
+        "1": 342.8357849121094
+      },
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 74
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      }
+    },
+    {
+      "id": 72,
+      "type": "PreviewImage",
+      "pos": [
+        1184,
+        1084
+      ],
+      "size": {
+        "0": 319.8609924316406,
+        "1": 342.8357849121094
+      },
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 84
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      }
+    },
+    {
+      "id": 73,
+      "type": "PreviewImage",
+      "pos": [
+        1525,
+        1090
+      ],
+      "size": {
+        "0": 319.8609924316406,
+        "1": 342.8357849121094
+      },
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 81
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      }
+    },
+    {
+      "id": 75,
+      "type": "Note",
+      "pos": [
+        433,
+        1095
+      ],
+      "size": {
+        "0": 382.9918518066406,
+        "1": 311.6756286621094
+      },
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "properties": {
+        "text": ""
+      },
+      "widgets_values": [
+        "这个工作流中：\n\n1. 使用 BizyAir 的 Generate Photorealistic Images 节点，生成一张大白鲨的图片。\n\n2. 使用 BizyAir Controlnet 预处理节点，将大白鲨的图片转为深度图。\n\n3. 使用深度图做 image prompt，结合 text prompt，用 BizyAir Controlnet Union 节点，将深度图重绘为潜水艇。"
+      ],
+      "color": "#432",
+      "bgcolor": "#653"
+    },
+    {
+      "id": 69,
+      "type": "StableDiffusionXLControlNetUnionPipeline",
+      "pos": [
+        848,
+        580
+      ],
+      "size": {
+        "0": 598.6016235351562,
+        "1": 454.2467346191406
+      },
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "openpose_image",
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "depth_image",
+          "type": "IMAGE",
+          "link": 85
+        },
+        {
+          "name": "hed_pidi_scribble_ted_image",
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "canny_lineart_anime_lineart_mlsd_image",
+          "type": "IMAGE",
+          "link": 82
+        },
+        {
+          "name": "normal_image",
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "segment_image",
+          "type": "IMAGE",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            81
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "StableDiffusionXLControlNetUnionPipeline"
+      },
+      "widgets_values": [
+        1,
+        "fixed",
+        20,
+        1,
+        4.9,
+        "a submarine in cyberpunk style, with a futuristic and sci-fi aesthetic",
+        "watermark, text",
+        0,
+        0.5
+      ]
+    },
+    {
+      "id": 74,
+      "type": "BizyAirDepthAnythingV2Preprocessor",
+      "pos": [
+        435,
+        603
+      ],
+      "size": {
+        "0": 392.11334228515625,
+        "1": 157.2982940673828
+      },
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 83
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            84,
+            85
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAirDepthAnythingV2Preprocessor"
+      },
+      "widgets_values": [
+        "depth_anything_v2_vitl.pth",
+        512
+      ]
+    },
+    {
+      "id": 63,
+      "type": "BizyAirGenerateLightningImage",
+      "pos": [
+        427,
+        816
+      ],
+      "size": {
+        "0": 399.5649108886719,
+        "1": 220
+      },
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            74,
+            82,
+            83
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAirGenerateLightningImage"
+      },
+      "widgets_values": [
+        "a great white shark",
+        493871336398282,
+        "fixed",
+        1024,
+        1024,
+        1.5,
+        1
+      ]
+    }
+  ],
+  "links": [
+    [
+      74,
+      63,
+      0,
+      66,
+      0,
+      "IMAGE"
+    ],
+    [
+      81,
+      69,
+      0,
+      73,
+      0,
+      "IMAGE"
+    ],
+    [
+      82,
+      63,
+      0,
+      69,
+      3,
+      "IMAGE"
+    ],
+    [
+      83,
+      63,
+      0,
+      74,
+      0,
+      "IMAGE"
+    ],
+    [
+      84,
+      74,
+      0,
+      72,
+      0,
+      "IMAGE"
+    ],
+    [
+      85,
+      74,
+      0,
+      69,
+      1,
+      "IMAGE"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.9090909090909114,
+      "offset": {
+        "0": 233.66165985477858,
+        "1": -343.6244714175116
+      }
+    }
+  },
+  "version": 0.4
+}
