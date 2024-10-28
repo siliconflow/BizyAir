@@ -42,24 +42,6 @@ def send_post_request(api_url, payload, headers):
             )
 
 
-def send_get_request(api_url):
-    try:
-        req = urllib.request.Request(api_url)
-        with urllib.request.urlopen(req) as response:
-            response_data = response.read().decode("utf-8")
-        return response_data
-    except urllib.error.URLError as e:
-        if "Unauthorized" in str(e):
-            raise Exception(
-                "Key is invalid, please refer to https://cloud.siliconflow.cn to get the API key.\n"
-                "If you have the key, please click the 'BizyAir Key' button at the bottom right to set the key."
-            )
-        else:
-            raise Exception(
-                f"Failed to connect to the server: {e}, if you have no key, "
-            )
-
-
 def serialize_and_encode(obj: Union[np.ndarray], compress=True) -> Tuple[str, bool]:
     """
     Serializes a Python object, optionally compresses it, and then encodes it in base64.

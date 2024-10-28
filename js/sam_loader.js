@@ -7,7 +7,7 @@ app.registerExtension({
 
     async beforeRegisterNodeDef(nodeType, nodeData, app) {
 
-        if(nodeData.name === "BizyAirSegmentAnythingBox" || nodeData.name === "BizyAirSegmentAnythingPoint"){
+        if(nodeData.name === "BizyAirSegmentAnythingPointBox"){
             const original_getExtraMenuOptions = nodeType.prototype.getExtraMenuOptions;
 
             nodeType.prototype.getExtraMenuOptions = function(_, options) {
@@ -49,7 +49,7 @@ app.registerExtension({
             await api.fetchApi("/bizyair/resetsam");
         }
 
-        if(node.title === "☁️BizyAir Point Guided SAM" || node.title === "☁️BizyAir Box Guided SAM"){
+        if(node.title === "☁️BizyAir Point-Box Guided SAM"){
             const imageWidget = node.widgets.find(widget => widget.name === "image");
             const cb = node.callback;
             if (imageWidget) {
