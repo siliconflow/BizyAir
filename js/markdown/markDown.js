@@ -124,9 +124,12 @@ export default class MarkDown {
             },
             uploadImage: true,
             toolbar: [
-                "bold", "italic", "heading", "|", 
-                "quote", "unordered-list", "ordered-list", "|", 
-                "link", "code", "table", {
+              "heading-smaller",
+              "bold",
+              "italic",
+              "link",
+              "code", 
+               {
                     name: "upload-image",
                     action: function customFunction(editor) {
                         const input = document.createElement('input');
@@ -151,9 +154,65 @@ export default class MarkDown {
                     },
                     className: "fa fa-upload",
                     title: "upload image",
-                }, "|", 
-                "preview", "side-by-side", "fullscreen", "|", 
-                "guide"
+              },
+              "unordered-list",
+              "ordered-list",
+              "|",
+              "preview",
+              "side-by-side",
+              "fullscreen",
+          
+              {
+                    name: "others",
+                    className: "fa fa-ellipsis-v",
+                    title: "others buttons",
+                    children: [
+                        "table",
+                        {
+                            name: "image",
+                            action: EasyMDE.drawImage,
+                            className: "fa fa-picture-o",
+                            title: "Image",
+                        },
+                        {
+                            name: "quote",
+                            action: EasyMDE.toggleBlockquote,
+                            className: "fa fa-percent",
+                            title: "Quote",
+                        },
+                        
+                    ]
+                },
+                // "bold", "italic", "heading", "|", 
+                // "quote", "unordered-list", "ordered-list", "|", 
+                // "link", "code", "table", {
+                //     name: "upload-image",
+                //     action: function customFunction(editor) {
+                //         const input = document.createElement('input');
+                //         input.type = 'file';
+                //         input.accept = 'image/*';
+                //         input.onchange = () => {
+                //             const file = input.files[0];
+                //             if (file) {
+                //                 config.imageUploadFunction(
+                //                     file,
+                //                     (url) => {
+                //                         const output = `![${file.name}](${url})`;
+                //                         editor.codemirror.replaceSelection(output);
+                //                     },
+                //                     (error) => {
+                //                         console.error('upload image file error:', error);
+                //                     }
+                //                 );
+                //             }
+                //         };
+                //         input.click();
+                //     },
+                //     className: "fa fa-upload",
+                //     title: "upload image",
+                // }, "|", 
+                // "preview", "side-by-side", "fullscreen", "|", 
+                // "guide"
             ],
             onToggleFullScreen: (isFullscreen) => {
                 this.setFullscreen(isFullscreen);

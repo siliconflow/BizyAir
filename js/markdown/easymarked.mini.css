@@ -564,7 +564,9 @@ span.CodeMirror-selectedtext {
   border-left: 1px solid #ced4da;
   border-right: 1px solid #ced4da;
   border-top-left-radius: 4px;
-  border-top-right-radius: 4px
+  border-top-right-radius: 4px;
+  text-align: right;
+
 }
 
 .editor-toolbar.fullscreen {
@@ -642,7 +644,8 @@ span.CodeMirror-selectedtext {
 .editor-toolbar button.active,
 .editor-toolbar button:hover {
   background: #7C3AED;
-  border-color: #95a5a6
+  border-color: #95a5a6;
+  box-shadow: 0 8px 16px 0 rgba(241, 240, 240, 0.935);
 }
 
 .editor-toolbar i.separator {
@@ -849,24 +852,25 @@ span.CodeMirror-selectedtext {
 
 .editor-toolbar .easymde-dropdown {
   position: relative;
-  background: linear-gradient(to bottom right, #fff 0, #fff 84%, #333 50%, #333 100%);
-  border-radius: 0;
-  border: 1px solid #fff
+  background: var(--comfy-input-bg);
+  border-radius: 2px;
+  /* border: 1px solid #fff */
 }
 
 .editor-toolbar .easymde-dropdown:hover {
-  background: linear-gradient(to bottom right, #fff 0, #fff 84%, #333 50%, #333 100%)
+  background: #7C3AED;
 }
 
 .easymde-dropdown-content {
   display: block;
   visibility: hidden;
   position: absolute;
-  background-color: #f9f9f9;
-  box-shadow: 0 8px 16px 0 rgba(0, 0, 0, .2);
+  right: 0;
+  background-color: var(--comfy-input-bg);
+  box-shadow: 0 8px 16px 0 rgba(241, 240, 240, 0.935);
   padding: 8px;
   z-index: 2;
-  top: 30px
+  top: 40px
 }
 
 .easymde-dropdown:active .easymde-dropdown-content,
