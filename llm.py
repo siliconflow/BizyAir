@@ -396,17 +396,12 @@ class BizyAirJoyCaption2:
         ret: str = send_post_request(self.API_URL, payload=payload, headers=headers)
         ret = json.loads(ret)
 
-        print(ret)
-
         try:
             if "result" in ret:
                 ret = json.loads(ret["result"])
-                print(ret)
         except Exception as e:
             raise Exception(f"Unexpected response: {ret} {e=}")
 
-        # if ret["status"] == "error":
-        #     raise Exception(ret["message"])
         if ret["type"] == "error":
             raise Exception(ret["message"])
 
