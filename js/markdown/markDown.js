@@ -113,7 +113,6 @@ export default class MarkDown {
     }
 
     editor() {
-        // 建议将配置抽离到单独的配置文件中
         const config = {
             ...this.getCommonConfig(),
             autoDownloadFontAwesome: false,
@@ -165,7 +164,6 @@ export default class MarkDown {
               "preview",
               "side-by-side",
               "fullscreen",
-          
               {
                     name: "others",
                     className: "fa fa-ellipsis-v",
@@ -187,36 +185,6 @@ export default class MarkDown {
                         
                     ]
                 },
-                // "bold", "italic", "heading", "|", 
-                // "quote", "unordered-list", "ordered-list", "|", 
-                // "link", "code", "table", {
-                //     name: "upload-image",
-                //     action: function customFunction(editor) {
-                //         const input = document.createElement('input');
-                //         input.type = 'file';
-                //         input.accept = 'image/*';
-                //         input.onchange = () => {
-                //             const file = input.files[0];
-                //             if (file) {
-                //                 config.imageUploadFunction(
-                //                     file,
-                //                     (url) => {
-                //                         const output = `![${file.name}](${url})`;
-                //                         editor.codemirror.replaceSelection(output);
-                //                     },
-                //                     (error) => {
-                //                         console.error('upload image file error:', error);
-                //                     }
-                //                 );
-                //             }
-                //         };
-                //         input.click();
-                //     },
-                //     className: "fa fa-upload",
-                //     title: "upload image",
-                // }, "|", 
-                // "preview", "side-by-side", "fullscreen", "|", 
-                // "guide"
             ],
             onToggleFullScreen: (isFullscreen) => {
                 this.setFullscreen(isFullscreen);
@@ -242,7 +210,15 @@ export default class MarkDown {
                     }
                     this.isUploading = true;
                     uploadImage(file).then(res => {
-                        onSuccess(res.url);
+                        if(res?.data?.url) {
+                            onSuccess(res?.data?.url);
+                        } else {
+                            toast({
+                                content: 'upload image error',
+                                type: 'error',
+                                center: true
+                            })
+                        }
                         this.isUploading = false;
                     }).catch(err => {
                         toast({
@@ -274,12 +250,16 @@ export default class MarkDown {
                         for (let i = 0; i < e.clipboardData.items.length; i++) {
                             if (e.clipboardData.items[i].type.indexOf("image") !== -1) {
                                 const file = e.clipboardData.items[i].getAsFile();
-                                const reader = new FileReader();
-                                reader.onload = (e) => {
-                                    const output = `![Alt text](${e.target.result})`;
-                                    instance.codemirror.replaceSelection(output);
-                                };
-                                reader.readAsDataURL(file);
+                                config.imageUploadFunction(
+                                    file,
+                                    (url) => {
+                                        const output = `![${file.name}](${url})`;
+                                        instance.codemirror.replaceSelection(output);
+                                    },
+                                    (error) => {
+                                        console.error('upload image file error:', error);
+                                    }
+                                );
                             }
                         }
                     }
