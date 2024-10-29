@@ -331,7 +331,7 @@ class APIClient:
             return None, errnos.UPDATE_MODEL
 
     async def get_upload_token(self, filename: str) -> tuple[dict | None, ErrorNo | None]:
-        server_url = f"{BIZYAIR_SERVER_ADDRESS}/upload/token?filename={filename}"
+        server_url = f"{BIZYAIR_SERVER_ADDRESS}/upload/token?file_name={filename}"
 
         headers, err = self.auth_header()
         if err is not None:
