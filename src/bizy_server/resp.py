@@ -1,6 +1,6 @@
 from aiohttp import web
 
-from .errno import errnos, ErrorNo
+from .errno import ErrorNo, errnos
 
 
 def JsonResponse(http_status_code, data):
@@ -12,7 +12,9 @@ def JsonResponse(http_status_code, data):
 
 
 def OKResponse(data):
-    return JsonResponse(200, {"message": "success", "code": errnos.OK.code, "data": data})
+    return JsonResponse(
+        200, {"message": "success", "code": errnos.OK.code, "data": data}
+    )
 
 
 def ErrResponse(err: ErrorNo):

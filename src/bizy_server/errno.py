@@ -19,7 +19,9 @@ class errnos:
     NO_ABS_PATH = ErrorNo(400, 400112, None, "The upload path is not an absolute path")
     PATH_NOT_EXISTS = ErrorNo(400, 400113, None, "The upload path does not exist")
     INVALID_CLIENT_ID = ErrorNo(400, 400114, None, "Invalid client id")
-    NO_PUBLIC_FLAG = ErrorNo(400, 400115, None, 'The parameter "public" is not provided')
+    NO_PUBLIC_FLAG = ErrorNo(
+        400, 400115, None, 'The parameter "public" is not provided'
+    )
     FILE_NOT_EXISTS = ErrorNo(400, 400116, None, "The file does not exist")
     NO_SHARE_ID = ErrorNo(400, 400117, None, 'The parameter "share_id" is not provided')
     INVALID_DESCRIPTION = ErrorNo(400, 400118, None, "Invalid description")
@@ -44,7 +46,9 @@ class errnos:
     COMMIT_BIZY_MODEL = ErrorNo(500, 500105, None, "Failed to commit model")
     EMPTY_FILES = ErrorNo(500, 500107, None, "Empty files to make a model")
     LIST_MODEL_FILE = ErrorNo(500, 500108, None, "Failed to list model file")
-    LIST_SHARE_MODEL_FILE = ErrorNo(500, 500108, None, "Failed to list share model file")
+    LIST_SHARE_MODEL_FILE = ErrorNo(
+        500, 500108, None, "Failed to list share model file"
+    )
     INVALID_FILENAME = ErrorNo(500, 500109, None, "Invalid filename")
     DELETE_MODEL = ErrorNo(500, 500110, None, "Failed to delete model")
     GET_USER_INFO = ErrorNo(500, 500111, None, "Failed to get user info")
@@ -54,10 +58,14 @@ class errnos:
     GET_DESCRIPTION = ErrorNo(500, 500115, None, "Failed to get description")
     UPDATE_DESCRIPTION = ErrorNo(500, 500116, None, "Failed to update description")
     DELETE_BIZY_MODEL = ErrorNo(500, 500117, None, "Failed to delete model")
-    QUERY_COMMUNITY_MODELS = ErrorNo(500, 500118, None, "Failed to query community models")
+    QUERY_COMMUNITY_MODELS = ErrorNo(
+        500, 500118, None, "Failed to query community models"
+    )
     QUERY_MODELS = ErrorNo(500, 500119, None, "Failed to query models")
     GET_MODEL_DETAIL = ErrorNo(500, 500120, None, "Failed to get model detail")
-    GET_MODEL_VERSION_DETAIL = ErrorNo(500, 500121, None, "Failed to get model version detail")
+    GET_MODEL_VERSION_DETAIL = ErrorNo(
+        500, 500121, None, "Failed to get model version detail"
+    )
     FORK_MODEL_VERSION = ErrorNo(500, 500122, None, "Failed to fork model version")
     UPDATE_MODEL = ErrorNo(500, 500123, None, "Failed to update model")
     GET_UPLOAD_TOKEN = ErrorNo(500, 500124, None, "Failed to get upload token")

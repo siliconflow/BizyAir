@@ -84,15 +84,15 @@ class UploadManager:
                     def updateProgress(consume_bytes, total_bytes):
                         current_time = time.time()
                         if (
-                                current_time - self.upload_progresses_updated_at[upload_id]
-                                >= 1
+                            current_time - self.upload_progresses_updated_at[upload_id]
+                            >= 1
                         ):
                             self.upload_progresses_updated_at[upload_id] = current_time
 
                             progress = (
                                 f"{consume_bytes / total_bytes * 100:.0f}%"
                                 if consume_bytes / total_bytes * 100
-                                   == int(consume_bytes / total_bytes * 100)
+                                == int(consume_bytes / total_bytes * 100)
                                 else "{:.2f}%".format(consume_bytes / total_bytes * 100)
                             )
                             self.server.send_sync(
@@ -137,7 +137,6 @@ class UploadManager:
 
             model_files.append({"sign": sha256sum, "path": filename})
 
-
         print("\033[32m[BizyAir]\033[0m Uploaded successfully")
 
         self.server.send_sync(
@@ -151,7 +150,7 @@ class UploadManager:
             sid=sid,
         )
 
-        # TODO 
+        # TODO
         # def check_sync_status():
         #     while True:
         #         future = asyncio.run_coroutine_threadsafe(
