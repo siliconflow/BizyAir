@@ -14,7 +14,7 @@ BASE_MODEL_TYPE_OPTIONS = {
     "SDXL": "SDXL",
     "SD1.5": "SD1.5",
     "SD3.5": "SD3.5",
-    "PONY": "PONY"
+    "PONY": "PONY",
 }
 
 ALLOW_TYPES = list(TYPE_OPTIONS.values())
