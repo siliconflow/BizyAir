@@ -242,7 +242,7 @@ export default class MarkDown {
             },
           
             events: {
-                "fullscreenChange": (instance, isFullscreen) => {
+                "fullscreenChange": (_instance, isFullscreen) => {
                     this.setFullscreen(isFullscreen);
                 },
                 "paste": (instance, e) => {
