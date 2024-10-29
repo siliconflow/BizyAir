@@ -1,4 +1,5 @@
 import asyncio
+import io
 import logging
 import os
 
@@ -95,6 +96,44 @@ class AliOssStorageClient:
             )
         except oss2.exceptions.OssError as e:
             logging.error(f"Failed to upload file: {e}")
+            raise e
+        finally:
+            progress_bar.close()
+
+        return f"{self.bucket_name}/{self.region}/{object_name}"
+
+    async def upload_file_content(self, file_content, file_name, object_name):
+        total_size = len(file_content)
+        progress_bar = tqdm(
+            total=total_size,
+            unit="B",
+            unit_scale=True,
+            desc=f"\033[94m[BizyAir]\033[0m Uploading {file_name}",
+        )
+
+        # 维护累计发送的字节数
+        bytes_uploaded = 0
+
+        def progress_callback(bytes_sent, total_bytes):
+            nonlocal bytes_uploaded
+            progress_increment = bytes_sent - bytes_uploaded
+            progress_bar.update(progress_increment)
+            bytes_uploaded = bytes_sent  # 更新累计已发送的字节数
+            if self.onUploading:
+                self.onUploading(bytes_sent, total_bytes)
+
+        try:
+            loop = asyncio.get_running_loop()
+            await loop.run_in_executor(
+                None,
+                self.bucket.put_object,
+                object_name,
+                io.BytesIO(file_content),
+                None,
+                progress_callback,
+            )
+        except oss2.exceptions.OssError as e:
+            logging.error(f"Failed to upload file content: {e}")
             raise e
         finally:
             progress_bar.close()

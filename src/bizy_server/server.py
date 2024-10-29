@@ -1,6 +1,7 @@
 import asyncio
 import logging
 import os
+import time
 import uuid
 
 import aiohttp
@@ -8,19 +9,10 @@ from server import PromptServer
 
 import bizyair
 import bizyair.common
+from .oss import AliOssStorageClient
 
 from .api_client import APIClient
-from .errno import (
-    EMPTY_ABS_FOLDER_ERR,
-    EMPTY_UPLOAD_ID_ERR,
-    INVALID_CLIENT_ID_ERR,
-    INVALID_UPLOAD_ID_ERR,
-    NO_ABS_PATH_ERR,
-    PATH_NOT_EXISTS_ERR,
-    NOT_A_FILE_ERR,
-    NOT_ALLOWED_EXT_NAME_ERR,
-    ErrorNo,
-)
+from .errno import errnos, ErrorNo
 from .error_handler import ErrorHandler
 from .execution import UploadQueue
 from .resp import ErrResponse, OKResponse
@@ -64,7 +56,7 @@ class BizyAirServer:
         @self.prompt_server.routes.get(f"/{COMMUNITY_API}/base_model_types")
         async def list_base_model_types(request):
             return OKResponse(base_model_types())
-        
+
         @self.prompt_server.routes.get(f"/{USER_API}/info")
         async def user_info(request):
             info, err = await self.api_client.user_info()
@@ -109,19 +101,19 @@ class BizyAirServer:
             absolute_path = request.rel_url.query.get("absolute_path")
 
             if not is_string_valid(absolute_path):
-                return ErrResponse(EMPTY_ABS_FOLDER_ERR)
+                return ErrResponse(errnos.EMPTY_ABS_PATH)
 
             if not os.path.isabs(absolute_path):
-                return ErrResponse(NO_ABS_PATH_ERR)
+                return ErrResponse(errnos.NO_ABS_PATH)
 
             if not os.path.exists(absolute_path):
-                return ErrResponse(PATH_NOT_EXISTS_ERR)
+                return ErrResponse(errnos.PATH_NOT_EXISTS)
 
             if not os.path.isfile(absolute_path):
-                return ErrResponse(NOT_A_FILE_ERR)
-            
+                return ErrResponse(errnos.NOT_A_FILE)
+
             if not is_allow_ext_name(absolute_path):
-                return ErrResponse(NOT_ALLOWED_EXT_NAME_ERR)
+                return ErrResponse(errnos.NOT_ALLOWED_EXT_NAME)
 
             file_size = os.path.getsize(absolute_path)
             relative_path = os.path.basename(absolute_path)
@@ -140,25 +132,255 @@ class BizyAirServer:
         async def submit_upload(request):
             sid = request.rel_url.query.get("clientId", "")
             if not is_string_valid(sid):
-                return ErrResponse(INVALID_CLIENT_ID_ERR)
+                return ErrResponse(errnos.INVALID_CLIENT_ID)
 
             json_data = await request.json()
-            err = check_str_param(json_data, "upload_id", EMPTY_UPLOAD_ID_ERR)
+            err = check_str_param(json_data, "upload_id", errnos.EMPTY_UPLOAD_ID)
             if err is not None:
                 return err
 
             upload_id = json_data.get("upload_id")
             if upload_id not in self.uploads:
-                return ErrResponse(INVALID_UPLOAD_ID_ERR)
+                return ErrResponse(errnos.INVALID_UPLOAD_ID)
 
             self.uploads[upload_id]["sid"] = sid
             self.upload_queue.put(self.uploads[upload_id])
 
+            return OKResponse(None)
+
+        @self.prompt_server.routes.post(f"/{COMMUNITY_API}/models")
+        async def commit_bizy_model(request):
+            json_data = await request.json()
+
+            # 校验name和type
+            err = check_str_param(json_data, "name", errnos.INVALID_NAME)
+            if err:
+                return err
+
+            if "/" in json_data["name"]:
+                return ErrResponse(errnos.INVALID_NAME)
+
+            err = check_type(json_data)
+            if err:
+                return err
+
+            # 校验versions
+            if "versions" not in json_data or not isinstance(json_data["versions"], list):
+                return ErrResponse(errnos.INVALID_VERSIONS)
+
+            versions = json_data["versions"]
+            version_names = set()
+
+            for version in versions:
+                # 检查version是否重复
+                if version.get("version") in version_names:
+                    return ErrResponse(errnos.DUPLICATE_VERSION)
+
+                # 检查version字段是否合法
+                if not is_string_valid(version.get("version")) or "/" in version.get("version"):
+                    return ErrResponse(errnos.INVALID_VERSION_NAME)
+
+                version_names.add(version.get("version"))
+
+                # 检查base_model, path和sign是否有值
+                for field in ["base_model", "path", "sign"]:
+                    if not is_string_valid(version.get(field)):
+                        return ErrResponse(errnos.INVALID_VERSION_FIELD(field))
+
+            # 调用API提交模型
+            resp, err = await self.api_client.commit_bizy_model(payload=json_data)
+            if err:
+                return ErrResponse(err)
+
             # enable refresh for lora
             # TODO: enable refresh for other types
             bizyair.path_utils.path_manager.enable_refresh_options("loras")
+
+            return OKResponse(resp)
+
+        @self.prompt_server.routes.post(f"/{COMMUNITY_API}/models/query")
+        async def query_my_models(request):
+            # 获取查询参数
+            mode = request.rel_url.query.get("mode", "")
+            if not mode or mode not in ["my", "my_fork", "publicity"]:
+                return ErrResponse(errnos.INVALID_QUERY_MODE)
+
+            current = int(request.rel_url.query.get("current", "1"))
+            page_size = int(request.rel_url.query.get("page_size", "10"))
+            json_data = await request.json()
+            keyword = json_data["keyword"]
+            model_types = json_data.get("model_types", [])
+            base_models = json_data.get("base_models", [])
+
+            if mode in ["my", "my_fork"]:
+                # 调用API查询模型
+                resp, err = await self.api_client.query_models(mode, current, page_size,
+                                                               keyword=keyword,
+                                                               model_types=model_types,
+                                                               base_models=base_models)
+            elif mode == "publicity":
+                # 调用API查询社区模型
+                resp, err = await self.api_client.query_community_models(current, page_size,
+                                                                         keyword=keyword,
+                                                                         model_types=model_types,
+                                                                         base_models=base_models)
+            if err:
+                return ErrResponse(err)
+
+            return OKResponse(resp)
+
+        @self.prompt_server.routes.get(f"/{COMMUNITY_API}/models/{{model_id}}/detail")
+        async def get_model_detail(request):
+            # 获取路径参数中的模型ID
+            model_id = int(request.match_info["model_id"])
+
+            # 检查model_id是否合法
+            if not model_id or model_id <= 0:
+                return ErrResponse(errnos.INVALID_MODEL_ID)
+
+            source = request.rel_url.query.get("source", "")
+
+            # 调用API获取模型详情
+            resp, err = await self.api_client.get_model_detail(model_id, source)
+            if err:
+                return ErrResponse(err)
+
+            return OKResponse(resp)
+
+        @self.prompt_server.routes.delete(f"/{COMMUNITY_API}/models/{{model_id}}")
+        async def delete_model(request):
+            # 获取路径参数中的模型ID
+            model_id = int(request.match_info["model_id"])
+
+            # 检查model_id是否合法
+            if not model_id or model_id <= 0:
+                return ErrResponse(errnos.INVALID_MODEL_ID)
+
+            # 调用API删除模型
+            resp, err = await self.api_client.delete_bizy_model(model_id)
+            if err:
+                return ErrResponse(err)
+
+            return OKResponse(resp)
+
+        @self.prompt_server.routes.put(f"/{COMMUNITY_API}/models/{{model_id}}")
+        async def update_model(request):
+            # 获取路径参数中的模型ID
+            model_id = int(request.match_info["model_id"])
+
+            # 检查model_id是否合法
+            if not model_id or model_id <= 0:
+                return ErrResponse(errnos.INVALID_MODEL_ID)
+
+            # 获取请求体数据
+            json_data = await request.json()
+
+            # 校验name和type
+            err = check_str_param(json_data, "name", errnos.INVALID_NAME)
+            if err:
+                return err
+
+            if "/" in json_data["name"]:
+                return ErrResponse(errnos.INVALID_NAME)
+
+            err = check_type(json_data)
+            if err:
+                return err
+
+            # 校验versions
+            if "versions" not in json_data or not isinstance(json_data["versions"], list):
+                return ErrResponse(errnos.INVALID_VERSIONS)
+
+            versions = json_data["versions"]
+            version_names = set()
+
+            for version in versions:
+                # 检查version是否重复
+                if version.get("version") in version_names:
+                    return ErrResponse(errnos.DUPLICATE_VERSION)
+
+                # 检查version字段是否合法
+                if not is_string_valid(version.get("version")) or "/" in version.get("version"):
+                    return ErrResponse(errnos.INVALID_VERSION_NAME)
+
+                version_names.add(version.get("version"))
+
+                # 检查base_model, path和sign是否有值
+                for field in ["base_model", "path", "sign"]:
+                    if not is_string_valid(version.get(field)):
+                        return ErrResponse(errnos.INVALID_VERSION_FIELD(field))
+
+            # 调用API更新模型
+            _, err = await self.api_client.update_model(model_id, json_data["name"], json_data["type"], versions)
+            if err:
+                return ErrResponse(err)
+
             return OKResponse(None)
 
+        @self.prompt_server.routes.post(f"/{COMMUNITY_API}/models/fork/{{model_version_id}}")
+        async def fork_model_version(request):
+            try:
+                # 获取version_id参数
+                version_id = request.match_info["model_version_id"]
+                if not version_id:
+                    return ErrResponse(errnos.INVALID_MODEL_VERSION_ID)
+
+                # 调用API fork模型版本
+                _, err = await self.api_client.fork_model_version(version_id)
+                if err:
+                    return ErrResponse(err)
+
+                return OKResponse(None)
+
+            except Exception as e:
+                print(f"\033[31m[BizyAir]\033[0m Fail to fork model version: {str(e)}")
+                return ErrResponse(errnos.FORK_MODEL_VERSION)
+
+        @self.prompt_server.routes.post(f"/{COMMUNITY_API}/files/upload")
+        async def upload_file(request):
+            try:
+                # 获取上传的文件
+                reader = await request.multipart()
+                field = await reader.next()
+                if not field or field.name != 'file':
+                    return ErrResponse(errnos.NO_FILE_UPLOAD)
+
+                filename = field.filename
+                if not filename:
+                    return ErrResponse(errnos.NO_FILE_UPLOAD)
+
+                # 读取文件内容
+                file_content = await field.read(decode=False)
+
+                # 获取上传凭证
+                ret, err = await self.api_client.get_upload_token()
+                if err:
+                    return ErrResponse(err)
+
+                # 解析返回的凭证信息
+                file_info = ret['file']
+                storage_info = ret['storage']
+
+                def updateProgress(consume_bytes, total_bytes):
+                    # do nothing
+                    pass
+
+                oss_client = AliOssStorageClient(
+                    endpoint=storage_info.get("endpoint"),
+                    bucket_name=storage_info.get("bucket"),
+                    access_key=file_info.get("access_key_id"),
+                    secret_key=file_info.get("access_key_secret"),
+                    security_token=file_info.get("security_token"),
+                    onUploading=updateProgress
+                )
+                await oss_client.upload_file_content(
+                    file_content=file_content, file_name=filename, object_name=file_info.get("object_key")
+                )
+                return OKResponse({"url": f'https://{storage_info.get("bucket")}.{storage_info.get("endpoint")}/{file_info.get("object_key")}'})
+
+            except Exception as e:
+                print(f"\033[31m[BizyAir]\033[0m Fail to upload file: {str(e)}")
+                return ErrResponse(errnos.UPLOAD)
 
     async def send_json(self, event, data, sid=None):
         message = {"type": event, "data": data}
@@ -181,9 +403,9 @@ class BizyAirServer:
         try:
             await function(message)
         except (
-            aiohttp.ClientError,
-            aiohttp.ClientPayloadError,
-            ConnectionResetError,
+                aiohttp.ClientError,
+                aiohttp.ClientPayloadError,
+                ConnectionResetError,
         ) as err:
             logging.warning("send error: {}".format(err))
 
