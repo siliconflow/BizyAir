@@ -23,7 +23,8 @@
         "InstantID Basic workflow by BizyAir KSampler": "bizyair_sdxl_InstantID_basic.json"
     },
     "SD3": {
-        "SD3.5 Text to Image": "bizyair_sd3_5_txt2img.json"
+        "SD3.5 Text to Image": "bizyair_sd3_5_txt2img.json",
+        "SD3.5 Turbo Text to Image": "bizyair_sd3_5_turbo_txt2img.json"
     },
     "Kolors": {
         "Kolors Text to Image": "bizyair_kolors_txt2img.json",

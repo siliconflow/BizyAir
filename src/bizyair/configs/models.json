@@ -16,7 +16,7 @@
       "dreamshaper_8.safetensors"
     ]
   },
-  "sd3.5_large.safetensors"],
+  "sd3.5_large.safetensors", "sd3.5_large_turbo.safetensors"],
   "clip_vision": {
     "models": [
       "CLIP-ViT-H-14-laion2B-s32B-b79K.safetensors"
