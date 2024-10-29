@@ -1,6 +1,7 @@
 import asyncio
 import logging
 import os
+import time
 import uuid
 
 import aiohttp
@@ -8,6 +9,7 @@ from server import PromptServer
 
 import bizyair
 import bizyair.common
+from .oss import AliOssStorageClient
 
 from .api_client import APIClient
 from .errno import errnos, ErrorNo
@@ -154,7 +156,7 @@ class BizyAirServer:
             err = check_str_param(json_data, "name", errnos.INVALID_NAME)
             if err:
                 return err
-            
+
             if "/" in json_data["name"]:
                 return ErrResponse(errnos.INVALID_NAME)
 
@@ -173,7 +175,7 @@ class BizyAirServer:
                 # 检查version是否重复
                 if version.get("version") in version_names:
                     return ErrResponse(errnos.DUPLICATE_VERSION)
-                
+
                 # 检查version字段是否合法
                 if not is_string_valid(version.get("version")) or "/" in version.get("version"):
                     return ErrResponse(errnos.INVALID_VERSION_NAME)
@@ -213,20 +215,20 @@ class BizyAirServer:
             if mode in ["my", "my_fork"]:
                 # 调用API查询模型
                 resp, err = await self.api_client.query_models(mode, current, page_size,
-                                                            keyword=keyword,
-                                                            model_types=model_types,
-                                                            base_models=base_models)
+                                                               keyword=keyword,
+                                                               model_types=model_types,
+                                                               base_models=base_models)
             elif mode == "publicity":
                 # 调用API查询社区模型
                 resp, err = await self.api_client.query_community_models(current, page_size,
-                                                            keyword=keyword,
-                                                            model_types=model_types,
-                                                            base_models=base_models)
+                                                                         keyword=keyword,
+                                                                         model_types=model_types,
+                                                                         base_models=base_models)
             if err:
                 return ErrResponse(err)
 
             return OKResponse(resp)
-        
+
         @self.prompt_server.routes.get(f"/{COMMUNITY_API}/models/{{model_id}}/detail")
         async def get_model_detail(request):
             # 获取路径参数中的模型ID
@@ -260,7 +262,7 @@ class BizyAirServer:
                 return ErrResponse(err)
 
             return OKResponse(resp)
-        
+
         @self.prompt_server.routes.put(f"/{COMMUNITY_API}/models/{{model_id}}")
         async def update_model(request):
             # 获取路径参数中的模型ID
@@ -277,7 +279,7 @@ class BizyAirServer:
             err = check_str_param(json_data, "name", errnos.INVALID_NAME)
             if err:
                 return err
-            
+
             if "/" in json_data["name"]:
                 return ErrResponse(errnos.INVALID_NAME)
 
@@ -296,7 +298,7 @@ class BizyAirServer:
                 # 检查version是否重复
                 if version.get("version") in version_names:
                     return ErrResponse(errnos.DUPLICATE_VERSION)
-                
+
                 # 检查version字段是否合法
                 if not is_string_valid(version.get("version")) or "/" in version.get("version"):
                     return ErrResponse(errnos.INVALID_VERSION_NAME)
@@ -308,20 +310,19 @@ class BizyAirServer:
                     if not is_string_valid(version.get(field)):
                         return ErrResponse(errnos.INVALID_VERSION_FIELD(field))
 
-
             # 调用API更新模型
             _, err = await self.api_client.update_model(model_id, json_data["name"], json_data["type"], versions)
             if err:
                 return ErrResponse(err)
 
             return OKResponse(None)
-        
+
         @self.prompt_server.routes.post(f"/{COMMUNITY_API}/models/fork/{{model_version_id}}")
         async def fork_model_version(request):
             try:
                 # 获取version_id参数
-                version_id = int(request.match_info["model_version_id"])
-                if not version_id or not version_id.isdigit() or int(version_id) <= 0:
+                version_id = request.match_info["model_version_id"]
+                if not version_id:
                     return ErrResponse(errnos.INVALID_MODEL_VERSION_ID)
 
                 # 调用API fork模型版本
@@ -334,6 +335,52 @@ class BizyAirServer:
             except Exception as e:
                 print(f"\033[31m[BizyAir]\033[0m Fail to fork model version: {str(e)}")
                 return ErrResponse(errnos.FORK_MODEL_VERSION)
+
+        @self.prompt_server.routes.post(f"/{COMMUNITY_API}/files/upload")
+        async def upload_file(request):
+            try:
+                # 获取上传的文件
+                reader = await request.multipart()
+                field = await reader.next()
+                if not field or field.name != 'file':
+                    return ErrResponse(errnos.NO_FILE_UPLOAD)
+
+                filename = field.filename
+                if not filename:
+                    return ErrResponse(errnos.NO_FILE_UPLOAD)
+
+                # 读取文件内容
+                file_content = await field.read(decode=False)
+
+                # 获取上传凭证
+                ret, err = await self.api_client.get_upload_token()
+                if err:
+                    return ErrResponse(err)
+
+                # 解析返回的凭证信息
+                file_info = ret['file']
+                storage_info = ret['storage']
+
+                def updateProgress(consume_bytes, total_bytes):
+                    # do nothing
+                    pass
+
+                oss_client = AliOssStorageClient(
+                    endpoint=storage_info.get("endpoint"),
+                    bucket_name=storage_info.get("bucket"),
+                    access_key=file_info.get("access_key_id"),
+                    secret_key=file_info.get("access_key_secret"),
+                    security_token=file_info.get("security_token"),
+                    onUploading=updateProgress
+                )
+                await oss_client.upload_file_content(
+                    file_content=file_content, file_name=filename, object_name=file_info.get("object_key")
+                )
+                return OKResponse({"url": f'https://{storage_info.get("bucket")}.{storage_info.get("endpoint")}/{file_info.get("object_key")}'})
+
+            except Exception as e:
+                print(f"\033[31m[BizyAir]\033[0m Fail to upload file: {str(e)}")
+                return ErrResponse(errnos.UPLOAD)
 
     async def send_json(self, event, data, sid=None):
         message = {"type": event, "data": data}

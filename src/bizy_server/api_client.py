@@ -15,6 +15,7 @@ BIZYAIR_SERVER_ADDRESS = os.getenv(
     "BIZYAIR_SERVER_ADDRESS", "https://bizyair-api.siliconflow.cn/x/v1"
 )
 
+CLIENT_VERSION = "v20241029"
 
 class APIClient:
     def __init__(self):
@@ -28,6 +29,7 @@ class APIClient:
                 "accept": "application/json",
                 "content-type": "application/json",
                 "authorization": auth,
+                "x-bizyair-client-version": CLIENT_VERSION,
             }
             return headers, None
         except ValueError as e:
@@ -291,3 +293,21 @@ class APIClient:
         except Exception as e:
             print(f"\033[31m[BizyAir]\033[0m Fail to update model: {str(e)}")
             return None, errnos.UPDATE_MODEL
+
+    async def get_upload_token(self) -> tuple[dict | None, ErrorNo | None]:
+        server_url = f"{BIZYAIR_SERVER_ADDRESS}/upload/token"
+
+        headers, err = self.auth_header()
+        if err is not None:
+            return None, err
+
+        try:
+            ret, err = self.do_get(server_url, headers=headers)
+            if err is not None:
+                return None, err
+
+            return ret["data"], None
+        except Exception as e:
+            print(f"\033[31m[BizyAir]\033[0m Fail to get upload token: {str(e)}")
+            return None, errnos.GET_UPLOAD_TOKEN
+    

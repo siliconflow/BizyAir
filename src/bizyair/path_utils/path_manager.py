@@ -202,20 +202,21 @@ def get_filename_list(folder_name, *, verbose=BIZYAIR_DEBUG):
 
     global folder_names_and_paths
     results = []
-    if folder_name in models_config["model_types"]:
-        refresh = refresh_settings.get(folder_name, True)
-        results.extend(
-            cached_filename_list(folder_name, verbose=verbose, refresh=refresh)
-        )
-    if folder_name in folder_names_and_paths:
-        results.extend(folder_names_and_paths[folder_name])
-    if BIZYAIR_DEBUG:
-        try:
-            import folder_paths
-
-            results.extend(folder_paths.get_filename_list(folder_name))
-        except:
-            pass
+    # 社区node上线后移除
+    # if folder_name in models_config["model_types"]:
+    #     refresh = refresh_settings.get(folder_name, True)
+    #     results.extend(
+    #         cached_filename_list(folder_name, verbose=verbose, refresh=refresh)
+    #     )
+    # if folder_name in folder_names_and_paths:
+    #     results.extend(folder_names_and_paths[folder_name])
+    # if BIZYAIR_DEBUG:
+    #     try:
+    #         import folder_paths
+    #
+    #         results.extend(folder_paths.get_filename_list(folder_name))
+    #     except:
+    #         pass
     return results
 
 
