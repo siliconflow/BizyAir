@@ -135,3 +135,12 @@ export function putDescription (data) {
         body: JSON.stringify(data)
     })
 }
+
+export function uploadImage (file) {
+    const formData = new FormData();
+    formData.append('file', file);
+    return customFetch('/bizyair/community/files/upload', {
+        method: 'POST',
+        body: formData
+    })
+}

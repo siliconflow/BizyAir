@@ -1,4 +1,6 @@
 import EasyMDE from './easyMarked.js'
+import { uploadImage } from '../apis.js'
+import { toast } from '../subassembly/toast.js';
 
 export default class MarkDown {
     constructor(options) {
@@ -10,6 +12,8 @@ export default class MarkDown {
         this.isPreview = options.isPreview;
         this.containerId = options.containerId;
         this.content = options.content;
+        this.isUploading = false;
+        this.easyMDE = null;
         
         this.createContainer();
         this.loadStyle();
@@ -219,13 +223,45 @@ export default class MarkDown {
             },
             imageUploadFunction: (file, onSuccess, onError) => {
                 try {
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        onSuccess(e.target.result);
-                    };
-                    reader.readAsDataURL(file);
+                    if (!file.type.startsWith('image/')) {
+                        toast({
+                            content: 'please upload image file',
+                            type: 'warning',
+                            center: true
+                        })
+                        return;
+                    }
+                    const maxSize = 20 * 1024 * 1024;
+                    if (file.size > maxSize) {
+                        toast({
+                            content: 'image size cannot exceed 20MB',
+                            type: 'warning',
+                            center: true
+                        })
+                        return;
+                    }
+                    this.isUploading = true;
+                    uploadImage(file).then(res => {
+                        onSuccess(res.url);
+                        this.isUploading = false;
+                    }).catch(err => {
+                        toast({
+                            content: 'upload image error',
+                            type: 'error',
+                            center: true
+                        })
+                        onError(err);
+                        this.isUploading = false;
+                    });
+
                 } catch (error) {
+                    toast({
+                        content: 'upload image error',
+                        type: 'error',
+                        center: true
+                     })
                     onError('upload image file error');
+                    this.isUploading = false;
                 }
             },
           
@@ -251,7 +287,7 @@ export default class MarkDown {
             }
         };
         
-        new EasyMDE(config);
+        this.easyMDE = new EasyMDE(config);
     }
 
     preview(content) {
@@ -266,7 +302,15 @@ export default class MarkDown {
             initialValue: content,
         };
         
-        const easyMDE = new EasyMDE(config);
-        easyMDE.togglePreview();
+        this.easyMDE = new EasyMDE(config);
+        this.easyMDE.togglePreview();
+    }
+
+    getUploadingStatus() {
+        return this.isUploading;
+    }
+
+    getValue() {
+        return this.easyMDE ? this.easyMDE.value() : '';
     }
 }
