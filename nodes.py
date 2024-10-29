@@ -956,3 +956,52 @@ class ConditioningSetMask(BizyAirBaseNode):
     # FUNCTION = "append"
     NODE_DISPLAY_NAME = "Conditioning (Set Mask)"
     CATEGORY = "conditioning"
+
+
+class BizyAir_LoraLoaderNew(BizyAirBaseNode):
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "model": (data_types.MODEL,),
+                "clip": (data_types.CLIP,),
+                "lora_name": (["wait to aply"],),
+                "strength_model": (
+                    "FLOAT",
+                    {"default": 1.0, "min": -100.0, "max": 100.0, "step": 0.01},
+                ),
+                "strength_clip": (
+                    "FLOAT",
+                    {"default": 1.0, "min": -100.0, "max": 100.0, "step": 0.01},
+                ),
+            }
+        }
+
+    RETURN_TYPES = (data_types.MODEL, data_types.CLIP)
+    RETURN_NAMES = ("MODEL", "CLIP")
+
+    FUNCTION = "load_lora"
+
+    CATEGORY = f"{PREFIX}/loaders"
+
+    def load_lora(self, model, clip, lora_name, strength_model, strength_clip):
+        assigned_id = self.assigned_id
+        new_model: BizyAirNodeIO = model.copy(assigned_id)
+        new_clip: BizyAirNodeIO = clip.copy(assigned_id)
+        instances: List[BizyAirNodeIO] = [new_model, new_clip]
+        for slot_index, ins in zip(range(2), instances):
+            ins.add_node_data(
+                class_type="LoraLoaderNew",
+                inputs={
+                    "model": model,
+                    "clip": clip,
+                    "lora_name": lora_name,
+                    "strength_model": strength_model,
+                    "strength_clip": strength_clip,
+                },
+                outputs={"slot_index": slot_index},
+            )
+        return (
+            new_model,
+            new_clip,
+        )
