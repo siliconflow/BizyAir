@@ -3,6 +3,7 @@ import logging
 import os
 import time
 import uuid
+import urllib.parse
 
 import aiohttp
 from server import PromptServer
@@ -370,9 +371,10 @@ class BizyAirServer:
 
                 # 读取文件内容
                 file_content = await field.read(decode=False)
-
+                
+                filename = urllib.parse.quote(filename)
                 # 获取上传凭证
-                ret, err = await self.api_client.get_upload_token()
+                ret, err = await self.api_client.get_upload_token(filename=filename)
                 if err:
                     return ErrResponse(err)
 
