@@ -8,7 +8,7 @@ import requests
 import bizyair
 import bizyair.common
 
-from .errno import errnos, ErrorNo
+from .errno import ErrorNo, errnos
 from .error_handler import ErrorHandler
 
 BIZYAIR_SERVER_ADDRESS = os.getenv(
@@ -16,6 +16,7 @@ BIZYAIR_SERVER_ADDRESS = os.getenv(
 )
 
 CLIENT_VERSION = "v20241029"
+
 
 class APIClient:
     def __init__(self):
@@ -44,7 +45,12 @@ class APIClient:
         response = requests.get(url, params=params, headers=headers, timeout=3)
         resp_json = json.loads(response.text)
         if response.status_code != 200:
-            return None, ErrorNo(response.status_code, resp_json.get("code", response.status_code), None, resp_json.get("message", response.text))
+            return None, ErrorNo(
+                response.status_code,
+                resp_json.get("code", response.status_code),
+                None,
+                resp_json.get("message", response.text),
+            )
         return resp_json, None
 
     def do_post(self, url, data=None, headers=None):
@@ -53,7 +59,12 @@ class APIClient:
         response = requests.post(url, data=data, headers=headers, timeout=3)
         resp_json = json.loads(response.text)
         if response.status_code != 200:
-            return None, ErrorNo(response.status_code, resp_json.get("code", response.status_code), None, resp_json.get("message", response.text))
+            return None, ErrorNo(
+                response.status_code,
+                resp_json.get("code", response.status_code),
+                None,
+                resp_json.get("message", response.text),
+            )
         return resp_json, None
 
     def do_put(self, url, data=None, headers=None):
@@ -62,7 +73,12 @@ class APIClient:
         response = requests.put(url, data=data, headers=headers, timeout=3)
         resp_json = json.loads(response.text)
         if response.status_code != 200:
-            return None, ErrorNo(response.status_code, resp_json.get("code", response.status_code), None, resp_json.get("message", response.text))
+            return None, ErrorNo(
+                response.status_code,
+                resp_json.get("code", response.status_code),
+                None,
+                resp_json.get("message", response.text),
+            )
         return resp_json, None
 
     def do_delete(self, url, data=None, headers=None):
@@ -71,7 +87,12 @@ class APIClient:
         response = requests.delete(url, data=data, headers=headers, timeout=3)
         resp_json = json.loads(response.text)
         if response.status_code != 200:
-            return None, ErrorNo(response.status_code, resp_json.get("code", response.status_code), None, resp_json.get("message", response.text))
+            return None, ErrorNo(
+                response.status_code,
+                resp_json.get("code", response.status_code),
+                None,
+                resp_json.get("message", response.text),
+            )
         return resp_json, None
 
     async def user_info(self) -> tuple[dict | None, ErrorNo | None]:
@@ -107,7 +128,9 @@ class APIClient:
             print(f"\033[31m[BizyAir]\033[0m Fail to sign model: {str(e)}")
             return None, errnos.SIGN_FILE
 
-    async def commit_file(self, signature: str, object_key: str) -> tuple[dict | None, ErrorNo | None]:
+    async def commit_file(
+        self, signature: str, object_key: str
+    ) -> tuple[dict | None, ErrorNo | None]:
         server_url = f"{BIZYAIR_SERVER_ADDRESS}/files"
 
         payload = {
@@ -145,7 +168,9 @@ class APIClient:
             print(f"\033[31m[BizyAir]\033[0m Fail to commit model: {str(e)}")
             return None, errnos.COMMIT_BIZY_MODEL
 
-    async def delete_bizy_model(self, model_id: int) -> tuple[dict | None, ErrorNo | None]:
+    async def delete_bizy_model(
+        self, model_id: int
+    ) -> tuple[dict | None, ErrorNo | None]:
         server_url = f"{BIZYAIR_SERVER_ADDRESS}/bizy_models/{model_id}"
 
         headers, err = self.auth_header()
@@ -162,14 +187,16 @@ class APIClient:
             print(f"\033[31m[BizyAir]\033[0m Fail to delete model: {str(e)}")
             return None, errnos.DELETE_BIZY_MODEL
 
-    async def query_community_models(self, current: int, page_size: int, keyword: str = None,
-                                     model_types: list[str] = None, base_models: list[str] = None) -> tuple[
-        dict | None, ErrorNo | None]:
+    async def query_community_models(
+        self,
+        current: int,
+        page_size: int,
+        keyword: str = None,
+        model_types: list[str] = None,
+        base_models: list[str] = None,
+    ) -> tuple[dict | None, ErrorNo | None]:
         server_url = f"{BIZYAIR_SERVER_ADDRESS}/bizy_models/community"
-        params = {
-            "current": current,
-            "page_size": page_size
-        }
+        params = {"current": current, "page_size": page_size}
         if keyword:
             params["keyword"] = keyword
         if model_types:
@@ -191,14 +218,17 @@ class APIClient:
             print(f"\033[31m[BizyAir]\033[0m Fail to query community models: {str(e)}")
             return None, errnos.QUERY_COMMUNITY_MODELS
 
-    async def query_models(self, mode: str, current: int, page_size: int, keyword: str = None,
-                           model_types: list[str] = None, base_models: list[str] = None) -> tuple[
-        dict | None, ErrorNo | None]:
+    async def query_models(
+        self,
+        mode: str,
+        current: int,
+        page_size: int,
+        keyword: str = None,
+        model_types: list[str] = None,
+        base_models: list[str] = None,
+    ) -> tuple[dict | None, ErrorNo | None]:
         server_url = f"{BIZYAIR_SERVER_ADDRESS}/bizy_models/{mode}"
-        params = {
-            "current": current,
-            "page_size": page_size
-        }
+        params = {"current": current, "page_size": page_size}
         if keyword:
             params["keyword"] = keyword
         if model_types:
@@ -220,8 +250,12 @@ class APIClient:
             print(f"\033[31m[BizyAir]\033[0m Fail to query models: {str(e)}")
             return None, errnos.QUERY_MODELS
 
-    async def get_model_detail(self, model_id: int, source: str) -> tuple[dict | None, ErrorNo | None]:
-        server_url = f"{BIZYAIR_SERVER_ADDRESS}/bizy_models/{model_id}/detail?source={source}"
+    async def get_model_detail(
+        self, model_id: int, source: str
+    ) -> tuple[dict | None, ErrorNo | None]:
+        server_url = (
+            f"{BIZYAIR_SERVER_ADDRESS}/bizy_models/{model_id}/detail?source={source}"
+        )
 
         headers, err = self.auth_header()
         if err is not None:
@@ -237,7 +271,9 @@ class APIClient:
             print(f"\033[31m[BizyAir]\033[0m Fail to get model detail: {str(e)}")
             return None, errnos.GET_MODEL_DETAIL
 
-    async def get_model_version_detail(self, version_id: int) -> tuple[dict | None, ErrorNo | None]:
+    async def get_model_version_detail(
+        self, version_id: int
+    ) -> tuple[dict | None, ErrorNo | None]:
         server_url = f"{BIZYAIR_SERVER_ADDRESS}/bizy_models/versions/{version_id}"
 
         headers, err = self.auth_header()
@@ -251,9 +287,11 @@ class APIClient:
 
             return ret["data"], None
         except Exception as e:
-            print(f"\033[31m[BizyAir]\033[0m Fail to get model version detail: {str(e)}")
+            print(
+                f"\033[31m[BizyAir]\033[0m Fail to get model version detail: {str(e)}"
+            )
             return None, errnos.GET_MODEL_VERSION_DETAIL
-        
+
     async def fork_model_version(self, version_id: int) -> tuple[None, ErrorNo | None]:
         server_url = f"{BIZYAIR_SERVER_ADDRESS}/bizy_models/versions/{version_id}/fork"
 
@@ -271,18 +309,16 @@ class APIClient:
             print(f"\033[31m[BizyAir]\033[0m Fail to fork model version: {str(e)}")
             return None, errnos.FORK_MODEL_VERSION
 
-    async def update_model(self, model_id: int, name: str, type_: str, versions: list[dict]) -> tuple[None, ErrorNo | None]:
+    async def update_model(
+        self, model_id: int, name: str, type_: str, versions: list[dict]
+    ) -> tuple[None, ErrorNo | None]:
         server_url = f"{BIZYAIR_SERVER_ADDRESS}/bizy_models/{model_id}"
 
         headers, err = self.auth_header()
         if err is not None:
             return None, err
 
-        data = {
-            "name": name,
-            "type": type_,
-            "versions": versions
-        }
+        data = {"name": name, "type": type_, "versions": versions}
 
         try:
             ret, err = self.do_put(server_url, data=data, headers=headers)
@@ -310,4 +346,3 @@ class APIClient:
         except Exception as e:
             print(f"\033[31m[BizyAir]\033[0m Fail to get upload token: {str(e)}")
             return None, errnos.GET_UPLOAD_TOKEN
-    
