@@ -6,7 +6,7 @@ app.registerExtension({
 
     async beforeRegisterNodeDef(nodeType, nodeData, app) {
         const warning_msg = {
-            "BizyAirJoyCaption": "It will be available until 2024/11/30. Please use \"☁️BizyAir Joy Caption2\" node instead.",
+            "BizyAirJoyCaption": "It will be available until 2024/11/15. Please use \"☁️BizyAir Joy Caption2\" node instead.",
         }
         if (Object.keys(warning_msg).includes(nodeData.name)) {
             async function alert_deprecated(node_name, display_name) {
