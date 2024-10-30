@@ -4,6 +4,7 @@ import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import AutoImport from 'unplugin-auto-import/vite'
+import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js'
 
 export default defineConfig({
   define: {
@@ -18,7 +19,8 @@ export default defineConfig({
     vue(),
     AutoImport({
       imports: ['vue'],
-    })
+    }),
+    cssInjectedByJsPlugin()
   ],
   resolve: {
     alias: {
