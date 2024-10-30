@@ -1,0 +1,361 @@
+{
+  "last_node_id": 67,
+  "last_link_id": 72,
+  "nodes": [
+    {
+      "id": 62,
+      "type": "PreviewImage",
+      "pos": {
+        "0": 427,
+        "1": 865
+      },
+      "size": {
+        "0": 385.400390625,
+        "1": 315.51861572265625
+      },
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 68
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 51,
+      "type": "PreviewImage",
+      "pos": {
+        "0": 879,
+        "1": 1018
+      },
+      "size": {
+        "0": 801.9078369140625,
+        "1": 862.51708984375
+      },
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 59
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 61,
+      "type": "BizyAirDepthAnythingV2Preprocessor",
+      "pos": {
+        "0": 422,
+        "1": 1245
+      },
+      "size": {
+        "0": 409.1106872558594,
+        "1": 82
+      },
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 69
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            67,
+            68
+          ],
+          "slot_index": 0,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAirDepthAnythingV2Preprocessor"
+      },
+      "widgets_values": [
+        "depth_anything_v2_vitl.pth",
+        1024
+      ]
+    },
+    {
+      "id": 63,
+      "type": "BizyAirGenerateLightningImage",
+      "pos": {
+        "0": 427,
+        "1": 1383
+      },
+      "size": {
+        "0": 400,
+        "1": 220
+      },
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            69,
+            70
+          ],
+          "slot_index": 0,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAirGenerateLightningImage"
+      },
+      "widgets_values": [
+        "a dog",
+        493871336398282,
+        "fixed",
+        1024,
+        1024,
+        1.5,
+        1
+      ]
+    },
+    {
+      "id": 64,
+      "type": "PreviewImage",
+      "pos": {
+        "0": 430,
+        "1": 1648
+      },
+      "size": {
+        "0": 399.92510986328125,
+        "1": 330.7376708984375
+      },
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 70
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 54,
+      "type": "StableDiffusionXLControlNetUnionPipeline",
+      "pos": {
+        "0": 889,
+        "1": 582
+      },
+      "size": {
+        "0": 795.5317993164062,
+        "1": 342
+      },
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "openpose_image",
+          "type": "IMAGE",
+          "link": null,
+          "slot_index": 0,
+          "shape": 7
+        },
+        {
+          "name": "depth_image",
+          "type": "IMAGE",
+          "link": 67,
+          "shape": 7
+        },
+        {
+          "name": "hed_pidi_scribble_ted_image",
+          "type": "IMAGE",
+          "link": null,
+          "shape": 7
+        },
+        {
+          "name": "canny_lineart_anime_lineart_mlsd_image",
+          "type": "IMAGE",
+          "link": null,
+          "slot_index": 3,
+          "shape": 7
+        },
+        {
+          "name": "normal_image",
+          "type": "IMAGE",
+          "link": null,
+          "shape": 7
+        },
+        {
+          "name": "segment_image",
+          "type": "IMAGE",
+          "link": null,
+          "shape": 7
+        },
+        {
+          "name": "prompt",
+          "type": "STRING",
+          "link": 71,
+          "widget": {
+            "name": "prompt"
+          }
+        },
+        {
+          "name": "negative_prompt",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "negative_prompt"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            59
+          ],
+          "slot_index": 0,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "StableDiffusionXLControlNetUnionPipeline"
+      },
+      "widgets_values": [
+        29,
+        "increment",
+        28,
+        1,
+        5,
+        "A Siberian Husky painted in the style of Vincent van Gogh, with swirling brushstrokes and vibrant colors, set against a starry night background.",
+        "",
+        0,
+        0.5
+      ]
+    },
+    {
+      "id": 65,
+      "type": "PrimitiveNode",
+      "pos": {
+        "0": 427,
+        "1": 572
+      },
+      "size": [
+        379.19244692280597,
+        219.53684276937474
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": [
+            71
+          ],
+          "slot_index": 0,
+          "widget": {
+            "name": "prompt"
+          }
+        }
+      ],
+      "properties": {
+        "Run widget replace on values": false
+      },
+      "widgets_values": [
+        "A Siberian Husky painted in the style of Vincent van Gogh, with swirling brushstrokes and vibrant colors, set against a starry night background."
+      ]
+    }
+  ],
+  "links": [
+    [
+      59,
+      54,
+      0,
+      51,
+      0,
+      "IMAGE"
+    ],
+    [
+      67,
+      61,
+      0,
+      54,
+      1,
+      "IMAGE"
+    ],
+    [
+      68,
+      61,
+      0,
+      62,
+      0,
+      "IMAGE"
+    ],
+    [
+      69,
+      63,
+      0,
+      61,
+      0,
+      "IMAGE"
+    ],
+    [
+      70,
+      63,
+      0,
+      64,
+      0,
+      "IMAGE"
+    ],
+    [
+      71,
+      65,
+      0,
+      54,
+      6,
+      "STRING"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.8390545288824038,
+      "offset": [
+        112.69896413596035,
+        -429.2242760224681
+      ]
+    }
+  },
+  "version": 0.4
+}

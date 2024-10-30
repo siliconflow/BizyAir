@@ -1,0 +1,312 @@
+{
+  "last_node_id": 74,
+  "last_link_id": 81,
+  "nodes": [
+    {
+      "id": 67,
+      "type": "BizyAirCannyEdgePreprocessor",
+      "pos": [
+        420,
+        640
+      ],
+      "size": {
+        "0": 390.9926452636719,
+        "1": 106
+      },
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 75
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            77,
+            80
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAirCannyEdgePreprocessor"
+      },
+      "widgets_values": [
+        100,
+        200,
+        512
+      ]
+    },
+    {
+      "id": 69,
+      "type": "StableDiffusionXLControlNetUnionPipeline",
+      "pos": [
+        840,
+        590
+      ],
+      "size": {
+        "0": 576.3480834960938,
+        "1": 414
+      },
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "openpose_image",
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "depth_image",
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "hed_pidi_scribble_ted_image",
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "canny_lineart_anime_lineart_mlsd_image",
+          "type": "IMAGE",
+          "link": 77
+        },
+        {
+          "name": "normal_image",
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "segment_image",
+          "type": "IMAGE",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            81
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "StableDiffusionXLControlNetUnionPipeline"
+      },
+      "widgets_values": [
+        1,
+        "fixed",
+        20,
+        1,
+        4.9,
+        "Stylish modern bedroom with a monochrome color palette, featuring sleek furniture and contemporary decor elements, minimalistic design, large windows with natural light, and a tranquil ambiance.",
+        "watermark, text",
+        0,
+        0.5
+      ]
+    },
+    {
+      "id": 63,
+      "type": "BizyAirGenerateLightningImage",
+      "pos": [
+        410,
+        810
+      ],
+      "size": {
+        "0": 393.21099853515625,
+        "1": 220
+      },
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            74,
+            75
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAirGenerateLightningImage"
+      },
+      "widgets_values": [
+        "a living room",
+        493871336398282,
+        "fixed",
+        1024,
+        1024,
+        1.5,
+        1
+      ]
+    },
+    {
+      "id": 74,
+      "type": "Note",
+      "pos": [
+        430,
+        1080
+      ],
+      "size": {
+        "0": 377.661376953125,
+        "1": 264.20611572265625
+      },
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "properties": {
+        "text": ""
+      },
+      "widgets_values": [
+        "这个工作流中：\n\n1. 使用 \"BizyAir Generate Photorealistic Images\" 节点生成一张地中海风格的卧室图片。\n2. 使用 BizyAir Controlnet 预处理节点，将图片变为线稿。\n3. 使用 BizyAir ControlNet Union 节点，结合提示词，生成新的装修风格的图片。"
+      ],
+      "color": "#432",
+      "bgcolor": "#653"
+    },
+    {
+      "id": 66,
+      "type": "PreviewImage",
+      "pos": [
+        840,
+        1040
+      ],
+      "size": {
+        "0": 319.8609924316406,
+        "1": 342.8357849121094
+      },
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 74
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      }
+    },
+    {
+      "id": 72,
+      "type": "PreviewImage",
+      "pos": [
+        1170,
+        1040
+      ],
+      "size": {
+        "0": 319.8609924316406,
+        "1": 342.8357849121094
+      },
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 80
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      }
+    },
+    {
+      "id": 73,
+      "type": "PreviewImage",
+      "pos": [
+        1511,
+        1041
+      ],
+      "size": {
+        "0": 319.8609924316406,
+        "1": 342.8357849121094
+      },
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 81
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      }
+    }
+  ],
+  "links": [
+    [
+      74,
+      63,
+      0,
+      66,
+      0,
+      "IMAGE"
+    ],
+    [
+      75,
+      63,
+      0,
+      67,
+      0,
+      "IMAGE"
+    ],
+    [
+      77,
+      67,
+      0,
+      69,
+      3,
+      "IMAGE"
+    ],
+    [
+      80,
+      67,
+      0,
+      72,
+      0,
+      "IMAGE"
+    ],
+    [
+      81,
+      69,
+      0,
+      73,
+      0,
+      "IMAGE"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.9090909090909114,
+      "offset": {
+        "0": 351.868691104778,
+        "1": -335.9473992739569
+      }
+    }
+  },
+  "version": 0.4
+}
