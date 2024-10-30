@@ -36,6 +36,14 @@ async def save_sam(request):
     return web.Response(status=200)
 
 
+@PromptServer.instance.routes.get("/bizyair/getsam")
+async def get_sam(request):
+    return web.Response(
+        text=json.dumps(SAM_COORDINATE, ensure_ascii=False),
+        content_type="application/json",
+    )
+
+
 @PromptServer.instance.routes.get("/bizyair/resetsam")
 async def reset_sam(request):
     global IS_RESET_SAM

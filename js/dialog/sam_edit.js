@@ -378,14 +378,26 @@ class SAMEditorDialog extends ComfyDialog {
       }
 
       const resp1 = await api.fetchApi("/bizyair/getsam");
+
       const sam_old_coords = await resp1.json();
+
       if(sam_old_coords.filename === this.filename){
-        for (const key in sam_old_coords.coords) {
+        let sam_coords;
+        if(sam_old_coords.mode == 1){
+          sam_coords = sam_old_coords.point_coords;
+        }
+        else{
+          sam_coords = sam_old_coords.box_coords;
+        }
+        for (const key in sam_coords) {
           if (sam_old_coords.hasOwnProperty(key)) {
             const value = sam_old_coords[key]
             this.coords.push(value);
           }
         }
+      }
+      else{
+        this.resetHistory();
       }
 
       this.addHistory();
