@@ -68,3 +68,4 @@ class errnos:
     )
     FORK_MODEL_VERSION = ErrorNo(500, 500122, None, "Failed to fork model version")
     UPDATE_MODEL = ErrorNo(500, 500123, None, "Failed to update model")
+    GET_UPLOAD_TOKEN = ErrorNo(500, 500124, None, "Failed to get upload token")

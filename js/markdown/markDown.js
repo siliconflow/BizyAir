@@ -1,4 +1,6 @@
 import EasyMDE from './easyMarked.js'
+import { uploadImage } from '../apis.js'
+import { toast } from '../subassembly/toast.js';
 
 export default class MarkDown {
     constructor(options) {
@@ -10,6 +12,8 @@ export default class MarkDown {
         this.isPreview = options.isPreview;
         this.containerId = options.containerId;
         this.content = options.content;
+        this.isUploading = false;
+        this.easyMDE = null;
         
         this.createContainer();
         this.loadStyle();
@@ -109,7 +113,6 @@ export default class MarkDown {
     }
 
     editor() {
-        // 建议将配置抽离到单独的配置文件中
         const config = {
             ...this.getCommonConfig(),
             autoDownloadFontAwesome: false,
@@ -124,9 +127,12 @@ export default class MarkDown {
             },
             uploadImage: true,
             toolbar: [
-                "bold", "italic", "heading", "|", 
-                "quote", "unordered-list", "ordered-list", "|", 
-                "link", "code", "table", {
+              "heading-smaller",
+              "bold",
+              "italic",
+              "link",
+              "code", 
+               {
                     name: "upload-image",
                     action: function customFunction(editor) {
                         const input = document.createElement('input');
@@ -151,27 +157,92 @@ export default class MarkDown {
                     },
                     className: "fa fa-upload",
                     title: "upload image",
-                }, "|", 
-                "preview", "side-by-side", "fullscreen", "|", 
-                "guide"
+              },
+              "unordered-list",
+              "ordered-list",
+              "|",
+              "preview",
+              "side-by-side",
+              "fullscreen",
+              {
+                    name: "others",
+                    className: "fa fa-ellipsis-v",
+                    title: "others buttons",
+                    children: [
+                        "table",
+                        {
+                            name: "image",
+                            action: EasyMDE.drawImage,
+                            className: "fa fa-picture-o",
+                            title: "Image",
+                        },
+                        {
+                            name: "quote",
+                            action: EasyMDE.toggleBlockquote,
+                            className: "fa fa-percent",
+                            title: "Quote",
+                        },
+                        
+                    ]
+                },
             ],
             onToggleFullScreen: (isFullscreen) => {
                 this.setFullscreen(isFullscreen);
             },
             imageUploadFunction: (file, onSuccess, onError) => {
                 try {
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        onSuccess(e.target.result);
-                    };
-                    reader.readAsDataURL(file);
+                    if (!file.type.startsWith('image/')) {
+                        toast({
+                            content: 'please upload image file',
+                            type: 'warning',
+                            center: true
+                        })
+                        return;
+                    }
+                    const maxSize = 20 * 1024 * 1024;
+                    if (file.size > maxSize) {
+                        toast({
+                            content: 'image size cannot exceed 20MB',
+                            type: 'warning',
+                            center: true
+                        })
+                        return;
+                    }
+                    this.isUploading = true;
+                    uploadImage(file).then(res => {
+                        if(res?.data?.url) {
+                            onSuccess(res?.data?.url);
+                        } else {
+                            toast({
+                                content: 'upload image error',
+                                type: 'error',
+                                center: true
+                            })
+                        }
+                        this.isUploading = false;
+                    }).catch(err => {
+                        toast({
+                            content: 'upload image error',
+                            type: 'error',
+                            center: true
+                        })
+                        onError(err);
+                        this.isUploading = false;
+                    });
+
                 } catch (error) {
+                    toast({
+                        content: 'upload image error',
+                        type: 'error',
+                        center: true
+                     })
                     onError('upload image file error');
+                    this.isUploading = false;
                 }
             },
           
             events: {
-                "fullscreenChange": (instance, isFullscreen) => {
+                "fullscreenChange": (_instance, isFullscreen) => {
                     this.setFullscreen(isFullscreen);
                 },
                 "paste": (instance, e) => {
@@ -179,12 +250,16 @@ export default class MarkDown {
                         for (let i = 0; i < e.clipboardData.items.length; i++) {
                             if (e.clipboardData.items[i].type.indexOf("image") !== -1) {
                                 const file = e.clipboardData.items[i].getAsFile();
-                                const reader = new FileReader();
-                                reader.onload = (e) => {
-                                    const output = `![Alt text](${e.target.result})`;
-                                    instance.codemirror.replaceSelection(output);
-                                };
-                                reader.readAsDataURL(file);
+                                config.imageUploadFunction(
+                                    file,
+                                    (url) => {
+                                        const output = `![${file.name}](${url})`;
+                                        instance.codemirror.replaceSelection(output);
+                                    },
+                                    (error) => {
+                                        console.error('upload image file error:', error);
+                                    }
+                                );
                             }
                         }
                     }
@@ -192,7 +267,7 @@ export default class MarkDown {
             }
         };
         
-        new EasyMDE(config);
+        this.easyMDE = new EasyMDE(config);
     }
 
     preview(content) {
@@ -207,7 +282,15 @@ export default class MarkDown {
             initialValue: content,
         };
         
-        const easyMDE = new EasyMDE(config);
-        easyMDE.togglePreview();
+        this.easyMDE = new EasyMDE(config);
+        this.easyMDE.togglePreview();
+    }
+
+    getUploadingStatus() {
+        return this.isUploading;
+    }
+
+    getValue() {
+        return this.easyMDE ? this.easyMDE.value() : '';
     }
 }
