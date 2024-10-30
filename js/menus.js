@@ -14,7 +14,7 @@ import { notifySubscribers, subscribe } from './subassembly/subscribers.js'
 import { WebSocketClient } from './subassembly/socket.js'
 import { toast } from './subassembly/toast.js'
 import { getUserInfo } from './apis.js'
-import './biz_lib_frontend/dist/biz_lib_frontend.js'
+import './biz_lib_frontend.js'
 
 let userMenu = apiKeyBtn
 
@@ -125,7 +125,8 @@ app.registerExtension({
                 zIndex: 10000
             }
         });
-        bizyAirLib.mountApp('#app123')
+        bizyAirLib.mount('#app123')
+        // bizyAirLib.mountApp('#app123')
         getUserInfo().then(info => {
             sessionStorage.setItem('userInfo', JSON.stringify(info.data))
             userMenu = info?.data ? profileBtn() : apiKeyBtn
