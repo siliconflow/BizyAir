@@ -4,7 +4,6 @@ on:
   pull_request:
     branches:
       - master
-    types: [opened, synchronize, reopened]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
@@ -43,39 +42,13 @@ jobs:
 
   run-examples-workflows:
     needs: check-modified-files
-    if: ${{ needs.check-modified-files.outputs.only_non_code_files == 'false' && github.event.pull_request.draft == false }}
+    if: ${{ needs.check-modified-files.outputs.only_non_code_files == 'false' }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [windows-latest, ubuntu-latest]
 
     steps:
-    - name: Check if PR is draft on Linux
-      if: matrix.os == 'ubuntu-latest'
-      id: check_draft
-      run: |
-        if [ "$GITHUB_EVENT_NAME" = "pull_request" ] && [ "$GITHUB_EVENT_PULL_REQUEST_DRAFT" = "true" ]; then
-          echo "PR is draft, skipping CI"
-          echo "::set-output name=skip::true"
-        else
-          echo "PR is not draft, running CI"
-          echo "::set-output name=skip::false"
-        fi
-
-    - name: Check if PR is draft on Windows
-      id: check_draft
-      if: matrix.os == 'windows-latest'
-      shell: pwsh
-      run: |
-        $isDraft = $env:GITHUB_EVENT_PULL_REQUEST_DRAFT -eq "true"
-        if ($isDraft) {
-          Write-Output "PR is draft, skipping CI"
-          echo "::set-output name=skip::true"
-        } else {
-          Write-Output "PR is not draft, running CI"
-          echo "::set-output name=skip::false"
-        }
-
     - name: Show Base
       run: |
         echo "Current directory: $(pwd)"
