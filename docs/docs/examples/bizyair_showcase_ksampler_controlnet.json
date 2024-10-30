@@ -1,0 +1,551 @@
+{
+  "last_node_id": 53,
+  "last_link_id": 80,
+  "nodes": [
+    {
+      "id": 32,
+      "type": "BizyAir_CLIPTextEncode",
+      "pos": [
+        1170,
+        -448
+      ],
+      "size": {
+        "0": 388.74163818359375,
+        "1": 76
+      },
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "BIZYAIR_CLIP",
+          "link": 80,
+          "slot_index": 0
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "BIZYAIR_CONDITIONING",
+          "links": [
+            41
+          ],
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_CLIPTextEncode"
+      },
+      "widgets_values": [
+        "blurry, noisy, messy, lowres, jpeg, artifacts, ill, distorted, malformed"
+      ]
+    },
+    {
+      "id": 33,
+      "type": "EmptyLatentImage",
+      "pos": [
+        1178,
+        -322
+      ],
+      "size": {
+        "0": 379.7643737792969,
+        "1": 106
+      },
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            65
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "EmptyLatentImage"
+      },
+      "widgets_values": [
+        1024,
+        1024,
+        1
+      ]
+    },
+    {
+      "id": 34,
+      "type": "BizyAir_VAEDecode",
+      "pos": [
+        1182,
+        -172
+      ],
+      "size": {
+        "0": 373.3127746582031,
+        "1": 46
+      },
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 45
+        },
+        {
+          "name": "vae",
+          "type": "BIZYAIR_VAE",
+          "link": 44
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            46
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_VAEDecode"
+      }
+    },
+    {
+      "id": 50,
+      "type": "BizyAir_ControlNetApply",
+      "pos": [
+        1581,
+        -226
+      ],
+      "size": {
+        "0": 302.2201843261719,
+        "1": 98
+      },
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "conditioning",
+          "type": "BIZYAIR_CONDITIONING",
+          "link": 73,
+          "slot_index": 0
+        },
+        {
+          "name": "control_net",
+          "type": "BIZYAIR_CONTROL_NET",
+          "link": 72
+        },
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 75,
+          "slot_index": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONTROL_NET",
+          "type": "BIZYAIR_CONDITIONING",
+          "links": [
+            74
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_ControlNetApply"
+      },
+      "widgets_values": [
+        1
+      ]
+    },
+    {
+      "id": 51,
+      "type": "LoadImage",
+      "pos": [
+        1906,
+        -535
+      ],
+      "size": {
+        "0": 231.78855895996094,
+        "1": 399.8204040527344
+      },
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            75
+          ],
+          "shape": 3
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "example.png",
+        "image"
+      ]
+    },
+    {
+      "id": 28,
+      "type": "BizyAir_CheckpointLoaderSimple",
+      "pos": [
+        762,
+        -546
+      ],
+      "size": {
+        "0": 393.10528564453125,
+        "1": 98
+      },
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "model",
+          "type": "BIZYAIR_MODEL",
+          "links": [
+            78
+          ],
+          "shape": 3
+        },
+        {
+          "name": "clip",
+          "type": "BIZYAIR_CLIP",
+          "links": [
+            79,
+            80
+          ],
+          "shape": 3,
+          "slot_index": 1
+        },
+        {
+          "name": "vae",
+          "type": "BIZYAIR_VAE",
+          "links": [
+            44
+          ],
+          "shape": 3,
+          "slot_index": 2
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_CheckpointLoaderSimple"
+      },
+      "widgets_values": [
+        "sdxl/Juggernaut-XL_v9_RunDiffusionPhoto_v2.safetensors"
+      ]
+    },
+    {
+      "id": 49,
+      "type": "BizyAir_ControlNetLoader",
+      "pos": [
+        761,
+        -397
+      ],
+      "size": {
+        "0": 386.44049072265625,
+        "1": 58
+      },
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "CONTROL_NET",
+          "type": "BIZYAIR_CONTROL_NET",
+          "links": [
+            72
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_ControlNetLoader"
+      },
+      "widgets_values": [
+        "sdxl/diffusion_pytorch_model_promax.safetensors"
+      ]
+    },
+    {
+      "id": 27,
+      "type": "BizyAir_KSampler",
+      "pos": [
+        1577,
+        -541
+      ],
+      "size": {
+        "0": 315,
+        "1": 262
+      },
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "BIZYAIR_MODEL",
+          "link": 78
+        },
+        {
+          "name": "positive",
+          "type": "BIZYAIR_CONDITIONING",
+          "link": 74,
+          "slot_index": 1
+        },
+        {
+          "name": "negative",
+          "type": "BIZYAIR_CONDITIONING",
+          "link": 41,
+          "slot_index": 2
+        },
+        {
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 65,
+          "slot_index": 3
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            45
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_KSampler"
+      },
+      "widgets_values": [
+        1,
+        "fixed",
+        20,
+        8,
+        "euler",
+        "normal",
+        1
+      ]
+    },
+    {
+      "id": 53,
+      "type": "Note",
+      "pos": [
+        752,
+        -283
+      ],
+      "size": {
+        "0": 391.2381591796875,
+        "1": 150.12355041503906
+      },
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "properties": {
+        "text": ""
+      },
+      "widgets_values": [
+        "ControlNet 工作流示例。\n\nBizyAir Load ControlNet Model 节点，可以用于加载 ControlNet。BizyAir Apply ContolNet 模型，可以将 ControlNet 应用到控制条件上。使得最终生成的图片，与参考图片有一定的一致性。"
+      ],
+      "color": "#432",
+      "bgcolor": "#653"
+    },
+    {
+      "id": 31,
+      "type": "BizyAir_CLIPTextEncode",
+      "pos": [
+        1170,
+        -551
+      ],
+      "size": {
+        "0": 388.9184875488281,
+        "1": 96
+      },
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "BIZYAIR_CLIP",
+          "link": 79,
+          "slot_index": 0
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "BIZYAIR_CONDITIONING",
+          "links": [
+            73
+          ],
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_CLIPTextEncode"
+      },
+      "widgets_values": [
+        "A futuristic spaceship soaring through a star-filled galaxy with intricate details and advanced technology, reflecting a vibrant blend of sci-fi"
+      ]
+    },
+    {
+      "id": 35,
+      "type": "PreviewImage",
+      "pos": [
+        2163,
+        -529
+      ],
+      "size": [
+        359.1744333383176,
+        393.1894518069802
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 46
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      }
+    }
+  ],
+  "links": [
+    [
+      41,
+      32,
+      0,
+      27,
+      2,
+      "BIZYAIR_CONDITIONING"
+    ],
+    [
+      44,
+      28,
+      2,
+      34,
+      1,
+      "BIZYAIR_VAE"
+    ],
+    [
+      45,
+      27,
+      0,
+      34,
+      0,
+      "LATENT"
+    ],
+    [
+      46,
+      34,
+      0,
+      35,
+      0,
+      "IMAGE"
+    ],
+    [
+      65,
+      33,
+      0,
+      27,
+      3,
+      "LATENT"
+    ],
+    [
+      72,
+      49,
+      0,
+      50,
+      1,
+      "BIZYAIR_CONTROL_NET"
+    ],
+    [
+      73,
+      31,
+      0,
+      50,
+      0,
+      "BIZYAIR_CONDITIONING"
+    ],
+    [
+      74,
+      50,
+      0,
+      27,
+      1,
+      "BIZYAIR_CONDITIONING"
+    ],
+    [
+      75,
+      51,
+      0,
+      50,
+      2,
+      "IMAGE"
+    ],
+    [
+      78,
+      28,
+      0,
+      27,
+      0,
+      "BIZYAIR_MODEL"
+    ],
+    [
+      79,
+      28,
+      1,
+      31,
+      0,
+      "BIZYAIR_CLIP"
+    ],
+    [
+      80,
+      28,
+      1,
+      32,
+      0,
+      "BIZYAIR_CLIP"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 1.1,
+      "offset": {
+        "0": -465.0579560655903,
+        "1": 817.9483322839294
+      }
+    }
+  },
+  "version": 0.4
+}

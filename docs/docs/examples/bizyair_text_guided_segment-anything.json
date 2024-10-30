@@ -1,0 +1,301 @@
+{
+  "last_node_id": 13,
+  "last_link_id": 12,
+  "nodes": [
+    {
+      "id": 7,
+      "type": "BizyAir_LoadImageURL",
+      "pos": {
+        "0": 430,
+        "1": 397
+      },
+      "size": {
+        "0": 400,
+        "1": 200
+      },
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            5,
+            12
+          ],
+          "slot_index": 0,
+          "shape": 3
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_LoadImageURL"
+      },
+      "widgets_values": [
+        "https://bizy-air.oss-cn-beijing.aliyuncs.com/examples_asset/bizyair-instantid-example.webp"
+      ]
+    },
+    {
+      "id": 13,
+      "type": "PreviewImage",
+      "pos": {
+        "0": 858,
+        "1": 397
+      },
+      "size": {
+        "0": 210,
+        "1": 246
+      },
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 12
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      }
+    },
+    {
+      "id": 1,
+      "type": "BizyAirSegmentAnythingText",
+      "pos": {
+        "0": 1116,
+        "1": 417
+      },
+      "size": {
+        "0": 315,
+        "1": 126
+      },
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 5
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            2
+          ],
+          "slot_index": 0,
+          "shape": 3
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": [
+            9
+          ],
+          "shape": 3,
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAirSegmentAnythingText"
+      },
+      "widgets_values": [
+        "hat",
+        0.3,
+        0.2
+      ]
+    },
+    {
+      "id": 12,
+      "type": "PreviewImage",
+      "pos": {
+        "0": 1835,
+        "1": 386.386474609375
+      },
+      "size": [
+        210,
+        246
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 10
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      }
+    },
+    {
+      "id": 3,
+      "type": "PreviewImage",
+      "pos": {
+        "0": 1579,
+        "1": 384.386474609375
+      },
+      "size": {
+        "0": 210,
+        "1": 246
+      },
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 2
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      }
+    },
+    {
+      "id": 11,
+      "type": "MaskToImage",
+      "pos": {
+        "0": 1830,
+        "1": 309.386474609375
+      },
+      "size": {
+        "0": 264.5999755859375,
+        "1": 26
+      },
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "mask",
+          "type": "MASK",
+          "link": 9
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            10
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "MaskToImage"
+      }
+    }
+  ],
+  "links": [
+    [
+      2,
+      1,
+      0,
+      3,
+      0,
+      "IMAGE"
+    ],
+    [
+      5,
+      7,
+      0,
+      1,
+      0,
+      "IMAGE"
+    ],
+    [
+      9,
+      1,
+      1,
+      11,
+      0,
+      "MASK"
+    ],
+    [
+      10,
+      11,
+      0,
+      12,
+      0,
+      "IMAGE"
+    ],
+    [
+      12,
+      7,
+      0,
+      13,
+      0,
+      "IMAGE"
+    ]
+  ],
+  "groups": [
+    {
+      "title": "根据文本抠图",
+      "bounding": [
+        1114,
+        309,
+        356,
+        339
+      ],
+      "color": "#A88",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "title": "输入图片",
+      "bounding": [
+        421,
+        314,
+        677,
+        334
+      ],
+      "color": "#3f789e",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "title": "抠图结果",
+      "bounding": [
+        1490,
+        308,
+        642,
+        341
+      ],
+      "color": "#b58b2a",
+      "font_size": 24,
+      "flags": {}
+    }
+  ],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.751314800901578,
+      "offset": [
+        -396.00541513120527,
+        -96.31165353118799
+      ]
+    }
+  },
+  "version": 0.4
+}

@@ -116,7 +116,7 @@ class SiliconCloudLLMAPI:
         )
         ret = json.loads(response)
         text = ret["choices"][0]["message"]["content"]
-        return {"ui": {"text": (text,)}, "result": (text,)}
+        return (text,)  # if update ui:  {"ui": {"text": (text,)}, "result": (text,)}
 
 
 class SiliconCloudVLMAPI:
@@ -183,7 +183,7 @@ class SiliconCloudVLMAPI:
         )
         ret = json.loads(response)
         text = ret["choices"][0]["message"]["content"]
-        return {"ui": {"text": (text,)}, "result": (text,)}
+        return (text,)
 
 
 class BizyAirJoyCaption:
@@ -269,7 +269,7 @@ class BizyAirJoyCaption:
             raise Exception(f"Unexpected response type: {msg}")
 
         caption = msg["data"]
-        return {"ui": {"text": (caption,)}, "result": (caption,)}
+        return (caption,)
 
 
 class BizyAirJoyCaption2:
