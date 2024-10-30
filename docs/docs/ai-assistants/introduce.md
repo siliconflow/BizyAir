@@ -37,3 +37,13 @@ For the most current information on available models and pricing, please refer t
 ## ☁️BizyAir Joy Caption
 
 The ☁️BizyAir Joy Caption node is a powerful tool designed to automatically generate descriptive captions for images, thanks to https://huggingface.co/spaces/fancyfeast/joy-caption-pre-alpha.
+
+## ☁️BizyAir Joy Caption2
+
+The ☁️BizyAir Joy Caption2 node is an upgraded version of ☁️BizyAir Joy Caption node, thanks to https://huggingface.co/spaces/fancyfeast/joy-caption-alpha-two.
+
+### Key Features:
+
+1. **Default Prompt Enhancement**: The node displays a list of caption types, each of which corresponds to the unique default prompt.
+
+2. **Customizable System Prompts**: If you want to add more constraints, you can use the *extra_options*. The name in the *name_input* can replace the `{name}` in the *extra_options*. Moreover, you can use the *custom_prompt* to override the prompt. 

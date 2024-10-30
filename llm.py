@@ -367,7 +367,6 @@ class BizyAirJoyCaption2:
     ):
         API_KEY = get_api_key()
         SIZE_LIMIT = 1536
-        # device = image.device
         _, w, h, c = image.shape
         assert (
             w <= SIZE_LIMIT and h <= SIZE_LIMIT
