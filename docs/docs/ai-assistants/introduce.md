@@ -52,9 +52,9 @@ The ☁️BizyAir Joy Caption2 node is an upgraded version of ☁️BizyAir Joy 
 
     - `do_sample=False`: The next word with the highest probability will be selected, and the content of the article will be conservative.
 
-2. **temperature**: The temperature parameter affects the shape of the probability distribution when sampling, and thus the variety of generated text. 
+2. **temperature**: The temperature parameter affects the shape of the probability distribution when sampling, and thus the variety of generated text.
 
-    - A higher temperature will make the distribution more uniform and increase randomness. 
+    - A higher temperature will make the distribution more uniform and increase randomness.
 
     - A lower temperature makes the distribution sharper, less random, and more inclined to choose words with higher probability.
 
