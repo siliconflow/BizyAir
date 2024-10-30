@@ -22,55 +22,6 @@ from .utils import (
 )
 
 
-class SuperResolution:
-    API_URL = f"{BIZYAIR_SERVER_ADDRESS}/supernode/superresolution"
-
-    @classmethod
-    def INPUT_TYPES(s):
-        return {
-            "required": {
-                "image": ("IMAGE",),
-                "scale": (["2x", "4x"],),
-            }
-        }
-
-    RETURN_TYPES = ("IMAGE",)
-    FUNCTION = "super_resolution"
-
-    CATEGORY = "☁️BizyAir/Super Resolution"
-
-    def super_resolution(self, image, scale="2x"):
-        API_KEY = get_api_key()
-        device = image.device
-        _, w, h, c = image.shape
-        assert (
-            w <= 512 and h <= 512
-        ), f"width and height must be less than 512, but got {w} and {h}"
-
-        # support RGB mode only now
-        image = image[:, :, :, :3]
-
-        payload = {
-            "scale": scale,
-            "is_compress": True,
-            "image": None,
-        }
-        auth = f"Bearer {API_KEY}"
-        headers = {
-            "accept": "application/json",
-            "content-type": "application/json",
-            "authorization": auth,
-        }
-        input_image, compress = serialize_and_encode(image, compress=True)
-        payload["image"] = input_image
-        payload["is_compress"] = compress
-
-        response: str = send_post_request(
-            self.API_URL, payload=payload, headers=headers
-        )
-        image = decode_and_deserialize(response)
-        image = image.to(device)
-        return (image,)
 
 
 class RemoveBackground:
@@ -183,74 +134,6 @@ class GenerateLightningImage:
         return (tensors,)
 
 
-class AuraSR:
-    API_URL = f"{BIZYAIR_SERVER_ADDRESS}/supernode/aurasr"
-
-    @classmethod
-    def INPUT_TYPES(s):
-        return {
-            "required": {
-                "image": ("IMAGE",),
-            }
-        }
-
-    RETURN_TYPES = ("IMAGE",)
-    FUNCTION = "super_resolution"
-
-    CATEGORY = "☁️BizyAir/Super Resolution"
-
-    def super_resolution(self, image):
-        API_KEY = get_api_key()
-        SIZE_LIMIT = 1536
-        device = image.device
-        _, w, h, c = image.shape
-        assert (
-            w <= SIZE_LIMIT and h <= SIZE_LIMIT
-        ), f"width and height must be less than {SIZE_LIMIT}x{SIZE_LIMIT}, but got {w} and {h}"
-
-        # support RGB mode only now
-        image = image[:, :, :, :3]
-
-        payload = {
-            "is_compress": True,
-            "image": None,
-        }
-        auth = f"Bearer {API_KEY}"
-        headers = {
-            "accept": "application/json",
-            "content-type": "application/json",
-            "authorization": auth,
-        }
-        input_image = encode_data(image, disable_image_marker=True)
-        payload["image"] = input_image
-        payload["is_compress"] = True
-
-        ret: str = send_post_request(self.API_URL, payload=payload, headers=headers)
-        ret = json.loads(ret)
-
-        try:
-            if "result" in ret:
-                ret = json.loads(ret["result"])
-        except Exception as e:
-            raise Exception(f"Unexpected response: {ret} {e=}")
-
-        if ret["status"] == "error":
-            raise Exception(ret["message"])
-
-        msg = ret["data"]
-        if msg["type"] not in (
-            "comfyair",
-            "bizyair",
-        ):
-            raise Exception(f"Unexpected response type: {msg}")
-
-        image_b64 = msg["data"]["payload"]
-
-        image = decode_data(image_b64)
-        image = image.to(device)
-        return (image,)
-
-
 class BizyAirSegmentAnythingText:
     API_URL = f"{BIZYAIR_SERVER_ADDRESS}/supernode/sam"
 
@@ -341,15 +224,11 @@ class BizyAirSegmentAnythingText:
 
 
 NODE_CLASS_MAPPINGS = {
-    "BizyAirSuperResolution": SuperResolution,
     "BizyAirRemoveBackground": RemoveBackground,
     "BizyAirGenerateLightningImage": GenerateLightningImage,
-    "BizyAirAuraSR": AuraSR,
     "BizyAirSegmentAnythingText": BizyAirSegmentAnythingText,
 }
 NODE_DISPLAY_NAME_MAPPINGS = {
-    "BizyAirAuraSR": "☁️BizyAir Photorealistic Image Super Resolution",
-    "BizyAirSuperResolution": "☁️BizyAir Anime Image Super Resolution",
     "BizyAirRemoveBackground": "☁️BizyAir Remove Image Background",
     "BizyAirGenerateLightningImage": "☁️BizyAir Generate Photorealistic Images",
     "BizyAirSegmentAnythingText": "☁️BizyAir Text Guided SAM",
