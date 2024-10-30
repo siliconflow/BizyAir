@@ -22,8 +22,6 @@ from .utils import (
 )
 
 
-
-
 class RemoveBackground:
     API_URL = f"{BIZYAIR_SERVER_ADDRESS}/supernode/removebg"
 
