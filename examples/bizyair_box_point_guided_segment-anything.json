@@ -161,8 +161,8 @@
         "Node name for S&R": "BizyAirSegmentAnythingPointBox"
       },
       "widgets_values": [
-        "clipspace/clipspace-mask-30796.600000023842.png [input]",
-        false,
+        "0804.png",
+        true,
         "image"
       ]
     },
@@ -170,8 +170,8 @@
       "id": 19,
       "type": "Note",
       "pos": {
-        "0": 1132,
-        "1": 160,
+        "0": 1114,
+        "1": 43,
         "2": 0,
         "3": 0,
         "4": 0,
@@ -181,10 +181,10 @@
         "8": 0,
         "9": 0
       },
-      "size": {
-        "0": 289.005615234375,
-        "1": 115.42251586914062
-      },
+      "size": [
+        532.1334686279297,
+        232.066650390625
+      ],
       "flags": {},
       "order": 1,
       "mode": 0,
@@ -192,7 +192,7 @@
       "outputs": [],
       "properties": {},
       "widgets_values": [
-        "SAM EDITOR功能：\n\n可选功能：point模式和box模式\n\n使用步骤：☁️BizyAir Point-Box Guided SAM 节点上右键选择Open in SAM EDITOR，可以通过Select mode按钮切换模式，point模式下通过鼠标左键单击选择抠图区域，box模式下拖动鼠标进行框选\n\n【注意】服务器断开后重连需要重新选择抠图区域，否则会出错\n\nPoint mode按钮： 工作在point mode下，point mode按钮精准控制分割区域，点中区域是想保留得区域（remain）或者要去除得区域（remove）\n\nClear按钮：清除画布上得所有选择抠图区域\n\nUndo按钮：撤销上次选择得抠图区域\n\nCancel：清除画布上得所有选择抠图区域并退出\n\nSave to node: 保存\n\n"
+        "SAM EDITOR功能：\n\n可选模式：point模式和box模式\n\n使用步骤：☁️BizyAir Point-Box Guided SAM 节点上通过is_point选择分割模式，true为point模式，false为box模式，右键选择Open in SAM EDITOR，可以通过Select mode按钮切换分割模式（注意要与is_point一致，否则会出错），point模式下通过鼠标左键单击选择抠图区域，box模式下拖动鼠标进行框选\n\n【注意】服务器断开后重连需要重新选择抠图区域，否则会出错；\n\nPoint mode按钮： 工作在point mode下，point mode按钮精准控制分割区域，点中区域是想保留得区域（remain）或者要去除得区域（remove）\n\nClear按钮：清除画布上得所有选择抠图区域\n\nUndo按钮：撤销上次选择得抠图区域\n\nCancel：清除画布上得所有选择抠图区域并退出\n\nSave to node: 保存\n\n"
       ],
       "color": "#432",
       "bgcolor": "#653"
@@ -253,8 +253,8 @@
     "ds": {
       "scale": 1,
       "offset": [
-        -714.1334533691406,
-        -26.133377075195312
+        -689.6000213623047,
+        116.26676940917969
       ]
     }
   },
