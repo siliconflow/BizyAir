@@ -5,12 +5,16 @@ import App from './App.vue'
 let app: VueApp | null = null
 
 // 修改 mount 方法接收 props
-export function mount(container: string | Element, props = {}) {
+export function mount(container: string | Element,comfyUIApp?: any, props = {}) {
   if (app) {
     console.warn('应用已经挂载，请先卸载后再重新挂载')
     return
   }
-  app = createApp(App, props)  // 传入 props
+  const mergedProps = {
+    ...props,
+    comfyUIApp
+  }
+  app = createApp(App, mergedProps)
   app.mount(container)
   return app
 }
