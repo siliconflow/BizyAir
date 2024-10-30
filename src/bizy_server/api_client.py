@@ -311,7 +311,7 @@ class APIClient:
 
     async def update_model(
         self, model_id: int, name: str, type_: str, versions: list[dict]
-    ) -> tuple[None, ErrorNo | None]:
+    ) -> tuple[dict | None, ErrorNo | None]:
         server_url = f"{BIZYAIR_SERVER_ADDRESS}/bizy_models/{model_id}"
 
         headers, err = self.auth_header()
@@ -325,7 +325,7 @@ class APIClient:
             if err is not None:
                 return None, err
 
-            return None, None
+            return ret["data"], None
         except Exception as e:
             print(f"\033[31m[BizyAir]\033[0m Fail to update model: {str(e)}")
             return None, errnos.UPDATE_MODEL

@@ -1,6 +1,7 @@
 import asyncio
 import logging
 import os
+import threading
 import time
 import uuid
 import urllib.parse
@@ -151,6 +152,10 @@ class BizyAirServer:
 
         @self.prompt_server.routes.post(f"/{COMMUNITY_API}/models")
         async def commit_bizy_model(request):
+            sid = request.rel_url.query.get("clientId", "")
+            if not is_string_valid(sid):
+                return ErrResponse(errnos.INVALID_CLIENT_ID)
+            
             json_data = await request.json()
 
             # 校验name和type
@@ -197,9 +202,16 @@ class BizyAirServer:
             if err:
                 return ErrResponse(err)
 
+            # 开启线程检查同步状态
+            threading.Thread(
+                target=self.check_sync_status,
+                args=(self, resp["id"], resp["version_ids"], sid),
+                daemon=True,
+            ).start()
+
             # enable refresh for lora
             # TODO: enable refresh for other types
-            bizyair.path_utils.path_manager.enable_refresh_options("loras")
+            # bizyair.path_utils.path_manager.enable_refresh_options("loras")
 
             return OKResponse(resp)
 
@@ -277,6 +289,9 @@ class BizyAirServer:
 
         @self.prompt_server.routes.put(f"/{COMMUNITY_API}/models/{{model_id}}")
         async def update_model(request):
+            sid = request.rel_url.query.get("clientId", "")
+            if not is_string_valid(sid):
+                return ErrResponse(errnos.INVALID_CLIENT_ID)
             # 获取路径参数中的模型ID
             model_id = int(request.match_info["model_id"])
 
@@ -327,11 +342,18 @@ class BizyAirServer:
                         return ErrResponse(errnos.INVALID_VERSION_FIELD(field))
 
             # 调用API更新模型
-            _, err = await self.api_client.update_model(
+            resp, err = await self.api_client.update_model(
                 model_id, json_data["name"], json_data["type"], versions
             )
             if err:
                 return ErrResponse(err)
+
+            # 开启线程检查同步状态
+            threading.Thread(
+                target=self.check_sync_status,
+                args=(self, resp["id"], resp["version_ids"]),
+                daemon=True,
+            ).start()
 
             return OKResponse(None)
 
@@ -445,3 +467,42 @@ class BizyAirServer:
             data={"message": err.message, "code": err.code, "data": err.data},
             sid=sid,
         )
+
+    def check_sync_status(self, bizy_model_id: str, version_ids: list, sid=None):
+        while True:
+            removed = []
+            for version_id in version_ids:
+                future = asyncio.run_coroutine_threadsafe(
+                    self.api_client.get_model_version_detail(version_id=version_id),
+                    self.loop,
+                )
+
+                model_version, err = future.result(timeout=2)
+
+                if err is not None:
+                    self.send_sync(
+                        event="error",
+                        data={
+                            "message": err.message,
+                            "code": err.code,
+                            "data": {"bizy_model_id": bizy_model_id, "version_id": version_id}
+                        },
+                        sid=sid,
+                    )
+                    removed.append(version_id)
+                    continue
+
+                if model_version["available"]:
+                    self.send_sync(
+                        event="synced",
+                        data={
+                            "version_id": model_version["id"],
+                            "version": model_version["version"],
+                            "model_id": bizy_model_id,
+                        },
+                        sid=sid)
+                    removed.append(version_id)
+                    return
+
+            version_ids = [item for item in version_ids if item not in removed]
+            time.sleep(5)
