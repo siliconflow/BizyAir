@@ -18,6 +18,7 @@ from . import (
     nodes,
     nodes_controlnet_aux,
     nodes_controlnet_union_sdxl,
+    segment_anything,
     showcase,
     supernode,
 )
@@ -34,6 +35,7 @@ update_mappings(llm)
 update_mappings(nodes_controlnet_aux)
 update_mappings(nodes_controlnet_union_sdxl)
 update_mappings(mzkolors)
+update_mappings(segment_anything)
 
 # bizy_server
 bizyair_adv_is_not_installed = False
