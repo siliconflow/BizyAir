@@ -412,7 +412,7 @@ class BizyAirJoyCaption2:
             raise Exception(f"Unexpected response type: {msg}")
 
         caption = msg["data"]
-        return {"ui": {"text": (caption,)}, "result": (caption,)}
+        return (caption,)
 
 
 NODE_CLASS_MAPPINGS = {
