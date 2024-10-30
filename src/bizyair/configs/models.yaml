@@ -22,6 +22,8 @@ routing_configs:
     route: /supernode/bizyair-ultimate-sd-upscale-ksampler
   sd3_5_large:
     route: /supernode/bizyair-comfybridge-sd3-5-large
+  sd3_5_large_turbo:
+    route: /supernode/bizyair-comfybridge-sd3-5-turbo
 
 routing_rules:
   - name: ultimatesdupscale
@@ -45,3 +47,6 @@ routing_rules:
   - name: sd3_5_large
     pattern: ^sd3.5_large.safetensors$
     config: sd3_5_large
+  - name: sd3_5_large_turbo
+    pattern: ^sd3.5_large_turbo.safetensors$
+    config: sd3_5_large_turbo
