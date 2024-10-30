@@ -47,6 +47,14 @@ export function dialog(params) {
                 e.stopPropagation();
             }
         }, [
+            (!params.closeOnClickModal ? $el('div.bizyair-icon-operate.bizyair-icon-nude-close.bizyair-dialog-content-close', {
+                onclick: () => {
+                    if (params.onNo) {
+                        params.onNo();
+                    }
+                    removeDialog(document.getElementById(id))
+                }
+            }) : ''),
             (params.title ? $el("p.bizyair-new-dialog-title", {}, [params.title]) : ''),
             setContent(),
             $el('div.bizyair-new-dialog-footer', {}, [

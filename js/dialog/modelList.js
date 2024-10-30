@@ -13,7 +13,16 @@ export const modelList = async () => {
 
     const getData = async () => {
         const elItemBody = document.querySelector('#bizyair-model-list-item-body')
-        return models_files({type, public: isPublic}).then(res => {
+        // type, public: isPublic
+        return models_files({
+            mode: 'my',
+            current: '1',
+            page_size: '10'
+        }, {
+            keyword: "",
+            model_types: ["LoRA"],
+            base_models: []
+        }).then(res => {
             if (res.code === 20000) {
                 elItemBody.innerHTML = ''
                 const elData = elDataItem(res.data)
@@ -271,6 +280,7 @@ export const modelList = async () => {
     }
     subscribe('socketMessage', fnMessage);
     dialog({
+        title: 'Select a Model',
         content: content,
         noText: 'Close',
         onNo: () => {

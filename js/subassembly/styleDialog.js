@@ -12,26 +12,33 @@ export const styleDialog = `
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%) scale(1);
-    padding: 20px;
+    padding: 24px;
     min-width: 400px;
     min-height: 120px;
     max-height: 80vh;
     max-width: 80vw;
-    border-radius: var(--p-dialog-border-radius);
-    box-shadow: var(--p-dialog-shadow);
-    background: var(--p-dialog-background);
-    border: 1px solid var(--p-dialog-border-color);
     color: var(--p-dialog-color);
+    border-radius: var(--radius-rounded-lg, 8px);
+    border: 1px solid var(--border-border-toast-destructive, rgba(31, 41, 55, 0.40));
+    background: #353535;
+    box-shadow: 0px 20px 40px 0px rgba(0, 0, 0, 0.25);
+    position: relative;
+}
+.bizyair-dialog-content-close{
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    margin: 0;
 }
 .bizyair-new-dialog-title{
-    font-size: 20px;
-    line-height: 48px;
+    font-size: 18px;
+    line-height: 26px;
     font-weight: bold;
     margin: 0;
     padding: 0;
 }
 .bizyair-new-dialog-body{
-    margin: 0 0 20px 0;
+    margin: 16px 0 20px 0;
     overflow-y: auto;
 }
 .bizyair-new-dialog-footer{
@@ -178,5 +185,28 @@ export const styleDialog = `
     min-width: 400px;
     height: 100vh;
     background-color: var(--comfy-input-bg);
+}
+.bizyair-popover-content{
+    position: fixed;
+    min-width: 50px;
+    min-height: 20px;
+    box-shadow: 0px 4px 6px -1px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(31, 41, 55, 0.4);
+    background: rgba(53, 53, 53, 1);
+}
+.test{
+    height: 500px;
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    background: #000;
+    min-width: 1000px;
+    opacity: 0px;
+    z-index: 20000;
+    transform: translate(-50%, -50%) scale(1);
+    border-radius: var(--radius-rounded-lg, 8px);
+    border: 1px solid var(--border-border-foreground-50, rgba(249, 250, 251, 0.50));
+    background: #353535;
+    box-shadow: 0px 10px 30px 0px rgba(255, 255, 255, 0.50);
 }
 `

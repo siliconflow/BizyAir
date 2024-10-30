@@ -11,7 +11,7 @@ function customFetch(url, options = {}) {
         }
     }
     fetchCache.set(url, now);
-    const host = `${window.location.origin}${window.location.pathname == '/' ? '' : window.location.pathname}`
+    const host = `${window.location.origin}${window.location.pathname === '/' ? '' : window.location.pathname}`
     return window.fetch(`${host}${url}`, options)
         .then(response => {
             if (response.status === 404) {
@@ -79,8 +79,16 @@ export function set_api_key ( data ) {
     })
 }
 
-export function models_files ( data ) {
-    return customFetch(`/bizyair/modelhost/models/files?type=${data.type}&public=${data.public}`, {method: 'GET'})
+export function models_files ( params, data ) {
+    // return customFetch(`/bizyair/modelhost/models/files?type=${data.type}&public=${data.public}`, {method: 'GET'})
+    let actualParams = ''
+    for (const i in params) {
+        actualParams += `${i}=${params[i]}&`
+    }
+    return customFetch(`/bizyair/community/models/query?${actualParams}`, {
+        method: 'POST',
+        body: JSON.stringify(data)
+    })
 }
 
 export function change_public ( data ) {
@@ -88,7 +96,7 @@ export function change_public ( data ) {
 }
 
 export function model_types () {
-    return customFetch('/bizyair/modelhost/model_types', {method: 'GET'})
+    return customFetch('/bizyair/community/model_types', {method: 'GET'})
 }
 
 export function check_folder (url) {
@@ -96,7 +104,7 @@ export function check_folder (url) {
 }
 
 export function submit_upload (data) {
-    return customFetch(`/bizyair/modelhost/submit_upload?clientId=${sessionStorage.getItem('clientId')}`, {
+    return customFetch(`/bizyair/community/submit_upload?clientId=${sessionStorage.getItem('clientId')}`, {
         method: 'POST',
         body: JSON.stringify(data)
     })

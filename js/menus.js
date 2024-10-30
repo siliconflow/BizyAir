@@ -14,6 +14,7 @@ import { notifySubscribers, subscribe } from './subassembly/subscribers.js'
 import { WebSocketClient } from './subassembly/socket.js'
 import { toast } from './subassembly/toast.js'
 import { getUserInfo } from './apis.js'
+import './biz_lib_frontend/dist/biz_lib_frontend.js'
 
 let userMenu = apiKeyBtn
 
@@ -112,6 +113,19 @@ app.registerExtension({
             textContent: styleProfile,
             parent: document.head,
         });
+        $el('div', {
+            parent: document.body,
+            id: "app123",
+            style: {
+                width: '80vw',
+                height: '80vh',
+                position: 'fixed',
+                left: 0,
+                top: 0,
+                zIndex: 10000
+            }
+        });
+        bizyAirLib.mountApp('#app123')
         getUserInfo().then(info => {
             sessionStorage.setItem('userInfo', JSON.stringify(info.data))
             userMenu = info?.data ? profileBtn() : apiKeyBtn
@@ -120,7 +134,7 @@ app.registerExtension({
             new FloatingButton();
         })
 
-        const wsClient = new WebSocketClient(`ws://${location.host}/bizyair/modelhost/ws?clientId=${sessionStorage.getItem('clientId')}`);
+        const wsClient = new WebSocketClient(`ws://${location.host}/bizyair/ws?clientId=${sessionStorage.getItem('clientId')}`);
         wsClient.onMessage = message => {
             notifySubscribers('socketMessage', message);
             const res = JSON.parse(message.data);
