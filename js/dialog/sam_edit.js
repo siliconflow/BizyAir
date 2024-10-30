@@ -420,7 +420,6 @@ class SAMEditorDialog extends ComfyDialog {
       alpha_url.searchParams.delete("preview");
       alpha_url.searchParams.set("channel", "a");
       let mask_image = await loadImage(alpha_url);
-      // let mask_image = null;
       const rgb_url = new URL(
         ComfyApp.clipspace.imgs[ComfyApp.clipspace["selectedIndex"]].src
       );
@@ -490,21 +489,11 @@ class SAMEditorDialog extends ComfyDialog {
     setEventHandler(maskCanvas) {
       const self = this;
       if (!this.handler_registered) {
-        // maskCanvas.addEventListener("contextmenu", (event) => {
-        //     event.preventDefault();
-        //   });
           this.element.addEventListener(
             "wheel",
             (event) => this.handleWheelEvent(self, event)
           );
-          // this.element.addEventListener(
-          //   "pointermove",
-          //   (event) => this.pointMoveEvent(self, event)
-          // );
-          // this.element.addEventListener(
-          //   "touchmove",
-          //   (event) => this.pointMoveEvent(self, event)
-          // );
+
           this.element.addEventListener("dragstart", (event) => {
             if (event.ctrlKey) {
               event.preventDefault();
@@ -518,17 +507,14 @@ class SAMEditorDialog extends ComfyDialog {
             "pointermove",
             (event) => this.draw_move(self, event)
           );
-          // maskCanvas.addEventListener(
-          //   "touchmove",
-          //   (event) => this.draw_move(self, event)
-          // );
+
           maskCanvas.addEventListener("pointerover", (event) => {
             this.brush.style.display = "block";
           });
           maskCanvas.addEventListener("pointerleave", (event) => {
             this.brush.style.display = "none";
           });
-        //   document.addEventListener("pointerup", SAMEditorDialog.handlePointerUp);
+
         maskCanvas.addEventListener(
             "pointerup",
             (event) => this.handlePointerUp(self, event)
@@ -765,15 +751,11 @@ class SAMEditorDialog extends ComfyDialog {
                 var top = self.endy > self.starty ? self.starty : self.endy
                 var w = Math.abs(self.endx - self.startx)
                 var h = Math.abs(self.endy -  self.starty)
-                // self.maskCtx.save();
+
                 self.maskCtx.rect(left, top, w, h);
-                // self.maskCtx.fill();
+
                 self.maskCtx.stroke();
                 self.maskCtx.restore();
-              }
-              else if(self.mode === "point"){
-                // self.maskCtx.arc(px, py, brush_size, 0, Math.PI * 2, false);
-                // self.maskCtx.fill();
               }
 
             }
