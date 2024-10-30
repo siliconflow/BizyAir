@@ -44,6 +44,54 @@ The ☁️BizyAir Joy Caption2 node is an upgraded version of ☁️BizyAir Joy 
 
 ### Key Features:
 
-1. **Default Prompt Enhancement**: The node displays a list of caption types, each of which corresponds to the unique default prompt.
+![](./imgs/siliconcloud-joycaption2-api.png)
 
-2. **Customizable System Prompts**: If you want to add more constraints, you can use the *extra_options*. The name in the *name_input* can replace the `{name}` in the *extra_options*. Moreover, you can use the *custom_prompt* to override the prompt.
+1. **do_sample**: The do_sample parameter determines whether the model uses a random sampling method to generate the next word, or simply selects the most likely word.
+
+    - `do_sample=True`: It can increased variety and creativity of generated text.
+
+    - `do_sample=False`: The next word with the highest probability will be selected, and the content of the article will be conservative.
+
+2. **temperature**: The temperature parameter affects the shape of the probability distribution when sampling, and thus the variety of generated text. 
+
+    - A higher temperature will make the distribution more uniform and increase randomness. 
+
+    - A lower temperature makes the distribution sharper, less random, and more inclined to choose words with higher probability.
+
+3. **max_tokens**: The max_tokens parameter specifies the maximum number of tokens that the model can generate when generating text. The upper limit here is 512.
+
+4. **caption_type**: Each caption_type corresponds to the default system prompts.
+
+    ![](./imgs/siliconcloud-joycaption2-caption_type.png)
+
+    - **Descriptive**: Write a descriptive caption for this image in a formal tone.
+
+    - **Descriptive (Informal)**: Write a descriptive caption for this image in a casual tone.
+
+    - **Training Prompt**: Write a stable diffusion prompt for this image.
+
+    - **MidJourney**: Write a MidJourney prompt for this image.
+
+    - **Booru tag list**: Write a list of Booru tags for this image.
+
+    - **Booru-like tag list**: Write a list of Booru-like tags for this image.
+
+    - **Art Critic**: Analyze this image like an art critic would with information about its composition, style, symbolism, the use of color, light, any artistic movement it might belong to, etc.
+
+    - **Product Listing**: Write a caption for this image as though it were a product listing.
+
+    - **Social Media Post**: Write a caption for this image as if it were being used for a social media post.
+
+5. **caption_length**: The caption_length parameter is the length of the output. If the max_tokens parameter is less than it, the output will be truncated.
+
+6. **extra_options**: If you want to add more prompts to the default prompts, you can write here.
+
+    - For example, if you want to describe the person in the picture as someone, you can write as follow: `If there is a person/character in the image you must refer to them as {name}.`
+
+7. **name_input**: The name in the *name_input* can replace the `{name}` in the *extra_options*.
+
+    - For example, you write `Jack` here and write `If there is a person/character in the image you must refer to them as {name}.` in the *extra_options*, it will be found that the person in the image is named as Jack in the output.
+
+    ![](./imgs/siliconcloud-joycaption2-example.png)
+
+8. **custom_prompt**: If you want to customize the prompts, you can write here to override the prompts and previous actions related to the prompts(*caption_type*, *extra_options* and *extra_options*) will be invalid.
