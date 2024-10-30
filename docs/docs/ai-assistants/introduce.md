@@ -46,4 +46,4 @@ The ☁️BizyAir Joy Caption2 node is an upgraded version of ☁️BizyAir Joy 
 
 1. **Default Prompt Enhancement**: The node displays a list of caption types, each of which corresponds to the unique default prompt.
 
-2. **Customizable System Prompts**: If you want to add more constraints, you can use the *extra_options*. The name in the *name_input* can replace the `{name}` in the *extra_options*. Moreover, you can use the *custom_prompt* to override the prompt. 
+2. **Customizable System Prompts**: If you want to add more constraints, you can use the *extra_options*. The name in the *name_input* can replace the `{name}` in the *extra_options*. Moreover, you can use the *custom_prompt* to override the prompt.
