@@ -1,10 +1,14 @@
+import hashlib
 import json
 import os
 import uuid
+from enum import Enum
 
+import folder_paths
+import node_helpers
 import numpy as np
 import torch
-from PIL import Image
+from PIL import Image, ImageOps, ImageSequence
 
 from bizyair.common.env_var import BIZYAIR_SERVER_ADDRESS
 from bizyair.image_utils import (
@@ -13,6 +17,7 @@ from bizyair.image_utils import (
     encode_data,
     encode_image_to_base64,
 )
+from nodes import LoadImage
 
 from .utils import (
     decode_and_deserialize,
@@ -132,14 +137,20 @@ class GenerateLightningImage:
         return (tensors,)
 
 
+<<<<<<< HEAD
 class BizyAirSegmentAnythingText:
     API_URL = f"{BIZYAIR_SERVER_ADDRESS}/supernode/sam"
+=======
+class AuraSR:
+    API_URL = f"{BIZYAIR_SERVER_ADDRESS}/supernode/aurasr"
+>>>>>>> 33dd52814ef85fb7f16b090657af466a86434d3f
 
     @classmethod
     def INPUT_TYPES(s):
         return {
             "required": {
                 "image": ("IMAGE",),
+<<<<<<< HEAD
                 "prompt": ("STRING", {}),
                 "box_threshold": (
                     "FLOAT",
@@ -158,6 +169,17 @@ class BizyAirSegmentAnythingText:
     CATEGORY = "☁️BizyAir/segment-anything"
 
     def text_sam(self, image, prompt, box_threshold, text_threshold):
+=======
+            }
+        }
+
+    RETURN_TYPES = ("IMAGE",)
+    FUNCTION = "super_resolution"
+
+    CATEGORY = "☁️BizyAir/Super Resolution"
+
+    def super_resolution(self, image):
+>>>>>>> 33dd52814ef85fb7f16b090657af466a86434d3f
         API_KEY = get_api_key()
         SIZE_LIMIT = 1536
         device = image.device
@@ -166,6 +188,7 @@ class BizyAirSegmentAnythingText:
             w <= SIZE_LIMIT and h <= SIZE_LIMIT
         ), f"width and height must be less than {SIZE_LIMIT}x{SIZE_LIMIT}, but got {w} and {h}"
 
+<<<<<<< HEAD
         payload = {
             "image": None,
             "mode": 1,  # 文本分割模式
@@ -174,6 +197,14 @@ class BizyAirSegmentAnythingText:
                 "box_threshold": box_threshold,
                 "text_threshold": text_threshold,
             },
+=======
+        # support RGB mode only now
+        image = image[:, :, :, :3]
+
+        payload = {
+            "is_compress": True,
+            "image": None,
+>>>>>>> 33dd52814ef85fb7f16b090657af466a86434d3f
         }
         auth = f"Bearer {API_KEY}"
         headers = {
@@ -181,10 +212,16 @@ class BizyAirSegmentAnythingText:
             "content-type": "application/json",
             "authorization": auth,
         }
+<<<<<<< HEAD
         image = image.squeeze(0).numpy()
         image_pil = Image.fromarray((image * 255).astype(np.uint8))
         input_image = encode_image_to_base64(image_pil, format="webp")
         payload["image"] = input_image
+=======
+        input_image = encode_data(image, disable_image_marker=True)
+        payload["image"] = input_image
+        payload["is_compress"] = True
+>>>>>>> 33dd52814ef85fb7f16b090657af466a86434d3f
 
         ret: str = send_post_request(self.API_URL, payload=payload, headers=headers)
         ret = json.loads(ret)
@@ -199,6 +236,7 @@ class BizyAirSegmentAnythingText:
             raise Exception(ret["message"])
 
         msg = ret["data"]
+<<<<<<< HEAD
         if msg["type"] not in ("bizyair",):
             raise Exception(f"Unexpected response type: {msg}")
 
@@ -219,15 +257,31 @@ class BizyAirSegmentAnythingText:
         img_mask = img_mask.mean(dim=-1)
         img_mask = img_mask.unsqueeze(0)
         return (img, img_mask)
+=======
+        if msg["type"] not in (
+            "comfyair",
+            "bizyair",
+        ):
+            raise Exception(f"Unexpected response type: {msg}")
+
+        image_b64 = msg["data"]["payload"]
+
+        image = decode_data(image_b64)
+        image = image.to(device)
+        return (image,)
+>>>>>>> 33dd52814ef85fb7f16b090657af466a86434d3f
 
 
 NODE_CLASS_MAPPINGS = {
     "BizyAirRemoveBackground": RemoveBackground,
     "BizyAirGenerateLightningImage": GenerateLightningImage,
+<<<<<<< HEAD
     "BizyAirSegmentAnythingText": BizyAirSegmentAnythingText,
+=======
+    "BizyAirAuraSR": AuraSR,
+>>>>>>> 33dd52814ef85fb7f16b090657af466a86434d3f
 }
 NODE_DISPLAY_NAME_MAPPINGS = {
     "BizyAirRemoveBackground": "☁️BizyAir Remove Image Background",
     "BizyAirGenerateLightningImage": "☁️BizyAir Generate Photorealistic Images",
-    "BizyAirSegmentAnythingText": "☁️BizyAir Text Guided SAM",
 }
