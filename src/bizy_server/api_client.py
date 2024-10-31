@@ -194,6 +194,7 @@ class APIClient:
         keyword: str = None,
         model_types: list[str] = None,
         base_models: list[str] = None,
+        sort: str = None,
     ) -> tuple[dict | None, ErrorNo | None]:
         server_url = f"{BIZYAIR_SERVER_ADDRESS}/bizy_models/community"
         params = {"current": current, "page_size": page_size}
@@ -203,6 +204,8 @@ class APIClient:
             params["model_types"] = model_types
         if base_models:
             params["base_models"] = base_models
+        if sort:
+            params["sort"] = sort
 
         headers, err = self.auth_header()
         if err is not None:
@@ -226,6 +229,7 @@ class APIClient:
         keyword: str = None,
         model_types: list[str] = None,
         base_models: list[str] = None,
+        sort: str = None,
     ) -> tuple[dict | None, ErrorNo | None]:
         server_url = f"{BIZYAIR_SERVER_ADDRESS}/bizy_models/{mode}"
         params = {"current": current, "page_size": page_size}
@@ -235,6 +239,8 @@ class APIClient:
             params["model_types"] = model_types
         if base_models:
             params["base_models"] = base_models
+        if sort:
+            params["sort"] = sort
 
         headers, err = self.auth_header()
         if err is not None:

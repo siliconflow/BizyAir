@@ -228,6 +228,8 @@ class BizyAirServer:
             keyword = json_data["keyword"]
             model_types = json_data.get("model_types", [])
             base_models = json_data.get("base_models", [])
+            sort = json_data.get("sort", "")
+            resp, err = None, None
 
             if mode in ["my", "my_fork"]:
                 # 调用API查询模型
@@ -238,6 +240,7 @@ class BizyAirServer:
                     keyword=keyword,
                     model_types=model_types,
                     base_models=base_models,
+                    sort=sort,
                 )
             elif mode == "publicity":
                 # 调用API查询社区模型
@@ -247,6 +250,7 @@ class BizyAirServer:
                     keyword=keyword,
                     model_types=model_types,
                     base_models=base_models,
+                    sort=sort,
                 )
             if err:
                 return ErrResponse(err)
@@ -499,6 +503,7 @@ class BizyAirServer:
                             "version_id": model_version["id"],
                             "version": model_version["version"],
                             "model_id": bizy_model_id,
+                            "model_name": model_version["bizy_model_name"]
                         },
                         sid=sid)
                     removed.append(version_id)
