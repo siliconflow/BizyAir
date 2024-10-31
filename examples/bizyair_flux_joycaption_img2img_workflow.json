@@ -1,6 +1,6 @@
 {
-  "last_node_id": 69,
-  "last_link_id": 89,
+  "last_node_id": 71,
+  "last_link_id": 92,
   "nodes": [
     {
       "id": 59,
@@ -133,7 +133,7 @@
           "type": "IMAGE",
           "links": [
             81,
-            88
+            90
           ],
           "slot_index": 0,
           "shape": 3,
@@ -157,60 +157,16 @@
       "shape": 1
     },
     {
-      "id": 69,
-      "type": "BizyAirJoyCaption",
-      "pos": {
-        "0": 1473,
-        "1": -22
-      },
-      "size": [
-        294.14966534090854,
-        483.47196368824365
-      ],
-      "flags": {},
-      "order": 7,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "image",
-          "type": "IMAGE",
-          "link": 88,
-          "label": "image"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "STRING",
-          "type": "STRING",
-          "links": [
-            89
-          ],
-          "slot_index": 0,
-          "shape": 3,
-          "label": "STRING"
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "BizyAirJoyCaption"
-      },
-      "widgets_values": [
-        "enable",
-        0.5,
-        256
-      ],
-      "shape": 1
-    },
-    {
       "id": 37,
       "type": "BizyAir_CLIPTextEncode",
       "pos": {
         "0": 1797,
         "1": -23
       },
-      "size": [
-        295.225809090909,
-        479.6540636363637
-      ],
+      "size": {
+        "0": 295.2257995605469,
+        "1": 479.654052734375
+      },
       "flags": {},
       "order": 9,
       "mode": 0,
@@ -224,7 +180,7 @@
         {
           "name": "text",
           "type": "STRING",
-          "link": 89,
+          "link": 91,
           "widget": {
             "name": "text"
           },
@@ -489,10 +445,10 @@
         "0": 2649,
         "1": -16
       },
-      "size": [
-        264.73132084849794,
-        459.27157907500276
-      ],
+      "size": {
+        "0": 264.7313232421875,
+        "1": 459.2715759277344
+      },
       "flags": {},
       "order": 12,
       "mode": 0,
@@ -537,10 +493,10 @@
         "0": 515,
         "1": 44
       },
-      "size": [
-        273.77993145418975,
-        392.3650984630237
-      ],
+      "size": {
+        "0": 273.7799377441406,
+        "1": 392.3651123046875
+      },
       "flags": {},
       "order": 5,
       "mode": 0,
@@ -573,10 +529,10 @@
         "0": 807,
         "1": 35
       },
-      "size": [
-        297.95403662997114,
-        400.3651404246936
-      ],
+      "size": {
+        "0": 297.95404052734375,
+        "1": 400.3651428222656
+      },
       "flags": {},
       "order": 8,
       "mode": 0,
@@ -611,6 +567,51 @@
       },
       "widgets_values": [],
       "shape": 1
+    },
+    {
+      "id": 70,
+      "type": "BizyAirJoyCaption2",
+      "pos": {
+        "0": 1478,
+        "1": -21
+      },
+      "size": [
+        301.62853310192395,
+        469.53071381239334
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 90
+        }
+      ],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": [
+            91
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAirJoyCaption2"
+      },
+      "widgets_values": [
+        true,
+        0.5,
+        256,
+        "Descriptive",
+        "medium-length",
+        "",
+        "",
+        ""
+      ]
     }
   ],
   "links": [
@@ -727,16 +728,16 @@
       "LATENT"
     ],
     [
-      88,
+      90,
       65,
       0,
-      69,
+      70,
       0,
       "IMAGE"
     ],
     [
-      89,
-      69,
+      91,
+      70,
       0,
       37,
       1,
@@ -745,62 +746,14 @@
   ],
   "groups": [
     {
-      "title": "VAE解码",
+      "title": "模型",
       "bounding": [
-        2631,
-        -106,
-        300,
-        580
+        484,
+        -107,
+        970,
+        586
       ],
-      "color": "#3f789e",
-      "font_size": 24,
-      "flags": {}
-    },
-    {
-      "title": "VAE编码",
-      "bounding": [
-        503,
-        -57,
-        616,
-        508
-      ],
-      "color": "#3f789e",
-      "font_size": 24,
-      "flags": {}
-    },
-    {
-      "title": "预览图",
-      "bounding": [
-        2933,
-        -108,
-        486,
-        580
-      ],
-      "color": "#444",
-      "font_size": 24,
-      "flags": {}
-    },
-    {
-      "title": "采样器",
-      "bounding": [
-        2117,
-        -105,
-        511,
-        580
-      ],
-      "color": "#8A8",
-      "font_size": 24,
-      "flags": {}
-    },
-    {
-      "title": "提示词",
-      "bounding": [
-        1454,
-        -105,
-        663,
-        582
-      ],
-      "color": "#b58b2a",
+      "color": "#a1309b",
       "font_size": 24,
       "flags": {}
     },
@@ -817,14 +770,62 @@
       "flags": {}
     },
     {
-      "title": "模型",
+      "title": "提示词",
       "bounding": [
-        484,
-        -107,
-        970,
-        586
+        1454,
+        -105,
+        663,
+        582
       ],
-      "color": "#a1309b",
+      "color": "#b58b2a",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "title": "采样器",
+      "bounding": [
+        2117,
+        -105,
+        511,
+        580
+      ],
+      "color": "#8A8",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "title": "预览图",
+      "bounding": [
+        2933,
+        -108,
+        486,
+        580
+      ],
+      "color": "#444",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "title": "VAE编码",
+      "bounding": [
+        503,
+        -57,
+        616,
+        508
+      ],
+      "color": "#3f789e",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "title": "VAE解码",
+      "bounding": [
+        2631,
+        -106,
+        300,
+        580
+      ],
+      "color": "#3f789e",
       "font_size": 24,
       "flags": {}
     }
@@ -834,8 +835,8 @@
     "ds": {
       "scale": 0.6115909044841465,
       "offset": [
-        -95.49622758837884,
-        373.9144800451922
+        -451.12610763614197,
+        355.9286010542708
       ]
     }
   },

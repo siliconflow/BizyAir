@@ -29,7 +29,6 @@
         "Kolors IP-Adapter": "bizyair_kolors_ipa.json"
     },
     "Remove the background from the image": "bizyair_showcase_remove_background.json",
-    "Super Resolution": "bizyair_showcase_realistic_superresolution.json",
     "Recreate an existing image": "bizyair_flux_joycaption_img2img_workflow.json",
     "Text Guided Segment Anything": "bizyair_text_guided_segment-anything.json"
 }
