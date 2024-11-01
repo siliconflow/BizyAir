@@ -6,7 +6,7 @@ from .resp import ErrResponse
 
 TYPE_OPTIONS = {
     "LoRA": "LoRA",
-    "Checkpoint": "Checkpoint",
+    "Controlnet": "Controlnet"
 }
 
 BASE_MODEL_TYPE_OPTIONS = {
@@ -15,6 +15,7 @@ BASE_MODEL_TYPE_OPTIONS = {
     "SD1.5": "SD1.5",
     "SD3.5": "SD3.5",
     "PONY": "PONY",
+    "HunyuanDiT1.1": "HunyuanDiT1.1",
 }
 
 ALLOW_TYPES = list(TYPE_OPTIONS.values())
