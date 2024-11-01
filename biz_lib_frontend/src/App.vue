@@ -4,6 +4,8 @@
   <btnApiKey v-else />
   <btnModel />
   <btnNews />
+
+  <Toaster class="right-2 top-2 fixed" />
 </template>
 <script setup lang="ts">
 import btnExample from '@/views/btnExample/index.vue'
@@ -12,6 +14,7 @@ import btnProfile from '@/views/btnProfile/index.vue'
 import btnModel from '@/views/btnModel/index.vue'
 import btnNews from '@/views/btnNews/index.vue'
 import { getUserInfo } from './api/user'
+import { Toaster } from '@/components/ui/sonner'
 import { ref } from 'vue'
 const isLogin = ref(false)
 
