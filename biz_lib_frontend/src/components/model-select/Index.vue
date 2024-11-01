@@ -5,6 +5,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import {
   Dialog,
   DialogTitle,
+  DialogContent,
   DialogDescription
 } from '@/components/ui/dialog'
 import {
@@ -50,20 +51,10 @@ const models = ref<Model[]>([
 const showSortPopover = ref(true)
 const currentPage = ref(1)
 const totalPages = ref(5)
-const showDialog = ref(false)
+const showDialog = ref(true)
 
-const show = () => {
-  showDialog.value = true
-}
 
-const hide = () => {
-  showDialog.value = false
-}
 
-defineExpose({
-  show,
-  hide
-})
 
 const handlePageChange = (page: number) => {
   currentPage.value = page
