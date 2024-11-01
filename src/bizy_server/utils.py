@@ -10,12 +10,13 @@ TYPE_OPTIONS = {
 }
 
 BASE_MODEL_TYPE_OPTIONS = {
-    "FLUX": "FLUX",
+    "Flux.1 D": "Flux.1 D",
     "SDXL": "SDXL",
-    "SD1.5": "SD1.5",
-    "SD3.5": "SD3.5",
-    "PONY": "PONY",
-    "HunyuanDiT1.1": "HunyuanDiT1.1",
+    "SD 1.5": "SD 1.5",
+    "SD 3.5": "SD 3.5",
+    "Pony": "Pony",
+    "Kolors": "Kolors",
+    "Hunyuan 1": "Hunyuan 1",
 }
 
 ALLOW_TYPES = list(TYPE_OPTIONS.values())
