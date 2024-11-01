@@ -5,6 +5,7 @@ model_hub:
 
 model_types:
   loras: bizyair/lora
+  controlnet: bizyair/controlnet
   # folder_name, server_folder_name
   # checkpoints: bizyair/checkpoint
   # vae: bizyair/vae
