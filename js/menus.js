@@ -21,35 +21,30 @@ let userMenu = apiKeyBtn
 class FloatingButton {
     constructor(show_cases) {
         this.show_cases = show_cases
-        // this.button = $el("div.comfy-floating-button", {
-        //     parent: document.body,
-        //     style: { top: app.menu.element.style.display === 'none' ? '': '60px' },
-        //     onmousedown: (e) => this.startDrag(e),
-        // }, [
-        //     $el("h2.bizyair-logo"),
-        //     $el("div.bizyair-menu", {}, [
-        //         $el('strong', {}, ['BizyAir']),
-        //         $el("div.bizyair-menu-item", {}, [
-        //             exampleBtn,
-        //             userMenu,
-        //             modelBtn,
-        //             newsBtn,
-        //         ]),
-        //     ]),
-        //     $el('div.cmfy-floating-button-closer', {
-        //         onclick: () => this.toggleVisibility(event)
-        //     })
-        // ]);
-
-        this.button =  bizyAirLib.mount($el("div.comfy-floating-button", {
+        this.button = $el("div.comfy-floating-button", {
             parent: document.body,
             style: { top: app.menu.element.style.display === 'none' ? '': '60px' },
-            onmousedown: (e) => this.startDrag(e)
+            onmousedown: (e) => this.startDrag(e),
         }, [
+            $el("h2.bizyair-logo"),
+            $el("div.bizyair-menu", {}, [
+                $el('strong', {}, ['BizyAir']),
+                $el("div.bizyair-menu-item", {
+                    id: 'bizyair-menu-item',
+                }, [
+                    exampleBtn,
+                    userMenu,
+                    modelBtn,
+                    newsBtn,
+                ]),
+            ]),
             $el('div.cmfy-floating-button-closer', {
                 onclick: () => this.toggleVisibility(event)
             })
-        ]))
+        ]);
+
+        bizyAirLib.mount('#bizyair-menu-item', app)
+
 
         this.dragging = false;
         this.visible = true;

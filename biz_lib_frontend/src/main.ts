@@ -1,6 +1,9 @@
 import { createApp, App as VueApp } from 'vue'
 import './assets/index.css'
 import App from './App.vue'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { fas } from '@fortawesome/free-solid-svg-icons'
 
 let app: VueApp | null = null
 
@@ -14,7 +17,11 @@ export function mount(container: string | Element,comfyUIApp?: any, props = {}) 
     ...props,
     comfyUIApp
   }
+
   app = createApp(App, mergedProps)
+  app.component('font-awesome-icon', FontAwesomeIcon)
+  library.add(fas)
+  app.provide('comfyUIApp', comfyUIApp);
   app.mount(container)
   return app
 }

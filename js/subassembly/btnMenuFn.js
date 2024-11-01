@@ -72,6 +72,7 @@ export async function get_workflow_graph(file) {
             },
             body: JSON.stringify({ file: file }),
         });
+        console.log(response)
         const showcase_graph = await response.json()
         app.graph.clear()
         await app.loadGraphData(showcase_graph)
