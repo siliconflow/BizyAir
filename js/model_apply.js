@@ -2,6 +2,7 @@ import { app } from "../../scripts/app.js";
 import { dialog } from './subassembly/dialog.js'
 import { $el } from "../../scripts/ui.js";
 
+import './biz_lib_frontend.js'
 app.registerExtension({
     name: "bizyair.siliconcloud.share.lora.loader.new",
     async beforeRegisterNodeDef(nodeType, nodeData, app) {
@@ -30,22 +31,24 @@ app.registerExtension({
                     if (litecontextmenu) {
                         litecontextmenu.style.display = 'none'
                     }
-                    const aasd = dialog({
-                        content: $el('div', {
-                            style: {
-                                width: '1000px',
-                                height: '500px'
-                            },
-                            onclick: () => {
-                                lora_name.value = '123243'
-                                aasd.close()
-                            }
-                        }, ["123"]),
-                        noText: 'Close',
-                        onClose: () => {
-                            console.log('closed')
-                        }
-                    })
+                    console.log('showModelSelec111t')
+                    bizyAirLib.showModelSelect()
+                    // const aasd = dialog({
+                    //     content: $el('div', {
+                    //         style: {
+                    //             width: '1000px',
+                    //             height: '500px'
+                    //         },
+                    //         onclick: () => {
+                    //             lora_name.value = '123243'
+                    //             aasd.close()
+                    //         }
+                    //     }, ["123"]),
+                    //     noText: 'Close',
+                    //     onClose: () => {
+                    //         console.log('closed')
+                    //     }
+                    // })
                     return false; // 确保事件结束
                 } else {
                     return original_onMouseDown?.apply(this, arguments);
