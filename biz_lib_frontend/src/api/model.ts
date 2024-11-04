@@ -45,3 +45,8 @@ export const putDescription = (data: any) => customFetch('/bizyair/modelhost/mod
     method: 'put',
     body: JSON.stringify(data)
 })
+
+export const createModels = (data: any) => customFetch(`/bizyair/community/models?clientId=${sessionStorage.getItem('clientId')}`, {
+    method: 'post',
+    body: JSON.stringify(data)
+})
