@@ -9,7 +9,7 @@ export function customFetch(url: string, options = {}) {
     }
   }
   fetchCache.set(url, now);
-  const host = `${window.location.origin}${window.location.pathname === '/' ? '' : window.location.pathname}`
+  let host = `${window.location.origin}${window.location.pathname === '/' ? '' : window.location.pathname}`
   return window.fetch(`${host}${url}`, options)
     .then(response => {
       if (response.status === 404) {

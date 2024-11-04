@@ -42,5 +42,14 @@ export default defineConfig({
         inlineDynamicImports: true
       }
     }
+  },
+  server: {
+    proxy: {
+      '/bizyair': {
+        target: 'http://localhost:8188',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/bizyair/, '/bizyair/')
+      }
+    }
   }
 })

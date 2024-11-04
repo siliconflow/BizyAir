@@ -1,6 +1,7 @@
 import { customFetch } from '@/utils/customFetch';
 
-export const set_api_key = (data: any) => customFetch('/bizyair/set_api_key', {
+let host = `${window.location.origin}${window.location.pathname === '/' ? '' : window.location.pathname}`
+export const set_api_key = (data: any) => fetch(`${host}/bizyair/set_api_key`, {
     method: 'POST',
     headers: {
         'Content-Type': 'application/x-www-form-urlencoded'

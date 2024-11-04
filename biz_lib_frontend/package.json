@@ -13,18 +13,22 @@
     "@fortawesome/fontawesome-svg-core": "^6.6.0",
     "@fortawesome/free-solid-svg-icons": "^6.6.0",
     "@fortawesome/vue-fontawesome": "^3.0.8",
+    "@vee-validate/zod": "^4.14.6",
     "@vueuse/core": "^11.2.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "lucide-vue-next": "^0.454.0",
+    "pinia": "^2.2.6",
     "radix-vue": "^1.9.8",
     "tailwind-merge": "^2.5.4",
     "tailwindcss-animate": "^1.0.7",
     "vaul-vue": "^0.2.0",
+    "vee-validate": "^4.14.6",
     "vue": "^3.5.12",
     "vue-clipboard2": "^0.3.3",
     "vue-clipboard3": "^2.0.0",
-    "vue-sonner": "^1.2.5"
+    "vue-sonner": "^1.2.5",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/node": "^22.8.4",

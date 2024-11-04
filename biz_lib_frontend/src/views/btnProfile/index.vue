@@ -35,7 +35,7 @@
             {{ info.share_id }}
           </span>
           <input v-else
-            class="px-2 border rounded-md box-border"
+            class="px-2 border rounded-md box-border ml-1"
             ref="shareIdInput"
             v-model="info.share_id"
             @keyup.enter="saveShareId" />
@@ -79,6 +79,9 @@ import vTooltips from '@/components/modules/v-tooltip.vue'
 import useClipboard from 'vue-clipboard3'
 // import { toast } from 'vue-sonner'
 import { ref, computed } from 'vue'
+// import { useStatusStore} from '@/stores/userStatus'
+
+// const statusStore = useStatusStore()
 interface UserInfo {
   level: number;
   name: string;

@@ -1,6 +1,7 @@
 import { createApp } from 'vue'
 import './assets/index.css'
 import App from './App.vue'
+import { createPinia } from 'pinia';
 import { ModelSelect } from '@/components/model-select/'
 
 
@@ -30,6 +31,7 @@ export const showModelSelect = (options: { [x: string]: unknown; } | null | unde
 }
 
 let app = createApp(App)
+app.use(createPinia())
 // 修改 mount 方法接收 props
 export function mount(container: string | Element,comfyUIApp?: any, props = {}) {
   console.log('mount', container, comfyUIApp, props)
@@ -55,5 +57,6 @@ export function unmount() {
 
 // 如果是直接运行而不是作为库使用，则自动挂载
 if (import.meta.env.MODE !== 'production') {
+  console.log(123)
   mount('#app')
 }
