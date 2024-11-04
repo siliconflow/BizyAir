@@ -4,6 +4,7 @@ import os
 import pprint
 import re
 import warnings
+from dataclasses import dataclass
 from typing import Any, Dict, List, Union
 
 from ..common import fetch_models_by_type
@@ -24,6 +25,34 @@ folder_names_and_paths: dict[str, ScanPathType] = {}
 filename_path_mapping: dict[str, dict[str, str]] = {}
 
 
+@dataclass
+class RefreshSettings:
+    loras: bool = True
+
+    def get(self, folder_name: str, default: bool = True):
+        return getattr(self, folder_name, default)
+
+    def set(self, folder_name: str, value: bool):
+        setattr(self, folder_name, value)
+
+
+refresh_settings = RefreshSettings()
+
+
+def enable_refresh_options(folder_names: Union[str, list[str]]):
+    if isinstance(folder_names, str):
+        folder_names = [folder_names]
+    for folder_name in folder_names:
+        refresh_settings.set(folder_name, True)
+
+
+def disable_refresh_options(folder_names: Union[str, list[str]]):
+    if isinstance(folder_names, str):
+        folder_names = [folder_names]
+    for folder_name in folder_names:
+        refresh_settings.set(folder_name, False)
+
+
 def _get_config_path():
     src_bizyair_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     configs_path = os.path.join(src_bizyair_path, "configs")
@@ -38,7 +67,7 @@ models_config: Dict[str, Dict[str, Any]] = load_yaml_config(
 
 
 def guess_url_from_node(
-    node: Dict[str, Dict[str, Any]], node_usage_state
+    node: Dict[str, Dict[str, Any]], class_type_table: Dict[str, bool]
 ) -> Union[str, None]:
     if "loader" in node["class_type"].lower():
         for attr in ("ckpt_name", "unet_name", "vae_name"):
@@ -53,7 +82,18 @@ def guess_url_from_node(
                         configs = routing_configs[config_key]
                         # TODO fix
                         if config_key == "flux-dev":
-                            if node["inputs"]["weight_dtype"] == "fp8_e4m3fn":
+                            if class_type_table.get("ApplyPulidFlux", False):
+                                return (
+                                    configs.get(
+                                        "service_address", BIZYAIR_SERVER_ADDRESS
+                                    )
+                                    + "/supernode/bizyair-flux-dev-comfy-pulid"
+                                )
+
+                            if class_type_table.get("LoraLoader", False):
+                                node["inputs"][
+                                    "weight_dtype"
+                                ] = "fp8_e4m3fn"  # set to fp8_e4m3fn for lora
                                 return (
                                     configs.get(
                                         "service_address", BIZYAIR_SERVER_ADDRESS
@@ -88,26 +128,37 @@ def get_config_file_list(base_path=None) -> list:
 
 
 def cached_filename_list(
-    folder_name: str, *, verbose=False, refresh=False
+    folder_name: str, *, share_id: str = None, verbose=False, refresh=False
 ) -> list[str]:
     global filename_path_mapping
     if refresh or folder_name not in filename_path_mapping:
         model_types: Dict[str, str] = models_config["model_types"]
-        url = get_service_route(models_config["model_hub"]["find_model"])
+        if share_id:
+            url = f"{BIZYAIR_SERVER_ADDRESS}/{share_id}/models/files"
+        else:
+            url = get_service_route(models_config["model_hub"]["find_model"])
         msg = fetch_models_by_type(
             url=url, method="GET", model_type=model_types[folder_name]
         )
         if verbose:
             pprint.pprint({"cached_filename_list": msg})
 
-        if not msg or "data" not in msg or msg["data"] is None:
-            return []
+        try:
+            if not msg or "data" not in msg or msg["data"] is None:
+                return []
 
-        filename_path_mapping[folder_name] = {
-            x["label_path"]: x["real_path"]
-            for x in msg["data"]["files"]
-            if x["label_path"]
-        }
+            filename_path_mapping[folder_name] = {
+                x["label_path"]: x["real_path"]
+                for x in msg["data"]["files"]
+                if x["label_path"]
+            }
+        except Exception as e:
+            warnings.warn(f"Failed to get filename list: {e}")
+            return []
+        finally:
+            # TODO fix share_id vaild refresh settings
+            if share_id is None:
+                disable_refresh_options(folder_name)
 
     return list(
         filter_files_extensions(
@@ -139,11 +190,23 @@ def convert_prompt_label_path_to_real_path(prompt: dict[str, dict[str, any]]) ->
     return new_prompt
 
 
+def get_share_filename_list(folder_name, share_id, *, verbose=BIZYAIR_DEBUG):
+    assert share_id is not None and isinstance(share_id, str)
+    # TODO fix share_id vaild refresh settings
+    return cached_filename_list(
+        folder_name, share_id=share_id, verbose=verbose, refresh=True
+    )
+
+
 def get_filename_list(folder_name, *, verbose=BIZYAIR_DEBUG):
+
     global folder_names_and_paths
     results = []
     if folder_name in models_config["model_types"]:
-        results.extend(cached_filename_list(folder_name, verbose=verbose, refresh=True))
+        refresh = refresh_settings.get(folder_name, True)
+        results.extend(
+            cached_filename_list(folder_name, verbose=verbose, refresh=refresh)
+        )
     if folder_name in folder_names_and_paths:
         results.extend(folder_names_and_paths[folder_name])
     if BIZYAIR_DEBUG:
@@ -153,28 +216,24 @@ def get_filename_list(folder_name, *, verbose=BIZYAIR_DEBUG):
             results.extend(folder_paths.get_filename_list(folder_name))
         except:
             pass
-
     return results
 
 
 def recursive_extract_models(data: Any, prefix_path: str = "") -> List[str]:
-    def merge_paths(base_path: str, new_path: str) -> str:
-        if base_path == "":
-            return new_path
-        else:
-            return f"{base_path}/{new_path}"
+    def merge_paths(base_path: str, new_path: Any) -> str:
+        if not isinstance(new_path, str):
+            return base_path
+        return f"{base_path}/{new_path}" if base_path else new_path
 
     results: List[str] = []
     if isinstance(data, dict):
         for key, value in data.items():
-            results.extend(
-                recursive_extract_models(value, merge_paths(prefix_path, key))
-            )
+            new_prefix = merge_paths(prefix_path, key)
+            results.extend(recursive_extract_models(value, new_prefix))
     elif isinstance(data, list):
         for item in data:
-            results.extend(
-                recursive_extract_models(item, merge_paths(prefix_path, str(item)))
-            )
+            new_prefix = merge_paths(prefix_path, item)
+            results.extend(recursive_extract_models(item, new_prefix))
     elif isinstance(data, str) and prefix_path.endswith(data):
         return filter_files_extensions([prefix_path], supported_pt_extensions)
 

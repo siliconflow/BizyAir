@@ -60,7 +60,7 @@ jobs:
     - name: Deploy
       uses: peaceiris/actions-gh-pages@v3
       with:
-        github_token: ${{ secrets.UPDATE_GH_PAGES  }}
+        github_token: ${{ secrets.UPDATE_GH_PAGES }}
         publish_dir: ./docs/site
 
     - name: Deploy via scp

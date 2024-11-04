@@ -1,5 +1,5 @@
 {
-  "checkpoints": {
+  "checkpoints": [{
     "sdxl": [
       "counterfeitxl_v25.safetensors",
       "dreamshaperXL_lightningDPMSDE.safetensors",
@@ -16,6 +16,7 @@
       "dreamshaper_8.safetensors"
     ]
   },
+  "sd3.5_large.safetensors", "sd3.5_large_turbo.safetensors"],
   "clip_vision": {
     "models": [
       "CLIP-ViT-H-14-laion2B-s32B-b79K.safetensors"
@@ -73,6 +74,7 @@
   },
   "clip": [
     "clip_l.safetensors",
+    "clip_g.safetensors",
     "t5xxl_fp16.safetensors",
     "t5xxl_fp8_e4m3fn.safetensors"
   ],
@@ -81,5 +83,8 @@
   ],
   "instantid": [
     "ip-adapter.bin"
+  ],
+  "pulid": [
+    "pulid_flux_v0.9.0.safetensors"
   ]
 }

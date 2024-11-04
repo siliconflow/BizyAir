@@ -1,5 +1,10 @@
 # BizyAir
-
+- [2024/10/30] 🌩️ BizyAir Segment-Anything nodes has been released. [text_guided_segment-anything](./examples/bizyair_text_guided_segment-anything.json) and [box_point_guided_segment-anything](./examples/bizyair_box_point_guided_segment-anything.json)
+- [2024/10/24] 🌩️ BizyAir supports stable Diffusion 3.5. [Stable Diffusion 3.5 Text to Image](./examples/bizyair_sd3_5_txt2img.json)
+- [2024/10/21] 🌩️ BizyAir supports VLModels. We add a tutorial for utilizing the VLM node. [AI Assistant](https://siliconflow.github.io/BizyAir/ai-assistants/introduce.html)
+- [2024/10/11] 🌩️ BizyAir supports PuLID for Flux. [FLUX PuLID workflow](./examples/bizyair_flux_pulid.json)
+- [2024/09/29] 🌩️ BizyAir has support to share your custom LoRAs. [Share Your LoRAs](http://bizyair.siliconflow.cn/model-host/sharemodel.html)
+- [2024/09/19] 🌩️ BizyAir has updated the model upload feature, allowing the upload process to display a progress bar, and the size of the models uploaded is no longer restricted by ComfyUI. (https://siliconflow.github.io/BizyAir/model-host/introduce.html)
 - [2024/09/06] 🌩️ BizyAir supports InstantID for SDXL now. [SDXL InstantID workflow](./examples/bizyair_sdxl_InstantID_basic.json)
 - [2024/09/05] 🌩️ BizyAir supports users in running custom LoRA models, including SDXL and Flux LoRA. [How to upload and run custom model](https://siliconflow.github.io/BizyAir/model-host/introduce.html)
 - [2024/08/23] 🌩️ BizyAir now support ultimateSDupscale nodes [upscale workflow](./examples/bizyair_ultimate_sd_upscale.json)
@@ -8,7 +13,7 @@
 - [2024/08/02] 🌩️ FLUX.1-schnell has been supported. [FLUX.1-schnell Text to Image](./examples/bizyair_flux_schnell_workflow.json)
 - [2024/08/01] 🌩️  [BizyAir MinusZone Kolors](https://siliconflow.github.io/BizyAir/kolors/introduce.html) nodes have been released(thanks to [MinusZoneAI/ComfyUI-Kolors-MZ](https://github.com/MinusZoneAI/ComfyUI-Kolors-MZ)), and BizyAir now supports over 10 new base models. They all support ControlNet, LoRA, and IPAdapter. [BizyAir KSampler](https://siliconflow.github.io/BizyAir/ksampler/introduce.html)
 - [2024/07/31] 🌩️ The super-resolution node has been released, capable of enlarging images four times their original size. [BizyAir Photorealistic Image Super Resolution](https://siliconflow.github.io/BizyAir/others/index.html#bizyair-photorealistic-image-super-resolution)
-- [2024/07/25] 🌩️ Users can load BizyAir workflow examples directly by clicking the "☁️BizyAir Workflow Examples" button. [Example GIF](./docs/docs/getting-started/imgs/run-bizyair-examples.gif)
+- [2024/07/25] 🌩️ Users can load BizyAir workflow examples directly by clicking the "☁️BizyAir Workflow Examples" button. [Example GIF](./docs/docs/getting-started/imgs/text-guided-segment-anything.gif)
 - [2024/07/23] 🌩️ BizyAir ChatGLM3 Text Encode node is released.
 - [2024/07/16] 🌩️ [BizyAir Controlnet Union SDXL 1.0](https://siliconflow.github.io/BizyAir/controlnet-union/introduce.html) node is released.
 - [2024/07/14] 🌩️ We release Image Caption nodes and add a tutorial for utilizing the LLM node. [AI Assistant](https://siliconflow.github.io/BizyAir/ai-assistants/introduce.html)
@@ -18,11 +23,12 @@
 
 BizyAir is a collection of [ComfyUI](https://github.com/comfyanonymous/ComfyUI) nodes that help you overcome environmental and hardware limitations, allowing you to more easily generate high-quality content with ComfyUI.
 
-![](./docs/docs/getting-started/imgs/run-bizyair-examples.gif)
+![](./docs/docs/getting-started/imgs/text-guided-segment-anything.gif)
 
-BizyAir nodes are capable of operating in conjunction with local nodes. For example, the workflow below shows the use of BizyAir for ChatGLM3 text encoding and VAE decoding, while employing a local KSampler.
+BizyAir now supports many models and nodes.
 
- ![](./docs/docs/getting-started/imgs/run-with-local-nodes.gif)
+![](./docs/docs/getting-started/imgs/models-and-nodes.gif)
+
 
 ## Table of Contents
 
@@ -40,7 +46,7 @@ Run ComfyUI anywhere, anytime, without worrying about the environment or hardwar
 
 Please see the [Quick Start](https://siliconflow.github.io/BizyAir/getting-started/quick-start.html) page to set up BizyAir.
 
-Make sure to **set your API KEY** for the **first time** use!
+Make sure to **set your API KEY** for the **first time** use! You can click on the "click to login" link for a quick setup.
 
 ![](./docs/docs/getting-started/imgs/how-to-set-key.gif)
 
