@@ -40,9 +40,9 @@ class APIClient:
 
     def do_get(self, url, params=None, headers=None):
         if params:
-            query_string = urllib.parse.urlencode(params)
+            query_string = urllib.parse.urlencode(params, doseq=True)
             url = f"{url}?{query_string}"
-        response = requests.get(url, params=params, headers=headers, timeout=3)
+        response = requests.get(url, headers=headers, timeout=3)
         resp_json = json.loads(response.text)
         if response.status_code != 200:
             return None, ErrorNo(
