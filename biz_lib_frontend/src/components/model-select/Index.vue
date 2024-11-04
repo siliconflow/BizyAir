@@ -14,7 +14,7 @@ import {
   TabsTrigger,
   TabsContent
 } from '@/components/ui/tabs'
-import type { Model, FilterState, ModelListPathParams } from '@/types/model'
+import type { Model, FilterState, ModelListPathParams, ModelVersion } from '@/types/model'
 import ModelFilterBar from './ModelFilterBar.vue'
 import ModelTable from './ModelTable.vue'
 import ModelPagination from './ModelPagination.vue'
@@ -44,30 +44,42 @@ const filterState = ref<FilterState>({
 const models = ref<Model[]>([])
 const getModelList = async () => {
   const { data } = await get_model_list(modelListPathParams.value, filterState.value)
-  modelListPathParams.value.total = data.total
+  modelListPathParams.value.total = data?.total || 0
   models.value = data?.list || []
 }
 
 const showSortPopover = ref(false)
 const showDialog = ref(false)
-const handlePageChange = (page: number) => {
+const handlePageChange = async (page: number) => {
   modelListPathParams.value.current = page
-  getModelList()
+  await getModelList()
 }
 
-const handleFilterStateChange = (value: FilterState) => {
+const handleFilterStateChange = async (value: FilterState) => {
   filterState.value = value
-  getModelList()
+  await getModelList()
 }
 
-const handleTabChange = (value: string | number) => {
+const handleTabChange = async (value: string | number) => {
   modelListPathParams.value.mode = String(value) as 'my' | 'my_fork' | 'publicity'
   modelListPathParams.value.current = 1
-  getModelList()
+  filterState.value.keyword = ''
+  filterState.value.model_types = [props.modelType || '']
+  filterState.value.base_models = props.selectedBaseModels || []
+  filterState.value.sort = 'Recently'
+
+
+  await getModelList()
 }
 
-onMounted(() => {
-  getModelList()
+
+
+const handleApply = (version: ModelVersion) => {
+  console.log('version', version)
+}
+
+onMounted(async () => {
+  await getModelList()
   showDialog.value = true
 })
 </script>
@@ -107,7 +119,7 @@ onMounted(() => {
               :selected-base-models="props.selectedBaseModels" />
 
             <ScrollArea class="h-[400px] rounded-md border-0">
-              <ModelTable :models="models" />
+              <ModelTable :models="models" @apply="handleApply" />
             </ScrollArea>
 
             <ModelPagination :current="modelListPathParams.current" :page_size="modelListPathParams.page_size"
@@ -120,7 +132,7 @@ onMounted(() => {
               :selected-base-models="props.selectedBaseModels" />
 
             <ScrollArea class="h-[400px] rounded-md border-0">
-              <ModelTable :models="models" />
+              <ModelTable :models="models" @apply="handleApply" />
             </ScrollArea>
 
             <ModelPagination :current="modelListPathParams.current" :page_size="modelListPathParams.page_size"
@@ -133,7 +145,7 @@ onMounted(() => {
               :selected-base-models="props.selectedBaseModels" />
 
             <ScrollArea class="h-[400px] rounded-md border-0">
-              <ModelTable :models="models" />
+              <ModelTable :models="models" @apply="handleApply" />
             </ScrollArea>
 
             <ModelPagination :current="modelListPathParams.current" :page_size="modelListPathParams.page_size"

@@ -22,7 +22,7 @@ import {
   CommandList,
   CommandSeparator
 } from '@/components/ui/command'
-import type { Model } from '@/types/model'
+import type { Model, ModelVersion } from '@/types/model'
 import ModelVersionRow from './ModelVersionRow.vue'
 
 
@@ -49,6 +49,12 @@ const handleOperateChange = (value: 'edit' | 'remove', modelName: string) => {
   if (value === 'edit') {
     currentOperateModel.value = ''
   }
+}
+
+const emit = defineEmits(['apply'])
+
+const handleApply = (version: ModelVersion) => {
+  emit('apply', version)
 }
 </script>
 <template>
@@ -118,7 +124,8 @@ const handleOperateChange = (value: 'edit' | 'remove', modelName: string) => {
           </TableCell>
         </TableRow>
         <template v-if="expandedModels.has(model.name) && model.versions">
-          <ModelVersionRow v-for="version in model.versions" :key="version.version" :version="version" />
+          <ModelVersionRow v-for="version in model.versions" :key="version.version" :version="version"
+            @apply="handleApply" />
         </template>
       </template>
     </TableBody>

@@ -10,6 +10,13 @@ interface Props {
   version: ModelVersion
 }
 
+const emit = defineEmits(['apply'])
+
+const handleApply = (version: ModelVersion) => {
+  emit('apply', version)
+}
+
+
 defineProps<Props>()
 </script>
 
@@ -39,7 +46,8 @@ defineProps<Props>()
     <TableCell class="w-25 truncate block">{{ version.base_model }}</TableCell>
     <TableCell class="w-[20%]">{{ version.available ? 'Available' : 'Unavailable' }}</TableCell>
     <TableCell class="w-[15%] flex justify-start">
-      <Button variant="default" :disabled="!version.available" :class="{ 'opacity-50': !version.available }">
+      <Button variant="default" @click="handleApply(version)" :disabled="!version.available"
+        :class="{ 'opacity-50': !version.available }">
         Apply
       </Button>
     </TableCell>

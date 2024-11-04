@@ -42,10 +42,10 @@ const emit = defineEmits<Emits>()
 
 const getFilterData = async () => {
   const { data } = await model_types()
-  modelTypes.value = data as CommonModelType[]
+  modelTypes.value = data ? (data as CommonModelType[]) : []
 
-  const { data: baseModelData } = await base_model_types()
-  baseModelTypes.value = baseModelData as CommonModelType[]
+  const { data: baseModelData } = await base_model_types() 
+  baseModelTypes.value = baseModelData ? (baseModelData as CommonModelType[]) : []
 
 }
 
