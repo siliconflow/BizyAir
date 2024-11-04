@@ -22,6 +22,13 @@ export const change_public = (data: any) => customFetch('/bizyair/modelhost/mode
 
 export const model_types = () => customFetch('/bizyair/community/model_types', {method: 'GET'})
 
+export const base_model_types = () => customFetch('/bizyair/community/base_model_types', {method: 'GET'})
+
+export const get_model_list = (params: any, data: any) => customFetch(`/bizyair/community/models/query?${new URLSearchParams(params).toString()}`, {
+    method: 'POST',
+    body: JSON.stringify(data)
+})
+
 export const check_folder = (url: string) => customFetch(`/bizyair/modelhost/check_folder?absolute_path=${encodeURIComponent(url)}`, {method: 'GET'})
 
 export const submit_upload = (data: any) => customFetch(`/bizyair/community/submit_upload?clientId=${sessionStorage.getItem('clientId')}`, {

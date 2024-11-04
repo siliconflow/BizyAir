@@ -23,7 +23,23 @@ export const showModelSelect = (options: { [x: string]: unknown; } | null | unde
       console.log('clicked', e)
     }
   });
-  console.log('showModelSelect', app)
+  app.directive('debounce', {
+    mounted(el, binding) {
+      let timer:any = null
+      el.addEventListener('keyup', () => {
+        if (timer) clearTimeout(timer)
+        timer = setTimeout(() => {
+          binding.value()
+        },(binding.arg as unknown) as number || 500)
+      }) 
+    },
+    unmounted(el,binding) {
+      if(binding){
+        el.removeEventListener('keyup', binding.value)
+      }
+    }
+  })
+
   const instance = app.mount(container);
   return {
     instance
