@@ -2,6 +2,9 @@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
+import { model_types, base_model_types } from '@/api/model'
+import { onMounted, ref } from 'vue'
+import type { FilterState, CommonModelType } from '@/types/model'
 import {
   Popover,
   PopoverContent,
@@ -14,12 +17,18 @@ import {
   CommandList,
   CommandSeparator
 } from '@/components/ui/command'
-import type { FilterState } from '@/types/model'
 
+const modelTypes = ref<CommonModelType[]>([])
+const baseModelTypes = ref<CommonModelType[]>([])
 interface Props {
   filterState: FilterState
   showSortPopover: boolean
+  modelType?: string
+  selectedBaseModels?: string[]
 }
+
+
+
 
 interface Emits {
   (e: 'update:filterState', value: FilterState): void
@@ -29,7 +38,18 @@ interface Emits {
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
-const handleSortChange = (value: 'recently' | 'most-forked' | 'most-used') => {
+
+
+const getFilterData = async () => {
+  const { data } = await model_types()
+  modelTypes.value = data as CommonModelType[]
+
+  const { data: baseModelData } = await base_model_types()
+  baseModelTypes.value = baseModelData as CommonModelType[]
+
+}
+
+const handleSortChange = (value: 'Recently' | 'Most Forked' | 'Most Used') => {
   emit('update:filterState', {
     ...props.filterState,
     sort: value
@@ -38,7 +58,9 @@ const handleSortChange = (value: 'recently' | 'most-forked' | 'most-used') => {
 }
 
 const handleModelTypeChange = (type: string) => {
-  const types = [...props.filterState.modelTypes]
+  if (props.modelType) return
+
+  const types = [...props.filterState.model_types]
   const index = types.indexOf(type)
   if (index === -1) {
     types.push(type)
@@ -47,12 +69,13 @@ const handleModelTypeChange = (type: string) => {
   }
   emit('update:filterState', {
     ...props.filterState,
-    modelTypes: types
+    model_types: types
   })
 }
-
 const handleBaseModelChange = (model: string) => {
-  const models = [...props.filterState.baseModels]
+  if (props.selectedBaseModels) return
+
+  const models = [...props.filterState.base_models]
   const index = models.indexOf(model)
   if (index === -1) {
     models.push(model)
@@ -61,30 +84,36 @@ const handleBaseModelChange = (model: string) => {
   }
   emit('update:filterState', {
     ...props.filterState,
-    baseModels: models
+    base_models: models
   })
 }
 
-const updateKeyword = (event: Event) => {
-  const target = event.target as HTMLInputElement
+const handleSearch = () => {
+  // if (!props.filterState.keyword) return  
   emit('update:filterState', {
     ...props.filterState,
-    keyword: target.value
+    keyword: props.filterState.keyword
   })
 }
+
+onMounted(async () => {
+  await getFilterData()
+})
 </script>
 
 <template>
   <div class="flex space-x-2 mb-4">
     <div class="relative flex-1">
-      <Input :value="filterState.keyword" @input="updateKeyword" placeholder="Filter by name"
-        class="h-[44px] border border-[#9CA3AF] w-full bg-[#222] rounded-lg pr-8" />
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none"
-        class="absolute right-2 top-1/2 -translate-y-1/2">
-        <path
-          d="M14 14L11.1333 11.1333M12.6667 7.33333C12.6667 10.2789 10.2789 12.6667 7.33333 12.6667C4.38781 12.6667 2 10.2789 2 7.33333C2 4.38781 4.38781 2 7.33333 2C10.2789 2 12.6667 4.38781 12.6667 7.33333Z"
-          stroke="#F9FAFB" stroke-linecap="round" stroke-linejoin="round" />
-      </svg>
+      <Input v-model="filterState.keyword" v-debounce="handleSearch" placeholder="Filter by name"
+        class="h-[44px] border border-[#9CA3AF] w-full bg-[#222] rounded-lg pr-8 pl-8" />
+      <span class="absolute start-0 inset-y-0 flex items-center justify-center px-2">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none"
+          class="hover:brightness-150 transition-all duration-300">
+          <path
+            d="M14 14L11.1333 11.1333M12.6667 7.33333C12.6667 10.2789 10.2789 12.6667 7.33333 12.6667C4.38781 12.6667 2 10.2789 2 7.33333C2 4.38781 4.38781 2 7.33333 2C10.2789 2 12.6667 4.38781 12.6667 7.33333Z"
+            stroke="#F9FAFB" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </span>
     </div>
 
     <Popover class="bg-[#353535]" :open="showSortPopover" @update:open="emit('update:showSortPopover', $event)">
@@ -102,21 +131,21 @@ const updateKeyword = (event: Event) => {
         <Command>
           <CommandList>
             <CommandGroup>
-              <CommandItem value="recently" @click="handleSortChange('recently')" :class="[
+              <CommandItem value="recently" @click="handleSortChange('Recently')" :class="[
                 'px-2 py-1.5 text-[#F9FAFB] cursor-pointer [&:hover]:!bg-[#6D28D9] [&:hover]:!text-[#F9FAFB]',
-                filterState.sort === 'recently' ? '!bg-[#6D28D9] !text-[#F9FAFB]' : ''
+                filterState.sort === 'Recently' ? '!bg-[#6D28D9] !text-[#F9FAFB]' : ''
               ]">
                 Recently
               </CommandItem>
-              <CommandItem value="most-forked" @click="handleSortChange('most-forked')" :class="[
+              <CommandItem value="most-forked" @click="handleSortChange('Most Forked')" :class="[
                 'px-2 py-1.5 text-[#F9FAFB] cursor-pointer [&:hover]:!bg-[#6D28D9] [&:hover]:!text-[#F9FAFB]',
-                filterState.sort === 'most-forked' ? '!bg-[#6D28D9] !text-[#F9FAFB]' : ''
+                filterState.sort === 'Most Forked' ? '!bg-[#6D28D9] !text-[#F9FAFB]' : ''
               ]">
                 Most Forked
               </CommandItem>
-              <CommandItem value="most-used" @click="handleSortChange('most-used')" :class="[
+              <CommandItem value="most-used" @click="handleSortChange('Most Used')" :class="[
                 'px-2 py-1.5 text-[#F9FAFB] cursor-pointer [&:hover]:!bg-[#6D28D9] [&:hover]:!text-[#F9FAFB]',
-                filterState.sort === 'most-used' ? '!bg-[#6D28D9] !text-[#F9FAFB]' : ''
+                filterState.sort === 'Most Used' ? '!bg-[#6D28D9] !text-[#F9FAFB]' : ''
               ]">
                 Most Used
               </CommandItem>
@@ -145,23 +174,12 @@ const updateKeyword = (event: Event) => {
               </div>
               <CommandItem value="model-types" class="p-2">
                 <div class="flex flex-wrap gap-2">
-                  <Badge variant="secondary" @click="handleModelTypeChange('checkpoint')" :class="[
-                    'cursor-pointer hover:bg-[#6D28D9]',
-                    filterState.modelTypes.includes('checkpoint') ? 'bg-[#6D28D9]' : ''
-                  ]">
-                    Checkpoint
-                  </Badge>
-                  <Badge variant="secondary" @click="handleModelTypeChange('lora')" :class="[
-                    'cursor-pointer hover:bg-[#6D28D9]',
-                    filterState.modelTypes.includes('lora') ? 'bg-[#6D28D9]' : ''
-                  ]">
-                    LoRA
-                  </Badge>
-                  <Badge variant="secondary" @click="handleModelTypeChange('textualinversion')" :class="[
-                    'cursor-pointer hover:bg-[#6D28D9]',
-                    filterState.modelTypes.includes('textualinversion') ? 'bg-[#6D28D9]' : ''
-                  ]">
-                    TextualInversion
+                  <Badge variant="secondary" v-for="type in modelTypes" :key="type.value"
+                    @click="handleModelTypeChange(type.value)" :class="[
+                      'cursor-pointer hover:bg-[#6D28D9]',
+                      filterState.model_types.includes(type.value) || modelType === type.value ? 'bg-[#6D28D9]' : ''
+                    ]">
+                    {{ type.label }}
                   </Badge>
                 </div>
               </CommandItem>
@@ -175,30 +193,25 @@ const updateKeyword = (event: Event) => {
               </div>
               <CommandItem value="base-models" class="p-2">
                 <div class="flex flex-wrap gap-2">
-                  <Badge variant="secondary" @click="handleBaseModelChange('SDXL 1.0')" :class="[
-                    'cursor-pointer hover:bg-[#6D28D9]',
-                    filterState.baseModels.includes('SDXL 1.0') ? 'bg-[#6D28D9]' : ''
-                  ]">
-                    SDXL 1.0
-                  </Badge>
-                  <Badge variant="secondary" @click="handleBaseModelChange('SDXL 1.1')" :class="[
-                    'cursor-pointer hover:bg-[#6D28D9]',
-                    filterState.baseModels.includes('SDXL 1.1') ? 'bg-[#6D28D9]' : ''
-                  ]">
-                    SDXL 1.1
-                  </Badge>
-                  <Badge variant="secondary" @click="handleBaseModelChange('SD 1.5')" :class="[
-                    'cursor-pointer hover:bg-[#6D28D9]',
-                    filterState.baseModels.includes('SD 1.5') ? 'bg-[#6D28D9]' : ''
-                  ]">
-                    SD 1.5
-                  </Badge>
-                  <Badge variant="secondary" @click="handleBaseModelChange('SD 2.1')" :class="[
-                    'cursor-pointer hover:bg-[#6D28D9]',
-                    filterState.baseModels.includes('SD 2.1') ? 'bg-[#6D28D9]' : ''
-                  ]">
-                    SD 2.1
-                  </Badge>
+                  <template v-if="selectedBaseModels">
+
+
+                    <Badge variant="secondary" v-for="model in baseModelTypes" :key="model.value" :class="[
+                      'bg-[#6D28D9]',
+                      selectedBaseModels.includes(model.value) ? '' : 'hidden'
+                    ]">
+                      {{ model.label }}
+                    </Badge>
+                  </template>
+                  <template v-else>
+                    <Badge variant="secondary" v-for="model in baseModelTypes" :key="model.value"
+                      @click="handleBaseModelChange(model.value)" :class="[
+                        'cursor-pointer hover:bg-[#6D28D9]',
+                        filterState.base_models.includes(model.value) ? 'bg-[#6D28D9]' : ''
+                      ]">
+                      {{ model.label }}
+                    </Badge>
+                  </template>
                 </div>
               </CommandItem>
             </CommandGroup>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref,PropType } from 'vue'
+import { ref, PropType } from 'vue'
 
 import { Badge } from '@/components/ui/badge'
 import {
@@ -30,8 +30,8 @@ const props = defineProps({
   models: {
     type: Array as PropType<Model[]>,
     required: true
-    }
   }
+}
 )
 const expandedModels = ref<Set<string>>(new Set())
 const currentOperateModel = ref<string>('')
@@ -45,7 +45,6 @@ const toggleExpand = (modelName: string) => {
 }
 
 const handleOperateChange = (value: 'edit' | 'remove', modelName: string) => {
-  console.log('operate', value, modelName)
   currentOperateModel.value = modelName
   if (value === 'edit') {
     currentOperateModel.value = ''
@@ -63,29 +62,27 @@ const handleOperateChange = (value: 'edit' | 'remove', modelName: string) => {
       </TableRow>
     </TableHeader>
     <TableBody>
-      <template v-for="model in props.models" :key="model.name + model.version">
+      <template v-for="model in props.models" :key="model.name + model.id">
         <TableRow class="group cursor-pointer border-[#F9FAFB]/60 hover:bg-transparent h-12">
           <TableCell class="w-[40%]" @click="toggleExpand(model.name)">
             <div class="flex items-center space-x-2">
               <span class="text-lg">
-                <!-- 展开箭头图标 -->
                 <svg v-if="expandedModels.has(model.name)" xmlns="http://www.w3.org/2000/svg" width="16" height="17"
                   viewBox="0 0 16 17" fill="none">
                   <path d="M4 6L8 10L12 6" stroke="#F9FAFB" stroke-width="1.5" stroke-linecap="round"
                     stroke-linejoin="round" />
                 </svg>
-                <!-- 收起箭头图标 -->
                 <svg v-else xmlns="http://www.w3.org/2000/svg" width="16" height="17" viewBox="0 0 16 17" fill="none">
                   <path d="M6 4L10 8L6 12" stroke="#F9FAFB" stroke-width="1.5" stroke-linecap="round"
                     stroke-linejoin="round" />
                 </svg>
               </span>
               <span>{{ model.name }}</span>
-              <Badge v-if="model.isCheckpoint" variant="default">Checkpoint</Badge>
+              <Badge variant="default">{{ model.type }}</Badge>
             </div>
           </TableCell>
-          <TableCell class="w-[25%]">{{ model.baseModel }}</TableCell>
-          <TableCell class="w-[20%]">{{ model.status }}</TableCell>
+          <TableCell class="w-[25%]">-</TableCell>
+          <TableCell class="w-[20%]">-</TableCell>
           <TableCell class="w-[15%]">
             <div class="flex justify-end h-full">
               <Popover class="bg-[#353535]" :open="currentOperateModel === model.name"

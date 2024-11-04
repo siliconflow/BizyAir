@@ -1,23 +1,40 @@
 export interface Model {
+  id: string
   name: string
-  version: string
-  baseModel: string
-  status: string
-  isPublic?: boolean
-  isCheckpoint?: boolean
+  type: string
   versions?: ModelVersion[]
 }
 
 export interface ModelVersion {
+  available: boolean
   version: string
-  baseModel: string 
-  status: string
+  base_model: string 
+  bizy_model_id: number
+  counter:any
+  created_at: string
+  file_name: string
+  id:number
+  public:boolean
+  updated_at:string
+}
+
+
+export interface ModelListPathParams {
+  current: number
+  page_size: number
+  mode: string
+  total:number
+ 
 }
 
 export interface FilterState {
-  mode: 'my' | 'my_fork' | 'publicity'
   keyword: string
-  modelTypes: string[]
-  baseModels: string[]
-  sort: 'recently' | 'most-forked' | 'most-used'
+  model_types: string[]
+  base_models: string[]
+  sort:'Recently' | 'Most Forked' | 'Most Used'
+}
+
+export interface CommonModelType {
+  label: string
+  value: string
 }

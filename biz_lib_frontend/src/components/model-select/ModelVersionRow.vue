@@ -19,8 +19,8 @@ defineProps<Props>()
       <div class="text-sm text-white-500 flex items-center min-w-0">
         <span class="truncate flex-1">{{ version.version }}</span>
         <div class="flex-shrink-0 ml-2">
-          <svg v-if="version.status === 'Available'" xmlns="http://www.w3.org/2000/svg" width="16" height="17"
-            viewBox="0 0 16 17" fill="none">
+          <svg v-if="version.public" xmlns="http://www.w3.org/2000/svg" width="16" height="17" viewBox="0 0 16 17"
+            fill="none">
             <path
               d="M1.33325 8.49992C1.33325 8.49992 3.33325 3.83325 7.99992 3.83325C12.6666 3.83325 14.6666 8.49992 14.6666 8.49992C14.6666 8.49992 12.6666 13.1666 7.99992 13.1666C3.33325 13.1666 1.33325 8.49992 1.33325 8.49992Z"
               stroke="#9CA3AF" stroke-linecap="round" stroke-linejoin="round" />
@@ -36,11 +36,10 @@ defineProps<Props>()
         </div>
       </div>
     </TableCell>
-    <TableCell class="w-25 truncate block">{{ version.baseModel }}</TableCell>
-    <TableCell class="w-[20%]">{{ version.status }}</TableCell>
+    <TableCell class="w-25 truncate block">{{ version.base_model }}</TableCell>
+    <TableCell class="w-[20%]">{{ version.available ? 'Available' : 'Unavailable' }}</TableCell>
     <TableCell class="w-[15%] flex justify-start">
-      <Button variant="default" :disabled="version.status !== 'Available'"
-        :class="{ 'opacity-50': version.status !== 'Available' }">
+      <Button variant="default" :disabled="!version.available" :class="{ 'opacity-50': !version.available }">
         Apply
       </Button>
     </TableCell>

@@ -14,52 +14,62 @@ import {
   TabsTrigger,
   TabsContent
 } from '@/components/ui/tabs'
-import type { Model, FilterState } from '@/types/model'
+import type { Model, FilterState, ModelListPathParams } from '@/types/model'
 import ModelFilterBar from './ModelFilterBar.vue'
 import ModelTable from './ModelTable.vue'
 import ModelPagination from './ModelPagination.vue'
+import { get_model_list } from '@/api/model'
+import { onMounted } from 'vue'
 
-const filterState = ref<FilterState>({
+interface Props {
+  modelType?: string
+  selectedBaseModels?: string[]
+}
+
+const props = defineProps<Props>()
+
+const modelListPathParams = ref<ModelListPathParams>({
   mode: 'my',
-  keyword: '',
-  modelTypes: ['checkpoint'],
-  baseModels: ['SDXL 1.0'],
-  sort: 'recently'
+  current: 1,
+  page_size: 5,
+  total: 0
 })
 
-const models = ref<Model[]>([
-  {
-    name: 'Model A',
-    version: 'V1.0',
-    baseModel: 'SDXL 1.0',
-    status: 'Available',
-    isPublic: true,
-    isCheckpoint: true,
-    versions: [{
-      version: 'V1.0',
-      baseModel: 'SDXL 1.0',
-      status: 'Available'
-    }, {
-      version: 'V1.1',
-      baseModel: 'SDXL 1.1',
-      status: 'Unavailable',
-    }]
-  },
-  // ... 其他模型数据
-])
-
-const showSortPopover = ref(true)
-const currentPage = ref(1)
-const totalPages = ref(5)
-const showDialog = ref(true)
-
-
-
-
-const handlePageChange = (page: number) => {
-  currentPage.value = page
-  // TODO: 加载对应页面的数据
+const filterState = ref<FilterState>({
+  keyword: '',
+  model_types: [props.modelType || ''],
+  base_models: props.selectedBaseModels || [],
+  sort: 'Recently'
+})
+const models = ref<Model[]>([])
+const getModelList = async () => {
+  const { data } = await get_model_list(modelListPathParams.value, filterState.value)
+  modelListPathParams.value.total = data.total
+  models.value = data?.list || []
 }
+
+const showSortPopover = ref(false)
+const showDialog = ref(false)
+const handlePageChange = (page: number) => {
+  modelListPathParams.value.current = page
+  getModelList()
+}
+
+const handleFilterStateChange = (value: FilterState) => {
+  filterState.value = value
+  getModelList()
+}
+
+const handleTabChange = (value: string | number) => {
+  modelListPathParams.value.mode = String(value) as 'my' | 'my_fork' | 'publicity'
+  modelListPathParams.value.current = 1
+  getModelList()
+}
+
+onMounted(() => {
+  getModelList()
+  showDialog.value = true
+})
 </script>
 
 <template>
@@ -75,38 +85,59 @@ const handlePageChange = (page: number) => {
           </Button>
         </div>
 
-        <Tabs defaultValue="my-posts" class="mb-4">
+        <Tabs :defaultValue="modelListPathParams.mode" class="mb-4" @update:model-value="handleTabChange">
           <TabsList class="grid w-full grid-cols-3 h-12 bg-[#4E4E4E] text-sm">
-            <TabsTrigger value="my-posts"
+            <TabsTrigger value="my"
               class="text-sm text-white data-[state=active]:bg-[#9CA3AF] data-[state=active]:text-white h-10 px-3 py-2">
               My Models
             </TabsTrigger>
-            <TabsTrigger value="my-forks"
+            <TabsTrigger value="my_fork"
               class="text-sm text-white data-[state=active]:bg-[#9CA3AF] data-[state=active]:text-white h-10 px-3 py-2">
               My Forks
             </TabsTrigger>
-            <TabsTrigger value="community"
+            <TabsTrigger value="publicity"
               class="text-sm text-white data-[state=active]:bg-[#9CA3AF] data-[state=active]:text-white h-10 px-3 py-2">
               Community Models
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="my-posts">
-            <ModelFilterBar v-model:filter-state="filterState" v-model:show-sort-popover="showSortPopover" />
+          <TabsContent value="my">
+            <ModelFilterBar v-model:filter-state="filterState" v-model:show-sort-popover="showSortPopover"
+              :model-type="props.modelType" @update:filter-state="handleFilterStateChange"
+              :selected-base-models="props.selectedBaseModels" />
 
-            <ScrollArea class="h-[500px] rounded-md border-0">
+            <ScrollArea class="h-[400px] rounded-md border-0">
               <ModelTable :models="models" />
             </ScrollArea>
 
-            <ModelPagination :current-page="currentPage" :total-pages="totalPages" @change="handlePageChange" />
+            <ModelPagination :current="modelListPathParams.current" :page_size="modelListPathParams.page_size"
+              :total="modelListPathParams.total" @change="handlePageChange" />
           </TabsContent>
 
-          <TabsContent value="my-forks">
-            <!-- My Forks content -->
+          <TabsContent value="my_fork">
+            <ModelFilterBar v-model:filter-state="filterState" v-model:show-sort-popover="showSortPopover"
+              :model-type="props.modelType" @update:filter-state="handleFilterStateChange"
+              :selected-base-models="props.selectedBaseModels" />
+
+            <ScrollArea class="h-[400px] rounded-md border-0">
+              <ModelTable :models="models" />
+            </ScrollArea>
+
+            <ModelPagination :current="modelListPathParams.current" :page_size="modelListPathParams.page_size"
+              :total="modelListPathParams.total" @change="handlePageChange" />
           </TabsContent>
 
-          <TabsContent value="community">
-            <!-- Community content -->
+          <TabsContent value="publicity">
+            <ModelFilterBar v-model:filter-state="filterState" v-model:show-sort-popover="showSortPopover"
+              :model-type="props.modelType" @update:filter-state="handleFilterStateChange"
+              :selected-base-models="props.selectedBaseModels" />
+
+            <ScrollArea class="h-[400px] rounded-md border-0">
+              <ModelTable :models="models" />
+            </ScrollArea>
+
+            <ModelPagination :current="modelListPathParams.current" :page_size="modelListPathParams.page_size"
+              :total="modelListPathParams.total" @change="handlePageChange" />
           </TabsContent>
         </Tabs>
       </div>
