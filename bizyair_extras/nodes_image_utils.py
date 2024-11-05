@@ -1,8 +1,8 @@
-import os
-import urllib.request
 import base64
-import time
+import os
 import re
+import time
+import urllib.request
 
 import folder_paths
 
@@ -35,11 +35,11 @@ class LoadImageURL(BizyAirBaseNode):
     def apply(self, url: str):
         url = url.strip()
         input_dir = folder_paths.get_input_directory()
-        
+
         # check if it's a base64 encoded image
-        base64_pattern = r'^data:image/([a-zA-Z]+);base64,'
+        base64_pattern = r"^data:image/([a-zA-Z]+);base64,"
         match = re.match(base64_pattern, url)
-        
+
         if match:
             # get image format
             image_format = match.group(1)
@@ -47,10 +47,10 @@ class LoadImageURL(BizyAirBaseNode):
             timestamp = int(time.time() * 1000)  # precise to milliseconds
             filename = f"base64-{timestamp}.{image_format}"
             file_path = os.path.join(input_dir, filename)
-            
+
             # decode base64 data and save file
-            image_data = url.split(',')[1]
-            with open(file_path, 'wb') as f:
+            image_data = url.split(",")[1]
+            with open(file_path, "wb") as f:
                 f.write(base64.b64decode(image_data))
             print(f"Base64 image saved as {filename}")
         else:
@@ -64,7 +64,7 @@ class LoadImageURL(BizyAirBaseNode):
                 # Download the image
                 urllib.request.urlretrieve(url, file_path)
                 print(f"Image successfully downloaded and saved as {filename}.")
-        
+
         return LoadImage().load_image(filename)
 
 
