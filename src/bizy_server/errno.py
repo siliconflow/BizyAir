@@ -36,6 +36,7 @@ class errnos:
     INVALID_MODEL_ID = ErrorNo(400, 400127, None, "Invalid model id")
     INVALID_MODEL_VERSION_ID = ErrorNo(400, 400128, None, "Invalid model version id")
     UNSUPPORT_LIKE_TYPE = ErrorNo(400, 400130, None, "Unsupport like type")
+    INVALID_SIGN = ErrorNo(400, 400131, None, "Invalid file sign")
 
     INVALID_API_KEY = ErrorNo(401, 401000, None, "Invalid API key")
     INVALID_USER = ErrorNo(401, 401001, None, "Invalid user")
@@ -70,3 +71,5 @@ class errnos:
     UPDATE_MODEL = ErrorNo(500, 500123, None, "Failed to update model")
     GET_UPLOAD_TOKEN = ErrorNo(500, 500124, None, "Failed to get upload token")
     TOGGLE_USER_LIKE = ErrorNo(500, 500125, None, "Failed to toggle user like")
+    GET_DOWNLOAD_URL = ErrorNo(500, 500126, None, "Failed to get download url")
+    DOWNLOAD_JSON = ErrorNo(500, 500127, None, "Failed to download json")

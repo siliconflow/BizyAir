@@ -456,6 +456,34 @@ class BizyAirServer:
                 print(f"\033[31m[BizyAir]\033[0m Fail to upload file: {str(e)}")
                 return ErrResponse(errnos.UPLOAD)
 
+        @self.prompt_server.routes.get(f"/{COMMUNITY_API}/workflows/{{model_version_id}}/json/{{sign}}")
+        async def get_workflow_json(request):
+            model_version_id = int(request.match_info["model_version_id"])
+            # 检查model_version_id是否合法
+            if not model_version_id or model_version_id <= 0:
+                return ErrResponse(errnos.INVALID_MODEL_VERSION_ID)
+
+            sign = str(request.match_info["sign"])
+            if not sign:
+                return ErrResponse(errnos.INVALID_SIGN)
+
+            # 获取上传凭证
+            url, err = await self.api_client.get_download_url(sign=sign, model_version_id=model_version_id)
+            if err:
+                return ErrResponse(err)
+
+            try:
+                async with aiohttp.ClientSession() as session:
+                    async with session.get(url) as response:
+                        if response.status != 200:
+                            return ErrResponse(ErrorNo(response.status, response.status, None, "Failed to download JSON"))
+                        json_content = await response.json()
+                return OKResponse(json_content)
+            except Exception as e:
+                print(f"\033[31m[BizyAir]\033[0m Fail to download JSON: {str(e)}")
+                return ErrResponse(errnos.DOWNLOAD_JSON)
+
+
     async def send_json(self, event, data, sid=None):
         message = {"type": event, "data": data}
 

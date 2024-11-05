@@ -22,7 +22,7 @@ BASE_MODEL_TYPE_OPTIONS = {
 
 ALLOW_TYPES = list(TYPE_OPTIONS.values())
 ALLOW_BASE_MODEL_TYPES = list(BASE_MODEL_TYPE_OPTIONS.values())
-ALLOW_UPLOADABLE_EXT_NAMES = [".safetensors", ".pth", ".bin", ".pt", ".ckpt"]
+ALLOW_UPLOADABLE_EXT_NAMES = [".safetensors", ".pth", ".bin", ".pt", ".ckpt", ".gguf", ".sft"]
 
 current_path = os.path.abspath(os.path.dirname(__file__))
 
