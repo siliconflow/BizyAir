@@ -352,3 +352,23 @@ class APIClient:
         except Exception as e:
             print(f"\033[31m[BizyAir]\033[0m Fail to get upload token: {str(e)}")
             return None, errnos.GET_UPLOAD_TOKEN
+
+    async def toggle_user_like(self, like_type: str, object_id: str) -> tuple[dict | None, ErrorNo | None]:
+        if like_type == "model_version":
+            server_url = f"{BIZYAIR_SERVER_ADDRESS}/bizy_models/versions/{object_id}/like"
+        else:
+            return None, errnos.UNSUPPORT_LIKE_TYPE
+
+        headers, err = self.auth_header()
+        if err is not None:
+            return None, err
+
+        try:
+            ret, err = self.do_post(server_url, headers=headers)
+            if err is not None:
+                return None, err
+
+            return ret["data"], None
+        except Exception as e:
+            print(f"\033[31m[BizyAir]\033[0m Fail to toggle user like: {str(e)}")
+            return None, errnos.TOGGLE_USER_LIKE

@@ -382,6 +382,27 @@ class BizyAirServer:
                 print(f"\033[31m[BizyAir]\033[0m Fail to fork model version: {str(e)}")
                 return ErrResponse(errnos.FORK_MODEL_VERSION)
 
+        @self.prompt_server.routes.post(
+            f"/{COMMUNITY_API}/models/like/{{model_version_id}}"
+        )
+        async def like_model_version(request):
+            try:
+                # 获取version_id参数
+                version_id = request.match_info["model_version_id"]
+                if not version_id:
+                    return ErrResponse(errnos.INVALID_MODEL_VERSION_ID)
+
+                # 调用API like模型版本
+                _, err = await self.api_client.toggle_user_like(version_id)
+                if err:
+                    return ErrResponse(err)
+
+                return OKResponse(None)
+
+            except Exception as e:
+                print(f"\033[31m[BizyAir]\033[0m Fail to toggle like model version: {str(e)}")
+                return ErrResponse(errnos.TOGGLE_USER_LIKE)
+
         @self.prompt_server.routes.post(f"/{COMMUNITY_API}/files/upload")
         async def upload_file(request):
             try:
