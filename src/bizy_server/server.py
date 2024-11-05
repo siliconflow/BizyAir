@@ -160,14 +160,14 @@ class BizyAirServer:
 
             # 校验name和type
             err = check_str_param(json_data, "name", errnos.INVALID_NAME)
-            if err:
+            if err is not None:
                 return err
 
             if "/" in json_data["name"]:
                 return ErrResponse(errnos.INVALID_NAME)
 
             err = check_type(json_data)
-            if err:
+            if err is not None:
                 return err
 
             # 校验versions
@@ -308,14 +308,14 @@ class BizyAirServer:
 
             # 校验name和type
             err = check_str_param(json_data, "name", errnos.INVALID_NAME)
-            if err:
+            if err is not None:
                 return err
 
             if "/" in json_data["name"]:
                 return ErrResponse(errnos.INVALID_NAME)
 
             err = check_type(json_data)
-            if err:
+            if err is not None:
                 return err
 
             # 校验versions
