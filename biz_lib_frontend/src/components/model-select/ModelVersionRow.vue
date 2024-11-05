@@ -11,7 +11,6 @@ interface Props {
 }
 
 const emit = defineEmits(['apply'])
-
 const handleApply = (version: ModelVersion) => {
   emit('apply', version)
 }
@@ -19,7 +18,6 @@ const handleApply = (version: ModelVersion) => {
 
 defineProps<Props>()
 </script>
-
 <template>
   <TableRow class="bg-[#3D3D3D] hover:bg-[#4E4E4E] border-[#F9FAFB]/60 h-12">
     <TableCell class="pl-10 w-[40%] max-w-[200px]">

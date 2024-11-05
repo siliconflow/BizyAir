@@ -31,8 +31,8 @@ const props = defineProps({
     type: Array as PropType<Model[]>,
     required: true
   }
-}
-)
+})
+
 const expandedModels = ref<Set<string>>(new Set())
 const currentOperateModel = ref<string>('')
 
@@ -52,7 +52,6 @@ const handleOperateChange = (value: 'edit' | 'remove', modelName: string) => {
 }
 
 const emit = defineEmits(['apply'])
-
 const handleApply = (version: ModelVersion) => {
   emit('apply', version)
 }

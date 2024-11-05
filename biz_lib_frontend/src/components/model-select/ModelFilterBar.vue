@@ -27,9 +27,6 @@ interface Props {
   selectedBaseModels?: string[]
 }
 
-
-
-
 interface Emits {
   (e: 'update:filterState', value: FilterState): void
   (e: 'update:showSortPopover', value: boolean): void
@@ -37,8 +34,6 @@ interface Emits {
 
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
-
-
 
 const getFilterData = async () => {
   const { data } = await model_types()
@@ -184,9 +179,7 @@ onMounted(async () => {
                 </div>
               </CommandItem>
             </CommandGroup>
-
             <CommandSeparator />
-
             <CommandGroup>
               <div class="p-2">
                 <div class="text-sm font-medium text-[#F9FAFB] mb-2">Base Models</div>
@@ -194,8 +187,6 @@ onMounted(async () => {
               <CommandItem value="base-models" class="p-2">
                 <div class="flex flex-wrap gap-2">
                   <template v-if="selectedBaseModels">
-
-
                     <Badge variant="secondary" v-for="model in baseModelTypes" :key="model.value" :class="[
                       'bg-[#6D28D9]',
                       selectedBaseModels.includes(model.value) ? '' : 'hidden'

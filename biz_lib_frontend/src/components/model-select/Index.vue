@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
+// import { Markdown } from '@/components/markdown'
 import {
   Dialog,
   DialogTitle,
@@ -67,14 +68,14 @@ const handleTabChange = async (value: string | number) => {
   filterState.value.model_types = [props.modelType || '']
   filterState.value.base_models = props.selectedBaseModels || []
   filterState.value.sort = 'Recently'
-
-
   await getModelList()
 }
 
 
 
 const handleApply = (version: ModelVersion) => {
+  //TODO: apply model to bizyair node & close dialog
+  //emit apply event
   console.log('version', version)
 }
 
@@ -87,16 +88,15 @@ onMounted(async () => {
 <template>
   <Dialog :open="showDialog" @update:open="showDialog = $event">
     <DialogContent class="max-w-[900px] bg-[#222]">
+      <!-- <Markdown /> -->
       <div class="p-2 font-['Inter']">
         <DialogTitle class="text-xl font-bold">Select Model</DialogTitle>
         <DialogDescription class="text-sm text-gray-500" />
-
         <div class="flex items-center justify-end mb-4">
           <Button variant="ghost" class="h-8 w-8 p-0">
             <span class="sr-only">Close</span>
           </Button>
         </div>
-
         <Tabs :defaultValue="modelListPathParams.mode" class="mb-4" @update:model-value="handleTabChange">
           <TabsList class="grid w-full grid-cols-3 h-12 bg-[#4E4E4E] text-sm">
             <TabsTrigger value="my"
@@ -112,42 +112,33 @@ onMounted(async () => {
               Community Models
             </TabsTrigger>
           </TabsList>
-
           <TabsContent value="my">
             <ModelFilterBar v-model:filter-state="filterState" v-model:show-sort-popover="showSortPopover"
               :model-type="props.modelType" @update:filter-state="handleFilterStateChange"
               :selected-base-models="props.selectedBaseModels" />
-
-            <ScrollArea class="h-[400px] rounded-md border-0">
+            <ScrollArea class="h-[500px] rounded-md border-0">
               <ModelTable :models="models" @apply="handleApply" />
             </ScrollArea>
-
             <ModelPagination :current="modelListPathParams.current" :page_size="modelListPathParams.page_size"
               :total="modelListPathParams.total" @change="handlePageChange" />
           </TabsContent>
-
           <TabsContent value="my_fork">
             <ModelFilterBar v-model:filter-state="filterState" v-model:show-sort-popover="showSortPopover"
               :model-type="props.modelType" @update:filter-state="handleFilterStateChange"
               :selected-base-models="props.selectedBaseModels" />
-
-            <ScrollArea class="h-[400px] rounded-md border-0">
+            <ScrollArea class="h-[500px] rounded-md border-0">
               <ModelTable :models="models" @apply="handleApply" />
             </ScrollArea>
-
             <ModelPagination :current="modelListPathParams.current" :page_size="modelListPathParams.page_size"
               :total="modelListPathParams.total" @change="handlePageChange" />
           </TabsContent>
-
           <TabsContent value="publicity">
             <ModelFilterBar v-model:filter-state="filterState" v-model:show-sort-popover="showSortPopover"
               :model-type="props.modelType" @update:filter-state="handleFilterStateChange"
               :selected-base-models="props.selectedBaseModels" />
-
             <ScrollArea class="h-[400px] rounded-md border-0">
               <ModelTable :models="models" @apply="handleApply" />
             </ScrollArea>
-
             <ModelPagination :current="modelListPathParams.current" :page_size="modelListPathParams.page_size"
               :total="modelListPathParams.total" @change="handlePageChange" />
           </TabsContent>
