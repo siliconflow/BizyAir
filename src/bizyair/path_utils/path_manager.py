@@ -90,7 +90,9 @@ def guess_url_from_node(
                                     + "/supernode/bizyair-flux-dev-comfy-pulid"
                                 )
 
-                            if class_type_table.get("LoraLoader", False):
+                            if class_type_table.get(
+                                "LoraLoader", False
+                            ) or class_type_table.get("ControlNetLoader", False):
                                 node["inputs"][
                                     "weight_dtype"
                                 ] = "fp8_e4m3fn"  # set to fp8_e4m3fn for lora
