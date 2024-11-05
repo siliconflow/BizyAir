@@ -17,6 +17,7 @@ BASE_MODEL_TYPE_OPTIONS = {
     "Pony": "Pony",
     "Kolors": "Kolors",
     "Hunyuan 1": "Hunyuan 1",
+    "Other": "Other",
 }
 
 ALLOW_TYPES = list(TYPE_OPTIONS.values())
