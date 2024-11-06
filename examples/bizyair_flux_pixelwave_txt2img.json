@@ -1,6 +1,6 @@
 {
   "last_node_id": 70,
-  "last_link_id": 88,
+  "last_link_id": 89,
   "nodes": [
     {
       "id": 47,
@@ -291,7 +291,8 @@
           "name": "BIZYAIR_MODEL",
           "type": "BIZYAIR_MODEL",
           "links": [
-            88
+            88,
+            89
           ],
           "slot_index": 0,
           "shape": 3,
@@ -413,51 +414,6 @@
       "shape": 1
     },
     {
-      "id": 58,
-      "type": "BizyAir_BasicScheduler",
-      "pos": {
-        "0": 582,
-        "1": 980
-      },
-      "size": {
-        "0": 322.08660888671875,
-        "1": 138.83518981933594
-      },
-      "flags": {},
-      "order": 6,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "model",
-          "type": "BIZYAIR_MODEL",
-          "link": null,
-          "slot_index": 0,
-          "label": "model"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "SIGMAS",
-          "type": "SIGMAS",
-          "links": [
-            73
-          ],
-          "slot_index": 0,
-          "shape": 3,
-          "label": "SIGMAS"
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "BizyAir_BasicScheduler"
-      },
-      "widgets_values": [
-        "simple",
-        30,
-        1
-      ],
-      "shape": 1
-    },
-    {
       "id": 37,
       "type": "BizyAir_CLIPTextEncode",
       "pos": {
@@ -469,7 +425,7 @@
         "1": 410.9120178222656
       },
       "flags": {},
-      "order": 7,
+      "order": 6,
       "mode": 0,
       "inputs": [
         {
@@ -496,6 +452,51 @@
       },
       "widgets_values": [
         "close up photo of a rabbit, forest in spring, haze, halation, bloom, dramatic atmosphere, centred, rule of thirds, 200mm 1.4f macro shot.\n\n\n\n\n"
+      ],
+      "shape": 1
+    },
+    {
+      "id": 58,
+      "type": "BizyAir_BasicScheduler",
+      "pos": {
+        "0": 582,
+        "1": 980
+      },
+      "size": {
+        "0": 322.08660888671875,
+        "1": 138.83518981933594
+      },
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "BIZYAIR_MODEL",
+          "link": 89,
+          "slot_index": 0,
+          "label": "model"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "SIGMAS",
+          "type": "SIGMAS",
+          "links": [
+            73
+          ],
+          "slot_index": 0,
+          "shape": 3,
+          "label": "SIGMAS"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_BasicScheduler"
+      },
+      "widgets_values": [
+        "simple",
+        30,
+        1
       ],
       "shape": 1
     }
@@ -586,6 +587,14 @@
       48,
       0,
       47,
+      0,
+      "BIZYAIR_MODEL"
+    ],
+    [
+      89,
+      48,
+      0,
+      58,
       0,
       "BIZYAIR_MODEL"
     ]
@@ -679,10 +688,10 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 0.5559917313492267,
+      "scale": 0.8140274938684031,
       "offset": [
-        106.28447475529234,
-        -133.02666660181742
+        380.8788470998406,
+        -419.2671136445909
       ]
     }
   },
