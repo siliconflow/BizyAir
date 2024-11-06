@@ -14,70 +14,42 @@
     </div>
     <v-dialog v-model:open="showDialog">
       <template #title>Publish a Model</template>
-      <FormField name="ModelName" >
-        <FormItem>
-          <FormLabel>Model Name</FormLabel>
-          <FormControl>
-            <Input type="text" placeholder="shadcn" v-model:model-value="formData.name" />
-          </FormControl>
-        </FormItem>
-      </FormField>
-
-      <FormField name="modelType">
-        <FormItem>
-          <FormLabel>Model Type</FormLabel>
-          <FormControl>
-            <v-select v-model:model-value="formData.type" placeholder="Select Model Type">
-              <SelectItem v-for="(e, i) in typeLis" :key="i" :value="e.value">{{ e.label }}</SelectItem>
-            </v-select>
-          </FormControl>
-        </FormItem>
-      </FormField>
+      <v-item label="Model Name">
+        <Input type="text" placeholder="shadcn" v-model:model-value="formData.name" />
+      </v-item>
+      <v-item label="Model Name">
+        <v-select v-model:model-value="formData.type" placeholder="Select Model Type">
+          <SelectItem v-for="(e, i) in typeLis" :key="i" :value="e.value">{{ e.label }}</SelectItem>
+        </v-select>
+      </v-item>
       <Button class="w-full mt-3" @click="nextStep">Next Step</Button>
     </v-dialog>
     <v-dialog v-model:open="showDialogVersion">
-
       <template #title>{{ formData.name }}</template>
       <p>Add a Version</p>
+
       <div v-for="(e, i) in formData.versions" :key="i">
-        <FormField name="ModelName">
-          <FormItem>
-            <FormLabel>Version Name</FormLabel>
-            <FormControl>
-              <Input type="text" placeholder="shadcn" v-model:model-value="e.version" />
-            </FormControl>
-          </FormItem>
+        <v-item label="Version Name">
+          <Input type="text" placeholder="shadcn" v-model:model-value="e.version" />
+        </v-item>
+        <v-item label="Base Model">
+          <v-select v-model:model-value="e.base_model" placeholder="Select Base Model">
+            <SelectItem v-for="(e, i) in baseTypeLis" :key="i" :value="e.value">{{ e.label }}</SelectItem>
+          </v-select>
+        </v-item>
+        <v-item label="Intro">
+          <Textarea type="text" placeholder="shadcn" v-model:model-value="e.intro" />
+        </v-item>
+        <v-item label="">
+          <div class="flex items-center space-x-2 mt-2">
+            <Switch id="airplane-mode" @update:checked="(val) => {handleChange(val, i)}" />
+            <Label for="airplane-mode">Publicly Visible</Label>
+          </div>
+        </v-item>
+        <v-item label="File Path">
+          <Input type="text" @change="checkFile(e.filePath, i)" placeholder="shadcn" v-model:model-value="e.filePath" />
+        </v-item>
 
-          <FormItem>
-            <FormLabel>Base Model</FormLabel>
-            <FormControl>
-              <v-select v-model:model-value="e.base_model" placeholder="Select Base Model">
-                <SelectItem v-for="(e, i) in baseTypeLis" :key="i" :value="e.value">{{ e.label }}</SelectItem>
-              </v-select>
-            </FormControl>
-          </FormItem>
-
-          <FormItem>
-            <FormLabel>Intro</FormLabel>
-            <FormControl>
-              <Textarea type="text" placeholder="shadcn" v-model:model-value="e.intro" />
-            </FormControl>
-          </FormItem>
-
-          <FormItem>
-            <div class="flex items-center space-x-2 mt-2">
-              <Switch id="airplane-mode" @update:checked="(val) => {handleChange(val, i)}" />
-              <Label for="airplane-mode">Publicly Visible</Label>
-            </div>
-          </FormItem>
-
-          <FormItem>
-            <FormLabel>File Path</FormLabel>
-            <FormControl>
-              <Input type="text" @change="checkFile(e.filePath, i)" placeholder="shadcn" v-model:model-value="e.filePath" />
-            </FormControl>
-          </FormItem>
-        </FormField>
       </div>
 
       <Button :disabled="disabledSubmit" icon="loadding" class="w-full mt-3" @click="nextStep2">Next Step</Button>
@@ -87,15 +59,15 @@
 </template>
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import {
-  // Form,
-  FormControl,
-  // FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  // FormMessage,
-} from '@/components/ui/form'
+// import {
+//   // Form,
+//   FormControl,
+//   // FormDescription,
+//   FormField,
+//   FormItem,
+//   FormLabel,
+//   // FormMessage,
+// } from '@/components/ui/form'
 import { SelectItem } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 
@@ -109,6 +81,7 @@ import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import vDialog from '@/components/modules/vDialog.vue'
 import vSelect from '@/components/modules/vSelect.vue'
+import vItem from '@/components/modules/vItem.vue'
 import { useStatusStore} from '@/stores/userStatus'
 import { modelStore } from '@/stores/modelStatus'
 
