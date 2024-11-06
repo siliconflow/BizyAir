@@ -24,6 +24,8 @@ routing_configs:
     route: /supernode/bizyair-comfybridge-sd3-5-large
   sd3_5_large_turbo:
     route: /supernode/bizyair-comfybridge-sd3-5-turbo
+  pixelwave:
+    route: /supernode/bizyair-flux1-dev-fp8-pixelwave
 
 routing_rules:
   - name: ultimatesdupscale
@@ -50,3 +52,6 @@ routing_rules:
   - name: sd3_5_large_turbo
     pattern: ^sd3.5_large_turbo.safetensors$
     config: sd3_5_large_turbo
+  - name: pixelwave
+    pattern: ^flux/pixelwave-flux1-dev.safetensors$
+    config: pixelwave

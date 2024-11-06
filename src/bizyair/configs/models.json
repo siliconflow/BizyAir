@@ -61,7 +61,8 @@
     ],
     "flux": [
       "flux1-schnell.sft",
-      "flux1-dev.sft"
+      "flux1-dev.sft",
+      "pixelwave-flux1-dev.safetensors"
     ]
   },
   "vae": {
