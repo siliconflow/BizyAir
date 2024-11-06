@@ -31,7 +31,7 @@ export const showModelSelect = (options: { [x: string]: unknown; } | null | unde
         timer = setTimeout(() => {
           binding.value()
         },(binding.arg as unknown) as number || 500)
-      }) 
+      })
     },
     unmounted(el,binding) {
       if(binding){
@@ -49,8 +49,8 @@ export const showModelSelect = (options: { [x: string]: unknown; } | null | unde
 let app = createApp(App)
 app.use(createPinia())
 // 修改 mount 方法接收 props
-export function mount(container: string | Element,comfyUIApp?: any, props = {}) {
-  console.log('mount', container, comfyUIApp, props)
+export function mount(container: string | Element,comfyUIApp?: any) {
+  // console.log('mount', container, comfyUIApp, props)
   // if (app) {
   //   console.warn('应用已经挂载，请先卸载后再重新挂载')
   //   return
@@ -73,6 +73,5 @@ export function unmount() {
 
 // 如果是直接运行而不是作为库使用，则自动挂载
 if (import.meta.env.MODE !== 'production') {
-  console.log(123)
   mount('#app')
 }
