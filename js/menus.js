@@ -11,8 +11,8 @@ import { styleUploadFile } from "./subassembly/styleUploadFile.js";
 import { styleDialog } from './subassembly/styleDialog.js';
 import { styleProfile } from './subassembly/styleProfile.js';
 import { notifySubscribers, subscribe } from './subassembly/subscribers.js'
-import { WebSocketClient } from './subassembly/socket.js'
-import { toast } from './subassembly/toast.js'
+// import { WebSocketClient } from './subassembly/socket.js'
+// import { toast } from './subassembly/toast.js'
 import { getUserInfo } from './apis.js'
 import './biz_lib_frontend.js'
 
@@ -139,14 +139,14 @@ app.registerExtension({
             new FloatingButton();
         })
 
-        const wsClient = new WebSocketClient(`ws://${location.host}/bizyair/ws?clientId=${sessionStorage.getItem('clientId')}`);
-        wsClient.onMessage = message => {
-            notifySubscribers('socketMessage', message);
-            const res = JSON.parse(message.data);
-            if (res && res.type === 'errors') {
-                toast.error(res.data.message)
-            }
-        }
+        // const wsClient = new WebSocketClient(`ws://${location.host}/bizyair/ws?clientId=${sessionStorage.getItem('clientId')}`);
+        // wsClient.onMessage = message => {
+        //     notifySubscribers('socketMessage', message);
+        //     const res = JSON.parse(message.data);
+        //     if (res && res.type === 'errors') {
+        //         toast.error(res.data.message)
+        //     }
+        // }
         subscribe('loginRefresh', () => {
             document.querySelector('.comfy-floating-button').remove()
             getUserInfo().then(info => {

@@ -6,54 +6,45 @@
     </svg>
     <span class="block leading h-full leading-8 text-sm">API Key</span>
   </div>
-  <Dialog v-model:open="showDialog" closeOnOverlayClick="false">
-    <DialogContent>
-      <DialogHeader>
-        <DialogTitle>Set API Key</DialogTitle>
-      </DialogHeader>
-      <div class="comfy-modal-content-sml">
-        <input
-          v-model="apiKey"
-          type="password"
-          placeholder="API Key"
-          :class="[{'border-red-500': hasError}, 'border', 'w-full', 'bg-transparent', 'px-2', 'mb-3',]"
-          @input="clearError" />
-        <p class="py-2">
-          Please
-          <a class="underline" href="###" @click.prevent="openOAuth">click to login</a>
-          and autofill the key,
-        </p>
-        <p class="py-2">
-          or visit
-          <a class="underline" href="https://cloud.siliconflow.cn" target="_blank">https://cloud.siliconflow.cn</a>
-          to get your key and input manually.
-        </p>
-        <p class="py-2">
-          Setting the API Key signifies agreement to the
-          <a class="underline" href="https://docs.siliconflow.cn/docs/user-agreement" target="_blank">User
-            Agreement</a>
-          and
-          <a class="underline" href="https://docs.siliconflow.cn/docs/privacy-policy" target="_blank">Privacy
-            Policy.</a>
-        </p>
-      </div>
-      <DialogFooter>
-        <Button type="submit" @click="toSubmit">Submit</Button>
-        <Button variant="outline" @click="toClose">Close</Button>
-      </DialogFooter>
-    </DialogContent>
-  </Dialog>
+  <v-dialog v-model:open="showDialog" class="max-w-[680px]">
+    <template #title>Set API Key</template>
+    <div class="comfy-modal-content-sml">
+      <Input
+        v-model="apiKey"
+        type="password"
+        placeholder="API Key"
+        :class="[{'border-red-500': hasError}]"
+        @input="clearError" />
+      <p class="py-2">
+        Please
+        <a class="underline" href="###" @click.prevent="openOAuth">click to login</a>
+        and autofill the key,
+      </p>
+      <p class="py-2">
+        or visit
+        <a class="underline" href="https://cloud.siliconflow.cn" target="_blank">https://cloud.siliconflow.cn</a>
+        to get your key and input manually.
+      </p>
+      <p class="py-2">
+        Setting the API Key signifies agreement to the
+        <a class="underline" href="https://docs.siliconflow.cn/docs/user-agreement" target="_blank">User
+          Agreement</a>
+        and
+        <a class="underline" href="https://docs.siliconflow.cn/docs/privacy-policy" target="_blank">Privacy
+          Policy.</a>
+      </p>
+    </div>
+    <template #foot>
+      <Button type="submit" @click="toSubmit">Submit</Button>
+      <Button variant="outline" @click="toClose">Close</Button>
+    </template>
+  </v-dialog>
 </template>
 <script setup lang="ts">
 import { ref } from 'vue'
-import {
-  Dialog,
-  DialogContent,
-  // DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
+
+import vDialog from '@/components/modules/vDialog.vue'
+import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { set_api_key } from '@/api/user'
 import { useStatusStore} from '@/stores/userStatus'

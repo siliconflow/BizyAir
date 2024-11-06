@@ -20,7 +20,7 @@ export const change_public = (data: any) => customFetch('/bizyair/modelhost/mode
     body: JSON.stringify(data)
 })
 
-export const model_types = () => customFetch('/bizyair/community/model_types', {method: 'GET'})
+
 
 export const base_model_types = () => customFetch('/bizyair/community/base_model_types', {method: 'GET'})
 
@@ -31,10 +31,6 @@ export const get_model_list = (params: any, data: any) => customFetch(`/bizyair/
 
 export const check_folder = (url: string) => customFetch(`/bizyair/modelhost/check_folder?absolute_path=${encodeURIComponent(url)}`, {method: 'GET'})
 
-export const submit_upload = (data: any) => customFetch(`/bizyair/community/submit_upload?clientId=${sessionStorage.getItem('clientId')}`, {
-    method: 'POST',
-    body: JSON.stringify(data)
-})
 
 export const delModels = (data: { type: string; name: string; }) => customFetch('/bizyair/modelhost/models', {
     method: 'DELETE',
@@ -53,7 +49,25 @@ export const putDescription = (data: any) => customFetch('/bizyair/modelhost/mod
     body: JSON.stringify(data)
 })
 
-export const createModels = (data: any) => customFetch(`/bizyair/community/models?clientId=${sessionStorage.getItem('clientId')}`, {
+export const create_models = (data: any) => customFetch(`/bizyair/community/models?clientId=${sessionStorage.getItem('clientId')}`, {
     method: 'post',
     body: JSON.stringify(data)
 })
+
+export const checkLocalFile = (data: any) => customFetch(`/bizyair/community/check_local_file?${new URLSearchParams(data).toString()}`, {
+    method: 'get',
+})
+
+export const submitUpload = (data: any) => customFetch(`/bizyair/community/submit_upload?clientId=${sessionStorage.getItem('clientId')}`, {
+    method: 'POST',
+    body: JSON.stringify(data)
+})
+
+export const model_types = () => customFetch('/bizyair/community/model_types', {method: 'GET'})
+
+export const put_model = (data: any) => customFetch(`/bizyair/community/models/${data.id}?clientId=${sessionStorage.getItem('clientId')}`, {
+    method: 'put',
+    body: JSON.stringify(data)
+})
+
+export const model_detail = (data: any) => customFetch(`/bizyair/community/models/${data.id}/detail?source=my`, {method: 'GET'})
