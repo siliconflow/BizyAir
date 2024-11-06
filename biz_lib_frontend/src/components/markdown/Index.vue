@@ -10,7 +10,10 @@ const isFullscreen = ref(false)
 
 const showOriginalEditor = ref(true)
 const editorContent = ref('')
-
+const props = defineProps<{
+  modelValue?: string
+}>()
+const emit = defineEmits(['update:modelValue'])
 
 const vditorConfig: IOptions = {
   height: 400,
@@ -19,7 +22,11 @@ const vditorConfig: IOptions = {
   lang: 'en_US',
   placeholder: '请输入内容...',
   fullscreen: {
-    index: 999999999,
+    index: 9999
+  },
+  input: (value: string) => {
+    console.log('value', value)
+    emit('update:modelValue', value)
   },
   toolbar: [
     'emoji',
@@ -40,12 +47,12 @@ const vditorConfig: IOptions = {
     'code',
     '|',
     'upload',
-    'table',
+    // 'table',
+    // 'fullscreen'
     {
       name: 'fullscreen',
       tip: '全屏',
-      click: (e: Event) => {
-        e.stopPropagation()
+      click: () => {
         isFullscreen.value = !isFullscreen.value
         if (isFullscreen.value) {
           moveEditorToBody()
@@ -53,7 +60,7 @@ const vditorConfig: IOptions = {
           moveEditorBackToContainer()
         }
       }
-    }  // 直接添加 fullscreen 按钮
+    }
   ],
   upload: {
     url: '/bizyair/community/files/upload',
@@ -168,18 +175,61 @@ const vditorConfig: IOptions = {
   }
 
 }
+
+
+
 const moveEditorToBody = () => {
-  const vditorEl = document.querySelector('#vditor') || document.querySelector('#vditor-fullscreen')
+  const vditorEl = document.querySelector('#vditor') as HTMLElement
   if (vditorEl) {
+    // 保存原始位置信息
+    const rect = vditorEl.getBoundingClientRect()
     document.body.appendChild(vditorEl)
+
+    // 设置初始位置和尺寸，以便实现平滑过渡
+    vditorEl.style.position = 'fixed'
+    vditorEl.style.left = `${rect.left}px`
+    vditorEl.style.top = `${rect.top}px`
+    vditorEl.style.width = `${rect.width}px`
+    vditorEl.style.height = `${rect.height}px`
+
+    // 强制重绘
+    vditorEl.offsetHeight
+
+    // 设置目标位置和尺寸
+    vditorEl.style.left = '0'
+    vditorEl.style.top = '0'
+    vditorEl.style.width = '100vw'
+    vditorEl.style.height = '100vh'
+    vditorEl.style.zIndex = '99999'
+    vditorEl.style.background = 'var(--background)'
+    vditorEl.style.transition = 'all 0.3s ease'
+    vditorEl.style.margin = '0'
+    vditorEl.style.padding = '0'
+    vditorEl.style.border = 'none'
   }
 }
-
 const moveEditorBackToContainer = () => {
-  const vditorEl = document.querySelector('#vditor')
+  const vditorEl = document.querySelector('#vditor') as HTMLElement
   const container = vditorContainer.value
   if (vditorEl && container) {
+    // 先将元素添加回容器
     container.appendChild(vditorEl)
+
+    // 重置所有样式
+    vditorEl.style.position = 'relative'
+    vditorEl.style.left = ''
+    vditorEl.style.top = ''
+    vditorEl.style.width = '100%'  // 确保宽度是容器的100%
+    vditorEl.style.height = '400px'
+    vditorEl.style.zIndex = ''
+    vditorEl.style.background = ''
+    vditorEl.style.transition = ''
+    vditorEl.style.margin = ''
+    vditorEl.style.padding = ''
+    vditorEl.style.border = ''
+
+    // 强制重绘以确保样式更新
+    vditorEl.offsetHeight
   }
 }
 
@@ -194,8 +244,18 @@ onMounted(() => {
           e.stopPropagation()
         }
       }, true)
+
+      if (props.modelValue) {
+        vditor.value?.setValue(props.modelValue)
+      }
     }
   })
+})
+
+onUnmounted(() => {
+  if (isFullscreen.value) {
+    moveEditorBackToContainer()
+  }
 })
 
 
@@ -220,57 +280,13 @@ onMounted(() => {
   color: #fff;
 }
 
-.vditor-fullscreen {
-  position: fixed !important;
-  top: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  bottom: 0 !important;
-  width: 100vw !important;
-  height: 100vh !important;
-  transform: none !important;
-  margin: 0 !important;
-  padding: 20px !important;
-  background: var(--vditor-bg-color);
-  border-radius: 0;
-  box-shadow: none;
-  z-index: 99999 !important;
-}
-
-.vditor-fullscreen .vditor-toolbar {
-  width: 100% !important;
-  position: sticky !important;
-  top: 0 !important;
-  z-index: 2 !important;
-}
-
-.vditor-fullscreen .vditor-content {
-  height: calc(100% - 40px) !important;
-  overflow: auto !important;
-}
-
 .vditor-wrapper {
+  position: relative;
   width: 100%;
   height: 100%;
-  position: relative;
 }
 
-/* 适配 ComfyUI 容器 */
-.comfyui-container .vditor-fullscreen {
-  position: fixed !important;
-}
-
-.vditor-fullscreen-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 99999;
-  background: var(--vditor-bg-color);
-}
-
-#vditor-fullscreen {
-  height: 100vh;
+#vditor {
+  transition: all 0.2s;
 }
 </style>
