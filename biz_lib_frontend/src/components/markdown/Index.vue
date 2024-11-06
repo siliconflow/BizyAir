@@ -19,6 +19,9 @@ const vditorConfig: IOptions = {
   height: 400,
   mode: 'ir',
   theme: 'dark',
+  cache: {
+    enable: false
+  },
   lang: 'en_US',
   placeholder: '请输入内容...',
   fullscreen: {
@@ -236,6 +239,7 @@ const moveEditorBackToContainer = () => {
 onMounted(() => {
   vditor.value = new Vditor('vditor', {
     ...vditorConfig,
+
     after: () => {
       document.querySelector('#vditor')?.classList.add('vditor-dark')
       const editor = document.querySelector('#vditor')
