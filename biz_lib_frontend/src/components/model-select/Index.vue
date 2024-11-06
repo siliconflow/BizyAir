@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
-// import { Markdown } from '@/components/markdown'
+import { Markdown } from '@/components/markdown'
 import {
   Dialog,
   DialogTitle,
@@ -86,9 +86,9 @@ onMounted(async () => {
 </script>
 
 <template>
-  <Dialog :open="showDialog" @update:open="showDialog = $event">
-    <DialogContent class="max-w-[900px] bg-[#222]">
-      <!-- <Markdown /> -->
+  <Dialog :open="showDialog"  @update:open="showDialog = $event">
+    <DialogContent class="max-w-[900px] bg-[#222]" @pointerdown-outside.prevent>
+      <Markdown />
       <div class="p-2 font-['Inter']">
         <DialogTitle class="text-xl font-bold">Select Model</DialogTitle>
         <DialogDescription class="text-sm text-gray-500" />
