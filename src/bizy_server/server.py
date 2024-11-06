@@ -5,6 +5,7 @@ import threading
 import time
 import uuid
 import urllib.parse
+import tempfile
 
 import aiohttp
 from server import PromptServer
@@ -124,6 +125,43 @@ class BizyAirServer:
             data = {
                 "upload_id": upload_id,
                 "root": os.path.dirname(absolute_path),
+                "files": [{"path": to_slash(relative_path), "size": file_size}],
+            }
+            self.uploads[upload_id] = data
+
+            return OKResponse(data)
+
+        @self.prompt_server.routes.post(f"/{COMMUNITY_API}/models/check_workflow")
+        async def check_workflow(request):
+            sid = request.rel_url.query.get("clientId", "")
+            if not is_string_valid(sid):
+                return ErrResponse(errnos.INVALID_CLIENT_ID)
+
+            reader = await request.multipart()
+            field = await reader.next()
+            if not field or field.name != "file":
+                return ErrResponse(errnos.NO_FILE_UPLOAD)
+
+            filename = field.filename
+            if not filename:
+                return ErrResponse(errnos.NO_FILE_UPLOAD)
+
+            temp_dir = tempfile.gettempdir()
+            if not os.path.exists(temp_dir):
+                os.makedirs(temp_dir)
+
+            temp_file_path = os.path.join(temp_dir, filename)
+            with open(temp_file_path, "wb") as f:
+                while chunk := await field.read_chunk():
+                    f.write(chunk)
+
+            file_size = os.path.getsize(temp_file_path)
+            relative_path = os.path.basename(temp_file_path)
+
+            upload_id = uuid.uuid4().hex
+            data = {
+                "upload_id": upload_id,
+                "root": temp_dir,
                 "files": [{"path": to_slash(relative_path), "size": file_size}],
             }
             self.uploads[upload_id] = data
@@ -456,7 +494,7 @@ class BizyAirServer:
                 print(f"\033[31m[BizyAir]\033[0m Fail to upload file: {str(e)}")
                 return ErrResponse(errnos.UPLOAD)
 
-        @self.prompt_server.routes.get(f"/{COMMUNITY_API}/workflows/{{model_version_id}}/json/{{sign}}")
+        @self.prompt_server.routes.get(f"/{COMMUNITY_API}/models/versions/{{model_version_id}}/workflow_json/{{sign}}")
         async def get_workflow_json(request):
             model_version_id = int(request.match_info["model_version_id"])
             # 检查model_version_id是否合法
