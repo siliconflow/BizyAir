@@ -5,6 +5,7 @@ import threading
 import time
 import uuid
 import urllib.parse
+import tempfile
 
 import aiohttp
 from server import PromptServer
@@ -130,6 +131,43 @@ class BizyAirServer:
 
             return OKResponse(data)
 
+        @self.prompt_server.routes.post(f"/{COMMUNITY_API}/models/check_workflow")
+        async def check_workflow(request):
+            sid = request.rel_url.query.get("clientId", "")
+            if not is_string_valid(sid):
+                return ErrResponse(errnos.INVALID_CLIENT_ID)
+
+            reader = await request.multipart()
+            field = await reader.next()
+            if not field or field.name != "file":
+                return ErrResponse(errnos.NO_FILE_UPLOAD)
+
+            filename = field.filename
+            if not filename:
+                return ErrResponse(errnos.NO_FILE_UPLOAD)
+
+            temp_dir = tempfile.gettempdir()
+            if not os.path.exists(temp_dir):
+                os.makedirs(temp_dir)
+
+            temp_file_path = os.path.join(temp_dir, filename)
+            with open(temp_file_path, "wb") as f:
+                while chunk := await field.read_chunk():
+                    f.write(chunk)
+
+            file_size = os.path.getsize(temp_file_path)
+            relative_path = os.path.basename(temp_file_path)
+
+            upload_id = uuid.uuid4().hex
+            data = {
+                "upload_id": upload_id,
+                "root": temp_dir,
+                "files": [{"path": to_slash(relative_path), "size": file_size}],
+            }
+            self.uploads[upload_id] = data
+
+            return OKResponse(data)
+
         @self.prompt_server.routes.post(f"/{COMMUNITY_API}/submit_upload")
         async def submit_upload(request):
             sid = request.rel_url.query.get("clientId", "")
@@ -160,14 +198,14 @@ class BizyAirServer:
 
             # 校验name和type
             err = check_str_param(json_data, "name", errnos.INVALID_NAME)
-            if err:
+            if err is not None:
                 return err
 
             if "/" in json_data["name"]:
                 return ErrResponse(errnos.INVALID_NAME)
 
             err = check_type(json_data)
-            if err:
+            if err is not None:
                 return err
 
             # 校验versions
@@ -308,14 +346,14 @@ class BizyAirServer:
 
             # 校验name和type
             err = check_str_param(json_data, "name", errnos.INVALID_NAME)
-            if err:
+            if err is not None:
                 return err
 
             if "/" in json_data["name"]:
                 return ErrResponse(errnos.INVALID_NAME)
 
             err = check_type(json_data)
-            if err:
+            if err is not None:
                 return err
 
             # 校验versions
@@ -455,6 +493,34 @@ class BizyAirServer:
             except Exception as e:
                 print(f"\033[31m[BizyAir]\033[0m Fail to upload file: {str(e)}")
                 return ErrResponse(errnos.UPLOAD)
+
+        @self.prompt_server.routes.get(f"/{COMMUNITY_API}/models/versions/{{model_version_id}}/workflow_json/{{sign}}")
+        async def get_workflow_json(request):
+            model_version_id = int(request.match_info["model_version_id"])
+            # 检查model_version_id是否合法
+            if not model_version_id or model_version_id <= 0:
+                return ErrResponse(errnos.INVALID_MODEL_VERSION_ID)
+
+            sign = str(request.match_info["sign"])
+            if not sign:
+                return ErrResponse(errnos.INVALID_SIGN)
+
+            # 获取上传凭证
+            url, err = await self.api_client.get_download_url(sign=sign, model_version_id=model_version_id)
+            if err:
+                return ErrResponse(err)
+
+            try:
+                async with aiohttp.ClientSession() as session:
+                    async with session.get(url) as response:
+                        if response.status != 200:
+                            return ErrResponse(ErrorNo(response.status, response.status, None, "Failed to download JSON"))
+                        json_content = await response.json()
+                return OKResponse(json_content)
+            except Exception as e:
+                print(f"\033[31m[BizyAir]\033[0m Fail to download JSON: {str(e)}")
+                return ErrResponse(errnos.DOWNLOAD_JSON)
+
 
     async def send_json(self, event, data, sid=None):
         message = {"type": event, "data": data}

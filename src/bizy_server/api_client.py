@@ -129,7 +129,7 @@ class APIClient:
             return None, errnos.SIGN_FILE
 
     async def commit_file(
-        self, signature: str, object_key: str
+            self, signature: str, object_key: str
     ) -> tuple[dict | None, ErrorNo | None]:
         server_url = f"{BIZYAIR_SERVER_ADDRESS}/files"
 
@@ -169,7 +169,7 @@ class APIClient:
             return None, errnos.COMMIT_BIZY_MODEL
 
     async def delete_bizy_model(
-        self, model_id: int
+            self, model_id: int
     ) -> tuple[dict | None, ErrorNo | None]:
         server_url = f"{BIZYAIR_SERVER_ADDRESS}/bizy_models/{model_id}"
 
@@ -188,13 +188,13 @@ class APIClient:
             return None, errnos.DELETE_BIZY_MODEL
 
     async def query_community_models(
-        self,
-        current: int,
-        page_size: int,
-        keyword: str = None,
-        model_types: list[str] = None,
-        base_models: list[str] = None,
-        sort: str = None,
+            self,
+            current: int,
+            page_size: int,
+            keyword: str = None,
+            model_types: list[str] = None,
+            base_models: list[str] = None,
+            sort: str = None,
     ) -> tuple[dict | None, ErrorNo | None]:
         server_url = f"{BIZYAIR_SERVER_ADDRESS}/bizy_models/community"
         params = {"current": current, "page_size": page_size}
@@ -222,14 +222,14 @@ class APIClient:
             return None, errnos.QUERY_COMMUNITY_MODELS
 
     async def query_models(
-        self,
-        mode: str,
-        current: int,
-        page_size: int,
-        keyword: str = None,
-        model_types: list[str] = None,
-        base_models: list[str] = None,
-        sort: str = None,
+            self,
+            mode: str,
+            current: int,
+            page_size: int,
+            keyword: str = None,
+            model_types: list[str] = None,
+            base_models: list[str] = None,
+            sort: str = None,
     ) -> tuple[dict | None, ErrorNo | None]:
         server_url = f"{BIZYAIR_SERVER_ADDRESS}/bizy_models/{mode}"
         params = {"current": current, "page_size": page_size}
@@ -257,7 +257,7 @@ class APIClient:
             return None, errnos.QUERY_MODELS
 
     async def get_model_detail(
-        self, model_id: int, source: str
+            self, model_id: int, source: str
     ) -> tuple[dict | None, ErrorNo | None]:
         server_url = (
             f"{BIZYAIR_SERVER_ADDRESS}/bizy_models/{model_id}/detail?source={source}"
@@ -278,7 +278,7 @@ class APIClient:
             return None, errnos.GET_MODEL_DETAIL
 
     async def get_model_version_detail(
-        self, version_id: int
+            self, version_id: int
     ) -> tuple[dict | None, ErrorNo | None]:
         server_url = f"{BIZYAIR_SERVER_ADDRESS}/bizy_models/versions/{version_id}"
 
@@ -316,7 +316,7 @@ class APIClient:
             return None, errnos.FORK_MODEL_VERSION
 
     async def update_model(
-        self, model_id: int, name: str, type_: str, versions: list[dict]
+            self, model_id: int, name: str, type_: str, versions: list[dict]
     ) -> tuple[dict | None, ErrorNo | None]:
         server_url = f"{BIZYAIR_SERVER_ADDRESS}/bizy_models/{model_id}"
 
@@ -372,3 +372,20 @@ class APIClient:
         except Exception as e:
             print(f"\033[31m[BizyAir]\033[0m Fail to toggle user like: {str(e)}")
             return None, errnos.TOGGLE_USER_LIKE
+
+    async def get_download_url(self, sign: str, model_version_id: int) -> tuple[str | None, ErrorNo | None]:
+        server_url = f"{BIZYAIR_SERVER_ADDRESS}/files/temp-download/{sign}?version_id={model_version_id}"
+
+        headers, err = self.auth_header()
+        if err is not None:
+            return None, err
+
+        try:
+            ret, err = self.do_get(server_url, headers=headers)
+            if err is not None:
+                return None, err
+
+            return ret["data"]["url"], None
+        except Exception as e:
+            print(f"\033[31m[BizyAir]\033[0m Fail to get download url: {str(e)}")
+            return None, errnos.GET_DOWNLOAD_URL
