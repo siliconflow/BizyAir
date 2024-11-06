@@ -92,7 +92,7 @@
         "Node name for S&R": "BizyAir_PulidFluxModelLoader"
       },
       "widgets_values": [
-        "pulid_flux_v0.9.0.safetensors"
+        "pulid_flux.safetensors"
       ],
       "shape": 1
     },
