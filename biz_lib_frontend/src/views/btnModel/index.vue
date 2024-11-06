@@ -24,6 +24,8 @@
       </v-item>
       <Button class="w-full mt-3" @click="nextStep">Next Step</Button>
     </v-dialog>
+
+
     <v-dialog v-model:open="showDialogVersion">
       <template #title>{{ formData.name }}</template>
       <p>Add a Version</p>
@@ -100,13 +102,12 @@ const versionIndex = ref(0);
 const typeLis = ref([{ value: '', label: '' }]);
 const baseTypeLis = ref([{ value: '', label: '' }]);
 const formData = ref({ ...modelStoreObject.modelDetail });
-// const formSchema = toTypedSchema(z.object({
-//   ModelName: z.string().min(2).max(50),
-//   modelType: z.string(),
-// }));
+
 
 function handleChange(val: any, index: number) {
-  formData.value.versions[index].public = val
+  if (formData.value.versions) {
+    formData.value.versions[index].public = val;
+  }
 }
 async function checkFile(val: string, index: number) {
   const res = await checkLocalFile({ absolute_path: val })
@@ -119,8 +120,18 @@ async function checkFile(val: string, index: number) {
   versionIndex.value = index
 }
 function nextStep() {
-  showDialog.value = false
-  showDialogVersion.value = true
+  const tempData = {...formData.value}
+  tempData.versions = tempData.versions || []
+  tempData.versions.push({
+    version: '',
+    base_model: '',
+    intro: '',
+    public: false,
+    filePath: '',
+    sign: '',
+    path: ''
+  })
+  modelStoreObject.setModelDetail(tempData)
 }
 
 function nextStep2() {

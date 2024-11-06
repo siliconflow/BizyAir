@@ -3,31 +3,13 @@ interface ModelDetail {
   name: string,
   type: string,
   id?: number,
-  versions: [{
-    id?: number,
-    version: string,
-    base_model: string,
-    intro: string,
-    sign: string,
-    path: string,
-    filePath: string,
-    public: boolean,
-  }]
+  versions: []
 }
 export const modelStore = defineStore('modelStore', {
   state: () => ({
     modelDetail: {
       name: '',
-      type: '',
-      versions: [{
-        version: '',
-        base_model: '',
-        intro: '',
-        sign: '',
-        path: '',
-        filePath: '',
-        public: false,
-      }]
+      type: ''
     } as ModelDetail,
   }),
   actions: {
@@ -37,17 +19,7 @@ export const modelStore = defineStore('modelStore', {
     clearModelDetail() {
       this.modelDetail = {
         name: '',
-        type: '',
-        versions: [{
-          id: 0,
-          version: '',
-          base_model: '',
-          intro: '',
-          sign: '',
-          path: '',
-          filePath: '',
-          public: true,
-        }]
+        type: ''
       }
     }
   },
