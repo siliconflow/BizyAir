@@ -38,7 +38,8 @@
           </v-select>
         </v-item>
         <v-item label="Intro">
-          <Textarea type="text" placeholder="shadcn" v-model:model-value="e.intro" />
+          <Markdown @update:modelValue="handleMarkdownChange" />
+          <!-- <Textarea type="text" placeholder="shadcn" v-model:model-value="e.intro" /> -->
         </v-item>
         <v-item label="">
           <div class="flex items-center space-x-2 mt-2">
@@ -69,7 +70,7 @@ import { ref, watch } from 'vue'
 //   // FormMessage,
 // } from '@/components/ui/form'
 import { SelectItem } from '@/components/ui/select'
-import { Textarea } from '@/components/ui/textarea'
+// import { Textarea } from '@/components/ui/textarea'
 
 // import * as z from 'zod'
 // import { toTypedSchema } from '@vee-validate/zod'
@@ -84,7 +85,7 @@ import vSelect from '@/components/modules/vSelect.vue'
 import vItem from '@/components/modules/vItem.vue'
 import { useStatusStore} from '@/stores/userStatus'
 import { modelStore } from '@/stores/modelStatus'
-
+import { Markdown } from '@/components/markdown'
 import { create_models, checkLocalFile, submitUpload, model_types, base_model_types, put_model } from '@/api/model'
 import { onMounted } from 'vue'
 
@@ -96,9 +97,9 @@ const showDialog = ref(false);
 const showDialogVersion = ref(false);
 const disabledSubmit = ref(false);
 const versionIndex = ref(0);
-const typeLis = ref([{value: '', label: ''}]);
-const baseTypeLis = ref([{value: '', label: ''}]);
-const formData = ref({...modelStoreObject.modelDetail});
+const typeLis = ref([{ value: '', label: '' }]);
+const baseTypeLis = ref([{ value: '', label: '' }]);
+const formData = ref({ ...modelStoreObject.modelDetail });
 // const formSchema = toTypedSchema(z.object({
 //   ModelName: z.string().min(2).max(50),
 //   modelType: z.string(),
@@ -107,7 +108,7 @@ const formData = ref({...modelStoreObject.modelDetail});
 function handleChange(val: any, index: number) {
   formData.value.versions[index].public = val
 }
-async function checkFile (val: string, index: number) {
+async function checkFile(val: string, index: number) {
   const res = await checkLocalFile({ absolute_path: val })
   console.log(res)
   if (res.data.upload_id) {
@@ -146,6 +147,11 @@ watch(() => modelStoreObject.modelDetail, (val: any) => {
 }, {
   deep: true
 })
+
+const handleMarkdownChange = (value: string) => {
+  console.log('md content', value)
+  formData.value.versions[versionIndex.value].intro = value
+}
 onMounted(async () => {
   const mt = await model_types()
   typeLis.value = mt.data
