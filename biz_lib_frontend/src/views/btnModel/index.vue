@@ -40,7 +40,7 @@
           </v-select>
         </v-item>
         <v-item label="Intro">
-          <Markdown @update:modelValue="handleMarkdownChange" />
+          <Markdown editorId="veditor" @update:modelValue="handleMarkdownChange" />
           <!-- <Textarea type="text" placeholder="shadcn" v-model:model-value="e.intro" /> -->
         </v-item>
         <v-item label="">

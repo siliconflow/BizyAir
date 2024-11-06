@@ -1,18 +1,19 @@
 <script setup lang="ts">
-import { nextTick, onMounted, onUnmounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import Vditor from 'vditor'
 import 'vditor/dist/index.css'
 import { uploadImage } from '@/api/public'
+
+const props = defineProps<{
+  modelValue?: string,
+  editorId: string 
+}>()
+
 const editor = ref<any>(null)
 const vditor = ref<Vditor | null>(null)
 const vditorContainer = ref<HTMLElement | null>(null)
 const isFullscreen = ref(false)
-
 const showOriginalEditor = ref(true)
-const editorContent = ref('')
-const props = defineProps<{
-  modelValue?: string
-}>()
 const emit = defineEmits(['update:modelValue'])
 
 const vditorConfig: IOptions = {
@@ -23,12 +24,11 @@ const vditorConfig: IOptions = {
     enable: false
   },
   lang: 'en_US',
-  placeholder: '请输入内容...',
+  placeholder: 'Please enter content...',
   fullscreen: {
     index: 9999
   },
   input: (value: string) => {
-    console.log('value', value)
     emit('update:modelValue', value)
   },
   toolbar: [
@@ -50,11 +50,9 @@ const vditorConfig: IOptions = {
     'code',
     '|',
     'upload',
-    // 'table',
-    // 'fullscreen'
     {
       name: 'fullscreen',
-      tip: '全屏',
+      tip: 'Fullscreen',
       click: () => {
         isFullscreen.value = !isFullscreen.value
         if (isFullscreen.value) {
@@ -77,10 +75,9 @@ const vditorConfig: IOptions = {
     handler: (files: File[]): Promise<string> => {
       return new Promise((resolve) => {
         try {
-          // 限制最多上传3个文件
           if (files.length > 3) {
             if (vditor.value) {
-              vditor.value.tip('一次最多上传3个文件', 3000)
+              vditor.value.tip('Maximum 3 files can be uploaded at once', 3000)
             }
             resolve('')
             return
@@ -101,7 +98,7 @@ const vditorConfig: IOptions = {
                 try {
                   const response = await uploadImage(file)
                   if (vditor.value) {
-                    vditor.value.tip(`正在上传文件 ${currentIndex + 1}/${files.length}...`, 1500)
+                    vditor.value.tip(`Uploading file ${currentIndex + 1}/${files.length}...`, 1500)
                   }
                   results.push({
                     success: true,
@@ -113,9 +110,9 @@ const vditorConfig: IOptions = {
                   retryCount--
                   if (retryCount === 0) {
                     if (vditor.value) {
-                      vditor.value.tip(`文件 ${currentIndex + 1} 上传失败`, 1500)
+                      vditor.value.tip(`File ${currentIndex + 1} upload failed`, 1500)
                     }
-                    console.error(`文件 ${file.name} 上传失败:`, err)
+                    console.error(`File ${file.name} upload failed:`, err)
                   } else {
                     await new Promise(resolve => setTimeout(resolve, 1000))
                   }
@@ -135,7 +132,7 @@ const vditorConfig: IOptions = {
                 .map(result => {
                   if (result.fileName.match(/\.(mp4|webm|ogg)$/i)) {
                     return `<video src="${result.imageUrl}" controls>
-                        您的浏览器不支持 video 标签。
+                        Your browser does not support the video tag.
                       </video>`
                   } else {
                     return `![${result.fileName}](${result.imageUrl})`
@@ -148,14 +145,14 @@ const vditorConfig: IOptions = {
           }
           processAllBatches().catch(_ => {
             if (vditor.value) {
-              vditor.value.tip('部分文件上传失败', 3000)
+              vditor.value.tip('Some files failed to upload', 3000)
             }
             resolve('')
           })
 
         } catch (error) {
           if (vditor.value) {
-            vditor.value.tip('图片上传失败，请重试', 3000)
+            vditor.value.tip('Image upload failed, please try again', 3000)
           }
           resolve('')
         }
@@ -167,38 +164,28 @@ const vditorConfig: IOptions = {
   },
 
   after: () => {
-    document.querySelector('#vditor')?.classList.add('vditor-dark')
-
-    const editor = document.querySelector('#vditor')
+    document.querySelector(`#${props.editorId}`)?.classList.add('vditor-dark')
+    const editor = document.querySelector(`#${props.editorId}`)
     editor?.addEventListener('keydown', (e: Event) => {
       if ((e as KeyboardEvent).key === 'Backspace' || (e as KeyboardEvent).key === 'Delete') {
         e.stopPropagation()
       }
     }, true)
   }
-
 }
 
-
-
 const moveEditorToBody = () => {
-  const vditorEl = document.querySelector('#vditor') as HTMLElement
+  const vditorEl = document.querySelector(`#${props.editorId}`) as HTMLElement
   if (vditorEl) {
-    // 保存原始位置信息
     const rect = vditorEl.getBoundingClientRect()
     document.body.appendChild(vditorEl)
-
-    // 设置初始位置和尺寸，以便实现平滑过渡
     vditorEl.style.position = 'fixed'
     vditorEl.style.left = `${rect.left}px`
     vditorEl.style.top = `${rect.top}px`
     vditorEl.style.width = `${rect.width}px`
     vditorEl.style.height = `${rect.height}px`
 
-    // 强制重绘
     vditorEl.offsetHeight
-
-    // 设置目标位置和尺寸
     vditorEl.style.left = '0'
     vditorEl.style.top = '0'
     vditorEl.style.width = '100vw'
@@ -211,18 +198,17 @@ const moveEditorToBody = () => {
     vditorEl.style.border = 'none'
   }
 }
+
 const moveEditorBackToContainer = () => {
-  const vditorEl = document.querySelector('#vditor') as HTMLElement
+  const vditorEl = document.querySelector(`#${props.editorId}`) as HTMLElement
   const container = vditorContainer.value
   if (vditorEl && container) {
-    // 先将元素添加回容器
     container.appendChild(vditorEl)
 
-    // 重置所有样式
     vditorEl.style.position = 'relative'
     vditorEl.style.left = ''
     vditorEl.style.top = ''
-    vditorEl.style.width = '100%'  // 确保宽度是容器的100%
+    vditorEl.style.width = '100%'
     vditorEl.style.height = '400px'
     vditorEl.style.zIndex = ''
     vditorEl.style.background = ''
@@ -231,18 +217,16 @@ const moveEditorBackToContainer = () => {
     vditorEl.style.padding = ''
     vditorEl.style.border = ''
 
-    // 强制重绘以确保样式更新
     vditorEl.offsetHeight
   }
 }
 
 onMounted(() => {
-  vditor.value = new Vditor('vditor', {
+  vditor.value = new Vditor(props.editorId, {
     ...vditorConfig,
-
     after: () => {
-      document.querySelector('#vditor')?.classList.add('vditor-dark')
-      const editor = document.querySelector('#vditor')
+      document.querySelector(`#${props.editorId}`)?.classList.add('vditor-dark')
+      const editor = document.querySelector(`#${props.editorId}`)
       editor?.addEventListener('keydown', (e: Event) => {
         if ((e as KeyboardEvent).key === 'Backspace' || (e as KeyboardEvent).key === 'Delete') {
           e.stopPropagation()
@@ -262,15 +246,14 @@ onUnmounted(() => {
   }
 })
 
-
 </script>
 
 <template>
   <div class="vditor-wrapper" ref="vditorContainer">
-    <div id="vditor" ref="editor" v-if="showOriginalEditor"></div>
+    <div :id="editorId" ref="editor" v-if="showOriginalEditor"></div>
   </div>
-
 </template>
+
 <style>
 .vditor-dark {
   color: #fff;
