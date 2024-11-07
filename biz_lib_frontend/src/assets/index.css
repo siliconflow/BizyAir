@@ -48,3 +48,22 @@
     @apply bg-background text-foreground;
   }
 }
+@layer utilities {
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #222 #000;
+    &::-webkit-scrollbar {
+      width: 8px;
+      border-radius: 4px;
+    }
+    &::-webkit-scrollbar-thumb {
+      background-color: #222;
+      border-radius: 4px;
+    }
+    &::-webkit-scrollbar-track {
+      background-color: #000;
+      border-radius: 4px;
+      margin: 10px 0;
+    }
+  }
+}

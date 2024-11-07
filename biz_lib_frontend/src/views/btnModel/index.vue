@@ -15,7 +15,7 @@
     <v-dialog
       v-model:open="showDialog"
       class="px-0 overflow-hidden pb-0"
-      contentClass="max-h-[80vh] overflow-y-auto w-full rounded-tl-lg rounded-tr-lg custom-shadow">
+      contentClass="custom-scrollbar max-h-[80vh] overflow-y-auto w-full rounded-tl-lg rounded-tr-lg custom-shadow">
       <template #title><span class="px-6" @click="acActiveIndex = '-1'; modelBox = true">Publish a Model</span></template>
       <div v-show="modelBox" class="px-6 pb-6">
         <v-item label="Model Name">
@@ -51,7 +51,8 @@
               </v-select>
             </v-item>
             <v-item label="Intro">
-              <Markdown editorId="veditor" @update:modelValue="handleMarkdownChange" />
+              <!-- <Markdown editorId="veditor" @update:modelValue="handleMarkdownChange" /> -->
+              <Markdown :editorId="`myeditor${i}`" @update:modelValue="handleMarkdownChange" @isUploading="handleIsUploading" />
               <!-- <Textarea type="text" placeholder="shadcn" v-model:model-value="e.intro" /> -->
             </v-item>
             <v-item label="">
@@ -90,6 +91,7 @@ import vDialog from '@/components/modules/vDialog.vue'
 import vSelect from '@/components/modules/vSelect.vue'
 import vItem from '@/components/modules/vItem.vue'
 import vAccordionTrigger from '@/components/modules/vAccordionTrigger.vue'
+import { useAlertDialog  } from '@/components/modules/vAlertDialog/index'
 
 import { useStatusStore} from '@/stores/userStatus'
 import { modelStore } from '@/stores/modelStatus'
@@ -125,11 +127,21 @@ async function checkFile(val: string, index: number) {
   }
   versionIndex.value = index
 }
-function delVersion(index: number) {
+async function delVersion(index: number) {
+  const res = await useAlertDialog({
+    title: 'Are you sure you want to delete this version?',
+    desc: 'This action cannot be undone.',
+    cancel: 'No, Keep It',
+    continue: 'Yes, Delete It',
+  })
+  if (!res) return
   const tempData = {...formData.value}
   tempData.versions = tempData.versions || []
   tempData.versions.splice(index, 1)
   modelStoreObject.setModelDetail(tempData)
+  if (tempData.versions.length == 1) {
+    acActiveIndex.value = '0'
+  }
   if (tempData.versions.length == 0) {
     modelBox.value = true
   }
@@ -171,6 +183,10 @@ const acActiveFn = () => {
 const handleMarkdownChange = (value: string) => {
   console.log('md content', value)
   formData.value.versions[versionIndex.value].intro = value
+}
+const handleIsUploading = (val: boolean) => {
+  // disabledSubmit.value = val
+  console.log(val)
 }
 watch(() => statusStore.socketMessage, (val: any) => {
   console.log(val)
