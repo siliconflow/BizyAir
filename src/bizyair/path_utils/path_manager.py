@@ -28,6 +28,7 @@ filename_path_mapping: dict[str, dict[str, str]] = {}
 @dataclass
 class RefreshSettings:
     loras: bool = True
+    controlnet: bool = True
 
     def get(self, folder_name: str, default: bool = True):
         return getattr(self, folder_name, default)
