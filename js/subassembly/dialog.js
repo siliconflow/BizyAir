@@ -37,7 +37,7 @@ export function dialog(params) {
         style: { zIndex: 10000 + document.querySelectorAll('.bizyair-new-dialog').length },
         onclick: function () {
             if (params.closeOnClickModal) {
-                removeDialog(this)
+                removeDialog()
             }
         },
     }, [
@@ -61,9 +61,9 @@ export function dialog(params) {
                                 return false
                             }
                         }
-                        removeDialog(document.getElementById(id))
+                        removeDialog()
                     }
-                }): ''),
+                }) : ''),
                 (params.neutralText ? $el("button.bizyair-new-dialog-btn", {
                     type: "button",
                     textContent: params.neutralText,
@@ -75,9 +75,9 @@ export function dialog(params) {
                                 return false
                             }
                         }
-                        removeDialog(document.getElementById(id))
+                        removeDialog()
                     }
-                }): ''),
+                }) : ''),
                 (params.noText ? $el("button.bizyair-new-dialog-btn", {
                     type: "button",
                     textContent: params.noText,
@@ -85,9 +85,9 @@ export function dialog(params) {
                         if (params.onNo) {
                             await params.onNo();
                         }
-                        removeDialog(document.getElementById(id))
+                        removeDialog()
                     }
-                }): '')
+                }) : '')
             ]),
         ])
     ]);
@@ -99,7 +99,7 @@ export function dialog(params) {
                 if (params.onNo) {
                     await params.onNo();
                 }
-                removeDialog(el);
+                removeDialog();
             }
         }
     };
@@ -109,7 +109,8 @@ export function dialog(params) {
         document.addEventListener("keydown", fnEscapeClose);
     }
 
-    function removeDialog(el) {
+    function removeDialog() {
+        const el = document.getElementById(id);
         requestAnimationFrame(() => {
             el.querySelector('.bizyair-dialog-content').style.transition = 'all 0.2s';
             el.querySelector('.bizyair-dialog-content').style.transform = 'translate(-50%, -50%) scale(0)';
@@ -122,6 +123,8 @@ export function dialog(params) {
         document.removeEventListener("keydown", fnEscapeClose);
         dialogStack = dialogStack.filter(d => d !== el);
     }
+
+    return removeDialog;
 }
 dialog.succeed = params => {
     if (typeof params === 'string') {
