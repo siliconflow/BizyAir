@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue'
+import { nextTick, onMounted, onUnmounted, ref } from 'vue'
 import Vditor from 'vditor'
 import 'vditor/dist/index.css'
 import { uploadImage } from '@/api/public'
 
+
 const props = defineProps<{
   modelValue?: string,
-  editorId: string 
+  editorId: string
 }>()
 
 const editor = ref<any>(null)
@@ -14,7 +15,7 @@ const vditor = ref<Vditor | null>(null)
 const vditorContainer = ref<HTMLElement | null>(null)
 const isFullscreen = ref(false)
 const showOriginalEditor = ref(true)
-const emit = defineEmits(['update:modelValue'])
+const emit = defineEmits(['update:modelValue', 'update:dialog-modal', 'isUploading'])
 
 const vditorConfig: IOptions = {
   height: 400,
@@ -50,11 +51,13 @@ const vditorConfig: IOptions = {
     'code',
     '|',
     'upload',
+    // 'fullscreen',
     {
       name: 'fullscreen',
       tip: 'Fullscreen',
       click: () => {
         isFullscreen.value = !isFullscreen.value
+        console.log('isFullscreen', isFullscreen.value)
         if (isFullscreen.value) {
           moveEditorToBody()
         } else {
@@ -75,10 +78,12 @@ const vditorConfig: IOptions = {
     handler: (files: File[]): Promise<string> => {
       return new Promise((resolve) => {
         try {
+          emit('isUploading', true)
           if (files.length > 3) {
             if (vditor.value) {
               vditor.value.tip('Maximum 3 files can be uploaded at once', 3000)
             }
+            emit('isUploading', false)
             resolve('')
             return
           }
@@ -141,12 +146,14 @@ const vditorConfig: IOptions = {
                 .join('\n')
               vditor.value.insertValue(markdownContent)
             }
+            emit('isUploading', false)
             resolve('')
           }
           processAllBatches().catch(_ => {
             if (vditor.value) {
               vditor.value.tip('Some files failed to upload', 3000)
             }
+            emit('isUploading', false)
             resolve('')
           })
 
@@ -154,6 +161,7 @@ const vditorConfig: IOptions = {
           if (vditor.value) {
             vditor.value.tip('Image upload failed, please try again', 3000)
           }
+          emit('isUploading', false)
           resolve('')
         }
       })
@@ -178,24 +186,33 @@ const moveEditorToBody = () => {
   const vditorEl = document.querySelector(`#${props.editorId}`) as HTMLElement
   if (vditorEl) {
     const rect = vditorEl.getBoundingClientRect()
-    document.body.appendChild(vditorEl)
-    vditorEl.style.position = 'fixed'
-    vditorEl.style.left = `${rect.left}px`
-    vditorEl.style.top = `${rect.top}px`
-    vditorEl.style.width = `${rect.width}px`
-    vditorEl.style.height = `${rect.height}px`
+    nextTick(() => {
+      document.body.appendChild(vditorEl)
+      vditorEl.style.position = 'fixed'
+      vditorEl.style.left = `${rect.left}px`
+      vditorEl.style.top = `${rect.top}px`
+      vditorEl.style.width = `${rect.width}px`
+      vditorEl.style.height = `${rect.height}px`
 
-    vditorEl.offsetHeight
-    vditorEl.style.left = '0'
-    vditorEl.style.top = '0'
-    vditorEl.style.width = '100vw'
-    vditorEl.style.height = '100vh'
-    vditorEl.style.zIndex = '99999'
-    vditorEl.style.background = 'var(--background)'
-    vditorEl.style.transition = 'all 0.3s ease'
-    vditorEl.style.margin = '0'
-    vditorEl.style.padding = '0'
-    vditorEl.style.border = 'none'
+      vditorEl.offsetHeight
+      vditorEl.style.left = '0'
+      vditorEl.style.top = '0'
+      vditorEl.style.width = '100vw'
+      vditorEl.style.height = '100vh'
+      vditorEl.style.zIndex = '99999'
+      vditorEl.style.background = 'var(--background)'
+      vditorEl.style.transition = 'all 0.3s ease'
+      vditorEl.style.margin = '0'
+      vditorEl.style.padding = '0'
+      vditorEl.style.border = 'none'
+      nextTick(() => {
+        const dialogElement = document.querySelector('[role="dialog"][tabindex="-1"]')
+        if (dialogElement) {
+          dialogElement.removeAttribute('tabindex')
+        }
+      })
+    })
+
   }
 }
 
@@ -203,8 +220,6 @@ const moveEditorBackToContainer = () => {
   const vditorEl = document.querySelector(`#${props.editorId}`) as HTMLElement
   const container = vditorContainer.value
   if (vditorEl && container) {
-    container.appendChild(vditorEl)
-
     vditorEl.style.position = 'relative'
     vditorEl.style.left = ''
     vditorEl.style.top = ''
@@ -212,14 +227,33 @@ const moveEditorBackToContainer = () => {
     vditorEl.style.height = '400px'
     vditorEl.style.zIndex = ''
     vditorEl.style.background = ''
-    vditorEl.style.transition = ''
+    vditorEl.style.transition = 'all 0.3s ease'
     vditorEl.style.margin = ''
     vditorEl.style.padding = ''
     vditorEl.style.border = ''
-
+    vditorEl.style.pointerEvents = 'auto'
+    const wrapper = container.querySelector('.vditor-wrapper')
+    if (wrapper) {
+      wrapper.appendChild(vditorEl)
+    } else {
+      console.error('Vditor wrapper not found')
+    }
     vditorEl.offsetHeight
+    nextTick(() => {
+      const dialogElement = document.querySelector('[role="dialog"]')
+      if (dialogElement) {
+        dialogElement.setAttribute('tabindex', '-1')
+      }
+    })
   }
 }
+
+onUnmounted(() => {
+  const vditorEl = document.querySelector(`#${props.editorId}`)
+  if (vditorEl && vditorEl.parentElement === document.body) {
+    vditorEl.remove()
+  }
+})
 
 onMounted(() => {
   vditor.value = new Vditor(props.editorId, {
@@ -240,17 +274,15 @@ onMounted(() => {
   })
 })
 
-onUnmounted(() => {
-  if (isFullscreen.value) {
-    moveEditorBackToContainer()
-  }
-})
+
 
 </script>
 
 <template>
-  <div class="vditor-wrapper" ref="vditorContainer">
-    <div :id="editorId" ref="editor" v-if="showOriginalEditor"></div>
+  <div ref="vditorContainer" id="vditor-container">
+    <div class="vditor-wrapper" id="vditor-wrapper">
+      <div :id="editorId" ref="editor" class="editor" v-if="showOriginalEditor"></div>
+    </div>
   </div>
 </template>
 
@@ -263,17 +295,36 @@ onUnmounted(() => {
   color: #fff;
 }
 
+/* .vditor-fullscreen {
+  position: fixed !important;
+
+  left: 0 !important;
+  top: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  min-height: 400px;
+  z-index: 99999;
+  background: var(--background);
+  transition: all 0.3s ease;
+  margin: 0;
+  padding: 0;
+  border: none;
+  pointer-events: auto;
+} */
+
 .vditor-dark .vditor-ir pre.vditor-reset {
   color: #fff;
 }
 
-.vditor-wrapper {
+/* .vditor-wrapper {
   position: relative;
   width: 100%;
   height: 100%;
-}
 
-#vditor {
+} */
+
+.editor {
   transition: all 0.2s;
+  pointer-events: auto;
 }
 </style>
