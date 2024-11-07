@@ -6,6 +6,7 @@ from .resp import ErrResponse
 
 TYPE_OPTIONS = {
     "lora": "bizyair/lora",
+    "controlnet": "bizyair/controlnet",
     # "other": "other",
 }
 ALLOW_TYPES = list(TYPE_OPTIONS.values())
