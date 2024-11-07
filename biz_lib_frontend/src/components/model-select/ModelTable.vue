@@ -24,18 +24,8 @@ import {
   CommandList,
   CommandSeparator
 } from '@/components/ui/command'
+import { useAlertDialog } from '@/components/modules/vAlertDialog/index'
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
 import type { Model, ModelVersion } from '@/types/model'
 import ModelVersionRow from './ModelVersionRow.vue'
 
@@ -68,12 +58,22 @@ const toggleExpand = (modelName: string) => {
   }
 }
 
-const handleOperateChange = (value: 'edit' | 'remove', { id, name, versions }: Model) => {
+const handleOperateChange = async (value: 'edit' | 'remove', { id, name, versions }: Model) => {
   currentOperateModel.value = name
   if (value === 'edit') {
     currentOperateModel.value = ''
   }
   if (value === 'remove') {
+    const res = await useAlertDialog({
+      title: 'Are you sure you want to delete this model?',
+      desc: 'This action cannot be undone.',
+      cancel: 'No, Keep It',
+      continue: 'Yes, Delete It',
+    })
+    if (!res) return
+
+
+
     if (versions) {
       const hasPublic = versions.some((version) => version.public)
       if (hasPublic) {
@@ -170,24 +170,9 @@ const handleApply = (version: ModelVersion) => {
                               Edit
                             </CommandItem>
                             <CommandSeparator />
-                            <CommandItem value="remove"
+                            <CommandItem value="remove" @click="handleOperateChange('remove', model)"
                               class="px-2 py-1.5 mb-1 mt-1 text-[#F9FAFB] cursor-pointer [&:hover]:!bg-[#6D28D9] [&:hover]:!text-[#F9FAFB]">
-                              <AlertDialog>
-                                <AlertDialogTrigger>Remove</AlertDialogTrigger>
-                                <AlertDialogContent>
-                                  <AlertDialogHeader>
-                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                      This action cannot be undone. This will permanently delete the model.
-                                    </AlertDialogDescription>
-                                  </AlertDialogHeader>
-                                  <AlertDialogFooter>
-                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                    <AlertDialogAction @click="handleOperateChange('remove', model)">Continue
-                                    </AlertDialogAction>
-                                  </AlertDialogFooter>
-                                </AlertDialogContent>
-                              </AlertDialog>
+                              Remove
                             </CommandItem>
                           </CommandGroup>
                         </CommandList>
