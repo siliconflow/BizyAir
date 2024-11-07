@@ -2,7 +2,6 @@
 import { ref } from 'vue'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
-// import { Markdown } from '@/components/markdown'
 
 import {
   Tabs,
@@ -39,11 +38,28 @@ const filterState = ref<FilterState>({
   base_models: props.selectedBaseModels || [],
   sort: 'Recently'
 })
+
+const isLoading = ref(false)
+
 const models = ref<Model[]>([])
 const getModelList = async () => {
-  const { data } = await get_model_list(modelListPathParams.value, filterState.value)
-  modelListPathParams.value.total = data?.total || 0
-  models.value = data?.list || []
+  try {
+    isLoading.value = true
+    const response = await get_model_list(modelListPathParams.value, filterState.value)
+    if (response && response.data) {
+      modelListPathParams.value.total = response?.data?.total || 0
+      models.value = response?.data?.list || []
+    } else {
+      modelListPathParams.value.total = 0
+      models.value = []
+    }
+  } catch (error) {
+    modelListPathParams.value.total = 0
+    models.value = []
+  }
+  finally {
+    isLoading.value = false
+  }
 }
 
 const showSortPopover = ref(false)
@@ -59,6 +75,7 @@ const handleFilterStateChange = async (value: FilterState) => {
 }
 
 const handleTabChange = async (value: string | number) => {
+  if (isLoading.value) return
   modelListPathParams.value.mode = String(value) as 'my' | 'my_fork' | 'publicity'
   modelListPathParams.value.current = 1
   filterState.value.keyword = ''
@@ -74,6 +91,10 @@ const handleApply = (version: ModelVersion) => {
   //TODO: apply model to bizyair node & close dialog
   //emit apply event
   console.log('version', version)
+}
+
+const handleRemove = async () => {
+  await getModelList()
 }
 
 onMounted(async () => {
@@ -109,32 +130,32 @@ onMounted(async () => {
             Community Models
           </TabsTrigger>
         </TabsList>
-        <TabsContent value="my">
-          <ModelFilterBar v-model:filter-state="filterState" v-model:show-sort-popover="showSortPopover"
-            :model-type="props.modelType" @update:filter-state="handleFilterStateChange"
-            :selected-base-models="props.selectedBaseModels" />
-          <ScrollArea class="h-[500px] rounded-md border-0">
-            <ModelTable :models="models" @apply="handleApply" />
-          </ScrollArea>
-          <ModelPagination :current="modelListPathParams.current" :page_size="modelListPathParams.page_size"
-            :total="modelListPathParams.total" @change="handlePageChange" />
-        </TabsContent>
-        <TabsContent value="my_fork">
-          <ModelFilterBar v-model:filter-state="filterState" v-model:show-sort-popover="showSortPopover"
-            :model-type="props.modelType" @update:filter-state="handleFilterStateChange"
-            :selected-base-models="props.selectedBaseModels" />
-          <ScrollArea class="h-[500px] rounded-md border-0">
-            <ModelTable :models="models" @apply="handleApply" />
-          </ScrollArea>
-          <ModelPagination :current="modelListPathParams.current" :page_size="modelListPathParams.page_size"
-            :total="modelListPathParams.total" @change="handlePageChange" />
-        </TabsContent>
-        <TabsContent value="publicity">
-          <ModelFilterBar v-model:filter-state="filterState" v-model:show-sort-popover="showSortPopover"
+        <TabsContent value="my" v-if="modelListPathParams.mode === 'my'">
+          <ModelFilterBar v-model:filter-state="filterState" :mode="modelListPathParams.mode" v-model:show-sort-popover="showSortPopover"
             :model-type="props.modelType" @update:filter-state="handleFilterStateChange"
             :selected-base-models="props.selectedBaseModels" />
           <ScrollArea class="h-[400px] rounded-md border-0">
-            <ModelTable :models="models" @apply="handleApply" />
+            <ModelTable :models="models" :mode="modelListPathParams.mode" @apply="handleApply" @remove="handleRemove" />
+          </ScrollArea>
+          <ModelPagination :current="modelListPathParams.current" :page_size="modelListPathParams.page_size"
+            :total="modelListPathParams.total" @change="handlePageChange" />
+        </TabsContent>
+        <TabsContent value="my_fork" v-if="modelListPathParams.mode === 'my_fork'">
+          <ModelFilterBar v-model:filter-state="filterState" :mode="modelListPathParams.mode" v-model:show-sort-popover="showSortPopover"
+            :model-type="props.modelType" @update:filter-state="handleFilterStateChange"
+            :selected-base-models="props.selectedBaseModels" />
+          <ScrollArea class="h-[400px] rounded-md border-0">
+            <ModelTable :models="models" :mode="modelListPathParams.mode" @apply="handleApply" @remove="handleRemove" />
+          </ScrollArea>
+          <ModelPagination :current="modelListPathParams.current" :page_size="modelListPathParams.page_size"
+            :total="modelListPathParams.total" @change="handlePageChange" />
+        </TabsContent>
+        <TabsContent value="publicity" v-if="modelListPathParams.mode === 'publicity'">
+          <ModelFilterBar v-model:filter-state="filterState" :mode="modelListPathParams.mode" v-model:show-sort-popover="showSortPopover"
+            :model-type="props.modelType" @update:filter-state="handleFilterStateChange"
+            :selected-base-models="props.selectedBaseModels" />
+          <ScrollArea class="h-[400px] rounded-md border-0">
+            <ModelTable :models="models" :mode="modelListPathParams.mode" @apply="handleApply" @remove="handleRemove" />
           </ScrollArea>
           <ModelPagination :current="modelListPathParams.current" :page_size="modelListPathParams.page_size"
             :total="modelListPathParams.total" @change="handlePageChange" />
