@@ -87,11 +87,8 @@ const handleTabChange = async (value: string | number) => {
 
 const emit = defineEmits(['apply'])
 
-const handleApply = (version: ModelVersion) => {
-  //TODO: apply model to bizyair node & close dialog
-  //emit apply event
-  console.log('version', version)
-  emit('apply', version)
+const handleApply = (version: ModelVersion, model: Model) => {
+  emit('apply', version, model.name)
 }
 
 const handleRemove = async () => {
@@ -132,9 +129,9 @@ onMounted(async () => {
           </TabsTrigger>
         </TabsList>
         <TabsContent value="my" v-if="modelListPathParams.mode === 'my'">
-          <ModelFilterBar v-model:filter-state="filterState" :mode="modelListPathParams.mode" v-model:show-sort-popover="showSortPopover"
-            :model-type="props.modelType" @update:filter-state="handleFilterStateChange"
-            :selected-base-models="props.selectedBaseModels" />
+          <ModelFilterBar v-model:filter-state="filterState" :mode="modelListPathParams.mode"
+            v-model:show-sort-popover="showSortPopover" :model-type="props.modelType"
+            @update:filter-state="handleFilterStateChange" :selected-base-models="props.selectedBaseModels" />
           <ScrollArea class="h-[400px] rounded-md border-0">
             <ModelTable :models="models" :mode="modelListPathParams.mode" @apply="handleApply" @remove="handleRemove" />
           </ScrollArea>
@@ -142,9 +139,9 @@ onMounted(async () => {
             :total="modelListPathParams.total" @change="handlePageChange" />
         </TabsContent>
         <TabsContent value="my_fork" v-if="modelListPathParams.mode === 'my_fork'">
-          <ModelFilterBar v-model:filter-state="filterState" :mode="modelListPathParams.mode" v-model:show-sort-popover="showSortPopover"
-            :model-type="props.modelType" @update:filter-state="handleFilterStateChange"
-            :selected-base-models="props.selectedBaseModels" />
+          <ModelFilterBar v-model:filter-state="filterState" :mode="modelListPathParams.mode"
+            v-model:show-sort-popover="showSortPopover" :model-type="props.modelType"
+            @update:filter-state="handleFilterStateChange" :selected-base-models="props.selectedBaseModels" />
           <ScrollArea class="h-[400px] rounded-md border-0">
             <ModelTable :models="models" :mode="modelListPathParams.mode" @apply="handleApply" @remove="handleRemove" />
           </ScrollArea>
@@ -152,9 +149,9 @@ onMounted(async () => {
             :total="modelListPathParams.total" @change="handlePageChange" />
         </TabsContent>
         <TabsContent value="publicity" v-if="modelListPathParams.mode === 'publicity'">
-          <ModelFilterBar v-model:filter-state="filterState" :mode="modelListPathParams.mode" v-model:show-sort-popover="showSortPopover"
-            :model-type="props.modelType" @update:filter-state="handleFilterStateChange"
-            :selected-base-models="props.selectedBaseModels" />
+          <ModelFilterBar v-model:filter-state="filterState" :mode="modelListPathParams.mode"
+            v-model:show-sort-popover="showSortPopover" :model-type="props.modelType"
+            @update:filter-state="handleFilterStateChange" :selected-base-models="props.selectedBaseModels" />
           <ScrollArea class="h-[400px] rounded-md border-0">
             <ModelTable :models="models" :mode="modelListPathParams.mode" @apply="handleApply" @remove="handleRemove" />
           </ScrollArea>

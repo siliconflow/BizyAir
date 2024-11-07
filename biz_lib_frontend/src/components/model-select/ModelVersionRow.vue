@@ -4,15 +4,16 @@ import {
   TableCell,
   TableRow,
 } from '@/components/ui/table'
-import type { ModelVersion } from '@/types/model'
+import type { Model, ModelVersion } from '@/types/model'
 
 interface Props {
-  version: ModelVersion
+  version: ModelVersion,
+  model: Model
 }
 
 const emit = defineEmits(['apply'])
-const handleApply = (version: ModelVersion) => {
-  emit('apply', version)
+const handleApply = (version: ModelVersion, model: Model) => {
+  emit('apply', version, model)
 }
 
 
@@ -44,7 +45,7 @@ defineProps<Props>()
     <TableCell class="w-25 truncate block">{{ version.base_model }}</TableCell>
     <TableCell class="w-[20%]">{{ version.available ? 'Available' : 'Unavailable' }}</TableCell>
     <TableCell class="w-[15%] flex justify-start">
-      <Button variant="default" @click="handleApply(version)" :disabled="!version.available"
+      <Button variant="default" @click="handleApply(version, model)" :disabled="!version.available"
         :class="{ 'opacity-50': !version.available }">
         Apply
       </Button>

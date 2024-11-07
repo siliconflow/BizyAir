@@ -99,8 +99,8 @@ const handleRemoveModel = (id: string) => {
 }
 
 const emit = defineEmits(['apply', 'remove'])
-const handleApply = (version: ModelVersion) => {
-  emit('apply', version)
+const handleApply = (version: ModelVersion, model: Model) => {
+  emit('apply', version, model)
 }
 </script>
 <template>
@@ -183,8 +183,8 @@ const handleApply = (version: ModelVersion) => {
               </TableCell>
             </TableRow>
             <template v-if="expandedModels.has(model.name) && model.versions">
-              <ModelVersionRow v-for="version in model.versions" :key="version.version" :version="version"
-                :mode="props.mode" @apply="handleApply" />
+              <ModelVersionRow v-for="version in model.versions" :model="model" :key="version.version"
+                :version="version" :mode="props.mode" @apply="handleApply" />
             </template>
           </template>
         </template>
