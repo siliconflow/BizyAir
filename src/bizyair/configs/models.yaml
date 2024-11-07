@@ -5,6 +5,7 @@ model_hub:
 
 model_types:
   loras: bizyair/lora
+  controlnet: bizyair/controlnet
   # folder_name, server_folder_name
   # checkpoints: bizyair/checkpoint
   # vae: bizyair/vae
@@ -18,6 +19,8 @@ routing_configs:
     route: /supernode/flux-dev-bizyair-comfy-ksampler-speedup
   flux-schnell:
     route: /supernode/flux-bizyair-sdxl-comfy-ksampler
+  flux-vae:
+    route: /supernode/flux-vae-bizyair-comfy-ksampler
   ultimatesdupscale:
     route: /supernode/bizyair-ultimate-sd-upscale-ksampler
   sd3_5_large:
@@ -45,7 +48,7 @@ routing_rules:
     config: flux-schnell
   - name: flux-vae
     pattern: ^flux/ae.sft$
-    config: flux-schnell
+    config: flux-vae
   - name: sd3_5_large
     pattern: ^sd3.5_large.safetensors$
     config: sd3_5_large
