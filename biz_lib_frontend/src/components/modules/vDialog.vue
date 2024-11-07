@@ -23,7 +23,14 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
-  class: String,
+  class: {
+    type: [String, Object, Array] as any,
+    default: null,
+  },
+  contentClass: {
+    type: [String, Object, Array] as any,
+    default: null,
+  },
 })
 
 const emit = defineEmits(['update:open'])
@@ -74,7 +81,9 @@ onUnmounted(() => {
             <slot name="description" />
           </DialogDescription>
         </DialogHeader>
-        <slot />
+        <div :class="props.contentClass">
+          <slot />
+        </div>
         <DialogFooter>
           <slot name="foot" />
         </DialogFooter>
