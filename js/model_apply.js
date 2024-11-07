@@ -32,7 +32,14 @@ app.registerExtension({
                         litecontextmenu.style.display = 'none'
                     }
                     console.log('showModelSelec111t')
-                    bizyAirLib.showModelSelect({modelType:"LoRA",selectedBaseModels:["Flux.1 D","SDXL"]})
+                    bizyAirLib.showModelSelect({
+                        modelType:"LoRA",
+                        selectedBaseModels:["Flux.1 D","SDXL"],
+                        onApply: (model) => {
+                            console.log(model)
+                            lora_name.value = model.version
+                        }
+                    })
                     // const aasd = dialog({
                     //     content: $el('div', {
                     //         style: {
