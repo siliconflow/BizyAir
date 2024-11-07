@@ -19,8 +19,12 @@ export const showModelSelect = (options: { [x: string]: unknown; } | null | unde
       app.unmount();
       document.body.removeChild(container);
     },
-    onClicked: (e: any) => {
-      console.log('clicked', e)
+    onApply: (e: any) => {
+      if (options && options.onApply) {
+        (options.onApply as Function)(e);
+        app.unmount();
+        document.body.removeChild(container);
+      }
     }
   });
   app.directive('debounce', {

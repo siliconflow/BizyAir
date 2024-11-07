@@ -85,12 +85,13 @@ const handleTabChange = async (value: string | number) => {
   await getModelList()
 }
 
-
+const emit = defineEmits(['apply'])
 
 const handleApply = (version: ModelVersion) => {
   //TODO: apply model to bizyair node & close dialog
   //emit apply event
   console.log('version', version)
+  emit('apply', version)
 }
 
 const handleRemove = async () => {
