@@ -990,3 +990,28 @@ class ConditioningSetTimestepRange(BizyAirBaseNode):
     # FUNCTION = "set_range"
 
     CATEGORY = "advanced/conditioning"
+
+
+class SharedControlNetLoader(BizyAir_ControlNetLoader):
+    @classmethod
+    def INPUT_TYPES(s):
+        ret = super().INPUT_TYPES()
+        ret["required"]["share_id"] = ("STRING", {"default": "share_id"})
+        return ret
+
+    NODE_DISPLAY_NAME = "Shared Load ControlNet Model"
+
+    @classmethod
+    def VALIDATE_INPUTS(cls, share_id: str, control_net_name: str):
+        if control_net_name in folder_paths.filename_path_mapping.get("controlnet", {}):
+            return True
+
+        outs = folder_paths.get_share_filename_list("controlnet", share_id=share_id)
+        if control_net_name not in outs:
+            raise ValueError(
+                f"ControlNet {control_net_name} not found in share {share_id} with {outs}"
+            )
+        return True
+
+    def load_controlnet(self, control_net_name, share_id, **kwargs):
+        return super().load_controlnet(control_net_name=control_net_name, **kwargs)
