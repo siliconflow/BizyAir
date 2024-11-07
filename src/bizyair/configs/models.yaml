@@ -20,7 +20,7 @@ routing_configs:
   flux-schnell:
     route: /supernode/flux-bizyair-sdxl-comfy-ksampler
   flux-vae:
-    route: /supernode/wrongway
+    route: /supernode/flux-vae-bizyair-comfy-ksampler
   ultimatesdupscale:
     route: /supernode/bizyair-ultimate-sd-upscale-ksampler
   sd3_5_large:
