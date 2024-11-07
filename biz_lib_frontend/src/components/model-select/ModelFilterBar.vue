@@ -20,11 +20,13 @@ import {
 
 const modelTypes = ref<CommonModelType[]>([])
 const baseModelTypes = ref<CommonModelType[]>([])
+const isLoading = ref(false)
 interface Props {
   filterState: FilterState
   showSortPopover: boolean
   modelType?: string
   selectedBaseModels?: string[]
+  mode: string
 }
 
 interface Emits {
@@ -36,12 +38,20 @@ const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
 const getFilterData = async () => {
-  const { data } = await model_types()
-  modelTypes.value = data ? (data as CommonModelType[]) : []
+  try {
+    isLoading.value = true
+    const modelTypesResponse = await model_types()
+    modelTypes.value = modelTypesResponse?.data ? (modelTypesResponse.data as CommonModelType[]) : []
 
-  const { data: baseModelData } = await base_model_types() 
-  baseModelTypes.value = baseModelData ? (baseModelData as CommonModelType[]) : []
-
+    const baseModelResponse = await base_model_types()
+    baseModelTypes.value = baseModelResponse?.data ? (baseModelResponse.data as CommonModelType[]) : []
+  } catch (error) {
+    modelTypes.value = []
+    baseModelTypes.value = []
+    console.error('Failed to get filter data:', error)
+  } finally {
+    isLoading.value = false
+  }
 }
 
 const handleSortChange = (value: 'Recently' | 'Most Forked' | 'Most Used') => {
@@ -132,16 +142,18 @@ onMounted(async () => {
               ]">
                 Recently
               </CommandItem>
-              <CommandItem value="most-forked" @click="handleSortChange('Most Forked')" :class="[
-                'px-2 py-1.5 text-[#F9FAFB] cursor-pointer [&:hover]:!bg-[#6D28D9] [&:hover]:!text-[#F9FAFB]',
-                filterState.sort === 'Most Forked' ? '!bg-[#6D28D9] !text-[#F9FAFB]' : ''
-              ]">
+              <CommandItem v-if="!['my', 'my_fork'].includes(mode)" value="most-forked"
+                @click="handleSortChange('Most Forked')" :class="[
+                  'px-2 py-1.5 text-[#F9FAFB] cursor-pointer [&:hover]:!bg-[#6D28D9] [&:hover]:!text-[#F9FAFB]',
+                  filterState.sort === 'Most Forked' ? '!bg-[#6D28D9] !text-[#F9FAFB]' : ''
+                ]">
                 Most Forked
               </CommandItem>
-              <CommandItem value="most-used" @click="handleSortChange('Most Used')" :class="[
-                'px-2 py-1.5 text-[#F9FAFB] cursor-pointer [&:hover]:!bg-[#6D28D9] [&:hover]:!text-[#F9FAFB]',
-                filterState.sort === 'Most Used' ? '!bg-[#6D28D9] !text-[#F9FAFB]' : ''
-              ]">
+              <CommandItem v-if="!['my', 'my_fork'].includes(mode)" value="most-used"
+                @click="handleSortChange('Most Used')" :class="[
+                  'px-2 py-1.5 text-[#F9FAFB] cursor-pointer [&:hover]:!bg-[#6D28D9] [&:hover]:!text-[#F9FAFB]',
+                  filterState.sort === 'Most Used' ? '!bg-[#6D28D9] !text-[#F9FAFB]' : ''
+                ]">
                 Most Used
               </CommandItem>
             </CommandGroup>
