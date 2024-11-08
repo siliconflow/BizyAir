@@ -28,7 +28,7 @@ const handleNext = () => {
 </script>
 
 <template>
-  <div class="flex justify-between items-center mt-4" v-if="props.total > 0">
+  <div class="flex justify-between items-center mt-1" v-if="props.total > 0">
     <Button variant="ghost" size="sm" :disabled="props.current <= 1" @click="handlePrevious"
       class="text-[#F9FAFB] hover:text-[#F9FAFB] hover:bg-[#4E4E4E]">
       Previous

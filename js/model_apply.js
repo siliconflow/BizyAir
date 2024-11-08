@@ -35,9 +35,10 @@ app.registerExtension({
                     bizyAirLib.showModelSelect({
                         modelType:"LoRA",
                         selectedBaseModels:["Flux.1 D","SDXL"],
-                        onApply: (model) => {
-                            console.log(model)
-                            lora_name.value = model.version
+                        onApply: (version,model) => {
+                            console.log('version',version)
+                            console.log('model',model)
+                           // lora_name.value = model.version
                         }
                     })
                     // const aasd = dialog({

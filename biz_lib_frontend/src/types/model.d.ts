@@ -3,6 +3,9 @@ export interface Model {
   name: string
   type: string
   versions?: ModelVersion[]
+  user_id: string
+  user_name: string
+  counter?:any
 }
 
 export interface ModelVersion {
@@ -10,9 +13,13 @@ export interface ModelVersion {
   version: string
   base_model: string 
   bizy_model_id: number
+  sign:string
+  path:string
   counter:any
+  intro:string
   created_at: string
   file_name: string
+  file_size:number
   id:number
   public:boolean
   updated_at:string

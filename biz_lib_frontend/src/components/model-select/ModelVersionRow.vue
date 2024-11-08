@@ -1,25 +1,38 @@
 <script setup lang="ts">
 import { Button } from '@/components/ui/button'
+import { ModelDetail } from '@/components/model-detail'
+import vDialog from '@/components/modules/vDialog.vue'
 import {
   TableCell,
   TableRow,
 } from '@/components/ui/table'
-import type { ModelVersion } from '@/types/model'
+import type { Model, ModelVersion } from '@/types/model'
+import { ref } from 'vue'
+
+
+const showModelDetail = ref(false)
 
 interface Props {
-  version: ModelVersion
+  version: ModelVersion,
+  model: Model
+  mode: string
 }
 
 const emit = defineEmits(['apply'])
-const handleApply = (version: ModelVersion) => {
-  emit('apply', version)
+const handleApply = (version: ModelVersion, model: Model) => {
+  emit('apply', version, model)
 }
 
+const handleShowModelDetail = () => {
+  console.log('detail')
+  showModelDetail.value = true
+}
 
 defineProps<Props>()
 </script>
 <template>
-  <TableRow class="bg-[#3D3D3D] hover:bg-[#4E4E4E] border-[#F9FAFB]/60 h-12">
+  <TableRow class="bg-[#3D3D3D] hover:bg-[#4E4E4E] hover:cursor-pointer border-[#F9FAFB]/60 h-12"
+    @dblclick="handleShowModelDetail">
     <TableCell class="pl-10 w-[40%] max-w-[200px]">
       <div class="text-sm text-white-500 flex items-center min-w-0">
         <span class="truncate flex-1">{{ version.version }}</span>
@@ -44,10 +57,13 @@ defineProps<Props>()
     <TableCell class="w-25 truncate block">{{ version.base_model }}</TableCell>
     <TableCell class="w-[20%]">{{ version.available ? 'Available' : 'Unavailable' }}</TableCell>
     <TableCell class="w-[15%] flex justify-start">
-      <Button variant="default" @click="handleApply(version)" :disabled="!version.available"
+      <Button variant="default" @click.stop="handleApply(version, model)" :disabled="!version.available"
         :class="{ 'opacity-50': !version.available }">
         Apply
       </Button>
     </TableCell>
   </TableRow>
+  <vDialog v-model:open="showModelDetail" class="w-full h-screen z-[9999]" :title="model.name">
+    <ModelDetail :modelId="model.id" :mode="mode" />
+  </vDialog>
 </template>

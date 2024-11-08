@@ -21,9 +21,9 @@ export const showModelSelect = (options: { [x: string]: unknown; } | null | unde
       app.unmount();
       document.body.removeChild(container);
     },
-    onApply: (e: any) => {
-      if (options && options.onApply) {
-        (options.onApply as Function)(e);
+    onApply: (...args: unknown[]) => {
+      if (options?.onApply) {
+        (options.onApply as (...args: unknown[]) => void)(...args);
         app.unmount();
         document.body.removeChild(container);
       }

@@ -24,18 +24,8 @@ import {
   CommandList,
   CommandSeparator
 } from '@/components/ui/command'
+import { useAlertDialog } from '@/components/modules/vAlertDialog/index'
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
 import type { Model, ModelVersion } from '@/types/model'
 import ModelVersionRow from './ModelVersionRow.vue'
 
@@ -68,12 +58,22 @@ const toggleExpand = (modelName: string) => {
   }
 }
 
-const handleOperateChange = (value: 'edit' | 'remove', { id, name, versions }: Model) => {
+const handleOperateChange = async (value: 'edit' | 'remove', { id, name, versions }: Model) => {
   currentOperateModel.value = name
   if (value === 'edit') {
     currentOperateModel.value = ''
   }
   if (value === 'remove') {
+    const res = await useAlertDialog({
+      title: 'Are you sure you want to delete this model?',
+      desc: 'This action cannot be undone.',
+      cancel: 'No, Keep It',
+      continue: 'Yes, Delete It',
+    })
+    if (!res) return
+
+
+
     if (versions) {
       const hasPublic = versions.some((version) => version.public)
       if (hasPublic) {
@@ -99,8 +99,8 @@ const handleRemoveModel = (id: string) => {
 }
 
 const emit = defineEmits(['apply', 'remove'])
-const handleApply = (version: ModelVersion) => {
-  emit('apply', version)
+const handleApply = (version: ModelVersion, model: Model) => {
+  emit('apply', version, model)
 }
 </script>
 <template>
@@ -127,9 +127,9 @@ const handleApply = (version: ModelVersion) => {
         <template v-else>
           <template v-for="model in props.models" :key="model.name + model.id">
             <TableRow class="group cursor-pointer border-[#F9FAFB]/60 hover:bg-transparent h-12">
-              <TableCell class="w-[40%]" @click="toggleExpand(model.name)">
+              <TableCell class="w-[55%]" @click="toggleExpand(model.name)">
                 <div class="flex items-center space-x-2">
-                  <span class="text-lg">
+                  <span class="text-sm">
                     <svg v-if="expandedModels.has(model.name)" xmlns="http://www.w3.org/2000/svg" width="16" height="17"
                       viewBox="0 0 16 17" fill="none">
                       <path d="M4 6L8 10L12 6" stroke="#F9FAFB" stroke-width="1.5" stroke-linecap="round"
@@ -145,8 +145,8 @@ const handleApply = (version: ModelVersion) => {
                   <Badge variant="default">{{ model.type }}</Badge>
                 </div>
               </TableCell>
-              <TableCell class="w-[25%]">-</TableCell>
-              <TableCell class="w-[20%]">-</TableCell>
+              <TableCell class="w-[15%]">-</TableCell>
+              <TableCell class="w-[15%]">-</TableCell>
               <TableCell class="w-[15%]">
                 <div class="flex justify-end h-full">
                   <Popover v-if="props.mode === 'my' || props.mode === 'my_fork'" class="bg-[#353535]"
@@ -170,24 +170,9 @@ const handleApply = (version: ModelVersion) => {
                               Edit
                             </CommandItem>
                             <CommandSeparator />
-                            <CommandItem value="remove"
+                            <CommandItem value="remove" @click="handleOperateChange('remove', model)"
                               class="px-2 py-1.5 mb-1 mt-1 text-[#F9FAFB] cursor-pointer [&:hover]:!bg-[#6D28D9] [&:hover]:!text-[#F9FAFB]">
-                              <AlertDialog>
-                                <AlertDialogTrigger>Remove</AlertDialogTrigger>
-                                <AlertDialogContent>
-                                  <AlertDialogHeader>
-                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                      This action cannot be undone. This will permanently delete the model.
-                                    </AlertDialogDescription>
-                                  </AlertDialogHeader>
-                                  <AlertDialogFooter>
-                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                    <AlertDialogAction @click="handleOperateChange('remove', model)">Continue
-                                    </AlertDialogAction>
-                                  </AlertDialogFooter>
-                                </AlertDialogContent>
-                              </AlertDialog>
+                              Remove
                             </CommandItem>
                           </CommandGroup>
                         </CommandList>
@@ -198,8 +183,8 @@ const handleApply = (version: ModelVersion) => {
               </TableCell>
             </TableRow>
             <template v-if="expandedModels.has(model.name) && model.versions">
-              <ModelVersionRow v-for="version in model.versions" :key="version.version" :version="version"
-                :mode="props.mode" @apply="handleApply" />
+              <ModelVersionRow v-for="version in model.versions" :model="model" :mode="props.mode"
+                :key="version.version" :version="version" @apply="handleApply" />
             </template>
           </template>
         </template>
