@@ -15,7 +15,7 @@ import btnModel from '@/views/btnModel/index.vue'
 import btnNews from '@/views/btnNews/index.vue'
 // import { Toaster } from '@/components/ui/sonner'
 // import useClipboard from 'vue-clipboard3'
-import { useStatusStore} from '@/stores/userStatus'
+import { useStatusStore } from '@/stores/userStatus'
 
 const statusStore = useStatusStore()
 statusStore.loginRefresh()

@@ -73,9 +73,7 @@ const openOAuthPopup = async (setKey: (key: string) => void) => {
 function clearError() {
   hasError.value = false;
 }
-toast('', {
-      description: 'API Key set successfully!'
-    });
+
 async function toSubmit() {
   if (!apiKey.value) {
     hasError.value = true;

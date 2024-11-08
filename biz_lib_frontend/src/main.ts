@@ -3,7 +3,9 @@ import './assets/index.css'
 import App from './App.vue'
 import { createPinia } from 'pinia';
 import { ModelSelect } from '@/components/model-select/'
+import { useToaster } from '@/components/modules/toats/index'
 
+useToaster()
 
 export const showModelSelect = (options: { [x: string]: unknown; } | null | undefined) => {
   const existingContainer = document.getElementById('bizyair-model-select');
@@ -61,6 +63,8 @@ export function mount(container: string | Element,comfyUIApp?: any) {
   // }
 
   app.provide('comfyUIApp', comfyUIApp);
+  // app.component
+
   app.mount(container)
   // return app
 }

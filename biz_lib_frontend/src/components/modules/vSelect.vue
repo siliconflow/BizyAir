@@ -15,6 +15,7 @@ import { useForwardPropsEmits } from 'radix-vue'
 const props = defineProps({
   modelValue: String,
   placeholder: String,
+  class: [String, Object, Array],
   'onUpdate:modelValue': Function as PropType<(value: string) => void>,
 })
 const emits = defineEmits<SelectRootEmits>()
@@ -25,7 +26,7 @@ const forwarded = useForwardPropsEmits(props, emits)
 
 <template>
   <Select v-bind="forwarded">
-    <SelectTrigger>
+    <SelectTrigger :class="class">
       <SelectValue :placeholder="placeholder" />
     </SelectTrigger>
     <SelectContent>

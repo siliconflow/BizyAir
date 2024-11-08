@@ -1,4 +1,6 @@
+import { toast } from 'vue-sonner'
 const fetchCache = new Map();
+
 
 export function customFetch(url: string, options = {}) {
   const now = Date.now();
@@ -13,12 +15,7 @@ export function customFetch(url: string, options = {}) {
   return window.fetch(`${host}${url}`, options)
     .then(response => {
       if (response.status === 404) {
-        // dialog({
-        //     content: "You may be missing dependencies at the moment. For details, please refer to the ComfyUI logs.",
-        //     type: 'error',
-        //     noText: 'Close'
-        // })
-        alert('You may be missing dependencies at the moment. For details, please refer to the ComfyUI logs.')
+        toast.error('You may be missing dependencies at the moment. For details, please refer to the ComfyUI logs.')
       }
       return response.json();
     })
@@ -35,7 +32,7 @@ export function customFetch(url: string, options = {}) {
         //         }
         //     }
         // })
-        alert(message)
+        toast.error(message)
         return;
       }
       return data;

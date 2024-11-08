@@ -19,10 +19,10 @@
       <template #title><span class="px-6" @click="acActiveIndex = '-1'; modelBox = true">Publish a Model</span></template>
       <div v-show="modelBox" class="px-6 pb-6">
         <v-item label="Model Name">
-          <Input type="text" placeholder="shadcn" v-model:model-value="formData.name" />
+          <Input @change="formData.nameError = false" :class="{'border-red-500': formData.nameError}" type="text" placeholder="Enter Model Name" v-model:model-value="formData.name" />
         </v-item>
-        <v-item label="Model Name">
-          <v-select v-model:model-value="formData.type" placeholder="Select Model Type">
+        <v-item label="Model Type">
+          <v-select @update:open="formData.typeError = false" :class="{'border-red-500': formData.typeError}" v-model:model-value="formData.type" placeholder="Select Model Type">
             <SelectItem v-for="(e, i) in typeLis" :key="i" :value="e.value">{{ e.label }}</SelectItem>
           </v-select>
         </v-item>
@@ -36,24 +36,23 @@
         @update:model-value="acActiveFn"
         v-model:model-value="acActiveIndex">
         <AccordionItem class="bg-[#353535] z-1 px-6 w-full rounded-tl-lg rounded-tr-lg custom-shadow border-t-[1px]" v-for="(e, i) in formData.versions" :key="i" :value="`${i}`">
-          <v-accordion-trigger class=" justify-between">
+          <v-accordion-trigger class="justify-between relative">
             <span v-if="acActiveIndex !== `${i}` && e.version">{{ e.version }}</span>
             <span v-else>Add Version</span>
-            <BadgeMinus class="w-4 h-4" #icon @click.capture.stop="delVersion(i)" />
+            <BadgeMinus v-if="formData.versions.length !== 1" class="w-4 h-4" #icon @click.capture.stop="delVersion(i)" />
+            <Progress v-if="e.progress && e.progress.value" :model-value="e.progress.value" class="absolute w-full bottom-0 left-0 h-1" />
           </v-accordion-trigger>
           <AccordionContent>
             <v-item label="Version Name">
-              <Input type="text" placeholder="shadcn" v-model:model-value="e.version" />
+              <Input @change="e.versionError = false" :class="{'border-red-500': e.versionError}" type="text" placeholder="" v-model:model-value="e.version" />
             </v-item>
             <v-item label="Base Model">
-              <v-select v-model:model-value="e.base_model" placeholder="Select Base Model">
+              <v-select @update:open="e.baseModelError = false" :class="{'border-red-500': e.baseModelError}" v-model:model-value="e.base_model" placeholder="Select Base Model">
                 <SelectItem v-for="(e, i) in baseTypeLis" :key="i" :value="e.value">{{ e.label }}</SelectItem>
               </v-select>
             </v-item>
-            <v-item label="Intro">
-              <!-- <Markdown editorId="veditor" @update:modelValue="handleMarkdownChange" /> -->
+            <v-item label="Introduction">
               <Markdown :editorId="`myeditor${i}`" @update:modelValue="handleMarkdownChange" @isUploading="handleIsUploading" />
-              <!-- <Textarea type="text" placeholder="shadcn" v-model:model-value="e.intro" /> -->
             </v-item>
             <v-item label="">
               <div class="flex items-center space-x-2 mt-2">
@@ -62,24 +61,29 @@
               </div>
             </v-item>
             <v-item label="File Path">
-              <Input type="text" @change="checkFile(e.filePath, i)" placeholder="shadcn" v-model:model-value="e.filePath" />
+              <Input :class="{'border-red-500': e.filePathError}" type="text" @change="checkFile(e.filePath, i)" placeholder="" v-model:model-value="e.filePath" />
             </v-item>
-            <Button class="w-full mt-3" @click="nextStep">Next Step</Button>
+            <div v-if="e.progress && e.progress.value">
+              <Progress  :model-value="e.progress.value" class="mt-4 h-3" />
+              <p class="text-center mt-2">20% Uploaded</p>
+            </div>
           </AccordionContent>
         </AccordionItem>
 
       </Accordion>
-      <template #foot>
+      <template #foot v-if="!modelBox">
         <div class="bg-[#353535] px-6 w-full h-14 rounded-tl-lg rounded-tr-lg custom-shadow border-t-[1px] flex justify-between items-center -mt-4">
-          <Button type="button" class="" @click="nextStep">Add Version</Button>
-          <Button class="" @click="acActiveIndex = '-1'">Close All</Button>
+          <Button variant="ghost" class="" @click="addVersions">Add Version</Button>
+          <Button @click="submit">Publish</Button>
         </div>
       </template>
+      <div v-if="showLayoutLoading" class="z-50 w-full h-full absolute left-0 top-0"></div>
     </v-dialog>
 
 
 </template>
 <script setup lang="ts">
+import { toast } from 'vue-sonner'
 import { ref, watch } from 'vue'
 import { Accordion, AccordionContent, AccordionItem } from '@/components/ui/accordion'
 import { SelectItem } from '@/components/ui/select'
@@ -87,6 +91,7 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
+import { Progress } from '@/components/ui/progress'
 import vDialog from '@/components/modules/vDialog.vue'
 import vSelect from '@/components/modules/vSelect.vue'
 import vItem from '@/components/modules/vItem.vue'
@@ -111,6 +116,7 @@ const typeLis = ref([{ value: '', label: '' }]);
 const baseTypeLis = ref([{ value: '', label: '' }]);
 const formData = ref({ ...modelStoreObject.modelDetail });
 const acActiveIndex = ref('0')
+const showLayoutLoading = ref(false)
 
 function handleChange(val: any, index: number) {
   if (formData.value.versions) {
@@ -119,12 +125,8 @@ function handleChange(val: any, index: number) {
 }
 async function checkFile(val: string, index: number) {
   const res = await checkLocalFile({ absolute_path: val })
-  console.log(res)
-  if (res.data.upload_id) {
-    disabledSubmit.value = true
-    await submitUpload({ upload_id: res.data.upload_id })
-    disabledSubmit.value = false
-  }
+  formData.value.versions[index].file_upload_id = res.data.upload_id
+  formData.value.versions[index].filePathError = false
   versionIndex.value = index
 }
 async function delVersion(index: number) {
@@ -136,17 +138,20 @@ async function delVersion(index: number) {
   })
   if (!res) return
   const tempData = {...formData.value}
+  if (acActiveIndex.value === `${tempData.versions.length - 1}`) {
+    acActiveIndex.value = `${Number(acActiveIndex.value) - 1}`
+  }
   tempData.versions = tempData.versions || []
   tempData.versions.splice(index, 1)
   modelStoreObject.setModelDetail(tempData)
-  if (tempData.versions.length == 1) {
+  if (tempData.versions.length === 1) {
     acActiveIndex.value = '0'
   }
-  if (tempData.versions.length == 0) {
+  if (tempData.versions.length === 0) {
     modelBox.value = true
   }
 }
-function nextStep() {
+function addVersions() {
   const tempData = {...formData.value}
   tempData.versions = tempData.versions || []
   tempData.versions.push({
@@ -163,17 +168,91 @@ function nextStep() {
   acActiveIndex.value = `${tempData.versions.length - 1}`
 }
 
-function nextStep2() {
-  console.log(formData.value)
+function nextStep() {
+  if(!formData.value.name) {
+    toast.error('Please enter the model name')
+    formData.value.nameError = true
+    return
+  }
+  if(!formData.value.type) {
+    toast.error('Please select the model type')
+    formData.value.typeError = true
+    return
+  }
+  if (formData.value.versions.length) {
+    acActiveIndex.value = `${formData.value.versions.length - 1}`
+    modelBox.value = false
+  } else {
+    addVersions()
+  }
+}
 
+function verifyVersion() {
+  const tempData = {...formData.value}
+  tempData.versions = tempData.versions || []
+  tempData.versions.forEach((e: any, i: number) => {
+    if (!e.version) {
+      e.versionError = true
+      toast.error(`Please enter the version name for version ${i + 1}`)
+    }
+    if (!e.base_model) {
+      e.baseModelError = true
+    }
+    if (!e.filePath) {
+      e.filePathError = true
+    }
+  })
+  for(let i = 0; i < tempData.versions.length; i++) {
+    const e = tempData.versions[i]
+    if (!e.version) {
+      e.versionError = true
+      toast.error(`Please enter the version name for version ${i + 1}`)
+    }
+    if (!e.base_model) {
+      e.baseModelError = true
+      toast.error(`Please select the base model for version ${i + 1}`)
+    }
+    if (!e.filePath) {
+      e.filePathError = true
+      toast.error(`Please enter the file path for version ${i + 1}`)
+    }
+    acActiveIndex.value = `${i}`
+    console.log(i)
+    break
+  }
+  // modelStoreObject.setModelDetail(tempData)
+  return tempData.versions.every((e: any) => e.version && e.base_model && e.filePath)
+}
+function submit() {
+  // showLayoutLoading.value = true
+  if (!verifyVersion()) {
+    // showLayoutLoading.value = false
+    return
+  }
+  toast.error('You may be missing dependencies at the moment. For details, please refer to the ComfyUI logs.',{})
+  // toast('Event has been created', {
+  //   description: 'Sunday, December 03, 2023 at 9:00 AM',
+  //   action: {
+  //     label: 'Undo',
+  //     onClick: () => console.log('Undo'),
+  //   },
+
+  // })
+  console.log(formData.value)
+  if (!formData.value.id) return
+  submitUpload
+  disabledSubmit
+  // if (res.data.upload_id) {
+  //   disabledSubmit.value = true
+  //   await submitUpload({ upload_id: res.data.upload_id })
+  //   disabledSubmit.value = false
+  // }
   if (formData.value.id) {
     put_model(formData.value)
   } else {
     create_models(formData.value)
   }
 }
-nextStep2
-
 
 const acActiveFn = () => {
   if (modelBox.value) {
@@ -189,7 +268,6 @@ const handleIsUploading = (val: boolean) => {
   console.log(val)
 }
 watch(() => statusStore.socketMessage, (val: any) => {
-  console.log(val)
   if (val.type == "status" && val.data.status == 'finish') {
     const i = versionIndex.value
     formData.value.versions[i].path = val.data.model_files[0].path
@@ -204,10 +282,10 @@ watch(() => modelStoreObject.modelDetail, (val: any) => {
   deep: true
 })
 watch(showDialog, (val: any) => {
-  console.log(val)
   if (!val) {
     modelStoreObject.clearModelDetail()
     modelBox.value = true
+    showLayoutLoading.value = false
   }
 })
 onMounted(async () => {
