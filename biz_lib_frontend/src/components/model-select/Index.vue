@@ -104,15 +104,11 @@ onMounted(async () => {
 </script>
 
 <template>
-  <v-dialog v-model:open="showDialog">
-    <div class="p-2 font-['Inter']">
-      <DialogTitle class="text-xl font-bold">Select Model</DialogTitle>
-      <DialogDescription class="text-sm text-gray-500" />
-      <div class="flex items-center justify-end mb-4">
-        <Button variant="ghost" class="h-8 w-8 p-0">
-          <span class="sr-only">Close</span>
-        </Button>
-      </div>
+  <v-dialog v-model:open="showDialog" class="w-full z-[9999]">
+    <div class="font-['Inter']">
+      <DialogTitle class="text-[#F9FAFB] mb-1 text-[18px] font-semibold leading-[18px] tracking-[-0.45px]">Select Model
+      </DialogTitle>
+      <DialogDescription class="text-sm text-gray-500" v-show="false" />
       <Tabs :defaultValue="modelListPathParams.mode" class="mb-4" @update:model-value="handleTabChange">
         <TabsList class="grid w-full grid-cols-3 h-12 bg-[#4E4E4E] text-sm">
           <TabsTrigger value="my"

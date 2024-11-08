@@ -127,9 +127,9 @@ const handleApply = (version: ModelVersion, model: Model) => {
         <template v-else>
           <template v-for="model in props.models" :key="model.name + model.id">
             <TableRow class="group cursor-pointer border-[#F9FAFB]/60 hover:bg-transparent h-12">
-              <TableCell class="w-[40%]" @click="toggleExpand(model.name)">
+              <TableCell class="w-[55%]" @click="toggleExpand(model.name)">
                 <div class="flex items-center space-x-2">
-                  <span class="text-lg">
+                  <span class="text-sm">
                     <svg v-if="expandedModels.has(model.name)" xmlns="http://www.w3.org/2000/svg" width="16" height="17"
                       viewBox="0 0 16 17" fill="none">
                       <path d="M4 6L8 10L12 6" stroke="#F9FAFB" stroke-width="1.5" stroke-linecap="round"
@@ -145,8 +145,8 @@ const handleApply = (version: ModelVersion, model: Model) => {
                   <Badge variant="default">{{ model.type }}</Badge>
                 </div>
               </TableCell>
-              <TableCell class="w-[25%]">-</TableCell>
-              <TableCell class="w-[20%]">-</TableCell>
+              <TableCell class="w-[15%]">-</TableCell>
+              <TableCell class="w-[15%]">-</TableCell>
               <TableCell class="w-[15%]">
                 <div class="flex justify-end h-full">
                   <Popover v-if="props.mode === 'my' || props.mode === 'my_fork'" class="bg-[#353535]"
@@ -183,8 +183,8 @@ const handleApply = (version: ModelVersion, model: Model) => {
               </TableCell>
             </TableRow>
             <template v-if="expandedModels.has(model.name) && model.versions">
-              <ModelVersionRow v-for="version in model.versions" :model="model" :key="version.version"
-                :version="version" :mode="props.mode" @apply="handleApply" />
+              <ModelVersionRow v-for="version in model.versions" :model="model" :mode="props.mode"
+                :key="version.version" :version="version" @apply="handleApply" />
             </template>
           </template>
         </template>

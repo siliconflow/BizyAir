@@ -70,7 +70,7 @@ export const put_model = (data: any) => customFetch(`/bizyair/community/models/$
     body: JSON.stringify(data)
 })
 
-export const model_detail = (data: any) => customFetch(`/bizyair/community/models/${data.id}/detail?source=my`, {method: 'GET'})
+export const model_detail = (data: any) => customFetch(`/bizyair/community/models/${data.id}/detail?source=${data.source}`, {method: 'GET'})
 
 export const remove_model = (id: string) => customFetch(`/bizyair/community/models/${id}`, {
     method: 'DELETE',
