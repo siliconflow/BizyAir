@@ -23,10 +23,19 @@ app.registerExtension({
         if (node?.comfyClass === "BizyAir_LoraLoaderNew") {
             const original_onMouseDown = node.onMouseDown;
 
+            let lastClickTime = 0;
+            const DEBOUNCE_DELAY = 300; // 300ms防抖延迟
+
             node.onMouseDown = function( e, pos, canvas ) {
                 console.log(this.size)
                 const lora_name = this.widgets.find(widget => widget.name === "lora_name")
                 if (pos[1] - lora_name.last_y > 0 && pos[1] - lora_name.last_y < 20) {
+                    const currentTime = new Date().getTime();
+                    if (currentTime - lastClickTime < DEBOUNCE_DELAY) {
+                        return false;
+                    }
+                    lastClickTime = currentTime;
+
                     const litecontextmenu = document.querySelector('.litegraph.litecontextmenu')
                     if (litecontextmenu) {
                         litecontextmenu.style.display = 'none'
