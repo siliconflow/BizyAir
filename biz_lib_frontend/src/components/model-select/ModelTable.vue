@@ -149,7 +149,7 @@ const handleApply = (version: ModelVersion, model: Model) => {
               <TableCell class="w-[15%]">-</TableCell>
               <TableCell class="w-[15%]">
                 <div class="flex justify-end h-full">
-                  <Popover v-if="props.mode === 'my' || props.mode === 'my_fork'" class="bg-[#353535]"
+                  <Popover v-if="props.mode === 'my' || props.mode === 'my_fork'" class="bg-[#353535] z-[5100]mmm"
                     :open="currentOperateModel === model.name"
                     @update:open="(value) => value ? currentOperateModel = model.name : currentOperateModel = ''">
                     <PopoverTrigger>

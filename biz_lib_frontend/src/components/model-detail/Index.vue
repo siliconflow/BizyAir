@@ -5,6 +5,8 @@ import {
   TabsTrigger,
 } from '@/components/ui/tabs'
 
+import { sliceString, formatSize, formatNumber } from '@/utils/tool'
+
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { ref, onMounted } from 'vue'
@@ -58,14 +60,14 @@ const handleTabChange = (value: number) => {
 
 <template>
   <div v-if="model"
-    class="bg-[#353535] rounded-radius-rounded-lg border-solid border-border-border-toast-destructive border p-6 flex flex-col gap-4 items-start justify-start  min-w-[1000px] h-screen mb-[100px] relative"
+    class="bg-[#353535] rounded-radius-rounded-lg border-solid border-border-border-toast-destructive border p-6 pb-12 flex flex-col gap-4 items-start justify-start  min-w-[1000px] min-h-screen  relative"
     style="box-shadow: 0px 20px 40px 0px rgba(0, 0, 0, 0.25)">
     <div class="flex flex-col gap-1.5 items-start justify-start self-stretch shrink-0 relative">
       <div class="flex flex-row gap-2 items-center justify-start self-stretch shrink-0 relative">
         <div
           class="text-text-text-foreground text-left font-['Inter-SemiBold',_sans-serif] text-lg leading-[18px] font-semibold relative"
           style="letter-spacing: -0.025em">
-          {{ model?.name }}
+          {{ sliceString(model?.name, 60) }}
         </div>
         <div class="flex flex-row gap-1 items-start justify-start shrink-0 relative">
           <div
@@ -76,7 +78,7 @@ const handleTabChange = (value: number) => {
             </svg>
             <div
               class="text-text-text-foreground text-left font-['Inter-Regular',_sans-serif] text-sm leading-5 font-normal relative flex-1">
-              {{ model?.counter?.forked_count || 0 }}
+              {{ formatNumber(model?.counter?.used_count) }}
             </div>
           </div>
         </div>
@@ -89,7 +91,7 @@ const handleTabChange = (value: number) => {
           </svg>
           <div
             class="text-text-text-foreground text-left font-['Inter-Regular',_sans-serif] text-sm leading-5 font-normal relative flex-1">
-            {{ model?.counter?.liked_count || 0 }}
+            {{ formatNumber(model?.counter?.forked_count) }}
           </div>
         </div>
       </div>
@@ -145,7 +147,7 @@ const handleTabChange = (value: number) => {
         </div>
       </div>
     </div>
-    <div class="flex flex-row gap-8 items-start justify-start self-stretch flex-1 relative">
+    <div class="flex flex-row gap-8  items-start justify-start self-stretch flex-1 relative">
       <div class="flex flex-col gap-4 items-start justify-start  relative min-w-[620px] w-[65%]">
         <div ref="previewRef"></div>
       </div>
@@ -197,9 +199,9 @@ const handleTabChange = (value: number) => {
             <div className="w-[100px] bg-[#4E4E4E80] p-4    border-b border-[rgba(78,78,78,0.50)]">
               Hash</div>
             <div className="flex-1 p-4 border-b border-[rgba(78,78,78,0.50)] flex items-center gap-2">
-              <span>{{ currentVerssion?.sign ? (currentVerssion.sign.length > 11 ? currentVerssion.sign.slice(0, 11) +
-                '...' :
-                currentVerssion.sign) : '' }}</span>
+              <span>
+                {{ currentVerssion?.sign ? sliceString(currentVerssion?.sign, 15) : '' }}
+              </span>
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
                 <g clip-path="url(#clip0_315_3710)">
                   <path
@@ -217,19 +219,30 @@ const handleTabChange = (value: number) => {
           <div className="flex w-full">
             <div className="w-[100px] bg-[#4E4E4E80] p-4 text-gray-300 text-lg  border-b border-[rgba(78,78,78,0.50)]">
               Stats</div>
-            <div className="flex-1 p-4 border-b border-[rgba(78,78,78,0.50)]">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M3.33325 2L12.6666 8L3.33325 14V2Z" stroke="#F9FAFB" stroke-linecap="round"
-                  stroke-linejoin="round" />
-                {{ model?.counter?.forked_count || 0 }}
-
+            <div className="flex-1 p-4 border-b border-[rgba(78,78,78,0.50)] flex flex-row gap-2">
+              <div
+                class="bg-[#6D28D933] rounded-radius-rounded-xl pr-1.5 pl-1.5 flex flex-row gap-1 items-center justify-center shrink-0 min-w-[40px] relative overflow-hidden">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M3.33325 2L12.6666 8L3.33325 14V2Z" stroke="#F9FAFB" stroke-linecap="round"
+                    stroke-linejoin="round" />
+                </svg>
+                <div
+                  class="text-text-text-foreground text-left font-['Inter-Regular',_sans-serif] text-sm leading-5 font-normal relative flex-1">
+                  {{ formatNumber(currentVerssion?.counter?.used_count) }}
+                </div>
+              </div>
+              <div
+                class="bg-[#6D28D933] rounded-radius-rounded-xl pr-1.5 pl-1.5 flex flex-row gap-1 items-center justify-center shrink-0 min-w-[40px] relative overflow-hidden">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
                   <path
                     d="M7.99992 1.33325L10.0599 5.50659L14.6666 6.17992L11.3333 9.42659L12.1199 14.0133L7.99992 11.8466L3.87992 14.0133L4.66659 9.42659L1.33325 6.17992L5.93992 5.50659L7.99992 1.33325Z"
                     stroke="#F9FAFB" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
-                {{ model?.counter?.liked_count || 0 }}
-              </svg>
+                <div
+                  class="text-text-text-foreground text-left font-['Inter-Regular',_sans-serif] text-sm leading-5 font-normal relative flex-1">
+                  {{ formatNumber(currentVerssion?.counter?.forked_count) }}
+                </div>
+              </div>
             </div>
           </div>
 
@@ -242,9 +255,8 @@ const handleTabChange = (value: number) => {
           </div>
           <div
             class="flex px-[8px] py-4 items-center self-stretch text-[#F9FAFB] font-inter text-xs font-medium leading-5">
-            {{ currentVerssion?.file_name ? (currentVerssion.file_name.length > 20 ? currentVerssion.file_name.slice(0,
-              20) + '...' :
-              currentVerssion.file_name) : '' }} ({{ currentVerssion?.file_size }}G)
+            {{ currentVerssion?.file_name ? sliceString(currentVerssion?.file_name, 20) : '' }} ({{
+              formatSize(currentVerssion?.file_size) }}G)
           </div>
         </div>
       </div>

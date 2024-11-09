@@ -121,7 +121,8 @@ onMounted(async () => {
       </span>
     </div>
 
-    <Popover class="bg-[#353535]" :open="showSortPopover" @update:open="emit('update:showSortPopover', $event)">
+    <Popover class="bg-[#353535] z-[5100]" :open="showSortPopover"
+      @update:open="emit('update:showSortPopover', $event)">
       <PopoverTrigger>
         <Button variant="default" class="w-[44px] h-[44px] hover:border-2 hover:border-white cursor-pointer group">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -162,7 +163,7 @@ onMounted(async () => {
       </PopoverContent>
     </Popover>
 
-    <Popover>
+    <Popover class="z-[5100]">
       <PopoverTrigger>
         <Button variant="default" class="w-[44px] h-[44px] hover:border-2 hover:border-white cursor-pointer">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none" class="mr-2">

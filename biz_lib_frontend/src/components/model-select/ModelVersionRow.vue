@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/table'
 import type { Model, ModelVersion } from '@/types/model'
 import { ref } from 'vue'
-
+import { ScrollArea } from '@/components/ui/scroll-area'
 
 const showModelDetail = ref(false)
 
@@ -63,7 +63,9 @@ defineProps<Props>()
       </Button>
     </TableCell>
   </TableRow>
-  <vDialog v-model:open="showModelDetail" class="w-full h-screen z-[9999]" :title="model.name">
-    <ModelDetail :modelId="model.id" :mode="mode" />
+  <vDialog v-model:open="showModelDetail" class="w-full h-screen mb-[100px] z-[9999]" :title="model.name">
+    <ScrollArea class="h-[calc(100vh-50px)] rounded-md border-0">
+      <ModelDetail :modelId="model.id" :mode="mode" />
+    </ScrollArea>
   </vDialog>
 </template>
