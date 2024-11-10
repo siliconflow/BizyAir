@@ -17,6 +17,8 @@ export interface ModelVersion {
   path:string
   counter:any
   intro:string
+  liked:boolean
+  forked:boolean
   created_at: string
   file_name: string
   file_size:number

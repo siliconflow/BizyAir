@@ -75,3 +75,13 @@ export const model_detail = (data: any) => customFetch(`/bizyair/community/model
 export const remove_model = (id: string) => customFetch(`/bizyair/community/models/${id}`, {
     method: 'DELETE',
 })
+
+export const like_model = (model_version_id: any) => customFetch(`/bizyair/community/models/like/${model_version_id}`, {
+    method: 'POST'   
+})
+
+export const fork_model = (model_version_id: any) => customFetch(`/bizyair/community/models/fork/${model_version_id}`, {
+    method: 'POST'   
+})
+
+
