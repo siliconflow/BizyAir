@@ -11,7 +11,6 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 
-
 import {
   Command,
   CommandGroup,
@@ -21,7 +20,6 @@ import {
 } from '@/components/ui/command'
 
 import { sliceString, formatSize, formatNumber } from '@/utils/tool'
-import { useToast } from '@/components/ui/toast/use-toast'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { ref, onMounted, nextTick } from 'vue'
@@ -30,7 +28,8 @@ import { useAlertDialog } from '@/components/modules/vAlertDialog/index'
 
 import { Model, ModelVersion } from '@/types/model'
 import { model_detail, like_model, fork_model, remove_model } from '@/api/model'
-const { toast } = useToast()
+import { toast as message } from 'vue-sonner'
+
 const previewRef = ref<HTMLDivElement | null>(null)
 const model = ref<Model>()
 const currentVerssion = ref<ModelVersion>()
@@ -52,7 +51,11 @@ const props = defineProps<{
 
 const getData = async () => {
   const res = await model_detail({ id: props.modelId, source: props.mode })
-  console.log('[res]', res)
+  if (!res.data) {
+    message.error('Model not found.')
+    emit('remove')
+    return
+  }
   model.value = res.data
   if (model.value?.versions && model.value?.versions.length > 0) {
     currentVerssion.value = model.value.versions?.[0]
@@ -91,7 +94,6 @@ const handleFork = async () => {
 
 const handleOperateChange = async (type: string, id: string | number) => {
   if (type === 'remove') {
-    console.log('[remove]', id)
     const res = await useAlertDialog({
       title: 'Are you sure you want to delete this model?',
       desc: 'This action cannot be undone.',
@@ -99,15 +101,13 @@ const handleOperateChange = async (type: string, id: string | number) => {
       continue: 'Yes, Delete It',
       z: 'z-9000'
     })
-    console.log('[res]', res)
     if (!res) return
 
     if (model.value?.versions) {
       const hasPublic = model.value?.versions.some((version) => version.public)
       if (hasPublic) {
-        toast({
-          description: 'Model has public version, cannot remove.',
-        })
+        message.warning('Model has public version, cannot remove.')
+        downloadOpen.value = false
         return
       }
     }
@@ -118,23 +118,21 @@ const emit = defineEmits(['apply', 'remove'])
 
 const handleRemoveModel = (id: number | string) => {
   remove_model(id).then((_) => {
-    toast({
-      description: 'Model removed successfully.',
-    })
+    message.success('Model removed successfully.')
     emit('remove')
   })
 }
 
-const handleCopy = async (sign: string) => {
-  console.log('[sign]', sign)
+const handleApply = () => {
+  emit('apply', currentVerssion.value, model.value)
+}
 
+const handleCopy = async (sign: string) => {
   try {
-    console.log('[navigator]', navigator)
     if (navigator.clipboard) {
       await navigator.clipboard.writeText(sign || '');
-      console.log('复制成功')
+      message.success('Copied successfully.')
     } else {
-      // 降级方案 - 创建临时input
       const input = document.createElement('input');
       input.value = sign || '';
       document.body.appendChild(input);
@@ -143,8 +141,7 @@ const handleCopy = async (sign: string) => {
       document.body.removeChild(input);
     }
   } catch (err) {
-    console.error('复制失败:', err);
-    // 可以添加失败提示
+    message.error('Copy failed.')
   }
 
 }
@@ -289,8 +286,9 @@ const handleCopy = async (sign: string) => {
       </div>
     </div>
     <div class="flex flex-row gap-8  items-start justify-start self-stretch flex-1 relative">
-      <div class="flex flex-col gap-4 items-start justify-start  relative min-w-[620px] w-[65%]">
-        <div ref="previewRef"></div>
+      <div class="flex flex-col gap-4 items-start justify-start  relative min-w-[620px] w-[65%]  overflow-hidden ">
+        <div ref="previewRef"
+          class="custom-scrollbar max-h-[80vh] overflow-y-auto w-full rounded-tl-lg rounded-tr-lg custom-shadow"></div>
       </div>
       <div class="flex flex-col gap-6 items-start justify-start w-[40%] relative">
         <div class="pb-8 flex flex-col gap-6 items-start justify-start shrink-0   h-[97px] relative">
@@ -307,7 +305,7 @@ const handleCopy = async (sign: string) => {
               @click="handleFork" :disabled="currentVerssion?.forked">
               {{ currentVerssion?.forked ? 'Forked' : 'Fork' }}
             </Button>
-            <Button
+            <Button @click="handleApply"
               class="flex w-[170px] px-8 py-2 justify-center items-center gap-2 bg-[#F43F5E] hover:bg-[#F43F5E]/90 rounded-[6px]">
               <svg xmlns="http://www.w3.org/2000/svg" width="17" height="16" viewBox="0 0 17 16" fill="none">
                 <path
@@ -341,7 +339,7 @@ const handleCopy = async (sign: string) => {
             </div>
           </div>
           <div className="flex w-full">
-            <div className="w-[100px] bg-[#4E4E4E80] p-4    border-b border-[rgba(78,78,78,0.50)]">
+            <div className="w-[100px] bg-[#4E4E4E80] p-4  border-b border-[rgba(78,78,78,0.50)]">
               Hash</div>
             <div className="flex-1 p-4 border-b border-[rgba(78,78,78,0.50)] flex items-center gap-2">
               <span>
@@ -363,7 +361,7 @@ const handleCopy = async (sign: string) => {
             </div>
           </div>
           <div className="flex w-full">
-            <div className="w-[100px] bg-[#4E4E4E80] p-4 text-gray-300 text-lg  border-b border-[rgba(78,78,78,0.50)]">
+            <div className="w-[100px] bg-[#4E4E4E80] p-4 text-gray-300   border-b border-[rgba(78,78,78,0.50)]">
               Stats</div>
             <div className="flex-1 p-4 border-b border-[rgba(78,78,78,0.50)] flex flex-row gap-2">
               <div
@@ -410,7 +408,6 @@ const handleCopy = async (sign: string) => {
               </div>
             </div>
           </div>
-
         </div>
         <div
           class="rounded-md border-solid border-[#4e4e4e] border flex flex-col gap-0 items-start justify-start self-stretch shrink-0 relative">
@@ -426,9 +423,5 @@ const handleCopy = async (sign: string) => {
         </div>
       </div>
     </div>
-
   </div>
 </template>
-
-
-<style scoped></style>
