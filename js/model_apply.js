@@ -1,8 +1,9 @@
 import { app } from "../../scripts/app.js";
-import { dialog } from './subassembly/dialog.js'
-import { $el } from "../../scripts/ui.js";
 
 import './biz_lib_frontend.js'
+import { hideWidget } from './subassembly/tools.js'
+
+
 app.registerExtension({
     name: "bizyair.siliconcloud.share.lora.loader.new",
     async beforeRegisterNodeDef(nodeType, nodeData, app) {
@@ -18,27 +19,45 @@ app.registerExtension({
             };
         }
     },
+    
+
 
     async nodeCreated(node) {
         if (node?.comfyClass === "BizyAir_LoraLoaderNew") {
             const original_onMouseDown = node.onMouseDown;
 
+            let lastClickTime = 0;
+            const DEBOUNCE_DELAY = 300; // 300ms防抖延迟
+        
+            hideWidget(node, "model_version_id");
+                   
             node.onMouseDown = function( e, pos, canvas ) {
-                console.log(this.size)
+                console.log(this.size, this.widgets)
                 const lora_name = this.widgets.find(widget => widget.name === "lora_name")
+               const  model_widget = this.widgets.find(widget => widget.name === "model_version_id") // hidden
                 if (pos[1] - lora_name.last_y > 0 && pos[1] - lora_name.last_y < 20) {
                     const litecontextmenu = document.querySelector('.litegraph.litecontextmenu')
                     if (litecontextmenu) {
                         litecontextmenu.style.display = 'none'
                     }
-                    console.log('showModelSelec111t')
+                    e.stopImmediatePropagation();
+                    e.preventDefault();
+                    if (e.button !== 0) {
+                        return false;
+                    }
+                    const currentTime = new Date().getTime();
+                    if (currentTime - lastClickTime < DEBOUNCE_DELAY) {
+                        return false;
+                    }
+                    lastClickTime = currentTime;
                     bizyAirLib.showModelSelect({
                         modelType:"LoRA",
                         selectedBaseModels:["Flux.1 D","SDXL"],
                         onApply: (version,model) => {
-                            console.log('version',version)
-                            console.log('model',model)
-                           // lora_name.value = model.version
+                            if(model && model_widget && lora_name && version){
+                                lora_name.value = model
+                                model_widget.value = version.id
+                            }
                         }
                     })
                     // const aasd = dialog({

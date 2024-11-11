@@ -965,7 +965,11 @@ class BizyAir_LoraLoaderNew(BizyAirBaseNode):
             "required": {
                 "model": (data_types.MODEL,),
                 "clip": (data_types.CLIP,),
-                "lora_name": (["wait to aply"],),
+                "lora_name": (
+                    [
+                        "to choose",
+                    ],
+                ),
                 "strength_model": (
                     "FLOAT",
                     {"default": 1.0, "min": -100.0, "max": 100.0, "step": 0.01},
@@ -974,6 +978,12 @@ class BizyAir_LoraLoaderNew(BizyAirBaseNode):
                     "FLOAT",
                     {"default": 1.0, "min": -100.0, "max": 100.0, "step": 0.01},
                 ),
+                "model_version_id": (
+                    "STRING",
+                    {
+                        "default": "",
+                    },
+                ),
             }
         }
 
@@ -981,10 +991,17 @@ class BizyAir_LoraLoaderNew(BizyAirBaseNode):
     RETURN_NAMES = ("MODEL", "CLIP")
 
     FUNCTION = "load_lora"
-
     CATEGORY = f"{PREFIX}/loaders"
 
-    def load_lora(self, model, clip, lora_name, strength_model, strength_clip):
+    def load_lora(
+        self,
+        model,
+        clip,
+        lora_name,
+        strength_model,
+        strength_clip,
+        model_version_id=None,
+    ):
         assigned_id = self.assigned_id
         new_model: BizyAirNodeIO = model.copy(assigned_id)
         new_clip: BizyAirNodeIO = clip.copy(assigned_id)
@@ -995,7 +1012,7 @@ class BizyAir_LoraLoaderNew(BizyAirBaseNode):
                 inputs={
                     "model": model,
                     "clip": clip,
-                    "lora_name": lora_name,
+                    "lora_name": model_version_id,
                     "strength_model": strength_model,
                     "strength_clip": strength_clip,
                 },
@@ -1005,3 +1022,9 @@ class BizyAir_LoraLoaderNew(BizyAirBaseNode):
             new_model,
             new_clip,
         )
+
+    @classmethod
+    def VALIDATE_INPUTS(cls, lora_name):
+        if lora_name == "" or lora_name is None:
+            return False
+        return True

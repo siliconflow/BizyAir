@@ -22,7 +22,15 @@ BASE_MODEL_TYPE_OPTIONS = {
 
 ALLOW_TYPES = list(TYPE_OPTIONS.values())
 ALLOW_BASE_MODEL_TYPES = list(BASE_MODEL_TYPE_OPTIONS.values())
-ALLOW_UPLOADABLE_EXT_NAMES = [".safetensors", ".pth", ".bin", ".pt", ".ckpt", ".gguf", ".sft"]
+ALLOW_UPLOADABLE_EXT_NAMES = [
+    ".safetensors",
+    ".pth",
+    ".bin",
+    ".pt",
+    ".ckpt",
+    ".gguf",
+    ".sft",
+]
 
 current_path = os.path.abspath(os.path.dirname(__file__))
 
@@ -57,7 +65,11 @@ def check_str_param(json_data, param_name: str, err):
 def check_type(json_data):
     if "type" not in json_data:
         return ErrResponse(errnos.INVALID_TYPE)
-    if not is_string_valid(json_data["type"]) or json_data["type"] not in ALLOW_TYPES or json_data["type"] == "Workflow":
+    if (
+        not is_string_valid(json_data["type"])
+        or json_data["type"] not in ALLOW_TYPES
+        or json_data["type"] == "Workflow"
+    ):
         return ErrResponse(errnos.INVALID_TYPE)
     return None
 

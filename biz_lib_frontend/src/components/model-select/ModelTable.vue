@@ -3,7 +3,7 @@ import { ref, PropType, onMounted } from 'vue'
 import { useToast } from '@/components/ui/toast/use-toast'
 import { Badge } from '@/components/ui/badge'
 import { remove_model } from '@/api/model'
-import Toaster from '@/components/ui/toast/Toaster.vue'
+
 import {
   Table,
   TableBody,
@@ -72,8 +72,6 @@ const handleOperateChange = async (value: 'edit' | 'remove', { id, name, version
     })
     if (!res) return
 
-
-
     if (versions) {
       const hasPublic = versions.some((version) => version.public)
       if (hasPublic) {
@@ -83,12 +81,10 @@ const handleOperateChange = async (value: 'edit' | 'remove', { id, name, version
         return
       }
     }
-
-
     handleRemoveModel(id)
   }
 }
-
+const emit = defineEmits(['apply', 'remove'])
 const handleRemoveModel = (id: string) => {
   remove_model(id).then((_) => {
     toast({
@@ -98,7 +94,7 @@ const handleRemoveModel = (id: string) => {
   })
 }
 
-const emit = defineEmits(['apply', 'remove'])
+
 const handleApply = (version: ModelVersion, model: Model) => {
   emit('apply', version, model)
 }
@@ -149,7 +145,7 @@ const handleApply = (version: ModelVersion, model: Model) => {
               <TableCell class="w-[15%]">-</TableCell>
               <TableCell class="w-[15%]">
                 <div class="flex justify-end h-full">
-                  <Popover v-if="props.mode === 'my' || props.mode === 'my_fork'" class="bg-[#353535]"
+                  <Popover v-if="props.mode === 'my' || props.mode === 'my_fork'" class="bg-[#353535] z-[5100]mmm"
                     :open="currentOperateModel === model.name"
                     @update:open="(value) => value ? currentOperateModel = model.name : currentOperateModel = ''">
                     <PopoverTrigger>
@@ -191,5 +187,4 @@ const handleApply = (version: ModelVersion, model: Model) => {
       </TableBody>
     </Table>
   </div>
-  <Toaster />
 </template>
