@@ -106,7 +106,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <v-dialog v-model:open="showDialog" class="w-[70%]">
+  <v-dialog v-model:open="showDialog" class="max-w-[70%]">
     <div class="font-['Inter']">
       <DialogTitle class="text-[#F9FAFB] mb-2 text-[18px] font-semibold leading-[18px] tracking-[-0.45px]">Select Model
       </DialogTitle>

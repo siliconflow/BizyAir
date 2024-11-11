@@ -12,16 +12,25 @@ import {
 } from '@/components/ui/popover'
 
 
-import { sliceString, formatSize, formatNumber } from '@/utils/tool'
+import {
+  Command,
+  CommandGroup,
+  CommandItem,
+  CommandList,
+  CommandSeparator
+} from '@/components/ui/command'
 
+import { sliceString, formatSize, formatNumber } from '@/utils/tool'
+import { useToast } from '@/components/ui/toast/use-toast'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, nextTick } from 'vue'
 import Vditor from 'vditor'
+import { useAlertDialog } from '@/components/modules/vAlertDialog/index'
 
 import { Model, ModelVersion } from '@/types/model'
-import { model_detail, like_model, fork_model } from '@/api/model'
-
+import { model_detail, like_model, fork_model, remove_model } from '@/api/model'
+const { toast } = useToast()
 const previewRef = ref<HTMLDivElement | null>(null)
 const model = ref<Model>()
 const currentVerssion = ref<ModelVersion>()
@@ -47,7 +56,10 @@ const getData = async () => {
   model.value = res.data
   if (model.value?.versions && model.value?.versions.length > 0) {
     currentVerssion.value = model.value.versions?.[0]
-    previewContent(currentVerssion.value.intro)
+    nextTick(() => {
+      previewContent(currentVerssion.value?.intro || '')
+    })
+
   }
 }
 
@@ -77,9 +89,38 @@ const handleFork = async () => {
   getData()
 }
 
-const handleOperateChange = (type: string, model: Model) => {
-  console.log('[type]', type)
-  console.log('[model]', model)
+const handleOperateChange = async (type: string, id: string | number) => {
+  if (type === 'remove') {
+    console.log('[remove]', id)
+    const res = await useAlertDialog({
+      title: 'Are you sure you want to delete this model?',
+      desc: 'This action cannot be undone.',
+      cancel: 'No, Keep It',
+      continue: 'Yes, Delete It',
+    })
+    if (!res) return
+
+    if (model.value?.versions) {
+      const hasPublic = model.value?.versions.some((version) => version.public)
+      if (hasPublic) {
+        toast({
+          description: 'Model has public version, cannot remove.',
+        })
+        return
+      }
+    }
+    handleRemoveModel(id)
+  }
+}
+const emit = defineEmits(['apply', 'remove'])
+
+const handleRemoveModel = (id: number | string) => {
+  remove_model(id).then((_) => {
+    toast({
+      description: 'Model removed successfully.',
+    })
+    emit('remove')
+  })
 }
 
 const handleCopy = async (sign: string) => {
@@ -143,6 +184,25 @@ const handleCopy = async (sign: string) => {
             {{ formatNumber(model?.counter?.forked_count) }}
           </div>
         </div>
+        <div
+          class="bg-[#6D28D933] rounded-radius-rounded-xl pr-1.5 pl-1.5 flex flex-row gap-1 items-center justify-center shrink-0 min-w-[40px] relative overflow-hidden">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <g clip-path="url(#clip0_315_3742)">
+              <path
+                d="M4.66659 6.66658V14.6666M9.99992 3.91992L9.33325 6.66658H13.2199C13.4269 6.66658 13.6311 6.71478 13.8162 6.80735C14.0013 6.89992 14.1624 7.03432 14.2866 7.19992C14.4108 7.36551 14.4947 7.55775 14.5317 7.7614C14.5688 7.96506 14.5579 8.17454 14.4999 8.37325L12.9466 13.7066C12.8658 13.9835 12.6974 14.2268 12.4666 14.3999C12.2358 14.573 11.9551 14.6666 11.6666 14.6666H2.66659C2.31296 14.6666 1.97382 14.5261 1.72378 14.2761C1.47373 14.026 1.33325 13.6869 1.33325 13.3333V7.99992C1.33325 7.6463 1.47373 7.30716 1.72378 7.05711C1.97382 6.80706 2.31296 6.66658 2.66659 6.66658H4.50659C4.75464 6.66645 4.99774 6.59713 5.20856 6.4664C5.41937 6.33567 5.58953 6.14873 5.69992 5.92659L7.99992 1.33325C8.3143 1.33715 8.62374 1.41203 8.90512 1.55232C9.1865 1.6926 9.43254 1.89466 9.62486 2.14339C9.81717 2.39212 9.9508 2.68109 10.0157 2.98872C10.0807 3.29635 10.0753 3.61468 9.99992 3.91992Z"
+                stroke="#F9FAFB" stroke-linecap="round" stroke-linejoin="round" />
+            </g>
+            <defs>
+              <clipPath id="clip0_315_3742">
+                <rect width="16" height="16" fill="white" />
+              </clipPath>
+            </defs>
+          </svg>
+          <div
+            class="text-text-text-foreground text-left font-['Inter-Regular',_sans-serif] text-sm leading-5 font-normal relative flex-1">
+            {{ formatNumber(model?.counter?.liked_count) }}
+          </div>
+        </div>
       </div>
       <div class="flex flex-row gap-1 items-center justify-start self-stretch shrink-0 relative">
         <div
@@ -162,7 +222,7 @@ const handleCopy = async (sign: string) => {
         <div class="flex gap-8 ">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none"
             class="cursor-pointer" @click="handleLike"
-            :style="{ stroke: currentVerssion?.liked ? '#6D28D9' : '#F9FAFB' }">
+            :style="{ stroke: currentVerssion?.liked ? '#6D28D9' : '#F9FAFB', fill: currentVerssion?.liked ? '#6D28D9' : 'none' }">
             <g clip-path="url(#clip0_440_1289)">
               <path
                 d="M4.66659 6.66658V14.6666M9.99992 3.91992L9.33325 6.66658H13.2199C13.4269 6.66658 13.6311 6.71478 13.8162 6.80735C14.0013 6.89992 14.1624 7.03432 14.2866 7.19992C14.4108 7.36551 14.4947 7.55775 14.5317 7.7614C14.5688 7.96506 14.5579 8.17454 14.4999 8.37325L12.9466 13.7066C12.8658 13.9835 12.6974 14.2268 12.4666 14.3999C12.2358 14.573 11.9551 14.6666 11.6666 14.6666H2.66659C2.31296 14.6666 1.97382 14.5261 1.72378 14.2761C1.47373 14.026 1.33325 13.6869 1.33325 13.3333V7.99992C1.33325 7.6463 1.47373 7.30716 1.72378 7.05711C1.97382 6.80706 2.31296 6.66658 2.66659 6.66658H4.50659C4.75464 6.66645 4.99774 6.59713 5.20856 6.4664C5.41937 6.33567 5.58953 6.14873 5.69992 5.92659L7.99992 1.33325C8.3143 1.33715 8.62374 1.41203 8.90512 1.55232C9.1865 1.6926 9.43254 1.89466 9.62486 2.14339C9.81717 2.39212 9.9508 2.68109 10.0157 2.98872C10.0807 3.29635 10.0753 3.61468 9.99992 3.91992Z"
@@ -179,7 +239,7 @@ const handleCopy = async (sign: string) => {
           <Popover v-if="props.mode === 'my' || props.mode === 'my_fork'" class="bg-[#353535] " :open="downloadOpen"
             @update:open="handleDownload">
             <PopoverTrigger>
-              <div class="flex justify-center items-center  rounded-md w-8 ">
+              <div class="flex justify-center items-center  rounded-md w-8 relative z-50">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none"
                   class="cursor-pointer">
                   <path
@@ -194,18 +254,23 @@ const handleCopy = async (sign: string) => {
                 </svg>
               </div>
             </PopoverTrigger>
-            <PopoverContent side="bottom" align="end" class="w-[150px] p-2 bg-[#353535] rounded-lg">
-              <div class="flex flex-col gap-1">
-                <div @click="handleOperateChange('edit', model)"
-                  class="px-2 py-1.5 text-[#F9FAFB] cursor-pointer hover:bg-[#6D28D9] hover:text-[#F9FAFB] rounded">
-                  Edit
-                </div>
-                <div class="h-[1px] bg-[#4E4E4E]"></div>
-                <div @click="handleOperateChange('remove', model)"
-                  class="px-2 py-1.5 text-[#F9FAFB] cursor-pointer hover:bg-[#6D28D9] hover:text-[#F9FAFB] rounded">
-                  Remove
-                </div>
-              </div>
+            <PopoverContent side="bottom" align="end"
+              class="w-[150px] p-0 bg-[#353535] rounded-lg group-hover:visible z-[9000]">
+              <Command>
+                <CommandList>
+                  <CommandGroup>
+                    <CommandItem value="edit" @click="handleOperateChange('edit', model?.id)"
+                      class="px-2 py-1.5 mb-1 text-[#F9FAFB] cursor-pointer [&:hover]:!bg-[#6D28D9] [&:hover]:!text-[#F9FAFB]">
+                      Edit
+                    </CommandItem>
+                    <CommandSeparator />
+                    <CommandItem value="remove" @click="handleOperateChange('remove', model?.id)"
+                      class="px-2 py-1.5 mb-1 mt-1 text-[#F9FAFB] cursor-pointer [&:hover]:!bg-[#6D28D9] [&:hover]:!text-[#F9FAFB]">
+                      Remove
+                    </CommandItem>
+                  </CommandGroup>
+                </CommandList>
+              </Command>
             </PopoverContent>
           </Popover>
         </div>
@@ -250,7 +315,7 @@ const handleCopy = async (sign: string) => {
           </div>
         </div>
         <div
-          class="rounded-[6px] border-solid border-[rgba(78,78,78,0.50)] border  flex flex-col gap-0 items-start justify-start self-stretch shrink-0 relative">
+          class="rounded-[6px] border-solid border-[rgba(78,78,78,0.50)] border flex flex-col gap-0 items-start justify-start self-stretch shrink-0 relative text-[#F9FAFB] font-inter text-sm font-medium leading-5">
           <div className="flex w-full text-gray-300 text-sm">
             <div className="w-[100px] bg-[#4E4E4E80] p-4   border-b border-[rgba(78,78,78,0.50)]">
               Type</div>
@@ -259,7 +324,8 @@ const handleCopy = async (sign: string) => {
             </div>
           </div>
           <div className="flex w-full">
-            <div className="w-[100px] bg-[#4E4E4E80] p-4 text-sm  border-b border-[rgba(78,78,78,0.50)]">
+            <div
+              className="w-[100px] bg-[#4E4E4E80] p-4 text-sm  border-b border-[rgba(78,78,78,0.50)] whitespace-nowrap">
               Base Model</div>
             <div className="flex-1 p-4 border-b  border-[rgba(78,78,78,0.50)]">
               {{ currentVerssion?.base_model }}
