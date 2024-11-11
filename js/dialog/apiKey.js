@@ -65,25 +65,26 @@ export function apiKey() {
                 }),
                 $el('p.confirm-word', {}, [
                     'Please',
-                    $el('a.bizyair-link', {
-                        href: '',
-                        target: '_blank',
+                    $el('span.bizyair-link', {
                         onclick: () => {
                             openOAuthPopup((key) => {
                                 document.querySelector('#bizyair-api-key').value = key;
+                                requestAnimationFrame(() => {
+                                    toSubmit().then(removeDialog)
+                                });
                             });
                         }
                     }, ['click to login']),
-                    " and autofill the key,"
+                    "and autofill the key,"
                 ]),
-                $el('p.confirm-word', {}, ['or visit', $el('a.bizyair-link', { href: 'https://cloud.siliconflow.cn', target: '_blank' }, ['https://cloud.siliconflow.cn']), " to get your key and input manually."]),
+                $el('p.confirm-word', {}, ['or visit', $el('a.bizyair-link', { href: 'https://cloud.siliconflow.cn', target: '_blank' }, ['https://cloud.siliconflow.cn']), "to get your key and input manually."]),
                 $el('p.confirm-word', {}, [
                     "Setting the API Key signifies agreement to the",
                     $el('a.bizyair-link', {
                         href: 'https://docs.siliconflow.cn/docs/user-agreement',
                         target: '_blank'
                     }, ['User Agreement']),
-                    " and",
+                    "and",
                     $el('a.bizyair-link', {
                         href: 'https://docs.siliconflow.cn/docs/privacy-policy',
                         target: '_blank'
@@ -91,7 +92,7 @@ export function apiKey() {
                 ])
             ]
         );
-    dialog({
+    const removeDialog = dialog({
         title: 'Set API Key',
         content: content,
         yesText: 'Submit',

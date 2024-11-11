@@ -28,6 +28,7 @@ filename_path_mapping: dict[str, dict[str, str]] = {}
 @dataclass
 class RefreshSettings:
     loras: bool = True
+    controlnet: bool = True
 
     def get(self, folder_name: str, default: bool = True):
         return getattr(self, folder_name, default)
@@ -90,7 +91,9 @@ def guess_url_from_node(
                                     + "/supernode/bizyair-flux-dev-comfy-pulid"
                                 )
 
-                            if class_type_table.get("LoraLoader", False):
+                            if class_type_table.get(
+                                "LoraLoader", False
+                            ) or class_type_table.get("ControlNetLoader", False):
                                 node["inputs"][
                                     "weight_dtype"
                                 ] = "fp8_e4m3fn"  # set to fp8_e4m3fn for lora
@@ -174,17 +177,22 @@ def convert_prompt_label_path_to_real_path(prompt: dict[str, dict[str, any]]) ->
     for unique_id in prompt:
         new_prompt[unique_id] = copy.copy(prompt[unique_id])
         inputs = copy.copy(prompt[unique_id]["inputs"])
-        if "lora_name" in inputs:
-            lora_name = inputs["lora_name"]
-            new_lora_name = filename_path_mapping.get("loras", {}).get(lora_name, None)
-            if new_lora_name:
-                inputs["lora_name"] = new_lora_name
-            else:
-                file_list = get_filename_list("loras")
-                if lora_name not in file_list:
-                    raise ValueError(
-                        f"Lora name '{lora_name}' not found in file list. Available lora names: {', '.join(file_list)}"
-                    )
+
+        for key, folder_name in [
+            ("lora_name", "loras"),
+            ("control_net_name", "controlnet"),
+        ]:
+            if key in inputs:
+                value = inputs[key]
+                new_value = filename_path_mapping.get(folder_name, {}).get(value, None)
+                if new_value:
+                    inputs[key] = new_value
+                else:
+                    file_list = get_filename_list(folder_name)
+                    if value not in file_list:
+                        raise ValueError(
+                            f"{key} '{value}' not found in file list. Available {key} names: {', '.join(file_list)}"
+                        )
 
         new_prompt[unique_id]["inputs"] = inputs
     return new_prompt
