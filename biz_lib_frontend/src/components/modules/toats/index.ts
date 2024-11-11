@@ -10,7 +10,7 @@ export function useToaster() {
     container.id = 'bizyair-toaster'
     document.body.appendChild(container)
   }
-
+  container && (container.style.display = 'none')
   const app = createApp(Toaster, { class: 'h-20', 'data-y-position': 'top', 'data-x-position': 'right' })
 
   if (container) {
