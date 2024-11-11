@@ -312,6 +312,10 @@ onMounted(() => {
   pointer-events: auto;
 } */
 
+.vditor-img {
+  z-index: 99999;
+}
+
 .vditor-dark .vditor-ir pre.vditor-reset {
   color: #fff;
 }
