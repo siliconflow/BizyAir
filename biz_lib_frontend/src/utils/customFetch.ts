@@ -15,6 +15,7 @@ export function customFetch(url: string, options = {}) {
   return window.fetch(`${host}${url}`, options)
     .then(response => {
       if (response.status === 404) {
+        alert(123)
         toast.error('You may be missing dependencies at the moment. For details, please refer to the ComfyUI logs.')
       }
       return response.json();

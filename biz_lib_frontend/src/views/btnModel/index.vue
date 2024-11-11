@@ -40,7 +40,7 @@
             <span v-if="acActiveIndex !== `${i}` && e.version">{{ e.version }}</span>
             <span v-else>Add Version</span>
             <BadgeMinus v-if="formData.versions.length !== 1" class="w-4 h-4" #icon @click.capture.stop="delVersion(i)" />
-            <Progress v-if="e.progress && e.progress.value" :model-value="e.progress.value" class="absolute w-full bottom-0 left-0 h-1" />
+            <Progress v-if="e.progress && acActiveIndex && acActiveIndex !== `${i}`" :model-value="e.progress" class="absolute w-full bottom-0 left-0 h-1" />
           </v-accordion-trigger>
           <AccordionContent>
             <v-item label="Version Name">
@@ -61,11 +61,18 @@
               </div>
             </v-item>
             <v-item label="File Path">
-              <Input :class="{'border-red-500': e.filePathError}" type="text" @change="checkFile(e.filePath, i)" placeholder="" v-model:model-value="e.filePath" />
+              <Input
+                :class="{'border-red-500': e.filePathError}"
+                type="text"
+                @change="checkFile(e.filePath, i)"
+                placeholder=""
+                :disabled="typeof(e.progress) == 'number' && e.progress !== 100"
+                v-model:model-value="e.filePath" />
+                {{ typeof(e.progress) }}
             </v-item>
-            <div v-if="e.progress && e.progress.value">
-              <Progress  :model-value="e.progress.value" class="mt-4 h-3" />
-              <p class="text-center mt-2">20% Uploaded</p>
+            <div v-if="e.progress">
+              <Progress :model-value="e.progress" class="mt-4 h-3" />
+              <p class="text-center mt-2">{{ e.progress }}% Uploaded</p>
             </div>
           </AccordionContent>
         </AccordionItem>
@@ -73,8 +80,8 @@
       </Accordion>
       <template #foot v-if="!modelBox">
         <div class="bg-[#353535] px-6 w-full h-14 rounded-tl-lg rounded-tr-lg custom-shadow border-t-[1px] flex justify-between items-center -mt-4">
-          <Button variant="ghost" class="" @click="addVersions">Add Version</Button>
-          <Button @click="submit">Publish</Button>
+          <Button variant="outline" class="" @click="addVersions">Add Version</Button>
+          <Button :disabled="disabledPublish" @click="submit">Publish</Button>
         </div>
       </template>
       <div v-if="showLayoutLoading" class="z-50 w-full h-full absolute left-0 top-0"></div>
@@ -84,7 +91,7 @@
 </template>
 <script setup lang="ts">
 import { toast } from 'vue-sonner'
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { Accordion, AccordionContent, AccordionItem } from '@/components/ui/accordion'
 import { SelectItem } from '@/components/ui/select'
 import { Input } from '@/components/ui/input'
@@ -109,7 +116,7 @@ import { BadgeMinus  } from 'lucide-vue-next'
 const statusStore = useStatusStore();
 const modelStoreObject = modelStore();
 const showDialog = ref(false);
-const disabledSubmit = ref(false);
+// const disabledSubmit = ref(false);
 const modelBox = ref(true);
 const versionIndex = ref(0);
 const typeLis = ref([{ value: '', label: '' }]);
@@ -117,6 +124,10 @@ const baseTypeLis = ref([{ value: '', label: '' }]);
 const formData = ref({ ...modelStoreObject.modelDetail });
 const acActiveIndex = ref('0')
 const showLayoutLoading = ref(false)
+
+const disabledPublish = computed(() => {
+  return formData.value.versions.map(e => e.progress).some(e => e !== 100)
+})
 
 function handleChange(val: any, index: number) {
   if (formData.value.versions) {
@@ -128,6 +139,8 @@ async function checkFile(val: string, index: number) {
   formData.value.versions[index].file_upload_id = res.data.upload_id
   formData.value.versions[index].filePathError = false
   versionIndex.value = index
+  await submitUpload({ upload_id: res.data.upload_id })
+  formData.value.versions[index].progress = 0
 }
 async function delVersion(index: number) {
   const res = await useAlertDialog({
@@ -190,63 +203,39 @@ function nextStep() {
 function verifyVersion() {
   const tempData = {...formData.value}
   tempData.versions = tempData.versions || []
-  tempData.versions.forEach((e: any, i: number) => {
-    if (!e.version) {
-      e.versionError = true
-      toast.error(`Please enter the version name for version ${i + 1}`)
-    }
-    if (!e.base_model) {
-      e.baseModelError = true
-    }
-    if (!e.filePath) {
-      e.filePathError = true
-    }
-  })
   for(let i = 0; i < tempData.versions.length; i++) {
     const e = tempData.versions[i]
     if (!e.version) {
       e.versionError = true
       toast.error(`Please enter the version name for version ${i + 1}`)
+      acActiveIndex.value = `${i}`
+      break
     }
     if (!e.base_model) {
       e.baseModelError = true
       toast.error(`Please select the base model for version ${i + 1}`)
+      acActiveIndex.value = `${i}`
+      break
     }
     if (!e.filePath) {
       e.filePathError = true
       toast.error(`Please enter the file path for version ${i + 1}`)
+      acActiveIndex.value = `${i}`
+      break
     }
-    acActiveIndex.value = `${i}`
-    console.log(i)
-    break
   }
-  // modelStoreObject.setModelDetail(tempData)
   return tempData.versions.every((e: any) => e.version && e.base_model && e.filePath)
 }
-function submit() {
-  // showLayoutLoading.value = true
+
+
+async function submit() {
   if (!verifyVersion()) {
-    // showLayoutLoading.value = false
     return
   }
-  toast.error('You may be missing dependencies at the moment. For details, please refer to the ComfyUI logs.',{})
-  // toast('Event has been created', {
-  //   description: 'Sunday, December 03, 2023 at 9:00 AM',
-  //   action: {
-  //     label: 'Undo',
-  //     onClick: () => console.log('Undo'),
-  //   },
-
-  // })
   console.log(formData.value)
-  if (!formData.value.id) return
-  submitUpload
-  disabledSubmit
-  // if (res.data.upload_id) {
-  //   disabledSubmit.value = true
-  //   await submitUpload({ upload_id: res.data.upload_id })
-  //   disabledSubmit.value = false
-  // }
+  // if (!formData.value.id) return
+  showLayoutLoading.value = true
+
   if (formData.value.id) {
     put_model(formData.value)
   } else {
@@ -267,9 +256,15 @@ const handleIsUploading = (val: boolean) => {
   // disabledSubmit.value = val
   console.log(val)
 }
+
 watch(() => statusStore.socketMessage, (val: any) => {
+  if (val.type == "progress") {
+    const i = formData.value.versions.findIndex((e: any) => e.file_upload_id == val.data.upload_id)
+    console.log(val.data.progress)
+    formData.value.versions[i].progress = Number(val.data.progress.replace('%', ''))
+  }
   if (val.type == "status" && val.data.status == 'finish') {
-    const i = versionIndex.value
+    const i = formData.value.versions.findIndex((e: any) => e.file_upload_id == val.data.upload_id)
     formData.value.versions[i].path = val.data.model_files[0].path
     formData.value.versions[i].sign = val.data.model_files[0].sign
   }

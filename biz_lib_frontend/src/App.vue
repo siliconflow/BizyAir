@@ -20,6 +20,7 @@ import { useStatusStore } from '@/stores/userStatus'
 const statusStore = useStatusStore()
 statusStore.loginRefresh()
 statusStore.sendSocket()
+
 // const { toClipboard } = useClipboard()
 // const aaaaaa = () => {
 //   toClipboard('aa111aa')
