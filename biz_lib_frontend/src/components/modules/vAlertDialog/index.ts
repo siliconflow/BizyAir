@@ -1,7 +1,7 @@
 import { createApp, h } from 'vue'
 import AlertDialog from './index.vue'
 
-export function useAlertDialog(options: { title?: string; desc?: string; cancel?: string; continue?: string }) {
+export function useAlertDialog(options: { title?: string; desc?: string; cancel?: string; continue?: string; z?: string;}) {
   return new Promise((resolve) => {
     const container = document.createElement('div')
     document.body.appendChild(container)

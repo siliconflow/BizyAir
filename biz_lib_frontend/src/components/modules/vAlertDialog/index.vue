@@ -24,7 +24,8 @@ defineProps({
     type: String,
     default: 'Are you absolutely sure?',
   },
-  desc: String
+  desc: String,
+  z: String,
 })
 
 const emit = defineEmits(['continueClick', 'cancelClick'])
@@ -38,7 +39,7 @@ const cancelBtn = () => {
 
 <template>
   <AlertDialog v-model:open="showAlert">
-    <AlertDialogContent>
+    <AlertDialogContent :class="z">
       <AlertDialogHeader>
         <AlertDialogTitle>{{ title }}</AlertDialogTitle>
         <AlertDialogDescription>{{ desc }}</AlertDialogDescription>

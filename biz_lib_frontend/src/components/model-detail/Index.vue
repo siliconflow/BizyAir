@@ -97,7 +97,9 @@ const handleOperateChange = async (type: string, id: string | number) => {
       desc: 'This action cannot be undone.',
       cancel: 'No, Keep It',
       continue: 'Yes, Delete It',
+      z: 'z-9000'
     })
+    console.log('[res]', res)
     if (!res) return
 
     if (model.value?.versions) {
