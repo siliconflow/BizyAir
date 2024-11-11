@@ -431,7 +431,7 @@ class BizyAirServer:
                     return ErrResponse(errnos.INVALID_MODEL_VERSION_ID)
 
                 # 调用API like模型版本
-                _, err = await self.api_client.toggle_user_like(version_id)
+                _, err = await self.api_client.toggle_user_like("model_version", version_id)
                 if err:
                     return ErrResponse(err)
 
