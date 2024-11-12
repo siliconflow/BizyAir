@@ -21,6 +21,7 @@ import {
 
 const modelTypes = ref<CommonModelType[]>([])
 const baseModelTypes = ref<CommonModelType[]>([])
+const selectedBaseModels = ref<string[]>([])
 const isLoading = ref(false)
 interface Props {
   filterState: FilterState
@@ -50,7 +51,7 @@ const getFilterData = async () => {
     message.error('Failed to get model filter data.')
     modelTypes.value = []
     baseModelTypes.value = []
-   
+
   } finally {
     isLoading.value = false
   }
@@ -79,16 +80,24 @@ const handleModelTypeChange = (type: string) => {
     model_types: types
   })
 }
+
 const handleBaseModelChange = (model: string) => {
-  if (props.selectedBaseModels) return
+  console.log('[model]', model)
+  const index = selectedBaseModels.value.indexOf(model)
+  if (index === -1) {
+    selectedBaseModels.value.push(model)
+  } else {
+    selectedBaseModels.value.splice(index, 1)
+  }
 
   const models = [...props.filterState.base_models]
-  const index = models.indexOf(model)
-  if (index === -1) {
+  const modelIndex = models.indexOf(model)
+  if (modelIndex === -1) {
     models.push(model)
   } else {
-    models.splice(index, 1)
+    models.splice(modelIndex, 1)
   }
+  console.log('[models]', models)
   emit('update:filterState', {
     ...props.filterState,
     base_models: models
@@ -103,6 +112,10 @@ const handleSearch = () => {
 }
 
 onMounted(async () => {
+
+  if (props.selectedBaseModels) {
+    selectedBaseModels.value = [...props.selectedBaseModels]
+  }
   await getFilterData()
 })
 </script>
@@ -200,23 +213,14 @@ onMounted(async () => {
               </div>
               <CommandItem value="base-models" class="p-2">
                 <div class="flex flex-wrap gap-2">
-                  <template v-if="selectedBaseModels">
-                    <Badge variant="secondary" v-for="model in baseModelTypes" :key="model.value" :class="[
-                      'bg-[#6D28D9]',
-                      selectedBaseModels.includes(model.value) ? '' : 'hidden'
+                  <Badge variant="secondary"
+                    v-for="model in baseModelTypes.filter(m => props.selectedBaseModels?.includes(m.value))"
+                    :key="model.value" @click="handleBaseModelChange(model.value)" :class="[
+                      'cursor-pointer',
+                      selectedBaseModels.includes(model.value) ? 'bg-[#6D28D9]' : 'bg-[#4E4E4E]'
                     ]">
-                      {{ model.label }}
-                    </Badge>
-                  </template>
-                  <template v-else>
-                    <Badge variant="secondary" v-for="model in baseModelTypes" :key="model.value"
-                      @click="handleBaseModelChange(model.value)" :class="[
-                        'cursor-pointer hover:bg-[#6D28D9]',
-                        filterState.base_models.includes(model.value) ? 'bg-[#6D28D9]' : ''
-                      ]">
-                      {{ model.label }}
-                    </Badge>
-                  </template>
+                    {{ model.label }}
+                  </Badge>
                 </div>
               </CommandItem>
             </CommandGroup>

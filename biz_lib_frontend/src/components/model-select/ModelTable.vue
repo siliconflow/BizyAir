@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, PropType, onMounted } from 'vue'
+import { ref, PropType, onMounted, watch } from 'vue'
 import { useToast } from '@/components/ui/toast/use-toast'
 import { Badge } from '@/components/ui/badge'
 import { remove_model } from '@/api/model'
@@ -53,6 +53,13 @@ onMounted(() => {
   }
 })
 
+watch(() => props.models, (newModels: Model[]) => {
+  if (newModels.length > 0) {
+    expandedModels.value.clear()
+    expandedModels.value.add(newModels[0].name)
+  }
+}, { deep: true })
+
 const toggleExpand = (modelName: string) => {
   if (expandedModels.value.has(modelName)) {
     expandedModels.value.delete(modelName)
@@ -61,9 +68,9 @@ const toggleExpand = (modelName: string) => {
   }
 }
 
-const handleOperateChange = async (value: 'edit' | 'remove',model: Model) => {
+const handleOperateChange = async (value: 'edit' | 'remove', model: Model) => {
 
-  const  { id, name, versions }=model
+  const { id, name, versions } = model
   currentOperateModel.value = name
   if (value === 'edit') {
     modelStoreInstance.setModelDetail(model)
@@ -110,7 +117,7 @@ const handleApply = (version: ModelVersion, model: Model) => {
 }
 </script>
 <template>
-  <div class="h-[600px]">
+  <div class="h-[450px]">
     <Table>
       <TableHeader>
         <TableRow class="hover:bg-transparent border-[#F9FAFB]/60">
