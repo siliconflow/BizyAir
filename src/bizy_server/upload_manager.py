@@ -20,6 +20,7 @@ class UploadManager:
         self.error_handler = ErrorHandler()
         self.upload_progresses_updated_at = dict()
         self.server = server
+        self.oss_clients = {}
 
     async def calculate_hash(self, file_path):
         do_crc64 = crcmod.mkCrcFun(
@@ -43,6 +44,10 @@ class UploadManager:
         hash_string = hasher.hexdigest()
 
         return hash_string
+
+    async def interrupt_uploading(self, upload_id):
+        if upload_id in self.oss_clients:
+            self.oss_clients[upload_id].interruptUploading()
 
     async def do_upload(self, item):
         sid = item["sid"]
@@ -84,15 +89,15 @@ class UploadManager:
                     def updateProgress(consume_bytes, total_bytes):
                         current_time = time.time()
                         if (
-                            current_time - self.upload_progresses_updated_at[upload_id]
-                            >= 1
+                                current_time - self.upload_progresses_updated_at[upload_id]
+                                >= 1
                         ):
                             self.upload_progresses_updated_at[upload_id] = current_time
 
                             progress = (
                                 f"{consume_bytes / total_bytes * 100:.0f}%"
                                 if consume_bytes / total_bytes * 100
-                                == int(consume_bytes / total_bytes * 100)
+                                   == int(consume_bytes / total_bytes * 100)
                                 else "{:.2f}%".format(consume_bytes / total_bytes * 100)
                             )
                             self.server.send_sync(
@@ -105,6 +110,13 @@ class UploadManager:
                                 sid=sid,
                             )
 
+                    def sendInterruptMsg():
+                        self.server.send_sync(event="interrupted", data={
+                            "upload_id": upload_id,
+                            "path": filename,
+                        }, sid=sid)
+                        return
+
                     oss_client = AliOssStorageClient(
                         endpoint=file_storage.get("endpoint"),
                         bucket_name=file_storage.get("bucket"),
@@ -112,7 +124,9 @@ class UploadManager:
                         secret_key=file_record.get("access_key_secret"),
                         security_token=file_record.get("security_token"),
                         onUploading=updateProgress,
+                        onInterrupted=sendInterruptMsg,
                     )
+                    self.oss_clients[upload_id] = oss_client
                     await oss_client.upload_file(
                         filepath, file_record.get("object_key")
                     )
@@ -120,6 +134,8 @@ class UploadManager:
                     print(f"\033[31m[BizyAir]\033[0m OSS err:{str(e)}")
                     self.server.send_sync_error(errnos.UPLOAD, sid)
                     return
+                finally:
+                    self.oss_clients.pop(upload_id, None)
 
                 commit_data, err = await self.server.api_client.commit_file(
                     signature=sha256sum, object_key=file_record.get("object_key")
