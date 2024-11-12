@@ -5,7 +5,7 @@
     </svg>
   </btnMenu> -->
   <!-- <Form as="" :validation-schema="formSchema"> -->
-    <div @click="showDialog = true" class="flex items-center hover:bg-[#4A238E] cursor-pointer relative px-3">
+    <div @click="modelStoreObject.setDialogStatus(true)" class="flex items-center hover:bg-[#4A238E] cursor-pointer relative px-3">
       <svg xmlns="http://www.w3.org/2000/svg" width="1rem" height="1rem" viewBox="0 0 24 24">
         <path fill="none" stroke="#ddd" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
           d="M21 16.008V7.99a1.98 1.98 0 0 0-1-1.717l-7-4.008a2.02 2.02 0 0 0-2 0L4 6.273c-.619.355-1 1.01-1 1.718v8.018c0 .709.381 1.363 1 1.717l7 4.008a2.02 2.02 0 0 0 2 0l7-4.008c.619-.355 1-1.01 1-1.718M12 22V12m0 0l8.73-5.04m-17.46 0L12 12" />
@@ -13,7 +13,8 @@
       <span class="block leading h-full leading-8 text-sm">Publish</span>
     </div>
     <v-dialog
-      v-model:open="showDialog"
+      v-model:open="modelStoreObject.showDialog"
+      @onClose="onDialogClose"
       class="px-0 overflow-hidden pb-0"
       contentClass="custom-scrollbar max-h-[80vh] overflow-y-auto w-full rounded-tl-lg rounded-tr-lg custom-shadow">
       <template #title><span class="px-6" @click="acActiveIndex = '-1'; modelBox = true">Publish a Model</span></template>
@@ -39,7 +40,7 @@
           <v-accordion-trigger class="justify-between relative">
             <span v-if="acActiveIndex !== `${i}` && e.version">{{ e.version }}</span>
             <span v-else>Add Version</span>
-            <BadgeMinus v-if="formData.versions.length !== 1" class="w-4 h-4" #icon @click.capture.stop="delVersion(i)" />
+            <Trash2 v-if="formData.versions.length !== 1" class="w-4 h-4" #icon @click.capture.stop="delVersion(i)" />
             <Progress v-if="e.progress && acActiveIndex && acActiveIndex !== `${i}`" :model-value="e.progress" class="absolute w-full bottom-0 left-0 h-1" />
           </v-accordion-trigger>
           <AccordionContent>
@@ -68,7 +69,6 @@
                 placeholder=""
                 :disabled="typeof(e.progress) == 'number' && e.progress !== 100"
                 v-model:model-value="e.filePath" />
-                {{ typeof(e.progress) }}
             </v-item>
             <div v-if="e.progress">
               <Progress :model-value="e.progress" class="mt-4 h-3" />
@@ -90,7 +90,7 @@
 
 </template>
 <script setup lang="ts">
-import { toast } from 'vue-sonner'
+import { useToaster } from '@/components/modules/toats/index'
 import { computed, ref, watch } from 'vue'
 import { Accordion, AccordionContent, AccordionItem } from '@/components/ui/accordion'
 import { SelectItem } from '@/components/ui/select'
@@ -110,12 +110,11 @@ import { modelStore } from '@/stores/modelStatus'
 import { Markdown } from '@/components/markdown'
 import { create_models, checkLocalFile, submitUpload, model_types, base_model_types, put_model } from '@/api/model'
 import { onMounted } from 'vue'
-import { BadgeMinus  } from 'lucide-vue-next'
+import { Trash2 } from 'lucide-vue-next'
 
 
 const statusStore = useStatusStore();
 const modelStoreObject = modelStore();
-const showDialog = ref(false);
 // const disabledSubmit = ref(false);
 const modelBox = ref(true);
 const versionIndex = ref(0);
@@ -183,12 +182,12 @@ function addVersions() {
 
 function nextStep() {
   if(!formData.value.name) {
-    toast.error('Please enter the model name')
+    useToaster.error('Please enter the model name')
     formData.value.nameError = true
     return
   }
   if(!formData.value.type) {
-    toast.error('Please select the model type')
+    useToaster.error('Please select the model type')
     formData.value.typeError = true
     return
   }
@@ -207,19 +206,19 @@ function verifyVersion() {
     const e = tempData.versions[i]
     if (!e.version) {
       e.versionError = true
-      toast.error(`Please enter the version name for version ${i + 1}`)
+      useToaster.error(`Please enter the version name for version ${i + 1}`)
       acActiveIndex.value = `${i}`
       break
     }
     if (!e.base_model) {
       e.baseModelError = true
-      toast.error(`Please select the base model for version ${i + 1}`)
+      useToaster.error(`Please select the base model for version ${i + 1}`)
       acActiveIndex.value = `${i}`
       break
     }
     if (!e.filePath) {
       e.filePathError = true
-      toast.error(`Please enter the file path for version ${i + 1}`)
+      useToaster.error(`Please enter the file path for version ${i + 1}`)
       acActiveIndex.value = `${i}`
       break
     }
@@ -237,10 +236,11 @@ async function submit() {
   showLayoutLoading.value = true
 
   if (formData.value.id) {
-    put_model(formData.value)
+    await put_model(formData.value)
   } else {
-    create_models(formData.value)
+    await create_models(formData.value)
   }
+  onDialogClose()
 }
 
 const acActiveFn = () => {
@@ -256,7 +256,12 @@ const handleIsUploading = (val: boolean) => {
   // disabledSubmit.value = val
   console.log(val)
 }
-
+const onDialogClose = () => {
+  modelStoreObject.setDialogStatus(false)
+  modelStoreObject.clearModelDetail()
+  modelBox.value = true
+  showLayoutLoading.value = false
+}
 watch(() => statusStore.socketMessage, (val: any) => {
   if (val.type == "progress") {
     const i = formData.value.versions.findIndex((e: any) => e.file_upload_id == val.data.upload_id)
@@ -265,8 +270,10 @@ watch(() => statusStore.socketMessage, (val: any) => {
   }
   if (val.type == "status" && val.data.status == 'finish') {
     const i = formData.value.versions.findIndex((e: any) => e.file_upload_id == val.data.upload_id)
-    formData.value.versions[i].path = val.data.model_files[0].path
-    formData.value.versions[i].sign = val.data.model_files[0].sign
+    if (formData.value.versions[i]) {
+      formData.value.versions[i].path = val.data.model_files[0].path
+      formData.value.versions[i].sign = val.data.model_files[0].sign
+    }
   }
 }, {
   deep: true
@@ -275,13 +282,6 @@ watch(() => modelStoreObject.modelDetail, (val: any) => {
   formData.value = val
 }, {
   deep: true
-})
-watch(showDialog, (val: any) => {
-  if (!val) {
-    modelStoreObject.clearModelDetail()
-    modelBox.value = true
-    showLayoutLoading.value = false
-  }
 })
 onMounted(async () => {
   const mt = await model_types()

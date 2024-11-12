@@ -1,4 +1,5 @@
-import { toast } from 'vue-sonner'
+import { useToaster } from '@/components/modules/toats/index'
+
 const fetchCache = new Map();
 
 
@@ -16,7 +17,7 @@ export function customFetch(url: string, options = {}) {
     .then(response => {
       if (response.status === 404) {
         alert(123)
-        toast.error('You may be missing dependencies at the moment. For details, please refer to the ComfyUI logs.')
+        useToaster.error('You may be missing dependencies at the moment. For details, please refer to the ComfyUI logs.')
       }
       return response.json();
     })
@@ -33,7 +34,7 @@ export function customFetch(url: string, options = {}) {
         //         }
         //     }
         // })
-        toast.error(message)
+        useToaster.error(message)
         return;
       }
       return data;

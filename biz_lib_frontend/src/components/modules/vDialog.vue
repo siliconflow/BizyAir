@@ -33,10 +33,11 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['update:open'])
+const emit = defineEmits(['update:open', 'onClose'])
 
 function closeDialog() {
   emit('update:open', false)
+  emit('onClose')
 }
 
 function keyCloseDialog(e: KeyboardEvent) {
