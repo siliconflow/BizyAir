@@ -69,6 +69,7 @@
                 placeholder=""
                 :disabled="typeof(e.progress) == 'number' && e.progress !== 100"
                 v-model:model-value="e.filePath" />
+                <Button  @click="interrupt(e)">interrupt</Button>
             </v-item>
             <div v-if="e.progress">
               <Progress :model-value="e.progress" class="mt-4 h-3" />
@@ -108,7 +109,7 @@ import { useAlertDialog  } from '@/components/modules/vAlertDialog/index'
 import { useStatusStore} from '@/stores/userStatus'
 import { modelStore } from '@/stores/modelStatus'
 import { Markdown } from '@/components/markdown'
-import { create_models, checkLocalFile, submitUpload, model_types, base_model_types, put_model } from '@/api/model'
+import { create_models, checkLocalFile, submitUpload, model_types, base_model_types, put_model, interrupt_upload } from '@/api/model'
 import { onMounted } from 'vue'
 import { Trash2 } from 'lucide-vue-next'
 
@@ -226,6 +227,9 @@ function verifyVersion() {
   return tempData.versions.every((e: any) => e.version && e.base_model && e.filePath)
 }
 
+async function interrupt ({ file_upload_id }: any) {
+  await interrupt_upload({ upload_id: file_upload_id })
+}
 
 async function submit() {
   if (!verifyVersion()) {

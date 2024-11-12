@@ -63,6 +63,12 @@ export const submitUpload = (data: any) => customFetch(`/bizyair/community/submi
     body: JSON.stringify(data)
 })
 
+
+export const interrupt_upload = (data: any) => customFetch(`/bizyair/community/interrupt_upload?clientId=${sessionStorage.getItem('clientId')}`, {
+    method: 'POST',
+    body: JSON.stringify(data)
+})
+
 export const model_types = () => customFetch('/bizyair/community/model_types', {method: 'GET'})
 
 export const put_model = (data: any) => customFetch(`/bizyair/community/models/${data.id}?clientId=${sessionStorage.getItem('clientId')}`, {
@@ -77,11 +83,9 @@ export const remove_model = (id: string|number) => customFetch(`/bizyair/communi
 })
 
 export const like_model = (model_version_id: any) => customFetch(`/bizyair/community/models/like/${model_version_id}`, {
-    method: 'POST'   
+    method: 'POST'
 })
 
 export const fork_model = (model_version_id: any) => customFetch(`/bizyair/community/models/fork/${model_version_id}`, {
-    method: 'POST'   
+    method: 'POST'
 })
-
-
