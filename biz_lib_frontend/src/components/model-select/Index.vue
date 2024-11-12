@@ -15,8 +15,10 @@ import { get_model_list } from '@/api/model'
 import { onMounted } from 'vue'
 import { ScrollArea } from '@/components/ui/scroll-area'
 
+import { EasyMarkdown } from '@/components/easy-mark'
+
 import vDialog from '@/components/modules/vDialog.vue'
- import  {useToaster}  from '@/components/modules/toats/index'
+import { useToaster } from '@/components/modules/toats/index'
 
 interface Props {
   modelType?: string
@@ -106,6 +108,9 @@ onMounted(async () => {
 
 <template>
   <v-dialog v-model:open="showDialog" class="max-w-[70%] px-6  pb-6">
+
+    <EasyMarkdown editor-id="test" v-if="false" />
+
     <div class="font-['Inter']">
       <DialogTitle class="text-[#F9FAFB] mb-2 text-[18px] font-semibold leading-[18px] tracking-[-0.45px]">Select Model
       </DialogTitle>
