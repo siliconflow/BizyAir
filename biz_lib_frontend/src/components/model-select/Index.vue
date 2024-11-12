@@ -16,7 +16,7 @@ import { onMounted } from 'vue'
 import { ScrollArea } from '@/components/ui/scroll-area'
 
 import vDialog from '@/components/modules/vDialog.vue'
-import { toast as message } from 'vue-sonner'
+ import  {useToaster}  from '@/components/modules/toats/index'
 
 interface Props {
   modelType?: string
@@ -52,7 +52,7 @@ const getModelList = async () => {
     } else {
       modelListPathParams.value.total = 0
       models.value = []
-      message.warning('Unable to get model list at the moment. Please try again.')
+      useToaster.warning('Unable to get model list at the moment. Please try again.')
     }
   } catch (error) {
     modelListPathParams.value.total = 0
@@ -131,7 +131,7 @@ onMounted(async () => {
             @update:filter-state="handleFilterStateChange" :selected-base-models="props.selectedBaseModels" />
           <ScrollArea class="h-[450px] rounded-md border-0">
             <ModelTable v-if="models" :models="models" :mode="modelListPathParams.mode" @apply="handleApply"
-              @remove="handleRemove" />
+              @reload="handleRemove" />
           </ScrollArea>
           <ModelPagination :current="modelListPathParams.current" :page_size="modelListPathParams.page_size"
             :total="modelListPathParams.total" @change="handlePageChange" />
@@ -142,7 +142,7 @@ onMounted(async () => {
             @update:filter-state="handleFilterStateChange" :selected-base-models="props.selectedBaseModels" />
           <ScrollArea class="h-[450px] rounded-md border-0">
             <ModelTable v-if="models" :models="models" :mode="modelListPathParams.mode" @apply="handleApply"
-              @remove="handleRemove" />
+              @reload="handleRemove" />
           </ScrollArea>
           <ModelPagination :current="modelListPathParams.current" :page_size="modelListPathParams.page_size"
             :total="modelListPathParams.total" @change="handlePageChange" />
@@ -153,7 +153,7 @@ onMounted(async () => {
             @update:filter-state="handleFilterStateChange" :selected-base-models="props.selectedBaseModels" />
           <ScrollArea class="h-[450px] rounded-md border-0">
             <ModelTable v-if="models" :models="models" :mode="modelListPathParams.mode" @apply="handleApply"
-              @remove="handleRemove" />
+              @reload="handleRemove" />
           </ScrollArea>
           <ModelPagination :current="modelListPathParams.current" :page_size="modelListPathParams.page_size"
             :total="modelListPathParams.total" @change="handlePageChange" />

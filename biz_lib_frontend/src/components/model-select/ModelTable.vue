@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, PropType, onMounted, watch } from 'vue'
-import { useToast } from '@/components/ui/toast/use-toast'
+import  {useToaster}  from '@/components/modules/toats/index'
 import { Badge } from '@/components/ui/badge'
 import { remove_model } from '@/api/model'
 
@@ -43,7 +43,7 @@ const props = defineProps({
     required: true
   }
 })
-const { toast } = useToast()
+
 const expandedModels = ref<Set<string>>(new Set())
 const currentOperateModel = ref<string>('')
 
@@ -57,6 +57,13 @@ watch(() => props.models, (newModels: Model[]) => {
   if (newModels.length > 0) {
     expandedModels.value.clear()
     expandedModels.value.add(newModels[0].name)
+  }
+}, { deep: true })
+
+
+watch(() => modelStoreInstance.reload, (newValue: number, oldValue: number) => {
+  if (newValue !== oldValue) {
+    emit('reload')
   }
 }, { deep: true })
 
@@ -89,27 +96,23 @@ const handleOperateChange = async (value: 'edit' | 'remove', model: Model) => {
     if (versions) {
       const hasPublic = versions.some((version) => version.public)
       if (hasPublic) {
-        toast({
-          description: 'Model has public version, cannot remove.',
-        })
+        useToaster.warning('Model has public version, cannot remove.')
         return
       }
     }
     handleRemoveModel(id)
   }
 }
-const emit = defineEmits(['apply', 'remove'])
+const emit = defineEmits(['apply', 'reload'])
 const handleRemoveModel = (id: string) => {
   remove_model(id).then((_) => {
-    toast({
-      description: 'Model removed successfully.',
-    })
-    emit('remove')
+    useToaster.success('Model removed successfully.')
+    emit('reload')
   })
 }
 
 const emitRemove = () => {
-  emit('remove')
+  emit('reload')
 }
 
 const handleApply = (version: ModelVersion, model: Model) => {
@@ -197,7 +200,7 @@ const handleApply = (version: ModelVersion, model: Model) => {
             </TableRow>
             <template v-if="expandedModels.has(model.name) && model.versions">
               <ModelVersionRow v-for="version in model.versions" :model="model" :mode="props.mode"
-                :key="version.version" :version="version" @remove="emitRemove" @apply="handleApply" />
+                :key="version.version" :version="version" @reload="emitRemove" @apply="handleApply" />
             </template>
           </template>
         </template>

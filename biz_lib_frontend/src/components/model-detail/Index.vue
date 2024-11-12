@@ -26,13 +26,13 @@ const modelStoreInstance = modelStore()
 import { sliceString, formatSize, formatNumber } from '@/utils/tool'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
-import { ref, onMounted, nextTick } from 'vue'
+import { ref, onMounted, nextTick, watch } from 'vue'
 import Vditor from 'vditor'
 import { useAlertDialog } from '@/components/modules/vAlertDialog/index'
 
 import { Model, ModelVersion } from '@/types/model'
 import { model_detail, like_model, fork_model, remove_model } from '@/api/model'
-import { toast as message } from 'vue-sonner'
+import  {useToaster}  from '@/components/modules/toats/index'
 
 const previewRef = ref<HTMLDivElement | null>(null)
 const model = ref<Model>()
@@ -56,8 +56,8 @@ const props = defineProps<{
 const getData = async () => {
   const res = await model_detail({ id: props.modelId, source: props.mode })
   if (!res.data) {
-    message.error('Model not found.')
-    emit('remove')
+    useToaster.error('Model not found.')
+    emit('reload')
     return
   }
   model.value = res.data
@@ -114,7 +114,7 @@ const handleOperateChange = async (type: 'edit' | 'remove', id: string | number)
     if (model.value?.versions) {
       const hasPublic = model.value?.versions.some((version) => version.public)
       if (hasPublic) {
-        message.warning('Model has public version, cannot remove.')
+        useToaster.warning('Model has public version, cannot remove.')
         downloadOpen.value = false
         return
       }
@@ -122,14 +122,20 @@ const handleOperateChange = async (type: 'edit' | 'remove', id: string | number)
     handleRemoveModel(id)
   }
 }
-const emit = defineEmits(['apply', 'remove'])
+const emit = defineEmits(['apply', 'reload'])
 
 const handleRemoveModel = (id: number | string) => {
   remove_model(id).then((_) => {
-    message.success('Model removed successfully.')
-    emit('remove')
+    useToaster.success('Model removed successfully.')
+    emit('reload')
   })
 }
+
+watch(() => modelStoreInstance.reload, (newValue: number, oldValue: number) => {
+  if (newValue !== oldValue) {
+    emit('reload')
+  }
+}, { deep: true })
 
 const handleApply = () => {
   emit('apply', currentVerssion.value, model.value)
@@ -139,7 +145,7 @@ const handleCopy = async (sign: string) => {
   try {
     if (navigator.clipboard) {
       await navigator.clipboard.writeText(sign || '');
-      message.success('Copied successfully.')
+      useToaster.success('Copied successfully.')
     } else {
       const input = document.createElement('input');
       input.value = sign || '';
@@ -149,7 +155,7 @@ const handleCopy = async (sign: string) => {
       document.body.removeChild(input);
     }
   } catch (err) {
-    message.error('Copy failed.')
+    useToaster.error('Copy failed.')
   }
 
 }
