@@ -1,11 +1,11 @@
 import asyncio
 import logging
 import os
+import tempfile
 import threading
 import time
-import uuid
 import urllib.parse
-import tempfile
+import uuid
 
 import aiohttp
 from server import PromptServer
@@ -215,7 +215,7 @@ class BizyAirServer:
             sid = request.rel_url.query.get("clientId", "")
             if not is_string_valid(sid):
                 return ErrResponse(errnos.INVALID_CLIENT_ID)
-            
+
             json_data = await request.json()
 
             # 校验name和type
@@ -453,14 +453,18 @@ class BizyAirServer:
                     return ErrResponse(errnos.INVALID_MODEL_VERSION_ID)
 
                 # 调用API like模型版本
-                _, err = await self.api_client.toggle_user_like("model_version", version_id)
+                _, err = await self.api_client.toggle_user_like(
+                    "model_version", version_id
+                )
                 if err:
                     return ErrResponse(err)
 
                 return OKResponse(None)
 
             except Exception as e:
-                print(f"\033[31m[BizyAir]\033[0m Fail to toggle like model version: {str(e)}")
+                print(
+                    f"\033[31m[BizyAir]\033[0m Fail to toggle like model version: {str(e)}"
+                )
                 return ErrResponse(errnos.TOGGLE_USER_LIKE)
 
         @self.prompt_server.routes.post(f"/{COMMUNITY_API}/files/upload")
@@ -478,7 +482,7 @@ class BizyAirServer:
 
                 # 读取文件内容
                 file_content = await field.read(decode=False)
-                
+
                 filename = urllib.parse.quote(filename)
                 # 获取上传凭证
                 ret, err = await self.api_client.get_upload_token(filename=filename)
@@ -516,7 +520,9 @@ class BizyAirServer:
                 print(f"\033[31m[BizyAir]\033[0m Fail to upload file: {str(e)}")
                 return ErrResponse(errnos.UPLOAD)
 
-        @self.prompt_server.routes.get(f"/{COMMUNITY_API}/models/versions/{{model_version_id}}/workflow_json/{{sign}}")
+        @self.prompt_server.routes.get(
+            f"/{COMMUNITY_API}/models/versions/{{model_version_id}}/workflow_json/{{sign}}"
+        )
         async def get_workflow_json(request):
             model_version_id = int(request.match_info["model_version_id"])
             # 检查model_version_id是否合法
@@ -528,7 +534,9 @@ class BizyAirServer:
                 return ErrResponse(errnos.INVALID_SIGN)
 
             # 获取上传凭证
-            url, err = await self.api_client.get_download_url(sign=sign, model_version_id=model_version_id)
+            url, err = await self.api_client.get_download_url(
+                sign=sign, model_version_id=model_version_id
+            )
             if err:
                 return ErrResponse(err)
 
@@ -536,13 +544,19 @@ class BizyAirServer:
                 async with aiohttp.ClientSession() as session:
                     async with session.get(url) as response:
                         if response.status != 200:
-                            return ErrResponse(ErrorNo(response.status, response.status, None, "Failed to download JSON"))
+                            return ErrResponse(
+                                ErrorNo(
+                                    response.status,
+                                    response.status,
+                                    None,
+                                    "Failed to download JSON",
+                                )
+                            )
                         json_content = await response.json()
                 return OKResponse(json_content)
             except Exception as e:
                 print(f"\033[31m[BizyAir]\033[0m Fail to download JSON: {str(e)}")
                 return ErrResponse(errnos.DOWNLOAD_JSON)
-
 
     async def send_json(self, event, data, sid=None):
         message = {"type": event, "data": data}
@@ -598,7 +612,10 @@ class BizyAirServer:
                         data={
                             "message": err.message,
                             "code": err.code,
-                            "data": {"bizy_model_id": bizy_model_id, "version_id": version_id}
+                            "data": {
+                                "bizy_model_id": bizy_model_id,
+                                "version_id": version_id,
+                            },
                         },
                         sid=sid,
                     )
@@ -612,9 +629,10 @@ class BizyAirServer:
                             "version_id": model_version["id"],
                             "version": model_version["version"],
                             "model_id": bizy_model_id,
-                            "model_name": model_version["bizy_model_name"]
+                            "model_name": model_version["bizy_model_name"],
                         },
-                        sid=sid)
+                        sid=sid,
+                    )
                     removed.append(version_id)
                     return
 

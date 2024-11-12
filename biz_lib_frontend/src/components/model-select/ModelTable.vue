@@ -3,7 +3,7 @@ import { ref, PropType, onMounted } from 'vue'
 import { useToast } from '@/components/ui/toast/use-toast'
 import { Badge } from '@/components/ui/badge'
 import { remove_model } from '@/api/model'
-import Toaster from '@/components/ui/toast/Toaster.vue'
+
 import {
   Table,
   TableBody,
@@ -28,7 +28,6 @@ import { useAlertDialog } from '@/components/modules/vAlertDialog/index'
 
 import type { Model, ModelVersion } from '@/types/model'
 import ModelVersionRow from './ModelVersionRow.vue'
-
 
 const props = defineProps({
   models: {
@@ -72,8 +71,6 @@ const handleOperateChange = async (value: 'edit' | 'remove', { id, name, version
     })
     if (!res) return
 
-
-
     if (versions) {
       const hasPublic = versions.some((version) => version.public)
       if (hasPublic) {
@@ -83,12 +80,10 @@ const handleOperateChange = async (value: 'edit' | 'remove', { id, name, version
         return
       }
     }
-
-
     handleRemoveModel(id)
   }
 }
-
+const emit = defineEmits(['apply', 'remove'])
 const handleRemoveModel = (id: string) => {
   remove_model(id).then((_) => {
     toast({
@@ -98,7 +93,10 @@ const handleRemoveModel = (id: string) => {
   })
 }
 
-const emit = defineEmits(['apply', 'remove'])
+const emitRemove = () => {
+  emit('remove')
+}
+
 const handleApply = (version: ModelVersion, model: Model) => {
   emit('apply', version, model)
 }
@@ -184,12 +182,11 @@ const handleApply = (version: ModelVersion, model: Model) => {
             </TableRow>
             <template v-if="expandedModels.has(model.name) && model.versions">
               <ModelVersionRow v-for="version in model.versions" :model="model" :mode="props.mode"
-                :key="version.version" :version="version" @apply="handleApply" />
+                :key="version.version" :version="version" @remove="emitRemove" @apply="handleApply" />
             </template>
           </template>
         </template>
       </TableBody>
     </Table>
   </div>
-  <Toaster />
 </template>

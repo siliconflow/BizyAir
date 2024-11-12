@@ -11,7 +11,7 @@ interface ModelVersion {
   filePath: string;
   filePathError?: boolean;
   public: boolean;
-  progress?: {[key: string]: any};
+  progress?: number;
   file_upload_id?: string;
 }
 

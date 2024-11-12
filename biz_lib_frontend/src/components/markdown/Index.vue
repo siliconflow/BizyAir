@@ -3,7 +3,7 @@ import { nextTick, onMounted, onUnmounted, ref } from 'vue'
 import Vditor from 'vditor'
 import 'vditor/dist/index.css'
 import { uploadImage } from '@/api/public'
-
+import { toast as message } from 'vue-sonner'
 
 const props = defineProps<{
   modelValue?: string,
@@ -14,7 +14,7 @@ const editor = ref<any>(null)
 const vditor = ref<Vditor | null>(null)
 const vditorContainer = ref<HTMLElement | null>(null)
 const isFullscreen = ref(false)
-const showOriginalEditor = ref(true)
+
 const emit = defineEmits(['update:modelValue', 'update:dialog-modal', 'isUploading'])
 
 const vditorConfig: IOptions = {
@@ -51,13 +51,11 @@ const vditorConfig: IOptions = {
     'code',
     '|',
     'upload',
-    // 'fullscreen',
     {
       name: 'fullscreen',
       tip: 'Fullscreen',
       click: () => {
         isFullscreen.value = !isFullscreen.value
-        console.log('isFullscreen', isFullscreen.value)
         if (isFullscreen.value) {
           moveEditorToBody()
         } else {
@@ -81,7 +79,8 @@ const vditorConfig: IOptions = {
           emit('isUploading', true)
           if (files.length > 3) {
             if (vditor.value) {
-              vditor.value.tip('Maximum 3 files can be uploaded at once', 3000)
+              message.warning('Maximum 3 files can be uploaded at once')
+
             }
             emit('isUploading', false)
             resolve('')
@@ -117,7 +116,7 @@ const vditorConfig: IOptions = {
                     if (vditor.value) {
                       vditor.value.tip(`File ${currentIndex + 1} upload failed`, 1500)
                     }
-                    console.error(`File ${file.name} upload failed:`, err)
+
                   } else {
                     await new Promise(resolve => setTimeout(resolve, 1000))
                   }
@@ -236,7 +235,7 @@ const moveEditorBackToContainer = () => {
     if (wrapper) {
       wrapper.appendChild(vditorEl)
     } else {
-      console.error('Vditor wrapper not found')
+      message.error('Vditor wrapper not found')
     }
     vditorEl.offsetHeight
     nextTick(() => {
@@ -281,7 +280,7 @@ onMounted(() => {
 <template>
   <div ref="vditorContainer" id="vditor-container">
     <div class="vditor-wrapper" id="vditor-wrapper">
-      <div :id="editorId" ref="editor" class="editor" v-if="showOriginalEditor"></div>
+      <div :id="editorId" ref="editor" class="editor"></div>
     </div>
   </div>
 </template>
@@ -295,33 +294,13 @@ onMounted(() => {
   color: #fff;
 }
 
-/* .vditor-fullscreen {
-  position: fixed !important;
-
-  left: 0 !important;
-  top: 0 !important;
-  width: 100vw !important;
-  height: 100vh !important;
-  min-height: 400px;
+.vditor-img {
   z-index: 99999;
-  background: var(--background);
-  transition: all 0.3s ease;
-  margin: 0;
-  padding: 0;
-  border: none;
-  pointer-events: auto;
-} */
+}
 
 .vditor-dark .vditor-ir pre.vditor-reset {
   color: #fff;
 }
-
-/* .vditor-wrapper {
-  position: relative;
-  width: 100%;
-  height: 100%;
-
-} */
 
 .editor {
   transition: all 0.2s;

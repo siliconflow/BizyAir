@@ -8,7 +8,6 @@ import {
 } from '@/components/ui/table'
 import type { Model, ModelVersion } from '@/types/model'
 import { ref } from 'vue'
-import { ScrollArea } from '@/components/ui/scroll-area'
 
 const showModelDetail = ref(false)
 
@@ -18,14 +17,18 @@ interface Props {
   mode: string
 }
 
-const emit = defineEmits(['apply'])
+const emit = defineEmits(['apply', 'remove'])
 const handleApply = (version: ModelVersion, model: Model) => {
   emit('apply', version, model)
 }
 
 const handleShowModelDetail = () => {
-  console.log('detail')
   showModelDetail.value = true
+}
+
+const handleRemoveModel = () => {
+  showModelDetail.value = false
+  emit('remove')
 }
 
 defineProps<Props>()
@@ -63,9 +66,7 @@ defineProps<Props>()
       </Button>
     </TableCell>
   </TableRow>
-  <vDialog v-model:open="showModelDetail" class="w-full h-screen mb-[100px] z-[9999]" :title="model.name">
-    <ScrollArea class="h-[calc(100vh-50px)] rounded-md border-0">
-      <ModelDetail :modelId="model.id" :mode="mode" />
-    </ScrollArea>
+  <vDialog v-model:open="showModelDetail" class="max-w-full h-screen px-6  pb-6 z-[8000]" :title="model.name">
+    <ModelDetail :modelId="model.id" @remove="handleRemoveModel" @apply="handleApply" :mode="mode" />
   </vDialog>
 </template>
