@@ -29,7 +29,6 @@ import { useAlertDialog } from '@/components/modules/vAlertDialog/index'
 import type { Model, ModelVersion } from '@/types/model'
 import ModelVersionRow from './ModelVersionRow.vue'
 
-
 const props = defineProps({
   models: {
     type: Array as PropType<Model[]>,
@@ -94,6 +93,9 @@ const handleRemoveModel = (id: string) => {
   })
 }
 
+const emitRemove = () => {
+  emit('remove')
+}
 
 const handleApply = (version: ModelVersion, model: Model) => {
   emit('apply', version, model)
@@ -180,7 +182,7 @@ const handleApply = (version: ModelVersion, model: Model) => {
             </TableRow>
             <template v-if="expandedModels.has(model.name) && model.versions">
               <ModelVersionRow v-for="version in model.versions" :model="model" :mode="props.mode"
-                :key="version.version" :version="version" @apply="handleApply" />
+                :key="version.version" :version="version" @remove="emitRemove" @apply="handleApply" />
             </template>
           </template>
         </template>

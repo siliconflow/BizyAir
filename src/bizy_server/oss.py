@@ -2,6 +2,7 @@ import asyncio
 import io
 import logging
 import os
+import threading
 
 import oss2
 from oss2.models import PartInfo
@@ -19,6 +20,7 @@ class AliOssStorageClient:
         secret_key,
         security_token,
         onUploading,
+        onInterrupted,
     ):
         auth = (
             oss2.StsAuth(access_key, secret_key, security_token)
@@ -29,9 +31,21 @@ class AliOssStorageClient:
         self.bucket_name = bucket_name
         self.region = endpoint
         self.onUploading = onUploading
+        self.onInterrupted = onInterrupted
+        self.interrupt_flag = False
+        self.upload_thread = None
         logging.debug(
             f"New OSS storage client initialized: {self.bucket_name} in {self.region}"
         )
+
+    def _upload_file_with_interrupt(self, file_path, object_name, progress_callback):
+        try:
+            self.bucket.put_object_from_file(
+                object_name, file_path, progress_callback=progress_callback
+            )
+        except oss2.exceptions.OssError as e:
+            logging.error(f"Failed to upload file: {e}")
+            raise e
 
     def sync_upload_file(self, file_path, object_name):
         total_size = os.path.getsize(file_path)
@@ -84,21 +98,22 @@ class AliOssStorageClient:
             if self.onUploading:
                 self.onUploading(bytes_sent, total_bytes)
 
-        try:
-            loop = asyncio.get_running_loop()
-            await loop.run_in_executor(
-                None,
-                self.bucket.put_object_from_file,
-                object_name,
-                file_path,
-                None,
-                progress_callback,
-            )
-        except oss2.exceptions.OssError as e:
-            logging.error(f"Failed to upload file: {e}")
-            raise e
-        finally:
-            progress_bar.close()
+        self.upload_thread = threading.Thread(
+            target=self._upload_file_with_interrupt,
+            args=(file_path, object_name, progress_callback),
+        )
+        self.upload_thread.start()
+
+        while self.upload_thread.is_alive():
+            await asyncio.sleep(0.1)
+            if self.interrupt_flag:
+                self.interrupt()
+                if self.onInterrupted:
+                    self.onInterrupted()
+                break
+
+        self.upload_thread.join()
+        progress_bar.close()
 
         return f"{self.bucket_name}/{self.region}/{object_name}"
 
@@ -175,3 +190,10 @@ class AliOssStorageClient:
             raise e
 
         return f"{self.bucket_name}/{self.region}/{object_name}"
+    
+    def interrupt(self):
+        if self.upload_thread:
+            self.upload_thread.cancel()
+
+    def interruptUploading(self):
+        self.interrupt_flag = True
