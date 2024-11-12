@@ -1,4 +1,5 @@
 import asyncio
+import ctypes
 import io
 import logging
 import os
@@ -193,7 +194,13 @@ class AliOssStorageClient:
     
     def interrupt(self):
         if self.upload_thread:
-            self.upload_thread.cancel()
+            exc = ctypes.py_object(SystemExit)
+            res = ctypes.pythonapi.PyThreadState_SetAsyncExc(ctypes.c_long(self.upload_thread.ident), exc)
+            if res == 0:
+                raise ValueError("Invalid thread ID")
+            elif res > 1:
+                ctypes.pythonapi.PyThreadState_SetAsyncExc(self.upload_thread.ident, None)
+                raise SystemError("PyThreadState_SetAsyncExc failed")
 
     def interruptUploading(self):
         self.interrupt_flag = True
