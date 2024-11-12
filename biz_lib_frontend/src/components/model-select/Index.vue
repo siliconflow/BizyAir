@@ -13,6 +13,7 @@ import ModelTable from './ModelTable.vue'
 import ModelPagination from './ModelPagination.vue'
 import { get_model_list } from '@/api/model'
 import { onMounted } from 'vue'
+import { ScrollArea } from '@/components/ui/scroll-area'
 
 import vDialog from '@/components/modules/vDialog.vue'
 import { toast as message } from 'vue-sonner'
@@ -104,8 +105,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <v-dialog v-model:open="showDialog" class="max-w-[70%] px-6 overflow-hidden pb-6"
-    contentClass="custom-scrollbar max-h-[80vh] overflow-y-auto w-full rounded-tl-lg rounded-tr-lg custom-shadow">
+  <v-dialog v-model:open="showDialog" class="max-w-[70%] px-6  pb-6">
     <div class="font-['Inter']">
       <DialogTitle class="text-[#F9FAFB] mb-2 text-[18px] font-semibold leading-[18px] tracking-[-0.45px]">Select Model
       </DialogTitle>
@@ -129,10 +129,10 @@ onMounted(async () => {
           <ModelFilterBar v-model:filter-state="filterState" :mode="modelListPathParams.mode"
             v-model:show-sort-popover="showSortPopover" :model-type="props.modelType"
             @update:filter-state="handleFilterStateChange" :selected-base-models="props.selectedBaseModels" />
-          <!-- <ScrollArea class="h-[400px] rounded-md border-0"> -->
-          <ModelTable v-if="models" :models="models" :mode="modelListPathParams.mode" @apply="handleApply"
-            @remove="handleRemove" />
-          <!-- </ScrollArea> -->
+          <ScrollArea class="h-[450px] rounded-md border-0">
+            <ModelTable v-if="models" :models="models" :mode="modelListPathParams.mode" @apply="handleApply"
+              @remove="handleRemove" />
+          </ScrollArea>
           <ModelPagination :current="modelListPathParams.current" :page_size="modelListPathParams.page_size"
             :total="modelListPathParams.total" @change="handlePageChange" />
         </TabsContent>
@@ -140,10 +140,10 @@ onMounted(async () => {
           <ModelFilterBar v-model:filter-state="filterState" :mode="modelListPathParams.mode"
             v-model:show-sort-popover="showSortPopover" :model-type="props.modelType"
             @update:filter-state="handleFilterStateChange" :selected-base-models="props.selectedBaseModels" />
-          <!-- <ScrollArea class="h-[400px] rounded-md border-0"> -->
-          <ModelTable v-if="models" :models="models" :mode="modelListPathParams.mode" @apply="handleApply"
-            @remove="handleRemove" />
-          <!-- </ScrollArea> -->
+          <ScrollArea class="h-[450px] rounded-md border-0">
+            <ModelTable v-if="models" :models="models" :mode="modelListPathParams.mode" @apply="handleApply"
+              @remove="handleRemove" />
+          </ScrollArea>
           <ModelPagination :current="modelListPathParams.current" :page_size="modelListPathParams.page_size"
             :total="modelListPathParams.total" @change="handlePageChange" />
         </TabsContent>
@@ -151,10 +151,10 @@ onMounted(async () => {
           <ModelFilterBar v-model:filter-state="filterState" :mode="modelListPathParams.mode"
             v-model:show-sort-popover="showSortPopover" :model-type="props.modelType"
             @update:filter-state="handleFilterStateChange" :selected-base-models="props.selectedBaseModels" />
-          <!-- <ScrollArea class="h-[400px] rounded-md border-0"> -->
-          <ModelTable v-if="models" :models="models" :mode="modelListPathParams.mode" @apply="handleApply"
-            @remove="handleRemove" />
-          <!-- </ScrollArea> -->
+          <ScrollArea class="h-[450px] rounded-md border-0">
+            <ModelTable v-if="models" :models="models" :mode="modelListPathParams.mode" @apply="handleApply"
+              @remove="handleRemove" />
+          </ScrollArea>
           <ModelPagination :current="modelListPathParams.current" :page_size="modelListPathParams.page_size"
             :total="modelListPathParams.total" @change="handlePageChange" />
         </TabsContent>
