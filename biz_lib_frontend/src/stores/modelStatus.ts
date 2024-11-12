@@ -30,6 +30,7 @@ export const modelStore = defineStore('modelStore', {
       type: '',
       versions: []
     } as ModelDetail,
+    showDialog: false,
   }),
   actions: {
     setModelDetail(data: any) {
@@ -41,6 +42,9 @@ export const modelStore = defineStore('modelStore', {
         type: '',
         versions: []
       }
-    }
+    },
+    setDialogStatus(status: boolean) {
+      this.showDialog = status;
+    },
   },
 });

@@ -188,6 +188,28 @@ class BizyAirServer:
 
             return OKResponse(None)
 
+        @self.prompt_server.routes.post(f"/{COMMUNITY_API}/interrupt_upload")
+        async def interrupt_upload(request):
+            sid = request.rel_url.query.get("clientId", "")
+            if not is_string_valid(sid):
+                return ErrResponse(errnos.INVALID_CLIENT_ID)
+
+            json_data = await request.json()
+            err = check_str_param(json_data, "upload_id", errnos.EMPTY_UPLOAD_ID)
+            if err is not None:
+                return err
+
+            upload_id = json_data.get("upload_id")
+            if upload_id not in self.uploads:
+                return ErrResponse(errnos.INVALID_UPLOAD_ID)
+
+            if self.uploads.get(upload_id) is None:
+                return ErrResponse(errnos.INVALID_UPLOAD_ID)
+
+            await self.upload_manager.interrupt_uploading(upload_id)
+
+            return OKResponse(None)
+
         @self.prompt_server.routes.post(f"/{COMMUNITY_API}/models")
         async def commit_bizy_model(request):
             sid = request.rel_url.query.get("clientId", "")

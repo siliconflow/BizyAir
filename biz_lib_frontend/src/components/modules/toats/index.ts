@@ -1,19 +1,66 @@
 import { createApp } from 'vue'
-import { Toaster } from '@/components/ui/sonner'
-export function useToaster() {
-  let container: HTMLDivElement | null
+import Toaster from './index.vue'
 
-  if (document.querySelector('#bizyair-toaster')) {
-    container = document.querySelector('#bizyair-toaster')
+export function useToaster(options: { [x: string]: unknown; } | string) {
+  let containerBox:HTMLDivElement
+  if (document.querySelector('.bizyair-toaster-container')) {
+    containerBox = document.querySelector('.bizyair-toaster-container') as HTMLDivElement
   } else {
-    container = document.createElement('div')
-    container.id = 'bizyair-toaster'
-    document.body.appendChild(container)
+    containerBox = document.createElement('div')
+    containerBox.className = 'bizyair-toaster-container'
   }
-  container && (container.style.display = 'none')
-  const app = createApp(Toaster, { class: 'h-20', 'data-y-position': 'top', 'data-x-position': 'right' })
+  containerBox.style.position = 'fixed'
+  containerBox.style.zIndex = '8002'
+  containerBox.style.top = '8px'
+  containerBox.style.width = '400px'
+  if (typeof options === 'string') {
+    options = { message: options, type: 'info', position: 'right' }
+  }
+  options.position = options.position || 'right'
+  if (options.position === 'left') {
+    containerBox.style.left = '8px'
+  }
+  if (options.position === 'right') {
+    containerBox.style.right = '8px'
+  }
+  if (options.position === 'center') {
+    containerBox.style.left = '50%'
+    containerBox.style.transform = 'translateX(-50%)'
+  }
+  document.body.appendChild(containerBox)
+
+
+  const container = document.createElement('div')
+  container.style.transition = 'all 0.3s'
+  containerBox.appendChild(container)
+
+  const app = createApp(Toaster, {
+    ...options,
+    onClose: () => {
+      app.unmount()
+      containerBox.removeChild(container)
+    }
+  })
 
   if (container) {
     app.mount(container)
   }
+}
+useToaster.warning = (message: string) => {
+  useToaster({
+    message,
+    type: 'warning'
+  })
+}
+useToaster.success = (message: string) => {
+  useToaster({
+    message,
+    type: 'success'
+  })
+}
+useToaster.error = (message: string) => {
+  useToaster({
+    message,
+    type: 'error'
+  })
 }
