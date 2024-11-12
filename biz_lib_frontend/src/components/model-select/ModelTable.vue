@@ -102,20 +102,20 @@ const handleApply = (version: ModelVersion, model: Model) => {
 }
 </script>
 <template>
-  <div class="min-h-[400px]">
+  <div class="h-[600px]">
     <Table>
       <TableHeader>
         <TableRow class="hover:bg-transparent border-[#F9FAFB]/60">
-          <TableHead class="w-[40%]">Name</TableHead>
-          <TableHead class="w-[25%]">Base Model</TableHead>
-          <TableHead class="w-[20%]">Status</TableHead>
+          <TableHead class="w-[55%]">Name</TableHead>
+          <TableHead class="w-[15%]">Base Model</TableHead>
+          <TableHead class="w-[15%]">Status</TableHead>
           <TableHead class="w-[15%]">Operate</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         <template v-if="props.models.length === 0">
           <TableRow>
-            <TableCell colspan="4" class="h-[360px]">
+            <TableCell colspan="4" class="min-h-[400px]">
               <div class="flex items-center justify-center h-full text-gray-500">
                 No data available
               </div>
