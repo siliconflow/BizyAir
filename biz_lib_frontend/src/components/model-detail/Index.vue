@@ -18,7 +18,9 @@ import {
   CommandList,
   CommandSeparator
 } from '@/components/ui/command'
+import { modelStore } from '@/stores/modelStatus'
 
+const modelStoreInstance = modelStore()
 
 
 import { sliceString, formatSize, formatNumber } from '@/utils/tool'
@@ -94,7 +96,11 @@ const handleFork = async () => {
   getData()
 }
 
-const handleOperateChange = async (type: string, id: string | number) => {
+const handleOperateChange = async (type: 'edit' | 'remove', id: string | number) => {
+  if (type === 'edit') {
+    modelStoreInstance.setModelDetail(model)
+    modelStoreInstance.setDialogStatus(true)
+  }
   if (type === 'remove') {
     const res = await useAlertDialog({
       title: 'Are you sure you want to delete this model?',

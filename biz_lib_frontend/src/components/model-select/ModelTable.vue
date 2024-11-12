@@ -4,6 +4,10 @@ import { useToast } from '@/components/ui/toast/use-toast'
 import { Badge } from '@/components/ui/badge'
 import { remove_model } from '@/api/model'
 
+import { modelStore } from '@/stores/modelStatus'
+
+const modelStoreInstance = modelStore()
+
 import {
   Table,
   TableBody,
@@ -57,9 +61,13 @@ const toggleExpand = (modelName: string) => {
   }
 }
 
-const handleOperateChange = async (value: 'edit' | 'remove', { id, name, versions }: Model) => {
+const handleOperateChange = async (value: 'edit' | 'remove',model: Model) => {
+
+  const  { id, name, versions }=model
   currentOperateModel.value = name
   if (value === 'edit') {
+    modelStoreInstance.setModelDetail(model)
+    modelStoreInstance.setDialogStatus(true)
     currentOperateModel.value = ''
   }
   if (value === 'remove') {
