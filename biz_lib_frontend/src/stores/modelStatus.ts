@@ -23,6 +23,7 @@ interface ModelDetail {
   id?: number;
   versions: ModelVersion[];
 }
+type ShowVersionId = number | undefined;
 export const modelStore = defineStore('modelStore', {
   state: () => ({
     modelDetail: {
@@ -31,6 +32,8 @@ export const modelStore = defineStore('modelStore', {
       versions: []
     } as ModelDetail,
     showDialog: false,
+    showVersionId: 0 as ShowVersionId,
+    reload: 0
   }),
   actions: {
     setModelDetail(data: any) {
@@ -42,9 +45,14 @@ export const modelStore = defineStore('modelStore', {
         type: '',
         versions: []
       }
+
     },
-    setDialogStatus(status: boolean) {
+    setDialogStatus(status: boolean, versionId?: number) {
       this.showDialog = status;
+      this.showVersionId = versionId;
     },
+    uploadModelDone() {
+      this.reload += 1;
+    }
   },
 });

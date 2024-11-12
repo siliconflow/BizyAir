@@ -53,7 +53,7 @@
               </v-select>
             </v-item>
             <v-item label="Introduction">
-              <Markdown :editorId="`myeditor${i}`" @update:modelValue="handleMarkdownChange" @isUploading="handleIsUploading" />
+              <Markdown :editorId="`myeditor${i}`" @update:modelValue="val => handleMarkdownChange(val, i)" @isUploading="handleIsUploading" />
             </v-item>
             <v-item label="">
               <div class="flex items-center space-x-2 mt-2">
@@ -62,14 +62,16 @@
               </div>
             </v-item>
             <v-item label="File Path">
-              <Input
-                :class="{'border-red-500': e.filePathError}"
-                type="text"
-                @change="checkFile(e.filePath, i)"
-                placeholder=""
-                :disabled="typeof(e.progress) == 'number' && e.progress !== 100"
-                v-model:model-value="e.filePath" />
-                <Button  @click="interrupt(e)">interrupt</Button>
+              <div class="flex">
+                <Input
+                  :class="{'border-red-500': e.filePathError}"
+                  type="text"
+                  @change="checkFile(e.filePath, i)"
+                  placeholder=""
+                  :disabled="typeof(e.progress) == 'number' && e.progress !== 100"
+                  v-model:model-value="e.filePath" />
+                <Button  @click="interrupt(e)" class="ml-2" :disabled="e.filePath == ''">interrupt</Button>
+              </div>
             </v-item>
             <div v-if="e.progress">
               <Progress :model-value="e.progress" class="mt-4 h-3" />
@@ -141,6 +143,7 @@ async function checkFile(val: string, index: number) {
   versionIndex.value = index
   await submitUpload({ upload_id: res.data.upload_id })
   formData.value.versions[index].progress = 0
+  useToaster('Start calculating the file hash')
 }
 async function delVersion(index: number) {
   const res = await useAlertDialog({
@@ -228,6 +231,7 @@ function verifyVersion() {
 }
 
 async function interrupt ({ file_upload_id }: any) {
+
   await interrupt_upload({ upload_id: file_upload_id })
 }
 
@@ -235,8 +239,6 @@ async function submit() {
   if (!verifyVersion()) {
     return
   }
-  console.log(formData.value)
-  // if (!formData.value.id) return
   showLayoutLoading.value = true
 
   if (formData.value.id) {
@@ -244,6 +246,8 @@ async function submit() {
   } else {
     await create_models(formData.value)
   }
+  useToaster.success('Model published successfully')
+
   onDialogClose()
 }
 
@@ -252,19 +256,20 @@ const acActiveFn = () => {
     modelBox.value = false
   }
 }
-const handleMarkdownChange = (value: string) => {
-  console.log('md content', value)
-  formData.value.versions[versionIndex.value].intro = value
+const handleMarkdownChange = (value: string, index: number) => {
+  console.log(value, index)
+  formData.value.versions[index].intro = value
 }
 const handleIsUploading = (val: boolean) => {
   // disabledSubmit.value = val
   console.log(val)
 }
 const onDialogClose = () => {
-  modelStoreObject.setDialogStatus(false)
+  modelStoreObject.setDialogStatus(false, 0)
   modelStoreObject.clearModelDetail()
   modelBox.value = true
   showLayoutLoading.value = false
+  modelStoreObject.uploadModelDone()
 }
 watch(() => statusStore.socketMessage, (val: any) => {
   if (val.type == "progress") {
@@ -279,11 +284,26 @@ watch(() => statusStore.socketMessage, (val: any) => {
       formData.value.versions[i].sign = val.data.model_files[0].sign
     }
   }
+  if (val.type == "interrupted") {
+    useToaster.success('Upload interrupted')
+    const i = formData.value.versions.findIndex((e: any) => e.file_upload_id == val.data.upload_id)
+    delete formData.value.versions[i].progress
+    formData.value.versions[i].filePath = ''
+  }
 }, {
   deep: true
 })
 watch(() => modelStoreObject.modelDetail, (val: any) => {
   formData.value = val
+}, {
+  deep: true
+})
+watch(() => modelStoreObject.showVersionId, (val: any) => {
+  const i = formData.value.versions.findIndex((e: any) => e.id == val)
+  acActiveIndex.value = `${i}`
+  if (i != -1) {
+    modelBox.value = false
+  }
 }, {
   deep: true
 })
