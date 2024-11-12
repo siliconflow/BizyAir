@@ -18,6 +18,10 @@ import {
   CommandList,
   CommandSeparator
 } from '@/components/ui/command'
+import { modelStore } from '@/stores/modelStatus'
+
+const modelStoreInstance = modelStore()
+
 
 import { sliceString, formatSize, formatNumber } from '@/utils/tool'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -92,7 +96,11 @@ const handleFork = async () => {
   getData()
 }
 
-const handleOperateChange = async (type: string, id: string | number) => {
+const handleOperateChange = async (type: 'edit' | 'remove', id: string | number) => {
+  if (type === 'edit') {
+    modelStoreInstance.setModelDetail(model)
+    modelStoreInstance.setDialogStatus(true)
+  }
   if (type === 'remove') {
     const res = await useAlertDialog({
       title: 'Are you sure you want to delete this model?',
@@ -300,7 +308,7 @@ const handleCopy = async (sign: string) => {
             {{ model?.user_name }}
           </div>
           <div class="flex flex-row gap-1.5 items-start justify-start self-stretch shrink-0 relative">
-            <Button variant="default"
+            <Button variant="default" v-if="props.mode === 'publicity'"
               class="w-[124px] flex h-9 px-3 py-2 justify-center items-center gap-2 flex-1 rounded-md bg-[#6D28D9]"
               @click="handleFork" :disabled="currentVerssion?.forked">
               {{ currentVerssion?.forked ? 'Forked' : 'Fork' }}
@@ -320,7 +328,10 @@ const handleCopy = async (sign: string) => {
             <div className="w-[100px] bg-[#4E4E4E80] p-4   border-b border-[rgba(78,78,78,0.50)]">
               Type</div>
             <div className="flex-1 p-4 border-b text-sm border-[rgba(78,78,78,0.50)]">
-              {{ model?.type }}
+              <span
+                :class="`${model?.type} inline-flex px-[10px] py-[2px] items-start gap-[10px] rounded-[9999px] relative overflow-hidden`">
+                {{ model?.type }}
+              </span>
             </div>
           </div>
           <div className="flex w-full">
@@ -418,10 +429,40 @@ const handleCopy = async (sign: string) => {
           <div
             class="flex px-[8px] py-4 items-center self-stretch text-[#F9FAFB] font-inter text-xs font-medium leading-5">
             {{ currentVerssion?.file_name ? sliceString(currentVerssion?.file_name, 20) : '' }} ({{
-              formatSize(currentVerssion?.file_size) }}G)
+              formatSize(currentVerssion?.file_size) }})
           </div>
         </div>
       </div>
     </div>
   </div>
 </template>
+
+<style scoped>
+.Checkpoint {
+  background: rgba(109, 40, 217, 0.40);
+}
+
+.LoRA {
+  background: rgba(244, 63, 94, 0.40);
+}
+
+.Controlnet {
+  background: rgba(255, 255, 255, 0.40);
+}
+
+.VAE {
+  background: rgba(234, 179, 8, 0.40);
+}
+
+.Upscaler {
+  background: rgba(69, 244, 63, 0.40);
+}
+
+.Embeddings {
+  background: rgba(0, 26, 255, 0.40);
+}
+
+.Workflow {
+  background: rgba(0, 178, 255, 0.40);
+}
+</style>
