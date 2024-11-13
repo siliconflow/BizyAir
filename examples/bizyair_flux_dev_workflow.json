@@ -496,7 +496,7 @@
         "Node name for S&R": "EmptyLatentImage"
       },
       "widgets_values": [
-        1488,
+        1024,
         1024,
         1
       ],
@@ -603,62 +603,14 @@
   ],
   "groups": [
     {
-      "title": "预览图",
+      "title": "垫图",
       "bounding": [
-        1900,
-        627,
-        436,
-        517
+        258,
+        1206,
+        472,
+        201
       ],
-      "color": "#444",
-      "font_size": 24,
-      "flags": {}
-    },
-    {
-      "title": "采样器",
-      "bounding": [
-        561,
-        627,
-        861,
-        515
-      ],
-      "color": "#b58b2a",
-      "font_size": 24,
-      "flags": {}
-    },
-    {
-      "title": "提示词",
-      "bounding": [
-        85,
-        627,
-        474,
-        517
-      ],
-      "color": "#8A8",
-      "font_size": 24,
-      "flags": {}
-    },
-    {
-      "title": "模型",
-      "bounding": [
-        -495,
-        627,
-        578,
-        517
-      ],
-      "color": "#3f789e",
-      "font_size": 24,
-      "flags": {}
-    },
-    {
-      "title": "噪声",
-      "bounding": [
-        85,
-        394,
-        473,
-        229
-      ],
-      "color": "#A88",
+      "color": "#a1309b",
       "font_size": 24,
       "flags": {}
     },
@@ -675,14 +627,62 @@
       "flags": {}
     },
     {
-      "title": "垫图",
+      "title": "噪声",
       "bounding": [
-        258,
-        1206,
-        472,
-        201
+        85,
+        394,
+        473,
+        229
       ],
-      "color": "#a1309b",
+      "color": "#A88",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "title": "模型",
+      "bounding": [
+        -495,
+        627,
+        578,
+        517
+      ],
+      "color": "#3f789e",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "title": "提示词",
+      "bounding": [
+        85,
+        627,
+        474,
+        517
+      ],
+      "color": "#8A8",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "title": "采样器",
+      "bounding": [
+        561,
+        627,
+        861,
+        515
+      ],
+      "color": "#b58b2a",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "title": "预览图",
+      "bounding": [
+        1900,
+        627,
+        436,
+        517
+      ],
+      "color": "#444",
       "font_size": 24,
       "flags": {}
     }
