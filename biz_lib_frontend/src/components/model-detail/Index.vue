@@ -18,6 +18,8 @@ import {
   CommandList,
   CommandSeparator
 } from '@/components/ui/command'
+
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { modelStore } from '@/stores/modelStatus'
 
 const modelStoreInstance = modelStore()
@@ -32,7 +34,7 @@ import { useAlertDialog } from '@/components/modules/vAlertDialog/index'
 
 import { Model, ModelVersion } from '@/types/model'
 import { model_detail, like_model, fork_model, remove_model } from '@/api/model'
-import  {useToaster}  from '@/components/modules/toats/index'
+import { useToaster } from '@/components/modules/toats/index'
 
 const previewRef = ref<HTMLDivElement | null>(null)
 const model = ref<Model>()
@@ -220,14 +222,17 @@ const handleCopy = async (sign: string) => {
       <div class="flex flex-row gap-1 items-center justify-start self-stretch shrink-0 relative">
         <div
           class="bg-[#4e4e4e] rounded-lg p-1 flex flex-row gap-4 items-start justify-start self-stretch shrink-0 relative">
-          <Tabs :defaultValue="currentVerssion?.id" :value="currentVerssion?.id">
-            <TabsList class="grid w-full grid-cols-3 h-12 bg-[#4E4E4E] text-sm">
-              <TabsTrigger v-for="version in model?.versions" :value="version.id" @click="handleTabChange(version.id)"
-                class="text-sm text-white data-[state=active]:bg-[#9CA3AF] data-[state=active]:text-white h-10 px-3 py-2 ">
-                {{ version.version }}
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
+          <ScrollArea class=" rounded-md w-96 whitespace-nowrap">
+            <Tabs :defaultValue="currentVerssion?.id" :value="currentVerssion?.id">
+              <TabsList class="grid w-full grid-cols-3 h-12 bg-[#4E4E4E] text-sm">
+                <TabsTrigger v-for="version in model?.versions" :value="version.id" @click="handleTabChange(version.id)"
+                  class="text-sm text-white data-[state=active]:bg-[#9CA3AF] data-[state=active]:text-white h-10 px-3 py-2 ">
+                  {{ version.version }}
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+            <ScrollBar orientation="horizontal" />
+          </ScrollArea>
         </div>
         <div
           class="text-text-text-muted-foreground text-left font-['Inter-Regular',_sans-serif] text-xs leading-5 font-normal relative flex-1">

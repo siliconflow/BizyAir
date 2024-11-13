@@ -102,7 +102,7 @@ export default class MarkDown {
             this.wrapper.style.width = '100vw';
             this.wrapper.style.height = '100vh';
             this.wrapper.style.zIndex = '99999';
-            this.wrapper.style.background = '#fff';
+            this.wrapper.style.background = '#222';
            
             setTimeout(() => {
                 const dialogElement = document.querySelector('[role="dialog"][tabindex="-1"]')
@@ -137,6 +137,7 @@ export default class MarkDown {
             ...this.getCommonConfig(),
             autoDownloadFontAwesome: false,
             autofocus: true,
+            theme: 'dark',
             autosave: {
                 enabled: true,
                 uniqueId: 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
