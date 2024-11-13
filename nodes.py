@@ -555,7 +555,7 @@ class SamplerCustomAdvanced(BizyAirBaseNode):
     RETURN_TYPES = ("LATENT", "LATENT")
     RETURN_NAMES = ("output", "denoised_output")
 
-    FUNCTION = "sample"
+    # FUNCTION = "sample"
 
     CATEGORY = "sampling/custom_sampling"
 

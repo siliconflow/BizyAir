@@ -65,7 +65,8 @@ class SearchServiceRouter(Processor):
             if rule.base_model == base_model:
                 if rule.score > out_score:
                     out_route, out_score = rule.route, rule.score
-        return f"{BIZYAIR_SERVER_ADDRESS}/{out_route}"
+
+        return f"{BIZYAIR_SERVER_ADDRESS}{out_route}"
 
     def validate_input(
         self, prompt: Dict[str, Dict[str, Any]], last_node_ids: List[str]
