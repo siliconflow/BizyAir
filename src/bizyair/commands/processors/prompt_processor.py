@@ -3,7 +3,12 @@ from collections import deque
 from typing import Any, Dict, List
 
 from bizyair.common import client
-from bizyair.common.env_var import BIZYAIR_DEBUG, BIZYAIR_DEV_REQUEST_URL
+from bizyair.common.env_var import (
+    BIZYAIR_DEBUG,
+    BIZYAIR_DEV_REQUEST_URL,
+    BIZYAIR_SERVER_ADDRESS,
+)
+from bizyair.configs.conf import ModelRule
 from bizyair.path_utils import (
     convert_prompt_label_path_to_real_path,
     guess_url_from_node,
@@ -35,7 +40,7 @@ class SearchServiceRouter(Processor):
         # TODO Improve distribution logic
         queue = deque(last_node_ids)
         visited = {key: True for key in last_node_ids}
-        results = []
+        results: List[ModelRule] = []
         class_type_table = {
             node_data["class_type"]: True for node_data in prompt.values()
         }
@@ -44,16 +49,23 @@ class SearchServiceRouter(Processor):
             if BIZYAIR_DEBUG:
                 print(vertex, end="->")
 
-            url = guess_url_from_node(prompt[vertex], class_type_table)
-            if url:
-                results.append(url)
+            rules = guess_url_from_node(prompt[vertex], class_type_table)
+            if rules:
+                results.extend(rules)
             for _, in_data in prompt[vertex].get("inputs", {}).items():
                 if is_link(in_data):
                     neighbor = in_data[0]
                     if neighbor not in visited:
                         visited[neighbor] = True
                         queue.append(neighbor)
-        return results[-1]
+
+        base_model = results[-1].base_model
+        out_route, out_score = results[-1].route, results[-1].score
+        for rule in results:
+            if rule.base_model == base_model:
+                if rule.score > out_score:
+                    out_route, out_score = rule.route, rule.score
+        return f"{BIZYAIR_SERVER_ADDRESS}/{out_route}"
 
     def validate_input(
         self, prompt: Dict[str, Dict[str, Any]], last_node_ids: List[str]
