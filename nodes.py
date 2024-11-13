@@ -555,18 +555,18 @@ class SamplerCustomAdvanced(BizyAirBaseNode):
     RETURN_TYPES = ("LATENT", "LATENT")
     RETURN_NAMES = ("output", "denoised_output")
 
-    FUNCTION = "sample"
+    # FUNCTION = "sample"
 
     CATEGORY = "sampling/custom_sampling"
 
-    def sample(self, **kwargs):
-        guider: BizyAirNodeIO = kwargs["guider"].copy(self.assigned_id)
-        guider.add_node_data(
-            class_type="SamplerCustomAdvanced",
-            inputs=kwargs,
-            outputs={"slot_index": 0},
-        )
-        return (guider, None)
+    # def sample(self, **kwargs):
+    #     guider: BizyAirNodeIO = kwargs["guider"].copy(self.assigned_id)
+    #     guider.add_node_data(
+    #         class_type="SamplerCustomAdvanced",
+    #         inputs=kwargs,
+    #         outputs={"slot_index": 0},
+    #     )
+    #     return (guider, None)
 
 
 class BasicGuider(BizyAirBaseNode):
