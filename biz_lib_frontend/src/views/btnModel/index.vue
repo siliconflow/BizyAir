@@ -5,6 +5,7 @@
     </svg>
   </btnMenu> -->
   <!-- <Form as="" :validation-schema="formSchema"> -->
+    <!-- <div @click="asdasdasd = true" class="flex items-center hover:bg-[#4A238E] cursor-pointer relative px-3"> -->
     <div @click="modelStoreObject.setDialogStatus(true)" class="flex items-center hover:bg-[#4A238E] cursor-pointer relative px-3">
       <svg xmlns="http://www.w3.org/2000/svg" width="1rem" height="1rem" viewBox="0 0 24 24">
         <path fill="none" stroke="#ddd" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
@@ -12,10 +13,13 @@
       </svg>
       <span class="block leading h-full leading-8 text-sm">Publish</span>
     </div>
+
+
     <v-dialog
       v-model:open="modelStoreObject.showDialog"
       @onClose="onDialogClose"
-      class="px-0 overflow-hidden pb-0"
+      class="px-0 overflow-hidden pb-0 z-9000"
+      v-if="modelStoreObject.showDialog"
       contentClass="custom-scrollbar max-h-[80vh] overflow-y-auto w-full rounded-tl-lg rounded-tr-lg custom-shadow">
       <template #title><span class="px-6" @click="acActiveIndex = '-1'; modelBox = true">Publish a Model</span></template>
       <div v-show="modelBox" class="px-6 pb-6">
@@ -53,7 +57,11 @@
               </v-select>
             </v-item>
             <v-item label="Introduction">
-              <Markdown :editorId="`myeditor${i}`" @update:modelValue="val => handleMarkdownChange(val, i)" @isUploading="handleIsUploading" />
+              <!-- <Markdown :editorId="`myeditor${i}`" @update:modelValue="val => handleMarkdownChange(val, i)" @isUploading="handleIsUploading" /> -->
+                <!-- <div class="h-[500px] relative z-10000"> -->
+                  <!--  <EasyMarkdown :editor-id="`myeditor${i}`" @is-uploading="handleIsUploading" @model-value="handleUpdateValue"/> -->
+                <!-- </div> -->
+
             </v-item>
             <v-item label="">
               <div class="flex items-center space-x-2 mt-2">
@@ -102,7 +110,7 @@ import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { Progress } from '@/components/ui/progress'
-import vDialog from '@/components/modules/vDialog.vue'
+import vDialog from '@/components/modules/vDialog-bf.vue'
 import vSelect from '@/components/modules/vSelect.vue'
 import vItem from '@/components/modules/vItem.vue'
 import vAccordionTrigger from '@/components/modules/vAccordionTrigger.vue'
@@ -110,11 +118,13 @@ import { useAlertDialog  } from '@/components/modules/vAlertDialog/index'
 
 import { useStatusStore} from '@/stores/userStatus'
 import { modelStore } from '@/stores/modelStatus'
-import { Markdown } from '@/components/markdown'
+// import { Markdown } from '@/components/markdown'
+// import { EasyMarkdown } from '@/components/easy-mark'
 import { create_models, checkLocalFile, submitUpload, model_types, base_model_types, put_model, interrupt_upload } from '@/api/model'
 import { onMounted } from 'vue'
 import { Trash2 } from 'lucide-vue-next'
 
+const asdasdasd = ref(false)
 
 const statusStore = useStatusStore();
 const modelStoreObject = modelStore();
@@ -256,9 +266,9 @@ const acActiveFn = () => {
     modelBox.value = false
   }
 }
-const handleMarkdownChange = (value: string, index: number) => {
+const handleUpdateValue = (value: string, index: number) => {
   console.log(value, index)
-  formData.value.versions[index].intro = value
+  // formData.value.versions[index].intro = value
 }
 const handleIsUploading = (val: boolean) => {
   // disabledSubmit.value = val
