@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import MarkDown from '@/components/easy-mark/markDown.js'
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 
 import '@/components/easy-mark/easymarked.mini.css'
 
@@ -9,24 +9,31 @@ const props = defineProps<{
   editorId: string
 }>()
 
+const emit = defineEmits(['update:modelValue', 'isUploading'])
+
+const markdownEditor = ref<MarkDown>()
 
 const initEditor = () => {
-  new MarkDown({
-    containerId: `${props.editorId}`
+  markdownEditor.value = new MarkDown({
+    containerId: `${props.editorId}`,
+    onUploadStatusChange: (status: boolean) => {
+      emit('isUploading', status)
+    }
   })
+
+  markdownEditor.value?.easyMDE.codemirror.on("change", () => {
+    emit('update:modelValue', markdownEditor.value?.easyMDE.value())
+  })
+
+
 }
 
 onMounted(() => {
   initEditor()
 })
 
-
 </script>
 
 <template>
-  <div ref="vditorContainer" id="vditor-container">
-    <div class="vditor-wrapper" id="vditor-wrapper">
-      <div :id="editorId" ref="editor" class="editor"></div>
-    </div>
-  </div>
+  <div :id="editorId" ref="editor" class="editor h-[500px] w-full"></div>
 </template>

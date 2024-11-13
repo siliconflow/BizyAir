@@ -104,14 +104,20 @@ onMounted(async () => {
   await getModelList()
   showDialog.value = true
 })
+const handleIsUploading = (status: boolean) => {
+  console.log('status', status)
+}
+const handleUpdateValue = (value: string) => {
+  console.log('value', value)
+}
 </script>
 
 <template>
   <v-dialog v-model:open="showDialog" class="max-w-[70%] px-6  pb-6">
 
-    <EasyMarkdown editor-id="test" v-if="false" />
+    <EasyMarkdown editor-id="test" @is-uploading="handleIsUploading"  @update:model-value="handleUpdateValue"/>
 
-    <div class="font-['Inter']">
+    <div class="font-['Inter']" v-if="false">
       <DialogTitle class="text-[#F9FAFB] mb-2 text-[18px] font-semibold leading-[18px] tracking-[-0.45px]">Select Model
       </DialogTitle>
       <DialogDescription class="text-sm text-gray-500" v-show="false" />

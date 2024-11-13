@@ -14,6 +14,8 @@ export default class MarkDown {
         this.content = options.content;
         this.isUploading = false;
         this.easyMDE = null;
+        this.onUploadStatusChange = options.onUploadStatusChange;
+    
         
         this.createContainer();
         this.loadStyle();
@@ -89,8 +91,10 @@ export default class MarkDown {
     }
 
     setFullscreen(isFullscreen) {
+        console.log('isFullscreen', isFullscreen)
+        const body = document.querySelector('body');
         if(isFullscreen) {
-            const body = document.querySelector('body');
+            body.style.pointerEvents = 'auto';
             body.appendChild(this.wrapper);
             this.wrapper.style.position = 'fixed';
             this.wrapper.style.left = '0';
@@ -99,8 +103,17 @@ export default class MarkDown {
             this.wrapper.style.height = '100vh';
             this.wrapper.style.zIndex = '99999';
             this.wrapper.style.background = '#fff';
+           
+            setTimeout(() => {
+                const dialogElement = document.querySelector('[role="dialog"][tabindex="-1"]')
+                if (dialogElement) {
+                  dialogElement.removeAttribute('tabindex')
+                }
+            }, 0)
+
         } else {
             const container = document.getElementById(this.containerId);
+            body.style.pointerEvents = 'none';
             container.appendChild(this.wrapper);
             this.wrapper.style.position = 'absolute';
             this.wrapper.style.left = '';
@@ -109,6 +122,13 @@ export default class MarkDown {
             this.wrapper.style.height = '100%';
             this.wrapper.style.zIndex = '';
             this.wrapper.style.background = '';
+
+            setTimeout(() => {
+            const dialogElement = document.querySelector('[role="dialog"]')
+            if (dialogElement) {
+              dialogElement.setAttribute('tabindex', '-1')
+                }
+            }, 0)
         }
     }
 
@@ -138,19 +158,44 @@ export default class MarkDown {
                         const input = document.createElement('input');
                         input.type = 'file';
                         input.accept = 'image/*';
-                        input.onchange = () => {
-                            const file = input.files[0];
-                            if (file) {
-                                config.imageUploadFunction(
-                                    file,
-                                    (url) => {
-                                        const output = `![${file.name}](${url})`;
-                                        editor.codemirror.replaceSelection(output);
-                                    },
-                                    (error) => {
-                                        console.error('upload image file error:', error);
-                                    }
-                                );
+                        input.multiple = true;
+                        input.onchange =async () => {
+                            const files = Array.from(input.files || []);
+                            if (files.length > 3) {
+                                useToaster.warning('Maximum 3 files can be uploaded at once');
+                                return;
+                            }
+                            useToaster(`uploading images ${files.length}, please wait`);
+                            const uploadPromises = files.map((file) => {
+                                return new Promise((resolve) => {
+                                    config.imageUploadFunction(
+                                        file,
+                                        (url) => {
+                                            resolve({
+                                                success: true,
+                                                fileName: file.name,
+                                                url: url
+                                            });
+                                        },
+                                        (error) => {
+                                            resolve({
+                                                success: false,
+                                                fileName: file.name,
+                                                error: error
+                                            });
+                                        }
+                                    );
+                                });
+                            });
+    
+                            const results = await Promise.all(uploadPromises);
+                            const successfulUploads = results.filter(r => r.success);
+                            
+                            if (successfulUploads.length > 0) {
+                                const markdownContent = successfulUploads
+                                    .map(result => `![${result.fileName}](${result.url})`)
+                                    .join('\n');
+                                editor.codemirror.replaceSelection(markdownContent + '\n');
                             }
                         };
                         input.click();
@@ -189,38 +234,44 @@ export default class MarkDown {
             onToggleFullScreen: (isFullscreen) => {
                 this.setFullscreen(isFullscreen);
             },
-            imageUploadFunction: (file, onSuccess, onError) => {
+            imageUploadFunction:async (file, onSuccess, onError) => {
                 try {
                     if (!file.type.startsWith('image/')) {
-
                         useToaster.warning('please upload image file')
-                     
                         return;
                     }
                     const maxSize = 20 * 1024 * 1024;
                     if (file.size > maxSize) {
                         useToaster.warning('image size cannot exceed 20MB')
-                     
                         return;
                     }
-                    this.isUploading = true;
-                    uploadImage(file).then(res => {
-                        if(res?.data?.url) {
-                            onSuccess(res?.data?.url);
-                        } else {
-                            useToaster.error('upload image error')
-                           
+                    let retryCount = 3;
+                    this.options.onUploadStatusChange?.(true);
+                    while (retryCount > 0) {
+                        try {
+                            const res = await uploadImage(file);
+                            if (res?.data?.url) {
+                                useToaster.success(`${file.name} uploaded successfully`);
+                                onSuccess(res.data.url);
+                                break;
+                            } 
+                        } catch (err) {
+                            retryCount--;
+                            if (retryCount === 0) {
+                                useToaster.error(`${file.name} upload failed`);
+                                onError(err);
+                            } else {
+                                await new Promise(resolve => setTimeout(resolve, 1000));
+                                continue;
+                            }
+                        } finally {
+                            this.options.onUploadStatusChange?.(false);
                         }
-                        this.isUploading = false;
-                    }).catch(err => {
-                        useToaster.error('upload image error')
-                        onError(err);
-                        this.isUploading = false;
-                    });
+                    }
                 } catch (error) {
-                    useToaster.error('upload image error')
+                    useToaster.error(`Image ${index} upload failed`);
                     onError('upload image file error');
-                    this.isUploading = false;
+                    this.options.onUploadStatusChange?.(false);
                 }
             },
           
@@ -228,22 +279,48 @@ export default class MarkDown {
                 "fullscreenChange": (_instance, isFullscreen) => {
                     this.setFullscreen(isFullscreen);
                 },
-                "paste": (instance, e) => {
+                "paste": async (instance, e) => {
                     if (e.clipboardData && e.clipboardData.items) {
-                        for (let i = 0; i < e.clipboardData.items.length; i++) {
-                            if (e.clipboardData.items[i].type.indexOf("image") !== -1) {
-                                const file = e.clipboardData.items[i].getAsFile();
+                        const imageItems = Array.from(e.clipboardData.items)
+                            .filter(item => item.type.indexOf("image") !== -1);
+                        
+                        if (imageItems.length > 3) {
+                            useToaster.warning('Maximum 3 files can be uploaded at once');
+                            return;
+                        }
+                        useToaster(`uploading images ${imageItems.length}, please wait`);
+                        const uploadPromises = imageItems.map((item) => {
+                            const file = item.getAsFile();
+                          
+                            return new Promise((resolve) => {
                                 config.imageUploadFunction(
                                     file,
                                     (url) => {
-                                        const output = `![${file.name}](${url})`;
-                                        instance.codemirror.replaceSelection(output);
+                                        resolve({
+                                            success: true,
+                                            fileName: file.name,
+                                            url: url
+                                        });
                                     },
                                     (error) => {
-                                        console.error('upload image file error:', error);
-                                    }
+                                        resolve({
+                                            success: false,
+                                            fileName: file.name,
+                                            error: error
+                                        });
+                                    },
                                 );
-                            }
+                            });
+                        });
+            
+                        const results = await Promise.all(uploadPromises);
+                        const successfulUploads = results.filter(r => r.success);
+                        
+                        if (successfulUploads.length > 0) {
+                            const markdownContent = successfulUploads
+                                .map(result => `![${result.fileName}](${result.url})`)
+                                .join('\n');
+                            instance.codemirror.replaceSelection(markdownContent + '\n');
                         }
                     }
                 }
@@ -269,9 +346,7 @@ export default class MarkDown {
         this.easyMDE.togglePreview();
     }
 
-    getUploadingStatus() {
-        return this.isUploading;
-    }
+
 
     getValue() {
         return this.easyMDE ? this.easyMDE.value() : '';
