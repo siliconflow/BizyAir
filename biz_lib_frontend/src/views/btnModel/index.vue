@@ -16,6 +16,7 @@
       v-model:open="modelStoreObject.showDialog"
       @onClose="onDialogClose"
       class="px-0 overflow-hidden pb-0"
+      v-if="modelStoreObject.showDialog"
       contentClass="custom-scrollbar max-h-[80vh] overflow-y-auto w-full rounded-tl-lg rounded-tr-lg custom-shadow">
       <template #title><span class="px-6" @click="acActiveIndex = '-1'; modelBox = true">Publish a Model</span></template>
       <div v-show="modelBox" class="px-6 pb-6">
