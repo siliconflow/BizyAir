@@ -3,7 +3,7 @@ import { nextTick, onMounted, onUnmounted, ref } from 'vue'
 import Vditor from 'vditor'
 import 'vditor/dist/index.css'
 import { uploadImage } from '@/api/public'
-import { toast as message } from 'vue-sonner'
+import  {useToaster}  from '@/components/modules/toats/index'
 
 const props = defineProps<{
   modelValue?: string,
@@ -80,7 +80,7 @@ const vditorConfig: IOptions = {
           emit('isUploading', true)
           if (files.length > 3) {
             if (vditor.value) {
-              message.warning('Maximum 3 files can be uploaded at once')
+              useToaster.warning('Maximum 3 files can be uploaded at once')
 
             }
             emit('isUploading', false)
@@ -236,7 +236,7 @@ const moveEditorBackToContainer = () => {
     if (wrapper) {
       wrapper.appendChild(vditorEl)
     } else {
-      message.error('Vditor wrapper not found')
+      useToaster.error('Vditor wrapper not found')
     }
     vditorEl.offsetHeight
     nextTick(() => {

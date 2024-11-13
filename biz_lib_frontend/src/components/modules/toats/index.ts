@@ -52,6 +52,8 @@ useToaster.warning = (message: string) => {
     type: 'warning'
   })
 }
+
+
 useToaster.success = (message: string) => {
   useToaster({
     message,

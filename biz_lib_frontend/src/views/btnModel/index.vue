@@ -54,7 +54,11 @@
               </v-select>
             </v-item>
             <v-item label="Introduction">
-              <Markdown :editorId="`myeditor${i}`" @update:modelValue="val => handleMarkdownChange(val, i)" @isUploading="handleIsUploading" />
+              <!-- <Markdown :editorId="`myeditor${i}`" @update:modelValue="val => handleMarkdownChange(val, i)" @isUploading="handleIsUploading" /> -->
+                <div class="h-[500px] relative z-10000">
+                   <EasyMarkdown :editor-id="`myeditor${i}`" @is-uploading="handleIsUploading" @model-value="handleUpdateValue"/>
+                </div>
+
             </v-item>
             <v-item label="">
               <div class="flex items-center space-x-2 mt-2">
@@ -111,7 +115,8 @@ import { useAlertDialog  } from '@/components/modules/vAlertDialog/index'
 
 import { useStatusStore} from '@/stores/userStatus'
 import { modelStore } from '@/stores/modelStatus'
-import { Markdown } from '@/components/markdown'
+// import { Markdown } from '@/components/markdown'
+import { EasyMarkdown } from '@/components/easy-mark'
 import { create_models, checkLocalFile, submitUpload, model_types, base_model_types, put_model, interrupt_upload } from '@/api/model'
 import { onMounted } from 'vue'
 import { Trash2 } from 'lucide-vue-next'
@@ -257,9 +262,9 @@ const acActiveFn = () => {
     modelBox.value = false
   }
 }
-const handleMarkdownChange = (value: string, index: number) => {
+const handleUpdateValue = (value: string, index: number) => {
   console.log(value, index)
-  formData.value.versions[index].intro = value
+  // formData.value.versions[index].intro = value
 }
 const handleIsUploading = (val: boolean) => {
   // disabledSubmit.value = val

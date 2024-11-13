@@ -17,7 +17,7 @@ interface Props {
   mode: string
 }
 
-const emit = defineEmits(['apply', 'remove'])
+const emit = defineEmits(['apply', 'reload'])
 const handleApply = (version: ModelVersion, model: Model) => {
   emit('apply', version, model)
 }
@@ -28,7 +28,7 @@ const handleShowModelDetail = () => {
 
 const handleRemoveModel = () => {
   showModelDetail.value = false
-  emit('remove')
+  emit('reload')
 }
 
 defineProps<Props>()
@@ -67,6 +67,6 @@ defineProps<Props>()
     </TableCell>
   </TableRow>
   <vDialog v-model:open="showModelDetail" class="max-w-full h-screen px-6  pb-6 z-[8000]" :title="model.name">
-    <ModelDetail :modelId="model.id" @remove="handleRemoveModel" @apply="handleApply" :mode="mode" />
+    <ModelDetail :modelId="model.id" @reload="handleRemoveModel" @apply="handleApply" :mode="mode" />
   </vDialog>
 </template>
