@@ -121,6 +121,10 @@ model_rules:
         inputs:
           unet_name:
             - ^kolors.*
+      - class_type: VAELoader
+        inputs:
+          vae_name:
+            - ^sdxl/sdxl_vae.safetensors*
 
   - mode_type: pulid
     base_model: FLUX

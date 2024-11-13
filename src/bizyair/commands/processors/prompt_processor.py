@@ -44,6 +44,7 @@ class SearchServiceRouter(Processor):
         class_type_table = {
             node_data["class_type"]: True for node_data in prompt.values()
         }
+
         while queue:
             vertex = queue.popleft()
             if BIZYAIR_DEBUG:
@@ -58,9 +59,15 @@ class SearchServiceRouter(Processor):
                     if neighbor not in visited:
                         visited[neighbor] = True
                         queue.append(neighbor)
-        
-        base_model = results[-1].base_model
-        out_route, out_score = results[-1].route, results[-1].score
+
+        base_model, out_route, out_score = None, None, None
+        for rule in results[::-1]:
+            if rule.mode_type in {"unet", "vae", "checkpoint"}:
+                base_model = rule.base_model
+                out_route = rule.route
+                out_score = rule.score
+                break
+
         for rule in results:
             if rule.base_model == base_model:
                 if rule.score > out_score:

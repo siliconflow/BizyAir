@@ -74,10 +74,6 @@ def guess_url_from_node(
     node: Dict[str, Dict[str, Any]], class_type_table: Dict[str, bool]
 ) -> Union[List[ModelRule], None]:
     rules: List[ModelRule] = config_manager.get_rules(node["class_type"])
-    pprint.pprint({
-        "node": node,
-        "rules": rules,
-    })
     out = [
         rule
         for rule in rules
