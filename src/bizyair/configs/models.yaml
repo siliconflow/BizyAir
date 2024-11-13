@@ -10,55 +10,6 @@ model_types:
   # checkpoints: bizyair/checkpoint
   # vae: bizyair/vae
 
-# routing_configs:
-#   sdxl:
-#     route: /supernode/bizyair-sdxl-comfy-ksampler-v2
-#   kolors:
-#     route: /supernode/kolors-bizyair-sdxl-comfy-ksampler
-#   flux-dev:
-#     route: /supernode/flux-dev-bizyair-comfy-ksampler-speedup
-#   flux-schnell:
-#     route: /supernode/flux-bizyair-sdxl-comfy-ksampler
-#   flux-vae:
-#     route: /supernode/flux-vae-bizyair-comfy-ksampler
-#   ultimatesdupscale:
-#     route: /supernode/bizyair-ultimate-sd-upscale-ksampler
-#   sd3_5_large:
-#     route: /supernode/bizyair-comfybridge-sd3-5-large
-#   sd3_5_large_turbo:
-#     route: /supernode/bizyair-comfybridge-sd3-5-turbo
-#   pixelwave:
-#     route: /supernode/bizyair-flux1-dev-fp8-pixelwave
-
-# routing_rules:
-#   - name: ultimatesdupscale
-#     pattern: ^sd15/dreamshaper_8.safetensors$
-#     config: ultimatesdupscale
-#   - name: sdxl
-#     pattern: ^sdxl.*
-#     config: sdxl
-#   - name: kolors
-#     pattern: ^kolors.*
-#     config: kolors
-#   - name: flux-dev
-#     pattern: ^flux/flux1-dev.sft$
-#     config: flux-dev
-#   - name: flux-schnell
-#     pattern: ^flux/flux1-schnell.sft$
-#     config: flux-schnell
-#   - name: flux-vae
-#     pattern: ^flux/ae.sft$
-#     config: flux-vae
-#   - name: sd3_5_large
-#     pattern: ^sd3.5_large.safetensors$
-#     config: sd3_5_large
-#   - name: sd3_5_large_turbo
-#     pattern: ^sd3.5_large_turbo.safetensors$
-#     config: sd3_5_large_turbo
-#   - name: pixelwave
-#     pattern: ^flux/pixelwave-flux1-dev.safetensors$
-#     config: pixelwave
-
 model_rules:
   - mode_type: unet
     base_model: FLUX
@@ -132,7 +83,7 @@ model_rules:
     score: 3
     route: /supernode/bizyair-ultimate-sd-upscale-ksampler
     nodes:
-      - class_type: BizyAir_CheckpointLoaderSimple
+      - class_type: CheckpointLoaderSimple
         inputs:
           ckpt_name:
             - ^sd15/dreamshaper_8.safetensors$

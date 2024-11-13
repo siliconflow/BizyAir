@@ -58,7 +58,7 @@ class SearchServiceRouter(Processor):
                     if neighbor not in visited:
                         visited[neighbor] = True
                         queue.append(neighbor)
-
+        
         base_model = results[-1].base_model
         out_route, out_score = results[-1].route, results[-1].score
         for rule in results:

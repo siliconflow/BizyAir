@@ -85,6 +85,8 @@ class ConfigManager:
         return self.model_path_manager.get_filenames(folder_name)
 
     def get_rules(self, class_type: str) -> List[ModelRule]:
+        if class_type.startswith("BizyAir_"):
+            class_type = class_type[8:]
         return self.model_rules.find_rules(class_type)
 
 
