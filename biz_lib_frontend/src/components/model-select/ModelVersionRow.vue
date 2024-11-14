@@ -10,8 +10,6 @@ import {
 import type { Model, ModelVersion } from '@/types/model'
 import { ref, watch } from 'vue'
 
-
-
 const modelStoreInstance = modelStore()
 const showModelDetail = ref(false)
 
@@ -27,8 +25,6 @@ watch(() => modelStoreInstance.reload, (newValue: number, oldValue: number) => {
   }
 }, { deep: true })
 
-
-
 const handleApply = (version: ModelVersion, model: Model) => {
   modelStoreInstance.setApplyObject(version, model)
 }
@@ -36,8 +32,6 @@ const handleApply = (version: ModelVersion, model: Model) => {
 const handleShowModelDetail = () => {
   showModelDetail.value = true
 }
-
-
 
 defineProps<Props>()
 </script>

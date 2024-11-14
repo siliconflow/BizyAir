@@ -5,7 +5,6 @@ import { Badge } from '@/components/ui/badge'
 import { model_types, base_model_types } from '@/api/model'
 import { onMounted, ref } from 'vue'
 import type { FilterState, CommonModelType } from '@/types/model'
-import { toast as message } from 'vue-sonner'
 import {
   Popover,
   PopoverContent,
@@ -48,7 +47,6 @@ const getFilterData = async () => {
     const baseModelResponse = await base_model_types()
     baseModelTypes.value = baseModelResponse?.data ? (baseModelResponse.data as CommonModelType[]) : []
   } catch (error) {
-    message.error('Failed to get model filter data.')
     modelTypes.value = []
     baseModelTypes.value = []
 
@@ -67,7 +65,6 @@ const handleSortChange = (value: 'Recently' | 'Most Forked' | 'Most Used') => {
 
 const handleModelTypeChange = (type: string) => {
   if (props.modelType) return
-
   const types = [...props.filterState.model_types]
   const index = types.indexOf(type)
   if (index === -1) {
@@ -82,7 +79,6 @@ const handleModelTypeChange = (type: string) => {
 }
 
 const handleBaseModelChange = (model: string) => {
-  console.log('[model]', model)
   const index = selectedBaseModels.value.indexOf(model)
   if (index === -1) {
     selectedBaseModels.value.push(model)
@@ -97,7 +93,6 @@ const handleBaseModelChange = (model: string) => {
   } else {
     models.splice(modelIndex, 1)
   }
-  console.log('[models]', models)
   emit('update:filterState', {
     ...props.filterState,
     base_models: models
@@ -112,7 +107,6 @@ const handleSearch = () => {
 }
 
 onMounted(async () => {
-
   if (props.selectedBaseModels) {
     selectedBaseModels.value = [...props.selectedBaseModels]
   }
