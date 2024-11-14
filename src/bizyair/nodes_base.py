@@ -2,7 +2,9 @@ import importlib
 import logging
 import warnings
 from functools import wraps
+from typing import List
 
+from .data_types import is_send_request_datatype
 from .nodes_io import BizyAirNodeIO, create_node_data
 
 try:
@@ -122,7 +124,17 @@ class BizyAirBaseNode:
         class_type = self._determine_class_type()
         node_ios = self._process_non_send_request_types(class_type, kwargs)
         # TODO: add processing for send_request_types
+        send_request_datatype_list = self._get_send_request_datatypes()
+        if len(send_request_datatype_list) == len(self.RETURN_TYPES):
+            return self._process_all_send_request_types(node_ios)
         return node_ios
+
+    def _get_send_request_datatypes(self):
+        return [
+            return_type
+            for return_type in self.RETURN_TYPES
+            if is_send_request_datatype(return_type)
+        ]
 
     def _determine_class_type(self):
         class_type = type(self).__name__
@@ -139,3 +151,6 @@ class BizyAirBaseNode:
             )
             outs.append(node)
         return tuple(outs)
+
+    def _process_all_send_request_types(self, node_ios: List[BizyAirNodeIO]):
+        return node_ios[0].send_request()

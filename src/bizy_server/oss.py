@@ -191,15 +191,19 @@ class AliOssStorageClient:
             raise e
 
         return f"{self.bucket_name}/{self.region}/{object_name}"
-    
+
     def interrupt(self):
         if self.upload_thread:
             exc = ctypes.py_object(SystemExit)
-            res = ctypes.pythonapi.PyThreadState_SetAsyncExc(ctypes.c_long(self.upload_thread.ident), exc)
+            res = ctypes.pythonapi.PyThreadState_SetAsyncExc(
+                ctypes.c_long(self.upload_thread.ident), exc
+            )
             if res == 0:
                 raise ValueError("Invalid thread ID")
             elif res > 1:
-                ctypes.pythonapi.PyThreadState_SetAsyncExc(self.upload_thread.ident, None)
+                ctypes.pythonapi.PyThreadState_SetAsyncExc(
+                    self.upload_thread.ident, None
+                )
                 raise SystemError("PyThreadState_SetAsyncExc failed")
 
     def interruptUploading(self):

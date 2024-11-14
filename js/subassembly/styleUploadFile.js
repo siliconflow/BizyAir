@@ -216,6 +216,9 @@ input.cm-input-item-error{
 .bizyair-link{
     color: var(--bizyair-link);
     margin-left: 10px;
+    margin-right: 10px;
+    cursor: pointer;
+    text-decoration: underline;
 }
 .bizyair-model-list{
     width: 1000px;
