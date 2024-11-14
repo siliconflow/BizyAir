@@ -66,15 +66,17 @@ const handleFullClick = () => {
   isFullscreen.value = !isFullscreen.value;
   if (isFullscreen.value) {
     screenfull.request();
+    document.querySelector('[role="dialog"]').style.display = 'none';
   } else {
     screenfull.exit();
+    document.querySelector('[role="dialog"]').style.display = 'block';
   }
 };
 const props = defineProps({
   editorId: String,
   modelValue: String,
 })
-const text = ref(props.modelValue || '# Hello World');
+const text = ref(props.modelValue);
 const emit = defineEmits(['update:modelValue', 'isUploading'])
 const handleInput = () => {
   emit('update:modelValue', text)
