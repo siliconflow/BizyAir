@@ -16,13 +16,17 @@ export const showModelSelect = (options: { [x: string]: unknown; } | null | unde
     ...options,
     onClose: () => {
       app.unmount();
-      document.body.removeChild(container);
+      if (document.body.contains(container)) {
+        document.body.removeChild(container);
+      }
     },
     onApply: (...args: unknown[]) => {
       if (options?.onApply) {
         (options.onApply as (...args: unknown[]) => void)(...args);
         app.unmount();
-        document.body.removeChild(container);
+        if (document.body.contains(container)) {
+          document.body.removeChild(container);
+        }
       }
     }
   });

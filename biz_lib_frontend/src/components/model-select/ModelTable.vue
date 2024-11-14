@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, PropType, onMounted, watch } from 'vue'
-import  {useToaster}  from '@/components/modules/toats/index'
+import { useToaster } from '@/components/modules/toats/index'
 import { Badge } from '@/components/ui/badge'
 import { remove_model } from '@/api/model'
 
@@ -30,7 +30,7 @@ import {
 } from '@/components/ui/command'
 import { useAlertDialog } from '@/components/modules/vAlertDialog/index'
 
-import type { Model, ModelVersion } from '@/types/model'
+import type { Model } from '@/types/model'
 import ModelVersionRow from './ModelVersionRow.vue'
 
 const props = defineProps({
@@ -61,11 +61,6 @@ watch(() => props.models, (newModels: Model[]) => {
 }, { deep: true })
 
 
-watch(() => modelStoreInstance.reload, (newValue: number, oldValue: number) => {
-  if (newValue !== oldValue) {
-    emit('reload')
-  }
-}, { deep: true })
 
 const toggleExpand = (modelName: string) => {
   if (expandedModels.value.has(modelName)) {
@@ -104,21 +99,14 @@ const handleOperateChange = async (value: 'edit' | 'remove', model: Model) => {
     handleRemoveModel(id)
   }
 }
-const emit = defineEmits(['apply', 'reload'])
+
 const handleRemoveModel = (id: string) => {
   remove_model(id).then((_) => {
     useToaster.success('Model removed successfully.')
-    emit('reload')
+    modelStoreInstance.closeAndReload()
   })
 }
 
-const emitRemove = () => {
-  emit('reload')
-}
-
-const handleApply = (version: ModelVersion, model: Model) => {
-  emit('apply', version, model)
-}
 </script>
 <template>
   <div class="h-[450px]">
@@ -201,7 +189,7 @@ const handleApply = (version: ModelVersion, model: Model) => {
             </TableRow>
             <template v-if="expandedModels.has(model.name) && model.versions">
               <ModelVersionRow v-for="version in model.versions" :model="model" :mode="props.mode"
-                :key="version.version" :version="version" @reload="emitRemove" @apply="handleApply" />
+                :key="version.version" :version="version" />
             </template>
           </template>
         </template>
