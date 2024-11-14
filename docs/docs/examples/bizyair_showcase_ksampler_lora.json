@@ -1,0 +1,478 @@
+{
+  "last_node_id": 52,
+  "last_link_id": 77,
+  "nodes": [
+    {
+      "id": 32,
+      "type": "BizyAir_CLIPTextEncode",
+      "pos": [
+        1216,
+        -25
+      ],
+      "size": [
+        428.38484488430913,
+        76.84403215759437
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "BIZYAIR_CLIP",
+          "link": 70,
+          "slot_index": 0
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "BIZYAIR_CONDITIONING",
+          "links": [
+            41
+          ],
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_CLIPTextEncode"
+      },
+      "widgets_values": [
+        "blurry, noisy, messy, lowres, jpeg, artifacts, ill, distorted, malformed"
+      ]
+    },
+    {
+      "id": 27,
+      "type": "BizyAir_KSampler",
+      "pos": [
+        1655,
+        -177
+      ],
+      "size": [
+        320.9270828632716,
+        262
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "BIZYAIR_MODEL",
+          "link": 76
+        },
+        {
+          "name": "positive",
+          "type": "BIZYAIR_CONDITIONING",
+          "link": 77,
+          "slot_index": 1
+        },
+        {
+          "name": "negative",
+          "type": "BIZYAIR_CONDITIONING",
+          "link": 41,
+          "slot_index": 2
+        },
+        {
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 65,
+          "slot_index": 3
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            45
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_KSampler"
+      },
+      "widgets_values": [
+        2,
+        "fixed",
+        20,
+        8,
+        "euler",
+        "normal",
+        1
+      ]
+    },
+    {
+      "id": 33,
+      "type": "EmptyLatentImage",
+      "pos": [
+        1222,
+        104
+      ],
+      "size": [
+        412.8771204290124,
+        106
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            65
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "EmptyLatentImage"
+      },
+      "widgets_values": [
+        1024,
+        1024,
+        1
+      ]
+    },
+    {
+      "id": 28,
+      "type": "BizyAir_CheckpointLoaderSimple",
+      "pos": [
+        708,
+        -25
+      ],
+      "size": [
+        479.662080045842,
+        98
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "model",
+          "type": "BIZYAIR_MODEL",
+          "links": [
+            66
+          ],
+          "shape": 3
+        },
+        {
+          "name": "clip",
+          "type": "BIZYAIR_CLIP",
+          "links": [
+            67
+          ],
+          "shape": 3
+        },
+        {
+          "name": "vae",
+          "type": "BIZYAIR_VAE",
+          "links": [
+            44
+          ],
+          "shape": 3,
+          "slot_index": 2
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_CheckpointLoaderSimple"
+      },
+      "widgets_values": [
+        "sdxl/Juggernaut-XL_v9_RunDiffusionPhoto_v2.safetensors"
+      ]
+    },
+    {
+      "id": 48,
+      "type": "BizyAir_LoraLoader",
+      "pos": [
+        708,
+        -195
+      ],
+      "size": [
+        478.277618175068,
+        126
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "BIZYAIR_MODEL",
+          "link": 66,
+          "slot_index": 0
+        },
+        {
+          "name": "clip",
+          "type": "BIZYAIR_CLIP",
+          "link": 67,
+          "slot_index": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "BIZYAIR_MODEL",
+          "links": [
+            76
+          ],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "CLIP",
+          "type": "BIZYAIR_CLIP",
+          "links": [
+            69,
+            70
+          ],
+          "shape": 3,
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_LoraLoader"
+      },
+      "widgets_values": [
+        "sdxl/watercolor_v1_sdxl_lora.safetensors",
+        1,
+        1
+      ]
+    },
+    {
+      "id": 31,
+      "type": "BizyAir_CLIPTextEncode",
+      "pos": [
+        1220,
+        -185
+      ],
+      "size": [
+        421.16351223968104,
+        105.50659789763955
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "BIZYAIR_CLIP",
+          "link": 69,
+          "slot_index": 0
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "BIZYAIR_CONDITIONING",
+          "links": [
+            77
+          ],
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_CLIPTextEncode"
+      },
+      "widgets_values": [
+        "in a peaceful spring morning a dog is sitting in a park on a bench. high quality, detailed, diffuse light"
+      ]
+    },
+    {
+      "id": 52,
+      "type": "Note",
+      "pos": [
+        711,
+        120
+      ],
+      "size": [
+        478.3767917287869,
+        89.39007366773717
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "properties": {
+        "text": ""
+      },
+      "widgets_values": [
+        "LoRA 工作流示例：\n本工作流因为使用了 BizyAir Load LoRA 节点，加载了一个水彩风格的 LoRA 模型。所以生成的图像也是水彩风格的。\n你可以尝试去掉 BizyAir Load LoRA 节点，查看生成图像的变化。"
+      ],
+      "color": "#432",
+      "bgcolor": "#653"
+    },
+    {
+      "id": 34,
+      "type": "BizyAir_VAEDecode",
+      "pos": [
+        1664,
+        153
+      ],
+      "size": [
+        308.12571171376,
+        46
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 45
+        },
+        {
+          "name": "vae",
+          "type": "BIZYAIR_VAE",
+          "link": 44
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            46
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_VAEDecode"
+      }
+    },
+    {
+      "id": 35,
+      "type": "PreviewImage",
+      "pos": [
+        1996,
+        -173
+      ],
+      "size": [
+        356.062413441784,
+        379.761411008083
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 46
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      }
+    }
+  ],
+  "links": [
+    [
+      41,
+      32,
+      0,
+      27,
+      2,
+      "BIZYAIR_CONDITIONING"
+    ],
+    [
+      44,
+      28,
+      2,
+      34,
+      1,
+      "BIZYAIR_VAE"
+    ],
+    [
+      45,
+      27,
+      0,
+      34,
+      0,
+      "LATENT"
+    ],
+    [
+      46,
+      34,
+      0,
+      35,
+      0,
+      "IMAGE"
+    ],
+    [
+      65,
+      33,
+      0,
+      27,
+      3,
+      "LATENT"
+    ],
+    [
+      66,
+      28,
+      0,
+      48,
+      0,
+      "BIZYAIR_MODEL"
+    ],
+    [
+      67,
+      28,
+      1,
+      48,
+      1,
+      "BIZYAIR_CLIP"
+    ],
+    [
+      69,
+      48,
+      1,
+      31,
+      0,
+      "BIZYAIR_CLIP"
+    ],
+    [
+      70,
+      48,
+      1,
+      32,
+      0,
+      "BIZYAIR_CLIP"
+    ],
+    [
+      76,
+      48,
+      0,
+      27,
+      0,
+      "BIZYAIR_MODEL"
+    ],
+    [
+      77,
+      31,
+      0,
+      27,
+      1,
+      "BIZYAIR_CONDITIONING"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 1.1,
+      "offset": {
+        "0": -327.03554689407616,
+        "1": 451.93472441640984
+      }
+    }
+  },
+  "version": 0.4
+}

@@ -555,18 +555,18 @@ class SamplerCustomAdvanced(BizyAirBaseNode):
     RETURN_TYPES = ("LATENT", "LATENT")
     RETURN_NAMES = ("output", "denoised_output")
 
-    FUNCTION = "sample"
+    # FUNCTION = "sample"
 
     CATEGORY = "sampling/custom_sampling"
 
-    def sample(self, **kwargs):
-        guider: BizyAirNodeIO = kwargs["guider"].copy(self.assigned_id)
-        guider.add_node_data(
-            class_type="SamplerCustomAdvanced",
-            inputs=kwargs,
-            outputs={"slot_index": 0},
-        )
-        return (guider, None)
+    # def sample(self, **kwargs):
+    #     guider: BizyAirNodeIO = kwargs["guider"].copy(self.assigned_id)
+    #     guider.add_node_data(
+    #         class_type="SamplerCustomAdvanced",
+    #         inputs=kwargs,
+    #         outputs={"slot_index": 0},
+    #     )
+    #     return (guider, None)
 
 
 class BasicGuider(BizyAirBaseNode):
@@ -1006,13 +1006,15 @@ class BizyAir_LoraLoaderNew(BizyAirBaseNode):
         new_model: BizyAirNodeIO = model.copy(assigned_id)
         new_clip: BizyAirNodeIO = clip.copy(assigned_id)
         instances: List[BizyAirNodeIO] = [new_model, new_clip]
+        BIZYAIR_MODEL_VERSION_ID_PREFIX = "BIZYAIR_MODEL_VERSION_ID:"
+
         for slot_index, ins in zip(range(2), instances):
             ins.add_node_data(
-                class_type="LoraLoaderNew",
+                class_type="LoraLoader",
                 inputs={
                     "model": model,
                     "clip": clip,
-                    "lora_name": model_version_id,
+                    "lora_name": f"{BIZYAIR_MODEL_VERSION_ID_PREFIX}{model_version_id}",
                     "strength_model": strength_model,
                     "strength_clip": strength_clip,
                 },

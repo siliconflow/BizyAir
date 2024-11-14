@@ -25,8 +25,8 @@ class UploadQueue:
                 if timeout is not None and len(self.queue) == 0:
                     return None
             item = heapq.heappop(self.queue)
-            i = self.task_counter
-            upload_id = item['upload_id']
+            # i = self.task_counter
+            upload_id = item["upload_id"]
             self.currently_running[upload_id] = copy.deepcopy(item)
             self.task_counter += 1
             return (item, upload_id)

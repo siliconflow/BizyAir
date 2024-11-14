@@ -89,15 +89,15 @@ class UploadManager:
                     def updateProgress(consume_bytes, total_bytes):
                         current_time = time.time()
                         if (
-                                current_time - self.upload_progresses_updated_at[upload_id]
-                                >= 1
+                            current_time - self.upload_progresses_updated_at[upload_id]
+                            >= 1
                         ):
                             self.upload_progresses_updated_at[upload_id] = current_time
 
                             progress = (
                                 f"{consume_bytes / total_bytes * 100:.0f}%"
                                 if consume_bytes / total_bytes * 100
-                                   == int(consume_bytes / total_bytes * 100)
+                                == int(consume_bytes / total_bytes * 100)
                                 else "{:.2f}%".format(consume_bytes / total_bytes * 100)
                             )
                             self.server.send_sync(
@@ -111,10 +111,14 @@ class UploadManager:
                             )
 
                     def sendInterruptMsg():
-                        self.server.send_sync(event="interrupted", data={
-                            "upload_id": upload_id,
-                            "path": filename,
-                        }, sid=sid)
+                        self.server.send_sync(
+                            event="interrupted",
+                            data={
+                                "upload_id": upload_id,
+                                "path": filename,
+                            },
+                            sid=sid,
+                        )
                         return
 
                     oss_client = AliOssStorageClient(
