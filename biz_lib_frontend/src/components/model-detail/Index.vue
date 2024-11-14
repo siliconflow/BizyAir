@@ -97,9 +97,10 @@ const handleFork = async () => {
 }
 
 const handleOperateChange = async (type: 'edit' | 'remove', id: string | number) => {
+
   if (type === 'edit') {
     modelStoreInstance.setModelDetail(model)
-    modelStoreInstance.setDialogStatus(true)
+    modelStoreInstance.setDialogStatus(true, Number(currentVerssion.value?.id))
   }
   if (type === 'remove') {
     const res = await useAlertDialog({

@@ -80,6 +80,7 @@ const handleOperateChange = async (value: 'edit' | 'remove', model: Model) => {
   const { id, name, versions } = model
   currentOperateModel.value = name
   if (value === 'edit') {
+    console.log('edit', versions)
     modelStoreInstance.setModelDetail(model)
     modelStoreInstance.setDialogStatus(true)
     currentOperateModel.value = ''

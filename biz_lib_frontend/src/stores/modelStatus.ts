@@ -13,6 +13,7 @@ interface ModelVersion {
   public: boolean;
   progress?: number;
   file_upload_id?: string;
+  file_name?: string;
 }
 
 interface ModelDetail {
@@ -38,6 +39,11 @@ export const modelStore = defineStore('modelStore', {
   actions: {
     setModelDetail(data: any) {
       this.modelDetail = data;
+      if (this.modelDetail.id) {
+        this.modelDetail.versions.forEach((item: ModelVersion) => {
+          item.filePath = item.file_name as string;
+        })
+      }
     },
     clearModelDetail() {
       this.modelDetail = {
