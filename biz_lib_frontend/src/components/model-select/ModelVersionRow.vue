@@ -2,13 +2,17 @@
 import { Button } from '@/components/ui/button'
 import { ModelDetail } from '@/components/model-detail'
 import vDialog from '@/components/modules/vDialog.vue'
+import { modelStore } from '@/stores/modelStatus'
 import {
   TableCell,
   TableRow,
 } from '@/components/ui/table'
 import type { Model, ModelVersion } from '@/types/model'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 
+
+
+const modelStoreInstance = modelStore()
 const showModelDetail = ref(false)
 
 interface Props {
@@ -17,25 +21,29 @@ interface Props {
   mode: string
 }
 
-const emit = defineEmits(['apply', 'reload'])
+watch(() => modelStoreInstance.reload, (newValue: number, oldValue: number) => {
+  if (newValue !== oldValue) {
+    showModelDetail.value = false
+  }
+}, { deep: true })
+
+
+
 const handleApply = (version: ModelVersion, model: Model) => {
-  emit('apply', version, model)
+  modelStoreInstance.setApplyObject(version, model)
 }
 
 const handleShowModelDetail = () => {
   showModelDetail.value = true
 }
 
-const handleRemoveModel = () => {
-  showModelDetail.value = false
-  emit('reload')
-}
+
 
 defineProps<Props>()
 </script>
 <template>
   <TableRow class="bg-[#3D3D3D] hover:bg-[#4E4E4E] hover:cursor-pointer border-[#F9FAFB]/60 h-12"
-    @dblclick="handleShowModelDetail">
+    @click="handleShowModelDetail">
     <TableCell class="pl-10 w-[40%] max-w-[200px]">
       <div class="text-sm text-white-500 flex items-center min-w-0">
         <span class="truncate flex-1">{{ version.version }}</span>
@@ -67,6 +75,6 @@ defineProps<Props>()
     </TableCell>
   </TableRow>
   <vDialog v-model:open="showModelDetail" class="max-w-full h-screen px-6  pb-6 z-[8000]" :title="model.name">
-    <ModelDetail :modelId="model.id" @reload="handleRemoveModel" @apply="handleApply" :mode="mode" />
+    <ModelDetail :modelId="model.id" :mode="mode" :version="version" />
   </vDialog>
 </template>

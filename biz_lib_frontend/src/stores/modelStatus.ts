@@ -1,3 +1,4 @@
+import { Model, ModelVersion as ModelVersionType } from '@/types/model';
 import { defineStore } from 'pinia';
 interface ModelVersion {
   id?: number;
@@ -33,7 +34,12 @@ export const modelStore = defineStore('modelStore', {
       versions: []
     } as ModelDetail,
     showDialog: false,
+    reloadModelSelectList:false, // reload model select list
+    closeModelSelectDialog:false, // close model select dialog
+    closeModelDetailDialog:false, // close model detail dialog
     showVersionId: 0 as ShowVersionId,
+    mode: 'my' as 'my' | 'my_fork' | 'publicity',
+    applyObject:{version: {} as ModelVersionType, model: {} as Model},
     reload: 0
   }),
   actions: {
@@ -51,7 +57,6 @@ export const modelStore = defineStore('modelStore', {
         type: '',
         versions: []
       }
-
     },
     setDialogStatus(status: boolean, versionId?: number) {
       this.showDialog = status;
@@ -59,6 +64,15 @@ export const modelStore = defineStore('modelStore', {
     },
     uploadModelDone() {
       this.reload += 1;
+    },
+    closeAndReload() {
+      this.closeModelDetailDialog=true;
+      this.reloadModelSelectList =true;
+    },
+    setApplyObject(version: ModelVersionType, model: Model) {
+      this.closeModelSelectDialog=true;
+      this.closeModelDetailDialog=true;
+      this.applyObject = {version, model};
     }
   },
 });
