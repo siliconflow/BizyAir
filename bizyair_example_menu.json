@@ -4,7 +4,8 @@
         "FLUX-dev Text to Image": "bizyair_flux_dev_workflow.json",
         "FLUX-dev Image to Image": "bizyair_flux_img2img_workflow.json",
         "FLUX Simple Lora ": "bizyair_flux_simple_lora_workflow.json",
-        "FLUX PuLID": "bizyair_flux_pulid.json"
+        "FLUX PuLID": "bizyair_flux_pulid.json",
+        "PixelWave Flux.1-dev Text to Image": "bizyair_flux_pixelwave_txt2img.json"
     },
     "ControlNet Union": {
         "Generate an image from a line drawing": "bizyair_showcase_interior_design.json",
@@ -23,7 +24,8 @@
         "InstantID Basic workflow by BizyAir KSampler": "bizyair_sdxl_InstantID_basic.json"
     },
     "SD3": {
-        "SD3.5 Text to Image": "bizyair_sd3_5_txt2img.json"
+        "SD3.5 Text to Image": "bizyair_sd3_5_txt2img.json",
+        "SD3.5 Turbo Text to Image": "bizyair_sd3_5_turbo_txt2img.json"
     },
     "Kolors": {
         "Kolors Text to Image": "bizyair_kolors_txt2img.json",
@@ -32,7 +34,6 @@
         "Kolors IP-Adapter": "bizyair_kolors_ipa.json"
     },
     "Remove the background from the image": "bizyair_showcase_remove_background.json",
-    "Super Resolution": "bizyair_showcase_realistic_superresolution.json",
     "Recreate an existing image": "bizyair_flux_joycaption_img2img_workflow.json",
     "Text Guided Segment Anything": "bizyair_text_guided_segment-anything.json"
 }
