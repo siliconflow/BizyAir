@@ -10,51 +10,151 @@ model_types:
   # checkpoints: bizyair/checkpoint
   # vae: bizyair/vae
 
-routing_configs:
-  sdxl:
-    route: /supernode/bizyair-sdxl-comfy-ksampler-v2
-  kolors:
-    route: /supernode/kolors-bizyair-sdxl-comfy-ksampler
-  flux-dev:
+model_rules:
+  - mode_type: unet
+    base_model: FLUX
+    describe: flux1-dev
+    score: 3
     route: /supernode/flux-dev-bizyair-comfy-ksampler-speedup
-  flux-schnell:
-    route: /supernode/flux-bizyair-sdxl-comfy-ksampler
-  flux-vae:
-    route: /supernode/flux-vae-bizyair-comfy-ksampler
-  ultimatesdupscale:
-    route: /supernode/bizyair-ultimate-sd-upscale-ksampler
-  sd3_5_large:
-    route: /supernode/bizyair-comfybridge-sd3-5-large
-  sd3_5_large_turbo:
-    route: /supernode/bizyair-comfybridge-sd3-5-turbo
-  pixelwave:
-    route: /supernode/bizyair-flux1-dev-fp8-pixelwave
+    nodes:
+      - class_type: UNETLoader
+        inputs:
+          unet_name:
+            - ^flux/flux1-dev.sft$
 
-routing_rules:
-  - name: ultimatesdupscale
-    pattern: ^sd15/dreamshaper_8.safetensors$
-    config: ultimatesdupscale
-  - name: sdxl
-    pattern: ^sdxl.*
-    config: sdxl
-  - name: kolors
-    pattern: ^kolors.*
-    config: kolors
-  - name: flux-dev
-    pattern: ^flux/flux1-dev.sft$
-    config: flux-dev
-  - name: flux-schnell
-    pattern: ^flux/flux1-schnell.sft$
-    config: flux-schnell
-  - name: flux-vae
-    pattern: ^flux/ae.sft$
-    config: flux-vae
-  - name: sd3_5_large
-    pattern: ^sd3.5_large.safetensors$
-    config: sd3_5_large
-  - name: sd3_5_large_turbo
-    pattern: ^sd3.5_large_turbo.safetensors$
-    config: sd3_5_large_turbo
-  - name: pixelwave
-    pattern: ^flux/pixelwave-flux1-dev.safetensors$
-    config: pixelwave
+  - mode_type: unet
+    base_model: FLUX
+    describe: flux1-schnell
+    score: 3
+    route: /supernode/flux-bizyair-sdxl-comfy-ksampler
+    nodes:
+      - class_type: UNETLoader
+        inputs:
+          unet_name:
+            - ^flux/flux1-schnell.sft$
+
+  - mode_type: vae
+    base_model: FLUX
+    describe: flux-vae
+    score: 1
+    route: /supernode/flux-vae-bizyair-comfy-ksampler
+    nodes:
+      - class_type: VAELoader
+        inputs:
+          vae_name:
+            - ^flux/ae.sft$
+
+  - mode_type: unet
+    base_model: FLUX
+    describe: PixelWave Flux.1-dev 03 fine tuned!
+    score: 3
+    route: /supernode/bizyair-flux1-dev-fp8-pixelwave
+    nodes:
+      - class_type: UNETLoader
+        inputs:
+          unet_name:
+            - ^flux/pixelwave-flux1-dev.safetensors$
+
+  - mode_type: checkpoint
+    base_model: SD3
+    describe: SD3.5 Large
+    score: 3
+    route: /supernode/bizyair-comfybridge-sd3-5-large
+    nodes:
+      - class_type: CheckpointLoaderSimple
+        inputs:
+          ckpt_name:
+            - ^sd3.5_large.safetensors$
+
+  - mode_type: checkpoint
+    base_model: SD3
+    describe: SD3.5 Large Turbo
+    score: 3
+    route: /supernode/bizyair-comfybridge-sd3-5-turbo
+    nodes:
+      - class_type: CheckpointLoaderSimple
+        inputs:
+          ckpt_name:
+            - ^sd3.5_large_turbo.safetensors$
+
+  - mode_type: checkpoint
+    base_model: BaseModel
+    describe: SD1.5
+    score: 3
+    route: /supernode/bizyair-ultimate-sd-upscale-ksampler
+    nodes:
+      - class_type: CheckpointLoaderSimple
+        inputs:
+          ckpt_name:
+            - ^sd15/dreamshaper_8.safetensors$
+
+
+  - mode_type: checkpoint
+    base_model: SDXL
+    describe: SDXL
+    score: 3
+    route: /supernode/bizyair-sdxl-comfy-ksampler-v2
+    nodes:
+      - class_type: CheckpointLoaderSimple
+        inputs:
+          ckpt_name:
+            - ^sdxl.*
+
+  - mode_type: checkpoint
+    base_model: SDXL
+    describe: SDXL
+    score: 3
+    route: /supernode/bizyair-sdxl-comfy-ksampler-v2
+    nodes:
+      - class_type: CheckpointLoaderSimple
+        inputs:
+          ckpt_name:
+            - ^sdxl.*
+
+  - mode_type: unet
+    base_model: Kolors
+    describe: Kolors
+    score: 3
+    route: /supernode/kolors-bizyair-sdxl-comfy-ksampler
+    nodes:
+      - class_type: MZ_KolorsUNETLoaderV2
+        inputs:
+          unet_name:
+            - ^kolors.*
+      - class_type: VAELoader
+        inputs:
+          vae_name:
+            - ^sdxl/sdxl_vae.safetensors*
+
+  - mode_type: pulid
+    base_model: FLUX
+    describe: Flux Pulid
+    score: 5
+    route: /supernode/bizyair-flux-dev-comfy-pulid
+    nodes:
+      - class_type: PulidFluxModelLoader
+        inputs:
+          pulid_file:
+            - '.*'
+
+  - mode_type: controlnet
+    base_model: FLUX
+    describe: Flux ControlNet
+    score: 5
+    route: /supernode/flux-dev-bizyair-comfy-ksampler-fp8-v2
+    nodes:
+      - class_type: ControlNetLoader
+        inputs:
+          control_net_name:
+            - '.*'
+
+  - mode_type: lora
+    base_model: FLUX
+    describe: Flux Lora
+    score: 4
+    route: /supernode/flux-dev-bizyair-comfy-ksampler-fp8-v2
+    nodes:
+      - class_type: LoraLoader
+        inputs:
+          lora_name:
+            - '.*'
