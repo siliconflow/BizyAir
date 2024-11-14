@@ -504,7 +504,7 @@ class BizyAirServer:
                     secret_key=file_info.get("access_key_secret"),
                     security_token=file_info.get("security_token"),
                     onUploading=updateProgress,
-                    onInterrupted=None
+                    onInterrupted=None,
                 )
                 await oss_client.upload_file_content(
                     file_content=file_content,

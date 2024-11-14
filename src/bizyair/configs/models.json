@@ -16,7 +16,7 @@
       "dreamshaper_8.safetensors"
     ]
   },
-  "sd3.5_large.safetensors"],
+  "sd3.5_large.safetensors", "sd3.5_large_turbo.safetensors"],
   "clip_vision": {
     "models": [
       "CLIP-ViT-H-14-laion2B-s32B-b79K.safetensors"
@@ -61,7 +61,8 @@
     ],
     "flux": [
       "flux1-schnell.sft",
-      "flux1-dev.sft"
+      "flux1-dev.sft",
+      "pixelwave-flux1-dev.safetensors"
     ]
   },
   "vae": {
@@ -85,6 +86,6 @@
     "ip-adapter.bin"
   ],
   "pulid": [
-    "pulid_flux_v0.9.0.safetensors"
+    "pulid_flux.safetensors"
   ]
 }

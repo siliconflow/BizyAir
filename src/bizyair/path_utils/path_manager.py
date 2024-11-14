@@ -4,11 +4,14 @@ import os
 import pprint
 import re
 import warnings
+from collections import defaultdict
 from dataclasses import dataclass
-from typing import Any, Dict, List, Union
+from functools import lru_cache
+from typing import Any, Collection, Dict, List, Union
 
 from ..common import fetch_models_by_type
 from ..common.env_var import BIZYAIR_DEBUG, BIZYAIR_SERVER_ADDRESS
+from ..configs.conf import ModelRule, config_manager
 from .utils import filter_files_extensions, get_service_route, load_yaml_config
 
 supported_pt_extensions: set[str] = {
@@ -21,13 +24,14 @@ supported_pt_extensions: set[str] = {
     ".sft",
 }
 ScanPathType = list[str]
-folder_names_and_paths: dict[str, ScanPathType] = {}
+folder_names_and_paths: dict[str, ScanPathType] = defaultdict(list)
 filename_path_mapping: dict[str, dict[str, str]] = {}
 
 
 @dataclass
 class RefreshSettings:
     loras: bool = True
+    controlnet: bool = True
 
     def get(self, folder_name: str, default: bool = True):
         return getattr(self, folder_name, default)
@@ -68,39 +72,17 @@ models_config: Dict[str, Dict[str, Any]] = load_yaml_config(
 
 def guess_url_from_node(
     node: Dict[str, Dict[str, Any]], class_type_table: Dict[str, bool]
-) -> Union[str, None]:
-    if "loader" in node["class_type"].lower():
-        for attr in ("ckpt_name", "unet_name", "vae_name"):
-            if attr in node["inputs"]:
-                input_name = node["inputs"][attr].lower()
-
-                routing_rules = models_config["routing_rules"]
-                routing_configs = models_config["routing_configs"]
-                for rule in routing_rules:
-                    if re.match(rule["pattern"], input_name):
-                        config_key = rule["config"]
-                        configs = routing_configs[config_key]
-                        # TODO fix
-                        if config_key == "flux-dev":
-                            if class_type_table.get("ApplyPulidFlux", False):
-                                return (
-                                    configs.get(
-                                        "service_address", BIZYAIR_SERVER_ADDRESS
-                                    )
-                                    + "/supernode/bizyair-flux-dev-comfy-pulid"
-                                )
-
-                            if class_type_table.get("LoraLoader", False):
-                                node["inputs"][
-                                    "weight_dtype"
-                                ] = "fp8_e4m3fn"  # set to fp8_e4m3fn for lora
-                                return (
-                                    configs.get(
-                                        "service_address", BIZYAIR_SERVER_ADDRESS
-                                    )
-                                    + "/supernode/flux-dev-bizyair-comfy-ksampler-fp8-v2"
-                                )
-                        return get_service_route(configs)
+) -> Union[List[ModelRule], None]:
+    rules: List[ModelRule] = config_manager.get_rules(node["class_type"])
+    out = [
+        rule
+        for rule in rules
+        if all(
+            any(re.search(p, node["inputs"][key]) is not None for p in patterns)
+            for key, patterns in rule.inputs.items()
+        )
+    ]
+    return out
 
 
 def guess_config(
@@ -174,17 +156,22 @@ def convert_prompt_label_path_to_real_path(prompt: dict[str, dict[str, any]]) ->
     for unique_id in prompt:
         new_prompt[unique_id] = copy.copy(prompt[unique_id])
         inputs = copy.copy(prompt[unique_id]["inputs"])
-        if "lora_name" in inputs:
-            lora_name = inputs["lora_name"]
-            new_lora_name = filename_path_mapping.get("loras", {}).get(lora_name, None)
-            if new_lora_name:
-                inputs["lora_name"] = new_lora_name
-            else:
-                file_list = get_filename_list("loras")
-                if lora_name not in file_list:
-                    raise ValueError(
-                        f"Lora name '{lora_name}' not found in file list. Available lora names: {', '.join(file_list)}"
-                    )
+
+        for key, folder_name in [
+            ("lora_name", "loras"),
+            ("control_net_name", "controlnet"),
+        ]:
+            if key in inputs:
+                value = inputs[key]
+                new_value = filename_path_mapping.get(folder_name, {}).get(value, None)
+                if new_value:
+                    inputs[key] = new_value
+                else:
+                    file_list = get_filename_list(folder_name)
+                    if value not in file_list:
+                        raise ValueError(
+                            f"{key} '{value}' not found in file list. Available {key} names: {', '.join(file_list)}"
+                        )
 
         new_prompt[unique_id]["inputs"] = inputs
     return new_prompt
@@ -201,7 +188,7 @@ def get_share_filename_list(folder_name, share_id, *, verbose=BIZYAIR_DEBUG):
 def get_filename_list(folder_name, *, verbose=BIZYAIR_DEBUG):
 
     global folder_names_and_paths
-    results = []
+    results = folder_names_and_paths.get(folder_name, [])
     # 社区node上线后移除
     # if folder_name in models_config["model_types"]:
     #     refresh = refresh_settings.get(folder_name, True)
@@ -218,6 +205,20 @@ def get_filename_list(folder_name, *, verbose=BIZYAIR_DEBUG):
     #     except:
     #         pass
     return results
+
+
+def filter_files_extensions(
+    files: Collection[str], extensions: Collection[str]
+) -> list[str]:
+    return sorted(
+        list(
+            filter(
+                lambda a: os.path.splitext(a)[-1].lower() in extensions
+                or len(extensions) == 0,
+                files,
+            )
+        )
+    )
 
 
 def recursive_extract_models(data: Any, prefix_path: str = "") -> List[str]:
@@ -249,12 +250,8 @@ def load_json(file_path: str) -> dict:
 
 def init_config():
     global folder_names_and_paths
-    models_file = os.path.join(configs_path, "models.json")
-    models_data = load_json(models_file)
-    for k, v in models_data.items():
-        if k not in folder_names_and_paths:
-            folder_names_and_paths[k] = []
-        folder_names_and_paths[k].extend(recursive_extract_models(v))
+    for k, filenames in config_manager.model_path_manager.model_paths.items():
+        folder_names_and_paths[k].extend(filenames)
     if BIZYAIR_DEBUG:
         pprint.pprint("=" * 20 + "init_config: " + "=" * 20)
         pprint.pprint(folder_names_and_paths)

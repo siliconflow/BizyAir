@@ -92,7 +92,7 @@ def process_response_data(response_data: dict) -> dict:
         try:
             msg = json.loads(response_data["result"])
         except json.JSONDecodeError:
-            raise ValueError("Failed to decode JSON from response.")
+            raise ValueError(f"Failed to decode JSON from response. {response_data=}")
     else:
         # Handle local response directly
         msg = response_data

@@ -61,9 +61,10 @@
                 <!-- <div class="h-[500px] relative z-10000"> -->
                   <!--  <EasyMarkdown :editor-id="`myeditor${i}`" @is-uploading="handleIsUploading" @model-value="handleUpdateValue"/> -->
                 <!-- </div> -->
-              <div class="editor-container">
+              <!-- <div class="editor-container">
                 <EasyMarkdown :editor-id="`myeditor${i}`" @is-uploading="handleIsUploading" @model-value="(val: any) => handleUpdateValue(val, i)" />
-              </div>
+              </div> -->
+              <Markdown v-model.modelValue="e.intro" :editorId="`myeditor${i}`" />
             </v-item>
             <v-item label="">
               <div class="flex items-center space-x-2 mt-2">
@@ -121,11 +122,11 @@ import { useAlertDialog  } from '@/components/modules/vAlertDialog/index'
 import { useStatusStore} from '@/stores/userStatus'
 import { modelStore } from '@/stores/modelStatus'
 // import { Markdown } from '@/components/markdown'
-import { EasyMarkdown } from '@/components/easy-mark'
+import Markdown from '@/components/markdown/Index2.vue'
+// import { EasyMarkdown } from '@/components/easy-mark'
 import { create_models, checkLocalFile, submitUpload, model_types, base_model_types, put_model, interrupt_upload } from '@/api/model'
 import { onMounted } from 'vue'
 import { Minus } from 'lucide-vue-next'
-
 
 const statusStore = useStatusStore();
 const modelStoreObject = modelStore();
@@ -272,14 +273,14 @@ const acActiveFn = () => {
     modelBox.value = false
   }
 }
-const handleUpdateValue = (value: string, index: number) => {
-  console.log(value, index)
-  // formData.value.versions[index].intro = value
-}
-const handleIsUploading = (val: boolean) => {
-  // disabledSubmit.value = val
-  console.log(val)
-}
+// const handleUpdateValue = (value: string, index: number) => {
+//   console.log(value, index)
+//   // formData.value.versions[index].intro = value
+// }
+// const handleIsUploading = (val: boolean) => {
+//   // disabledSubmit.value = val
+//   console.log(val)
+// }
 const onDialogClose = () => {
   modelStoreObject.setDialogStatus(false, 0)
   modelStoreObject.clearModelDetail()
