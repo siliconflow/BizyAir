@@ -116,7 +116,6 @@ const scrollToTab = (versionId: number) => {
     const viewport = scrollViewportRef.value.$el.querySelector('[data-radix-scroll-area-viewport]')
     const tabsList = viewport?.querySelector('[role="tablist"]')
     const targetTab = viewport?.querySelector(`#radix-vue-tabs-v-15-trigger-${versionId}`) as HTMLElement
-    console.log(viewport, tabsList, targetTab)
     if (!viewport || !targetTab || !tabsList) return
 
     const tabs = Array.from(tabsList.querySelectorAll('[role="tab"]'))
@@ -128,7 +127,7 @@ const scrollToTab = (versionId: number) => {
     const tabWidth = targetTab.offsetWidth
 
     const scrollPosition = Math.max(0, tabPosition - (viewportWidth - tabWidth) / 2)
-    console.log('scrollPosition', scrollPosition)
+  
     viewport.scrollTo({
       left: scrollPosition,
       behavior: 'smooth'
