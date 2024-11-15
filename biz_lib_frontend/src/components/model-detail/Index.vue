@@ -30,11 +30,12 @@ import { Button } from '@/components/ui/button'
 import { ref, onMounted, nextTick } from 'vue'
 import Vditor from 'vditor'
 import { useAlertDialog } from '@/components/modules/vAlertDialog/index'
+import { MdPreview, MdCatalog } from 'md-editor-v3';
 
 import { Model, ModelVersion } from '@/types/model'
 import { model_detail, like_model, fork_model, remove_model } from '@/api/model'
 import { useToaster } from '@/components/modules/toats/index'
-
+import 'md-editor-v3/lib/style.css';
 const previewRef = ref<HTMLDivElement | null>(null)
 const model = ref<Model>()
 const currentVersion = ref<ModelVersion>()
@@ -64,15 +65,22 @@ const getData = async () => {
     return
   }
   model.value = res.data
-  if (props.version) {
-    currentVersion.value = props.version
-    nextTick(() => {
-      previewContent(props.version.intro || '')
-      scrollWithDelay(props.version.id)
-    })
-  } else {
-    if (model.value?.versions && model.value?.versions.length > 0) {
-      currentVersion.value = model.value?.versions?.[0]
+  beforeScroll()
+}
+
+const beforeScroll = () => {
+  if (model.value && model.value.versions && model.value.versions.length > 0) {
+    if (props.version?.id) {
+      const targetVersion = model.value.versions.find(v => v.id === props.version.id)
+      if (targetVersion) {
+        currentVersion.value = { ...targetVersion }
+        nextTick(() => {
+          previewContent(targetVersion.intro || '')
+          scrollWithDelay(props.version?.id)
+        })
+      }
+    } else {
+      currentVersion.value = { ...model.value.versions[0] }
       nextTick(() => {
         previewContent(currentVersion.value?.intro || '')
         if (currentVersion.value?.id) {
@@ -81,11 +89,12 @@ const getData = async () => {
       })
     }
   }
-
 }
 
-onMounted(() => {
-  getData()
+
+onMounted(async () => {
+  await getData()
+
 })
 
 const handleTabChange = (value: number) => {
@@ -107,38 +116,40 @@ const handleLike = async () => {
 
 const handleFork = async () => {
   await fork_model(currentVersion.value?.id)
-  getData()
+  await getData()
 }
 
 const scrollToTab = (versionId: number) => {
   nextTick(() => {
-    if (!scrollViewportRef.value) return
-    const viewport = scrollViewportRef.value.$el.querySelector('[data-radix-scroll-area-viewport]')
-    const tabsList = viewport?.querySelector('[role="tablist"]')
-    const targetTab = viewport?.querySelector(`#radix-vue-tabs-v-15-trigger-${versionId}`) as HTMLElement
-    if (!viewport || !targetTab || !tabsList) return
+    setTimeout(() => {
+      if (!scrollViewportRef.value) return
+      const viewport = scrollViewportRef.value.$el.querySelector('[data-radix-scroll-area-viewport]')
+      const tabsList = viewport?.querySelector('[role="tablist"]')
+      const targetTab = tabsList?.querySelector(`[role="tab"].version-tab-${versionId}`) as HTMLElement
+      if (!viewport || !targetTab || !tabsList) return
 
-    const tabs = Array.from(tabsList.querySelectorAll('[role="tab"]'))
-    const totalWidth = tabs.reduce((sum: number, tab) => sum + (tab as HTMLElement).offsetWidth, 0)
-      ; (tabsList as HTMLElement).style.width = `${totalWidth}px`
+      const tabs = Array.from(tabsList.querySelectorAll('[role="tab"]'))
+      const totalWidth = tabs.reduce((sum: number, tab) => sum + (tab as HTMLElement).offsetWidth, 0)
+        ; (tabsList as HTMLElement).style.width = `${ totalWidth }px`
 
-    const tabPosition = targetTab.offsetLeft
-    const viewportWidth = viewport.clientWidth
-    const tabWidth = targetTab.offsetWidth
+      const tabPosition = targetTab.offsetLeft
+      const viewportWidth = viewport.clientWidth
+      const tabWidth = targetTab.offsetWidth
 
-    const scrollPosition = Math.max(0, tabPosition - (viewportWidth - tabWidth) / 2)
-  
-    viewport.scrollTo({
-      left: scrollPosition,
-      behavior: 'smooth'
-    })
+      const scrollPosition = Math.max(0, tabPosition - (viewportWidth - tabWidth) / 2)
+
+      viewport.scrollTo({
+        left: scrollPosition,
+        behavior: 'smooth'
+      })
+    }, 100)
   })
 }
 
 const scrollWithDelay = (versionId: number) => {
   setTimeout(() => {
     scrollToTab(versionId)
-  }, 100)
+  }, 200)
 }
 
 const handleOperateChange = async (type: 'edit' | 'remove', id: string | number) => {
@@ -269,7 +280,7 @@ const handleCopy = async (sign: string) => {
                 <Tabs :defaultValue="currentVersion?.id" :value="currentVersion?.id">
                   <TabsList class="inline-flex h-12 bg-[#4E4E4E] text-sm w-auto">
                     <TabsTrigger v-for="version in model?.versions" :value="version.id"
-                      @click="handleTabChange(version.id)"
+                      @click="handleTabChange(version.id)" :class="['version-tab', `version-tab-${version.id}`]"
                       class="text-sm text-white data-[state=active]:bg-[#9CA3AF] data-[state=active]:text-white h-10 px-3 py-2">
                       {{ version.version }}
                     </TabsTrigger>
@@ -413,8 +424,9 @@ const handleCopy = async (sign: string) => {
               <span>
                 {{ currentVersion?.sign ? sliceString(currentVersion?.sign, 15) : '' }}
               </span>
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none"
-                class="cursor-pointer hover:opacity-80" @click="handleCopy(currentVersion?.sign || '')">
+              <svg xmlns="http://www.w3.org/2000/svg" v-if="currentVersion?.sign" width="16" height="16"
+                viewBox="0 0 16 16" fill="none" class="cursor-pointer hover:opacity-80"
+                @click="handleCopy(currentVersion?.sign || '')">
                 <g clip-path="url(#clip0_315_3710)">
                   <path
                     d="M2.66659 10.6666C1.93325 10.6666 1.33325 10.0666 1.33325 9.33325V2.66659C1.33325 1.93325 1.93325 1.33325 2.66659 1.33325H9.33325C10.0666 1.33325 10.6666 1.93325 10.6666 2.66659M6.66658 5.33325H13.3333C14.0696 5.33325 14.6666 5.93021 14.6666 6.66658V13.3333C14.6666 14.0696 14.0696 14.6666 13.3333 14.6666H6.66658C5.93021 14.6666 5.33325 14.0696 5.33325 13.3333V6.66658C5.33325 5.93021 5.93021 5.33325 6.66658 5.33325Z"

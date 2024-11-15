@@ -128,15 +128,15 @@ onMounted(async () => {
       <Tabs :defaultValue="modelListPathParams.mode" class="mb-4" @update:model-value="handleTabChange">
         <TabsList class="grid w-full grid-cols-3 h-12 bg-[#4E4E4E] text-sm">
           <TabsTrigger value="my"
-            class="text-sm text-white data-[state=active]:bg-[#9CA3AF] data-[state=active]:text-white h-10 px-3 py-2">
+            class="text-sm text-white data-[state=active]:bg-[#9CA3AF] data-[state=active]:text-white h-10 px-3 py-2 focus:outline-none focus-visible:outline-none">
             My Models
           </TabsTrigger>
           <TabsTrigger value="my_fork"
-            class="text-sm text-white data-[state=active]:bg-[#9CA3AF] data-[state=active]:text-white h-10 px-3 py-2">
+            class="text-sm text-white data-[state=active]:bg-[#9CA3AF] data-[state=active]:text-white h-10 px-3 py-2 focus:outline-none focus-visible:outline-none">
             My Forks
           </TabsTrigger>
           <TabsTrigger value="publicity"
-            class="text-sm text-white data-[state=active]:bg-[#9CA3AF] data-[state=active]:text-white h-10 px-3 py-2">
+            class="text-sm text-white data-[state=active]:bg-[#9CA3AF] data-[state=active]:text-white h-10 px-3 py-2 focus:outline-none focus-visible:outline-none">
             Community Models
           </TabsTrigger>
         </TabsList>
