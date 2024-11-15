@@ -1,6 +1,6 @@
 <template>
-  <MdEditor :editorId="editorId" v-model="text" theme="dark" :toolbars="toolbar" :preview="false" ref="editorRef"
-    :autoDetectCode="true" language="en-US" @input="handleInput" @on-upload-img="handleUploadImg">
+  <MdEditor :editorId="editorId" v-model="text" theme="dark" :toolbars="toolbar" ref="editorRef" :autoDetectCode="true"
+    language="en-US" @input="handleInput" @on-upload-img="handleUploadImg">
     <template #defToolbars>
       <NormalToolbar title="fullscreen" @onClick="handleFullClick">
         <template #trigger>
@@ -11,7 +11,7 @@
   </MdEditor>
   <Teleport to="body" v-if='isFullscreen'>
     <MdEditor v-model="text" theme="dark" :autoDetectCode="true" :editorId="`full-${editorId}`" :toolbars="toolbar"
-      :preview="false" language="en-US" :pageFullscreen="true" class="fixed top-0 left-0 w-[100vw] h-[100vh] z-12000"
+      language="en-US" :pageFullscreen="true" class="fixed top-0 left-0 w-[100vw] h-[100vh] z-12000"
       @input="handleInput" @on-upload-img="handleUploadImg">
       <template #defToolbars>
         <NormalToolbar title="fullscreen" @onClick="handleFullClick">
@@ -43,8 +43,8 @@ const toolbar = [
   'quote', 'code', 'table', 'image', '-',
   'mermaid', 'katex', '-',
   'link', '=',
-  // 'preview',
-  'previewOnly',
+  'preview',
+  // 'previewOnly',
 
   0
 ];
@@ -82,7 +82,7 @@ const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 
 const uploadWithRetry = async (file, retryCount = 0) => {
   try {
-    const res = await uploadImage(file); // 确保使用FormData
+    const res = await uploadImage(file);
     if (!res.data?.url) {
       throw new Error('Upload response missing URL');
     }
@@ -100,12 +100,13 @@ const uploadWithRetry = async (file, retryCount = 0) => {
 const handleUploadImg = async (files, callback) => {
   const invalidFiles = files.filter(file => !ALLOWED_TYPES.includes(file.type));
   if (invalidFiles.length > 0) {
-    useToaster.warning('Only image files (jpg, png, gif, webp) are allowed to be uploaded.');
+    useToaster.warning('Only image files allowed (jpg, png, gif, webp)');
     return;
   }
+
   const oversizedFiles = files.filter(file => file.size > MAX_SIZE);
   if (oversizedFiles.length > 0) {
-    useToaster.warning('The image size cannot exceed 20MB.');
+    useToaster.warning('Image size cannot exceed 20MB');
     return;
   }
   try {
@@ -118,10 +119,10 @@ const handleUploadImg = async (files, callback) => {
     if (urls.length === files.length) {
       callback(urls);
     } else {
-      useToaster.error('Some files failed to upload.');
+      useToaster.error('Some files failed to upload');
     }
   } catch (error) {
-    useToaster.error('Upload failed, please try again.');
+    useToaster.error('Upload failed, please try again');
   } finally {
     emit('isUploading', false);
   }
