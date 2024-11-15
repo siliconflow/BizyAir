@@ -118,6 +118,7 @@ import vSelect from '@/components/modules/vSelect.vue'
 import vItem from '@/components/modules/vItem.vue'
 import vAccordionTrigger from '@/components/modules/vAccordionTrigger.vue'
 import { useAlertDialog  } from '@/components/modules/vAlertDialog/index'
+import { useShadet } from '@/components/modules/vShadet/index'
 
 import { useStatusStore} from '@/stores/userStatus'
 import { modelStore } from '@/stores/modelStatus'
@@ -146,7 +147,9 @@ const disabledPublish = computed(() => {
 
   return progress
 })
-
+const calculating = useShadet({
+    content: 'Start calculating the file hash'
+  })
 function handleChange(val: any, index: number) {
   if (formData.value.versions) {
     formData.value.versions[index].public = val;
@@ -159,7 +162,8 @@ async function checkFile(val: string, index: number) {
   versionIndex.value = index
   await submitUpload({ upload_id: res.data.upload_id })
   formData.value.versions[index].progress = 0.1
-  useToaster('Start calculating the file hash')
+  calculating.start()
+
 }
 async function delVersion(index: number) {
   const res = await useAlertDialog({
@@ -289,7 +293,6 @@ const onDialogClose = () => {
   modelStoreObject.uploadModelDone()
 }
 watch(() => statusStore.socketMessage, (val: any) => {
-  // const temp = [...formData.value.versions]
   if (val.type == "progress") {
     const i = formData.value.versions.findIndex((e: any) => e.file_upload_id == val.data.upload_id)
     console.log(val.data.progress)
@@ -307,6 +310,15 @@ watch(() => statusStore.socketMessage, (val: any) => {
     const i = formData.value.versions.findIndex((e: any) => e.file_upload_id == val.data.upload_id)
     delete formData.value.versions[i].progress
     formData.value.versions[i].filePath = ''
+  }
+  if (val.type == "error") {
+    useToaster.error(val.data.message)
+    const i = formData.value.versions.findIndex((e: any) => e.file_upload_id == val.data.upload_id)
+    delete formData.value.versions[i].progress
+    formData.value.versions[i].filePath = ''
+  }
+  if (val.type == "prepared") {
+    calculating.close()
   }
 }, {
   deep: true
