@@ -27,16 +27,14 @@ class UploadManager:
             0x142F0E1EBA9EA3693, initCrc=0, xorOut=0xFFFFFFFFFFFFFFFF, rev=True
         )
         crc64_signature = 0
+        md5_hash = hashlib.md5()
         buf_size = 65536 * 16
 
         async with aiofiles.open(file_path, "rb") as f:
             while chunk := await f.read(buf_size):
                 crc64_signature = do_crc64(chunk, crc64_signature)
-
-        md5_hash = hashlib.md5()
-        async with aiofiles.open(file_path, "rb") as file:
-            while chunk := await file.read(buf_size):
                 md5_hash.update(chunk)
+
         md5_str = base64.b64encode(md5_hash.digest()).decode("utf-8")
 
         hasher = hashlib.sha256()

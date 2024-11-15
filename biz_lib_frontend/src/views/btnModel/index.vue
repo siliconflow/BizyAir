@@ -147,14 +147,12 @@ const disabledPublish = computed(() => {
 
   return progress
 })
-const calculating = useShadet({
-    content: 'Start calculating the file hash'
-  })
 function handleChange(val: any, index: number) {
   if (formData.value.versions) {
     formData.value.versions[index].public = val;
   }
 }
+let calculating: { close: any }
 async function checkFile(val: string, index: number) {
   const res = await checkLocalFile({ absolute_path: val })
   formData.value.versions[index].file_upload_id = res.data.upload_id
@@ -162,7 +160,10 @@ async function checkFile(val: string, index: number) {
   versionIndex.value = index
   await submitUpload({ upload_id: res.data.upload_id })
   formData.value.versions[index].progress = 0.1
-  calculating.start()
+  calculating = useShadet({
+    content: 'Start calculating the file hash',
+    z: 'z-12000'
+  })
 
 }
 async function delVersion(index: number) {

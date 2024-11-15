@@ -11,15 +11,12 @@ export function useShadet(options: { content?: string; z?: string;}) {
       })
     }
   })
-  function start() {
-    app.mount(container)
-  }
+  app.mount(container)
   function close() {
     app.unmount()
     document.body.removeChild(container)
   }
   return {
-    start,
     close
   }
 }
