@@ -1,23 +1,7 @@
 import { app } from "../../scripts/app.js";
 import { $el } from "../../scripts/ui.js";
-import { exampleBtn } from "./itemButton/btnExample.js";
-import { apiKeyBtn } from "./itemButton/btnApiKey.js";
-import { profileBtn } from "./itemButton/profile.js";
-import { modelBtn } from "./itemButton/btnModel.js";
-import { newsBtn } from "./itemButton/btnNews.js";
-import { styleExample } from "./subassembly/styleExample.js";
 import { styleMenus } from "./subassembly/styleMenus.js";
-import { styleUploadFile } from "./subassembly/styleUploadFile.js";
-import { styleDialog } from './subassembly/styleDialog.js';
-import { styleProfile } from './subassembly/styleProfile.js';
-import { notifySubscribers, subscribe } from './subassembly/subscribers.js'
-// import { WebSocketClient } from './subassembly/socket.js'
-// import { toast } from './subassembly/toast.js'
-import { getUserInfo } from './apis.js'
 import './biz_lib_frontend.js'
-
-let userMenu = apiKeyBtn
-
 class FloatingButton {
     constructor(show_cases) {
         this.show_cases = show_cases
@@ -31,12 +15,7 @@ class FloatingButton {
                 $el('strong', {}, ['BizyAir']),
                 $el("div.bizyair-menu-item", {
                     id: 'bizyair-menu-item',
-                }, [
-                    exampleBtn,
-                    userMenu,
-                    modelBtn,
-                    newsBtn,
-                ]),
+                }),
             ]),
             $el('div.cmfy-floating-button-closer', {
                 onclick: () => this.toggleVisibility(event)
@@ -102,60 +81,6 @@ app.registerExtension({
             textContent: styleMenus,
             parent: document.head,
         });
-        $el("style", {
-            textContent: styleExample,
-            parent: document.head,
-        });
-        $el("style", {
-            textContent: styleUploadFile,
-            parent: document.head,
-        });
-        $el("style", {
-            textContent: styleDialog,
-            parent: document.head,
-        });
-        $el("style", {
-            textContent: styleProfile,
-            parent: document.head,
-        });
-        // $el('div', {
-        //     parent: document.body,
-        //     id: "app123",
-        //     style: {
-        //         width: '80vw',
-        //         height: '80vh',
-        //         position: 'fixed',
-        //         left: 0,
-        //         top: 0,
-        //         zIndex: 10000
-        //     }
-        // });
-        // bizyAirLib.mount('#app123')
-        getUserInfo().then(info => {
-            sessionStorage.setItem('userInfo', JSON.stringify(info.data))
-            userMenu = info?.data ? profileBtn() : apiKeyBtn
-            new FloatingButton();
-        }).catch(() => {
-            new FloatingButton();
-        })
-
-        // const wsClient = new WebSocketClient(`ws://${location.host}/bizyair/ws?clientId=${sessionStorage.getItem('clientId')}`);
-        // wsClient.onMessage = message => {
-        //     notifySubscribers('socketMessage', message);
-        //     const res = JSON.parse(message.data);
-        //     if (res && res.type === 'errors') {
-        //         toast.error(res.data.message)
-        //     }
-        // }
-        subscribe('loginRefresh', () => {
-            document.querySelector('.comfy-floating-button').remove()
-            getUserInfo().then(info => {
-                sessionStorage.setItem('userInfo', JSON.stringify(info.data))
-                userMenu = info?.data ? profileBtn() : apiKeyBtn
-                new FloatingButton();
-            }).catch(() => {
-                new FloatingButton();
-            })
-        })
+        new FloatingButton();
     },
 });

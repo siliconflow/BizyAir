@@ -53,10 +53,12 @@ const handleFullClick = () => {
   isFullscreen.value = !isFullscreen.value;
   if (isFullscreen.value) {
     screenfull.request();
-    document.querySelector('[role="dialog"]').style.display = 'none';
+    document.querySelectorAll('[role="dialog"]').forEach(el => el.style.display = 'none');
+    document.querySelector('body').style['pointer-events'] = 'auto';
   } else {
     screenfull.exit();
-    document.querySelector('[role="dialog"]').style.display = 'block';
+    document.querySelectorAll('[role="dialog"]').forEach(el => el.style.display = 'block');
+    document.querySelector('body').style['pointer-events'] = 'none';
   }
 };
 const props = defineProps({
@@ -96,36 +98,30 @@ const uploadWithRetry = async (file, retryCount = 0) => {
 };
 
 const handleUploadImg = async (files, callback) => {
-  // 文件格式验证
   const invalidFiles = files.filter(file => !ALLOWED_TYPES.includes(file.type));
   if (invalidFiles.length > 0) {
-    useToaster.warning('只允许上传图片文件 (jpg, png, gif, webp)');
+    useToaster.warning('Only image files (jpg, png, gif, webp) are allowed to be uploaded.');
     return;
   }
-
-  // 文件大小验证
   const oversizedFiles = files.filter(file => file.size > MAX_SIZE);
   if (oversizedFiles.length > 0) {
-    useToaster.warning('图片大小不能超过20MB');
+    useToaster.warning('The image size cannot exceed 20MB.');
     return;
   }
-
   try {
     emit('isUploading', true);
-
     const urls = [];
     for (let i = 0; i < files.length; i++) {
       const url = await uploadWithRetry(files[i]);
       urls.push(url);
     }
-
     if (urls.length === files.length) {
       callback(urls);
     } else {
-      useToaster.error('部分文件上传失败');
+      useToaster.error('Some files failed to upload.');
     }
   } catch (error) {
-    useToaster.error('上传失败，请重试');
+    useToaster.error('Upload failed, please try again.');
   } finally {
     emit('isUploading', false);
   }
@@ -142,6 +138,7 @@ config({
     },
     prettier: {
       prettierInstance: prettier,
+      parserMarkdownInstance: 'markdown',
     },
     cropper: {
       instance: cropper,
@@ -160,5 +157,8 @@ config({
 <style scoped>
 :deep(.md-editor-toolbar-item svg.md-editor-icon) {
   @apply w-6 h-6;
+}
+:deep(.md-editor-menu-item.md-editor-menu-item-image:last-child) {
+  @apply hidden;
 }
 </style>
