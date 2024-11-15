@@ -53,10 +53,12 @@ const handleFullClick = () => {
   isFullscreen.value = !isFullscreen.value;
   if (isFullscreen.value) {
     screenfull.request();
-    document.querySelector('[role="dialog"]').style.display = 'none';
+    document.querySelectorAll('[role="dialog"]').forEach(el => el.style.display = 'none');
+    document.querySelector('body').style['pointer-events'] = 'auto';
   } else {
     screenfull.exit();
-    document.querySelector('[role="dialog"]').style.display = 'block';
+    document.querySelectorAll('[role="dialog"]').forEach(el => el.style.display = 'block');
+    document.querySelector('body').style['pointer-events'] = 'none';
   }
 };
 const props = defineProps({
@@ -107,16 +109,13 @@ const handleUploadImg = async (files, callback) => {
     useToaster.warning('Image size cannot exceed 20MB');
     return;
   }
-
   try {
     emit('isUploading', true);
-
     const urls = [];
     for (let i = 0; i < files.length; i++) {
       const url = await uploadWithRetry(files[i]);
       urls.push(url);
     }
-
     if (urls.length === files.length) {
       callback(urls);
     } else {
@@ -140,6 +139,7 @@ config({
     },
     prettier: {
       prettierInstance: prettier,
+      parserMarkdownInstance: 'markdown',
     },
     cropper: {
       instance: cropper,
@@ -158,5 +158,8 @@ config({
 <style scoped>
 :deep(.md-editor-toolbar-item svg.md-editor-icon) {
   @apply w-6 h-6;
+}
+:deep(.md-editor-menu-item.md-editor-menu-item-image:last-child) {
+  @apply hidden;
 }
 </style>
