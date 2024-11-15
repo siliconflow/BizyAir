@@ -5,6 +5,7 @@
     theme="dark"
     :toolbars="toolbar"
     ref="editorRef"
+    language="en-US"
     @input="handleInput"
     @on-upload-img="handleUploadImg">
     <template #defToolbars>
@@ -15,14 +16,13 @@
       </NormalToolbar>
     </template>
   </MdEditor>
-  <!--
-    language="en-US" -->
   <Teleport to="body" v-if='isFullscreen'>
     <MdEditor
       v-model="text"
       theme="dark"
       :editorId="`full-${editorId}`"
       :toolbars="toolbar"
+      language="en-US"
       :pageFullscreen="true"
       class="fixed top-0 left-0 w-[100vw] h-[100vh] z-12000"
 
@@ -75,6 +75,7 @@ const handleFullClick = () => {
 const props = defineProps({
   editorId: String,
   modelValue: String,
+  modelModifiers: Object
 })
 const text = ref(props.modelValue);
 const emit = defineEmits(['update:modelValue', 'isUploading'])
@@ -102,6 +103,7 @@ config({
       instance: screenfull,
     },
   },
+
 });
 // onMounted(() => {
 //   console.log(mdEditorFull.value.toggleFullscreen)

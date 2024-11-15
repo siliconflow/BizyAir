@@ -121,6 +121,15 @@ class UploadManager:
                         )
                         return
 
+                    self.server.send_sync(
+                        event="prepared",
+                        data={
+                            "upload_id": upload_id,
+                            "path": filename,
+                        },
+                        sid=sid,
+                    )
+
                     oss_client = AliOssStorageClient(
                         endpoint=file_storage.get("endpoint"),
                         bucket_name=file_storage.get("bucket"),
