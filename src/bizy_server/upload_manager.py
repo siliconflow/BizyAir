@@ -78,6 +78,15 @@ class UploadManager:
 
             file_record = sign_data.get("file")
 
+            self.server.send_sync(
+                event="prepared",
+                data={
+                    "upload_id": upload_id,
+                    "path": filename,
+                },
+                sid=sid,
+            )
+
             if not is_string_valid(file_record.get("id")):
                 print(f"\033[94m[BizyAir]\033[0m Start uploading file: {filename}")
                 file_storage = sign_data.get("storage")
@@ -118,15 +127,6 @@ class UploadManager:
                             sid=sid,
                         )
                         return
-
-                    self.server.send_sync(
-                        event="prepared",
-                        data={
-                            "upload_id": upload_id,
-                            "path": filename,
-                        },
-                        sid=sid,
-                    )
 
                     oss_client = AliOssStorageClient(
                         endpoint=file_storage.get("endpoint"),
