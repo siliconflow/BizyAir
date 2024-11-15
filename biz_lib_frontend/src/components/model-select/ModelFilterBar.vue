@@ -44,7 +44,6 @@ const handleSortChange = (value: 'Recently' | 'Most Forked' | 'Most Used') => {
 const handleModelTypeChange = (type: string) => {
   if (modelStoreInstance.selectedBaseModels.length === 0) {
     const types = [...modelStoreInstance.filterState.model_types]
-    console.log('[types]', types)
     const index = types.indexOf(type)
     if (index === -1) {
       types.push(type)
@@ -73,7 +72,6 @@ const handleBaseModelChange = (model: string) => {
     models.splice(modelIndex, 1)
   }
   modelStoreInstance.filterState.base_models = models
-  console.log('[modelStoreInstance.filterState.base_models]', modelStoreInstance.filterState.base_models)
   emit('fetchData')
   emit('update:showSortPopover', false)
 }

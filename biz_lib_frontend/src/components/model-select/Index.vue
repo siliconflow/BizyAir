@@ -29,7 +29,6 @@ const isLoading = ref(false)
 
 const models = ref<Model[]>([])
 const getModelList = async () => {
-  console.log('[modelStoreInstance.filterState]', modelStoreInstance.filterState)
   try {
     isLoading.value = true
     const response = await get_model_list(modelStoreInstance.modelListPathParams, modelStoreInstance.filterState)
@@ -74,7 +73,6 @@ const getFilterData = async () => {
     modelStoreInstance.setModelTypes(modelTypesResponse?.data ? (modelTypesResponse.data as CommonModelType[]) : [])
 
     const baseModelResponse = await base_model_types()
-    console.log('[baseModelResponse]', baseModelResponse)
     modelStoreInstance.setBaseModelTypes(baseModelResponse?.data ? (baseModelResponse.data as CommonModelType[]) : [])
   } catch (error) {
     modelStoreInstance.setModelTypes([])
@@ -118,7 +116,6 @@ onMounted(async () => {
     modelStoreInstance.filterState.base_models = props.selectedBaseModels
   }
 
-  console.log('[modelStoreInstance.filterState]', modelStoreInstance.filterState)
   await getFilterData()
   await getModelList()
   showDialog.value = true
