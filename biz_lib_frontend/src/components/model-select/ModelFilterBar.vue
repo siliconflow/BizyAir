@@ -192,8 +192,10 @@ onMounted(async () => {
                 <div class="flex flex-wrap gap-2">
                   <Badge variant="secondary" v-for="type in modelTypes" :key="type.value"
                     @click="handleModelTypeChange(type.value)" :class="[
-                      'cursor-pointer hover:bg-[#6D28D9]',
-                      filterState.model_types.includes(type.value) || modelType === type.value ? 'bg-[#6D28D9]' : ''
+                      'cursor-pointer hover:!bg-inherit',
+                      filterState.model_types.includes(type.value) || modelType === type.value
+                        ? 'bg-[#6D28D9] hover:!bg-[#6D28D9]'
+                        : 'bg-[#4E4E4E] hover:!bg-[#4E4E4E]'
                     ]">
                     {{ type.label }}
                   </Badge>
@@ -210,8 +212,8 @@ onMounted(async () => {
                   <Badge variant="secondary"
                     v-for="model in baseModelTypes.filter(m => props.selectedBaseModels?.includes(m.value))"
                     :key="model.value" @click="handleBaseModelChange(model.value)" :class="[
-                      'cursor-pointer',
-                      selectedBaseModels.includes(model.value) ? 'bg-[#6D28D9]' : 'bg-[#4E4E4E]'
+                      'cursor-pointer hover:!bg-inherit',
+                      selectedBaseModels.includes(model.value) ? 'bg-[#6D28D9] hover:!bg-[#6D28D9]' : 'bg-[#4E4E4E] hover:!bg-[#4E4E4E]'
                     ]">
                     {{ model.label }}
                   </Badge>
