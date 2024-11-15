@@ -1,13 +1,6 @@
 <template>
-  <MdEditor
-    :editorId="editorId"
-    v-model="text"
-    theme="dark"
-    :toolbars="toolbar"
-    ref="editorRef"
-    language="en-US"
-    @input="handleInput"
-    @on-upload-img="handleUploadImg">
+  <MdEditor :editorId="editorId" v-model="text" theme="dark" :toolbars="toolbar" :preview="false" ref="editorRef"
+    :autoDetectCode="true" language="en-US" @input="handleInput" @on-upload-img="handleUploadImg">
     <template #defToolbars>
       <NormalToolbar title="fullscreen" @onClick="handleFullClick">
         <template #trigger>
@@ -17,17 +10,9 @@
     </template>
   </MdEditor>
   <Teleport to="body" v-if='isFullscreen'>
-    <MdEditor
-      v-model="text"
-      theme="dark"
-      :editorId="`full-${editorId}`"
-      :toolbars="toolbar"
-      language="en-US"
-      :pageFullscreen="true"
-      class="fixed top-0 left-0 w-[100vw] h-[100vh] z-12000"
-
-      @input="handleInput"
-      @on-upload-img="handleUploadImg">
+    <MdEditor v-model="text" theme="dark" :autoDetectCode="true" :editorId="`full-${editorId}`" :toolbars="toolbar"
+      :preview="false" language="en-US" :pageFullscreen="true" class="fixed top-0 left-0 w-[100vw] h-[100vh] z-12000"
+      @input="handleInput" @on-upload-img="handleUploadImg">
       <template #defToolbars>
         <NormalToolbar title="fullscreen" @onClick="handleFullClick">
           <template #trigger>
@@ -47,7 +32,7 @@ import prettier from 'prettier';
 import cropper from 'cropperjs';
 import { uploadImage } from '@/api/public'
 import { MdEditor, config, NormalToolbar } from 'md-editor-v3';
-
+import { useToaster } from '@/components/modules/toats/index'
 import { Maximize } from 'lucide-vue-next';
 
 import 'md-editor-v3/lib/style.css';
@@ -58,7 +43,9 @@ const toolbar = [
   'quote', 'code', 'table', 'image', '-',
   'mermaid', 'katex', '-',
   'link', '=',
-  'preview',
+  // 'preview',
+  'previewOnly',
+
   0
 ];
 const isFullscreen = ref(false);
@@ -75,17 +62,77 @@ const handleFullClick = () => {
 const props = defineProps({
   editorId: String,
   modelValue: String,
-  modelModifiers: Object
+  modelModifiers: Object,
+  autoDetectCode: {
+    type: Boolean,
+    default: true
+  }
 })
 const text = ref(props.modelValue);
 const emit = defineEmits(['update:modelValue', 'isUploading'])
 const handleInput = () => {
   emit('update:modelValue', text)
 };
-const handleUploadImg = async (file, callback) => {
-  const res = await uploadImage(file[0]);
-  callback([res.data.url])
+
+const MAX_SIZE = 20 * 1024 * 1024; // 20MB
+const MAX_RETRIES = 3;
+const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+
+const uploadWithRetry = async (file, retryCount = 0) => {
+  try {
+    const res = await uploadImage(file); // 确保使用FormData
+    if (!res.data?.url) {
+      throw new Error('Upload response missing URL');
+    }
+    return res.data.url;
+  } catch (error) {
+    console.error(`Upload attempt ${retryCount + 1} failed:`, error);
+    if (retryCount < MAX_RETRIES) {
+      await new Promise(resolve => setTimeout(resolve, 1000 * (retryCount + 1)));
+      return uploadWithRetry(file, retryCount + 1);
+    }
+    throw error;
+  }
 };
+
+const handleUploadImg = async (files, callback) => {
+  // 文件格式验证
+  const invalidFiles = files.filter(file => !ALLOWED_TYPES.includes(file.type));
+  if (invalidFiles.length > 0) {
+    useToaster.warning('只允许上传图片文件 (jpg, png, gif, webp)');
+    return;
+  }
+
+  // 文件大小验证
+  const oversizedFiles = files.filter(file => file.size > MAX_SIZE);
+  if (oversizedFiles.length > 0) {
+    useToaster.warning('图片大小不能超过20MB');
+    return;
+  }
+
+  try {
+    emit('isUploading', true);
+
+    const urls = [];
+    for (let i = 0; i < files.length; i++) {
+      const url = await uploadWithRetry(files[i]);
+      urls.push(url);
+    }
+
+    if (urls.length === files.length) {
+      callback(urls);
+    } else {
+      useToaster.error('部分文件上传失败');
+    }
+  } catch (error) {
+    useToaster.error('上传失败，请重试');
+  } finally {
+    emit('isUploading', false);
+  }
+};
+
+
+
 const editorRef = ref(null);
 
 config({
