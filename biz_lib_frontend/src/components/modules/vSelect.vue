@@ -29,7 +29,7 @@ const forwarded = useForwardPropsEmits(props, emits)
     <SelectTrigger :class="class">
       <SelectValue :placeholder="placeholder" />
     </SelectTrigger>
-    <SelectContent>
+    <SelectContent class="z-9000">
       <SelectGroup>
         <slot />
       </SelectGroup>

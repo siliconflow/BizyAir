@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 
 import {
   Tabs,
@@ -13,12 +13,11 @@ import ModelTable from './ModelTable.vue'
 import ModelPagination from './ModelPagination.vue'
 import { get_model_list } from '@/api/model'
 import { onMounted } from 'vue'
-import { ScrollArea } from '@/components/ui/scroll-area'
-
-import { EasyMarkdown } from '@/components/easy-mark'
 
 import vDialog from '@/components/modules/vDialog.vue'
-import { useToaster } from '@/components/modules/toats/index'
+import { modelStore } from '@/stores/modelStatus'
+
+const modelStoreInstance = modelStore()
 
 interface Props {
   modelType?: string
@@ -26,7 +25,6 @@ interface Props {
 }
 
 const props = defineProps<Props>()
-
 const modelListPathParams = ref<ModelListPathParams>({
   mode: 'my',
   current: 1,
@@ -54,7 +52,6 @@ const getModelList = async () => {
     } else {
       modelListPathParams.value.total = 0
       models.value = []
-      useToaster.warning('Unable to get model list at the moment. Please try again.')
     }
   } catch (error) {
     modelListPathParams.value.total = 0
@@ -78,7 +75,6 @@ const handleFilterStateChange = async (value: FilterState) => {
 }
 
 const handleTabChange = async (value: string | number) => {
-  //reset Models
   models.value = []
   if (isLoading.value) return
   modelListPathParams.value.mode = String(value) as 'my' | 'my_fork' | 'publicity'
@@ -92,29 +88,43 @@ const handleTabChange = async (value: string | number) => {
 
 const emit = defineEmits(['apply'])
 
-const handleApply = (version: ModelVersion, model: Model) => {
-  emit('apply', version, model.name)
-}
+watch(() => modelStoreInstance.applyObject, (newVal: { version: ModelVersion, model: Model }) => {
+  if (newVal.version && newVal.model) {
+    emit('apply', newVal.version, newVal.model.name)
+  }
+}, { deep: true, immediate: true })
 
-const handleRemove = async () => {
-  await getModelList()
-}
+watch(() => modelStoreInstance.closeModelSelectDialog, (newVal: boolean, oldVal: boolean) => {
+  if (newVal !== oldVal) {
+    showDialog.value = false
+  }
+}, { deep: true })
+
+watch(() => modelStoreInstance.reload, (newVal: number, oldVal: number) => {
+  if (newVal !== oldVal) {
+    getModelList()
+  }
+}, { deep: true })
+
+watch(() => modelStoreInstance.reloadModelSelectList, (newVal: boolean, oldVal: boolean) => {
+  if (newVal !== oldVal) {
+    getModelList()
+  }
+}, { deep: true })
 
 onMounted(async () => {
   await getModelList()
   showDialog.value = true
 })
+
 </script>
 
 <template>
   <v-dialog v-model:open="showDialog" class="max-w-[70%] px-6  pb-6">
-
-    <EasyMarkdown editor-id="test" v-if="false" />
-
+    <template #title><span
+        class="text-[#F9FAFB] mb-4 text-[18px] font-semibold leading-[18px] tracking-[-0.45px]">Select
+        Model</span></template>
     <div class="font-['Inter']">
-      <DialogTitle class="text-[#F9FAFB] mb-2 text-[18px] font-semibold leading-[18px] tracking-[-0.45px]">Select Model
-      </DialogTitle>
-      <DialogDescription class="text-sm text-gray-500" v-show="false" />
       <Tabs :defaultValue="modelListPathParams.mode" class="mb-4" @update:model-value="handleTabChange">
         <TabsList class="grid w-full grid-cols-3 h-12 bg-[#4E4E4E] text-sm">
           <TabsTrigger value="my"
@@ -134,10 +144,7 @@ onMounted(async () => {
           <ModelFilterBar v-model:filter-state="filterState" :mode="modelListPathParams.mode"
             v-model:show-sort-popover="showSortPopover" :model-type="props.modelType"
             @update:filter-state="handleFilterStateChange" :selected-base-models="props.selectedBaseModels" />
-          <ScrollArea class="h-[450px] rounded-md border-0">
-            <ModelTable v-if="models" :models="models" :mode="modelListPathParams.mode" @apply="handleApply"
-              @reload="handleRemove" />
-          </ScrollArea>
+          <ModelTable v-if="models" :models="models" :mode="modelListPathParams.mode" />
           <ModelPagination :current="modelListPathParams.current" :page_size="modelListPathParams.page_size"
             :total="modelListPathParams.total" @change="handlePageChange" />
         </TabsContent>
@@ -145,10 +152,7 @@ onMounted(async () => {
           <ModelFilterBar v-model:filter-state="filterState" :mode="modelListPathParams.mode"
             v-model:show-sort-popover="showSortPopover" :model-type="props.modelType"
             @update:filter-state="handleFilterStateChange" :selected-base-models="props.selectedBaseModels" />
-          <ScrollArea class="h-[450px] rounded-md border-0">
-            <ModelTable v-if="models" :models="models" :mode="modelListPathParams.mode" @apply="handleApply"
-              @reload="handleRemove" />
-          </ScrollArea>
+          <ModelTable v-if="models" :models="models" :mode="modelListPathParams.mode" />
           <ModelPagination :current="modelListPathParams.current" :page_size="modelListPathParams.page_size"
             :total="modelListPathParams.total" @change="handlePageChange" />
         </TabsContent>
@@ -156,10 +160,7 @@ onMounted(async () => {
           <ModelFilterBar v-model:filter-state="filterState" :mode="modelListPathParams.mode"
             v-model:show-sort-popover="showSortPopover" :model-type="props.modelType"
             @update:filter-state="handleFilterStateChange" :selected-base-models="props.selectedBaseModels" />
-          <ScrollArea class="h-[450px] rounded-md border-0">
-            <ModelTable v-if="models" :models="models" :mode="modelListPathParams.mode" @apply="handleApply"
-              @reload="handleRemove" />
-          </ScrollArea>
+          <ModelTable v-if="models" :models="models" :mode="modelListPathParams.mode" />
           <ModelPagination :current="modelListPathParams.current" :page_size="modelListPathParams.page_size"
             :total="modelListPathParams.total" @change="handlePageChange" />
         </TabsContent>

@@ -10,7 +10,7 @@ export function useToaster(options: { [x: string]: unknown; } | string) {
     containerBox.className = 'bizyair-toaster-container'
   }
   containerBox.style.position = 'fixed'
-  containerBox.style.zIndex = '8002'
+  containerBox.style.zIndex = '12002'
   containerBox.style.top = '8px'
   containerBox.style.width = '400px'
   if (typeof options === 'string') {
@@ -52,6 +52,8 @@ useToaster.warning = (message: string) => {
     type: 'warning'
   })
 }
+
+
 useToaster.success = (message: string) => {
   useToaster({
     message,

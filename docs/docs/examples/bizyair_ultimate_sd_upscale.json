@@ -1,0 +1,754 @@
+{
+  "last_node_id": 74,
+  "last_link_id": 121,
+  "nodes": [
+    {
+      "id": 20,
+      "type": "BizyAir_CheckpointLoaderSimple",
+      "pos": [
+        1163,
+        94
+      ],
+      "size": {
+        "0": 424.94708251953125,
+        "1": 98
+      },
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "model",
+          "type": "BIZYAIR_MODEL",
+          "links": [
+            40,
+            114
+          ],
+          "slot_index": 0,
+          "shape": 3
+        },
+        {
+          "name": "clip",
+          "type": "BIZYAIR_CLIP",
+          "links": [
+            112,
+            113
+          ],
+          "slot_index": 1,
+          "shape": 3
+        },
+        {
+          "name": "vae",
+          "type": "BIZYAIR_VAE",
+          "links": [
+            36,
+            119
+          ],
+          "slot_index": 2,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_CheckpointLoaderSimple"
+      },
+      "widgets_values": [
+        "sd15/dreamshaper_8.safetensors"
+      ]
+    },
+    {
+      "id": 23,
+      "type": "BizyAir_UpscaleModelLoader",
+      "pos": [
+        1632,
+        -125
+      ],
+      "size": {
+        "0": 368.3330383300781,
+        "1": 58
+      },
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "BIZYAIR_UPSCALE_MODEL",
+          "type": "BIZYAIR_UPSCALE_MODEL",
+          "links": [
+            35
+          ],
+          "slot_index": 0,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_UpscaleModelLoader"
+      },
+      "widgets_values": [
+        "4x_NMKD-Siax_200k.pth"
+      ]
+    },
+    {
+      "id": 29,
+      "type": "BizyAir_ControlNetApply",
+      "pos": [
+        1631,
+        -268
+      ],
+      "size": {
+        "0": 376.3231506347656,
+        "1": 98
+      },
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "conditioning",
+          "type": "BIZYAIR_CONDITIONING",
+          "link": 38
+        },
+        {
+          "name": "control_net",
+          "type": "BIZYAIR_CONTROL_NET",
+          "link": 46
+        },
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 44
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "BIZYAIR_CONDITIONING",
+          "links": [
+            37
+          ],
+          "slot_index": 0,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_ControlNetApply"
+      },
+      "widgets_values": [
+        0.36
+      ]
+    },
+    {
+      "id": 31,
+      "type": "BizyAir_UltimateSDUpscale",
+      "pos": [
+        2036,
+        -276
+      ],
+      "size": {
+        "0": 334.83624267578125,
+        "1": 782.2352905273438
+      },
+      "flags": {},
+      "order": 12,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 43
+        },
+        {
+          "name": "model",
+          "type": "BIZYAIR_MODEL",
+          "link": 40
+        },
+        {
+          "name": "positive",
+          "type": "BIZYAIR_CONDITIONING",
+          "link": 37
+        },
+        {
+          "name": "negative",
+          "type": "BIZYAIR_CONDITIONING",
+          "link": 39
+        },
+        {
+          "name": "vae",
+          "type": "BIZYAIR_VAE",
+          "link": 36
+        },
+        {
+          "name": "upscale_model",
+          "type": "BIZYAIR_UPSCALE_MODEL",
+          "link": 35
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            45
+          ],
+          "slot_index": 0,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_UltimateSDUpscale"
+      },
+      "widgets_values": [
+        4,
+        332,
+        "increment",
+        20,
+        8,
+        "euler",
+        "normal",
+        0.2,
+        "Linear",
+        512,
+        512,
+        8,
+        32,
+        "None",
+        1,
+        64,
+        8,
+        16,
+        true,
+        false
+      ]
+    },
+    {
+      "id": 33,
+      "type": "BizyAir_CLIPTextEncode",
+      "pos": [
+        1160,
+        -90
+      ],
+      "size": {
+        "0": 431.5721130371094,
+        "1": 128.96624755859375
+      },
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "BIZYAIR_CLIP",
+          "link": 113
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "BIZYAIR_CONDITIONING",
+          "links": [
+            39,
+            116
+          ],
+          "slot_index": 0,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_CLIPTextEncode"
+      },
+      "widgets_values": [
+        "BadDream, (UnrealisticDream:1.3)"
+      ]
+    },
+    {
+      "id": 71,
+      "type": "BizyAir_KSampler",
+      "pos": [
+        1630,
+        118
+      ],
+      "size": {
+        "0": 376.6318054199219,
+        "1": 381.6271057128906
+      },
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "BIZYAIR_MODEL",
+          "link": 114
+        },
+        {
+          "name": "positive",
+          "type": "BIZYAIR_CONDITIONING",
+          "link": 115
+        },
+        {
+          "name": "negative",
+          "type": "BIZYAIR_CONDITIONING",
+          "link": 116
+        },
+        {
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 117
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            118
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_KSampler"
+      },
+      "widgets_values": [
+        594242731533029,
+        "randomize",
+        20,
+        8,
+        "euler",
+        "normal",
+        1
+      ]
+    },
+    {
+      "id": 34,
+      "type": "Reroute",
+      "pos": [
+        1767,
+        12
+      ],
+      "size": [
+        75,
+        26
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "",
+          "type": "*",
+          "link": 120
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "IMAGE",
+          "links": [
+            43,
+            44
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "showOutputText": false,
+        "horizontal": false
+      }
+    },
+    {
+      "id": 24,
+      "type": "BizyAir_ControlNetLoader",
+      "pos": [
+        1649,
+        -34
+      ],
+      "size": {
+        "0": 362.76934814453125,
+        "1": 63.50208282470703
+      },
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "CONTROL_NET",
+          "type": "BIZYAIR_CONTROL_NET",
+          "links": [
+            46
+          ],
+          "slot_index": 0,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_ControlNetLoader"
+      },
+      "widgets_values": [
+        "sd15/control_v11f1e_sd15_tile.pth"
+      ]
+    },
+    {
+      "id": 73,
+      "type": "BizyAir_VAEDecode",
+      "pos": [
+        2397,
+        -17
+      ],
+      "size": {
+        "0": 210,
+        "1": 46
+      },
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 118
+        },
+        {
+          "name": "vae",
+          "type": "BIZYAIR_VAE",
+          "link": 119
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            120,
+            121
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_VAEDecode"
+      }
+    },
+    {
+      "id": 74,
+      "type": "PreviewImage",
+      "pos": [
+        2400,
+        83
+      ],
+      "size": [
+        205.15975371028344,
+        246
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 121
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      }
+    },
+    {
+      "id": 70,
+      "type": "Note",
+      "pos": [
+        2387,
+        -275
+      ],
+      "size": {
+        "0": 235.7595672607422,
+        "1": 59.88801956176758
+      },
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "properties": {
+        "text": ""
+      },
+      "widgets_values": [
+        "需要限制图片尺寸在512x768像素以下"
+      ],
+      "color": "#322",
+      "bgcolor": "#533"
+    },
+    {
+      "id": 72,
+      "type": "EmptyLatentImage",
+      "pos": [
+        2394,
+        -170
+      ],
+      "size": {
+        "0": 217.75877380371094,
+        "1": 106
+      },
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            117
+          ],
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "EmptyLatentImage"
+      },
+      "widgets_values": [
+        256,
+        256,
+        1
+      ]
+    },
+    {
+      "id": 32,
+      "type": "BizyAir_CLIPTextEncode",
+      "pos": [
+        1159,
+        -260
+      ],
+      "size": [
+        436.08917236328125,
+        119.45609283447266
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "BIZYAIR_CLIP",
+          "link": 112
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "BIZYAIR_CONDITIONING",
+          "links": [
+            38,
+            115
+          ],
+          "slot_index": 0,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_CLIPTextEncode"
+      },
+      "widgets_values": [
+        "A cute cartoon-style kitten"
+      ]
+    },
+    {
+      "id": 35,
+      "type": "PreviewImage",
+      "pos": [
+        2640,
+        -285
+      ],
+      "size": [
+        546.4706729458721,
+        822.0550960809123
+      ],
+      "flags": {},
+      "order": 13,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 45
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      }
+    }
+  ],
+  "links": [
+    [
+      35,
+      23,
+      0,
+      31,
+      5,
+      "BIZYAIR_UPSCALE_MODEL"
+    ],
+    [
+      36,
+      20,
+      2,
+      31,
+      4,
+      "BIZYAIR_VAE"
+    ],
+    [
+      37,
+      29,
+      0,
+      31,
+      2,
+      "BIZYAIR_CONDITIONING"
+    ],
+    [
+      38,
+      32,
+      0,
+      29,
+      0,
+      "BIZYAIR_CONDITIONING"
+    ],
+    [
+      39,
+      33,
+      0,
+      31,
+      3,
+      "BIZYAIR_CONDITIONING"
+    ],
+    [
+      40,
+      20,
+      0,
+      31,
+      1,
+      "BIZYAIR_MODEL"
+    ],
+    [
+      43,
+      34,
+      0,
+      31,
+      0,
+      "IMAGE"
+    ],
+    [
+      44,
+      34,
+      0,
+      29,
+      2,
+      "IMAGE"
+    ],
+    [
+      45,
+      31,
+      0,
+      35,
+      0,
+      "IMAGE"
+    ],
+    [
+      46,
+      24,
+      0,
+      29,
+      1,
+      "BIZYAIR_CONTROL_NET"
+    ],
+    [
+      112,
+      20,
+      1,
+      32,
+      0,
+      "BIZYAIR_CLIP"
+    ],
+    [
+      113,
+      20,
+      1,
+      33,
+      0,
+      "BIZYAIR_CLIP"
+    ],
+    [
+      114,
+      20,
+      0,
+      71,
+      0,
+      "BIZYAIR_MODEL"
+    ],
+    [
+      115,
+      32,
+      0,
+      71,
+      1,
+      "BIZYAIR_CONDITIONING"
+    ],
+    [
+      116,
+      33,
+      0,
+      71,
+      2,
+      "BIZYAIR_CONDITIONING"
+    ],
+    [
+      117,
+      72,
+      0,
+      71,
+      3,
+      "LATENT"
+    ],
+    [
+      118,
+      71,
+      0,
+      73,
+      0,
+      "LATENT"
+    ],
+    [
+      119,
+      20,
+      2,
+      73,
+      1,
+      "BIZYAIR_VAE"
+    ],
+    [
+      120,
+      73,
+      0,
+      34,
+      0,
+      "*"
+    ],
+    [
+      121,
+      73,
+      0,
+      74,
+      0,
+      "IMAGE"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.5209868481924634,
+      "offset": [
+        -120.17422216905288,
+        1128.5739461319354
+      ]
+    }
+  },
+  "version": 0.4
+}

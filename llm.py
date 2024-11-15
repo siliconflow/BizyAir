@@ -116,7 +116,7 @@ class SiliconCloudLLMAPI:
         )
         ret = json.loads(response)
         text = ret["choices"][0]["message"]["content"]
-        return {"ui": {"text": (text,)}, "result": (text,)}
+        return (text,)  # if update ui:  {"ui": {"text": (text,)}, "result": (text,)}
 
 
 class SiliconCloudVLMAPI:
@@ -183,7 +183,7 @@ class SiliconCloudVLMAPI:
         )
         ret = json.loads(response)
         text = ret["choices"][0]["message"]["content"]
-        return {"ui": {"text": (text,)}, "result": (text,)}
+        return (text,)
 
 
 class BizyAirJoyCaption:
@@ -269,16 +269,161 @@ class BizyAirJoyCaption:
             raise Exception(f"Unexpected response type: {msg}")
 
         caption = msg["data"]
-        return {"ui": {"text": (caption,)}, "result": (caption,)}
+        return (caption,)
+
+
+class BizyAirJoyCaption2:
+    def __init__(self):
+        pass
+
+    # refer to: https://huggingface.co/spaces/fancyfeast/joy-caption-pre-alpha
+    API_URL = f"{BIZYAIR_SERVER_ADDRESS}/supernode/joycaption2"
+
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "image": ("IMAGE",),
+                "do_sample": ([True, False],),
+                "temperature": (
+                    "FLOAT",
+                    {
+                        "default": 0.5,
+                        "min": 0.0,
+                        "max": 2.0,
+                        "step": 0.01,
+                        "round": 0.001,
+                        "display": "number",
+                    },
+                ),
+                "max_tokens": (
+                    "INT",
+                    {
+                        "default": 256,
+                        "min": 16,
+                        "max": 512,
+                        "step": 16,
+                        "display": "number",
+                    },
+                ),
+                "caption_type": (
+                    [
+                        "Descriptive",
+                        "Descriptive (Informal)",
+                        "Training Prompt",
+                        "MidJourney",
+                        "Booru tag list",
+                        "Booru-like tag list",
+                        "Art Critic",
+                        "Product Listing",
+                        "Social Media Post",
+                    ],
+                ),
+                "caption_length": (
+                    ["any", "very short", "short", "medium-length", "long", "very long"]
+                    + [str(i) for i in range(20, 261, 10)],
+                ),
+                "extra_options": (
+                    "STRING",
+                    {
+                        "default": "If there is a person/character in the image you must refer to them as {name}.",
+                        "tooltip": "Extra options for the model",
+                        "multiline": True,
+                    },
+                ),
+                "name_input": (
+                    "STRING",
+                    {
+                        "default": "Jack",
+                        "tooltip": "Name input is only used if an Extra Option is selected that requires it.",
+                    },
+                ),
+                "custom_prompt": (
+                    "STRING",
+                    {
+                        "default": "",
+                        "multiline": True,
+                    },
+                ),
+            }
+        }
+
+    RETURN_TYPES = ("STRING",)
+    FUNCTION = "joycaption2"
+
+    CATEGORY = "☁️BizyAir/AI Assistants"
+
+    def joycaption2(
+        self,
+        image,
+        do_sample,
+        temperature,
+        max_tokens,
+        caption_type,
+        caption_length,
+        extra_options,
+        name_input,
+        custom_prompt,
+    ):
+        API_KEY = get_api_key()
+        SIZE_LIMIT = 1536
+        _, w, h, c = image.shape
+        assert (
+            w <= SIZE_LIMIT and h <= SIZE_LIMIT
+        ), f"width and height must be less than {SIZE_LIMIT}x{SIZE_LIMIT}, but got {w} and {h}"
+
+        payload = {
+            "image": None,
+            "do_sample": do_sample == True,
+            "temperature": temperature,
+            "max_new_tokens": max_tokens,
+            "caption_type": caption_type,
+            "caption_length": caption_length,
+            "extra_options": [extra_options],
+            "name_input": name_input,
+            "custom_prompt": custom_prompt,
+        }
+        auth = f"Bearer {API_KEY}"
+        headers = {
+            "accept": "application/json",
+            "content-type": "application/json",
+            "authorization": auth,
+        }
+        input_image = encode_data(image, disable_image_marker=True)
+        payload["image"] = input_image
+
+        ret: str = send_post_request(self.API_URL, payload=payload, headers=headers)
+        ret = json.loads(ret)
+
+        try:
+            if "result" in ret:
+                ret = json.loads(ret["result"])
+        except Exception as e:
+            raise Exception(f"Unexpected response: {ret} {e=}")
+
+        if ret["type"] == "error":
+            raise Exception(ret["message"])
+
+        msg = ret["data"]
+        if msg["type"] not in (
+            "comfyair",
+            "bizyair",
+        ):
+            raise Exception(f"Unexpected response type: {msg}")
+
+        caption = msg["data"]
+        return (caption,)
 
 
 NODE_CLASS_MAPPINGS = {
     "BizyAirSiliconCloudLLMAPI": SiliconCloudLLMAPI,
     "BizyAirSiliconCloudVLMAPI": SiliconCloudVLMAPI,
     "BizyAirJoyCaption": BizyAirJoyCaption,
+    "BizyAirJoyCaption2": BizyAirJoyCaption2,
 }
 NODE_DISPLAY_NAME_MAPPINGS = {
     "BizyAirSiliconCloudLLMAPI": "☁️BizyAir SiliconCloud LLM API",
     "BizyAirSiliconCloudVLMAPI": "☁️BizyAir SiliconCloud VLM API",
     "BizyAirJoyCaption": "☁️BizyAir Joy Caption",
+    "BizyAirJoyCaption2": "☁️BizyAir Joy Caption2",
 }

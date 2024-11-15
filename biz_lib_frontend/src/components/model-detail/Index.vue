@@ -18,26 +18,28 @@ import {
   CommandList,
   CommandSeparator
 } from '@/components/ui/command'
+
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { modelStore } from '@/stores/modelStatus'
 
 const modelStoreInstance = modelStore()
 
-
 import { sliceString, formatSize, formatNumber } from '@/utils/tool'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
-import { ref, onMounted, nextTick, watch } from 'vue'
+import { ref, onMounted, nextTick } from 'vue'
 import Vditor from 'vditor'
 import { useAlertDialog } from '@/components/modules/vAlertDialog/index'
 
 import { Model, ModelVersion } from '@/types/model'
 import { model_detail, like_model, fork_model, remove_model } from '@/api/model'
-import  {useToaster}  from '@/components/modules/toats/index'
+import { useToaster } from '@/components/modules/toats/index'
 
 const previewRef = ref<HTMLDivElement | null>(null)
 const model = ref<Model>()
-const currentVerssion = ref<ModelVersion>()
+const currentVersion = ref<ModelVersion>()
 const downloadOpen = ref(false)
+const scrollViewportRef = ref<any | null>(null)
 const previewContent = async (content: string) => {
   if (previewRef.value) {
     if (!content) {
@@ -50,24 +52,36 @@ const previewContent = async (content: string) => {
 }
 const props = defineProps<{
   modelId: string,
-  mode: string
+  mode: string,
+  version: ModelVersion
 }>()
 
 const getData = async () => {
   const res = await model_detail({ id: props.modelId, source: props.mode })
   if (!res.data) {
     useToaster.error('Model not found.')
-    emit('reload')
+    modelStoreInstance.closeAndReload()
     return
   }
   model.value = res.data
-  if (model.value?.versions && model.value?.versions.length > 0) {
-    currentVerssion.value = model.value.versions?.[0]
+  if (props.version) {
+    currentVersion.value = props.version
     nextTick(() => {
-      previewContent(currentVerssion.value?.intro || '')
+      previewContent(props.version.intro || '')
+      scrollWithDelay(props.version.id)
     })
-
+  } else {
+    if (model.value?.versions && model.value?.versions.length > 0) {
+      currentVersion.value = model.value?.versions?.[0]
+      nextTick(() => {
+        previewContent(currentVersion.value?.intro || '')
+        if (currentVersion.value?.id) {
+          scrollWithDelay(currentVersion.value.id)
+        }
+      })
+    }
   }
+
 }
 
 onMounted(() => {
@@ -77,7 +91,7 @@ onMounted(() => {
 const handleTabChange = (value: number) => {
   const version = model.value?.versions?.find(v => v.id === value)
   if (version) {
-    currentVerssion.value = version
+    currentVersion.value = version
     previewContent(version.intro)
   }
 }
@@ -87,19 +101,51 @@ const handleDownload = () => {
 }
 
 const handleLike = async () => {
-  await like_model(currentVerssion.value?.id)
+  await like_model(currentVersion.value?.id)
   getData()
 }
 
 const handleFork = async () => {
-  await fork_model(currentVerssion.value?.id)
+  await fork_model(currentVersion.value?.id)
   getData()
+}
+
+const scrollToTab = (versionId: number) => {
+  nextTick(() => {
+    if (!scrollViewportRef.value) return
+    const viewport = scrollViewportRef.value.$el.querySelector('[data-radix-scroll-area-viewport]')
+    const tabsList = viewport?.querySelector('[role="tablist"]')
+    const targetTab = viewport?.querySelector(`#radix-vue-tabs-v-15-trigger-${versionId}`) as HTMLElement
+    if (!viewport || !targetTab || !tabsList) return
+
+    const tabs = Array.from(tabsList.querySelectorAll('[role="tab"]'))
+    const totalWidth = tabs.reduce((sum: number, tab) => sum + (tab as HTMLElement).offsetWidth, 0)
+      ; (tabsList as HTMLElement).style.width = `${totalWidth}px`
+
+    const tabPosition = targetTab.offsetLeft
+    const viewportWidth = viewport.clientWidth
+    const tabWidth = targetTab.offsetWidth
+
+    const scrollPosition = Math.max(0, tabPosition - (viewportWidth - tabWidth) / 2)
+  
+    viewport.scrollTo({
+      left: scrollPosition,
+      behavior: 'smooth'
+    })
+  })
+}
+
+const scrollWithDelay = (versionId: number) => {
+  setTimeout(() => {
+    scrollToTab(versionId)
+  }, 100)
 }
 
 const handleOperateChange = async (type: 'edit' | 'remove', id: string | number) => {
   if (type === 'edit') {
     modelStoreInstance.setModelDetail(model)
-    modelStoreInstance.setDialogStatus(true)
+    modelStoreInstance.setDialogStatus(true, Number(currentVersion.value?.id))
+    downloadOpen.value = false
   }
   if (type === 'remove') {
     const res = await useAlertDialog({
@@ -122,23 +168,20 @@ const handleOperateChange = async (type: 'edit' | 'remove', id: string | number)
     handleRemoveModel(id)
   }
 }
-const emit = defineEmits(['apply', 'reload'])
+
 
 const handleRemoveModel = (id: number | string) => {
   remove_model(id).then((_) => {
     useToaster.success('Model removed successfully.')
-    emit('reload')
+    modelStoreInstance.reload += 1
   })
 }
 
-watch(() => modelStoreInstance.reload, (newValue: number, oldValue: number) => {
-  if (newValue !== oldValue) {
-    emit('reload')
-  }
-}, { deep: true })
 
 const handleApply = () => {
-  emit('apply', currentVerssion.value, model.value)
+  if (currentVersion.value && model.value) {
+    modelStoreInstance.setApplyObject(currentVersion.value, model.value)
+  }
 }
 
 const handleCopy = async (sign: string) => {
@@ -220,14 +263,22 @@ const handleCopy = async (sign: string) => {
       <div class="flex flex-row gap-1 items-center justify-start self-stretch shrink-0 relative">
         <div
           class="bg-[#4e4e4e] rounded-lg p-1 flex flex-row gap-4 items-start justify-start self-stretch shrink-0 relative">
-          <Tabs :defaultValue="currentVerssion?.id" :value="currentVerssion?.id">
-            <TabsList class="grid w-full grid-cols-3 h-12 bg-[#4E4E4E] text-sm">
-              <TabsTrigger v-for="version in model?.versions" :value="version.id" @click="handleTabChange(version.id)"
-                class="text-sm text-white data-[state=active]:bg-[#9CA3AF] data-[state=active]:text-white h-10 px-3 py-2 ">
-                {{ version.version }}
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
+          <div class="w-[300px]">
+            <ScrollArea ref="scrollViewportRef" class="rounded-md w-full">
+              <div class="whitespace-nowrap">
+                <Tabs :defaultValue="currentVersion?.id" :value="currentVersion?.id">
+                  <TabsList class="inline-flex h-12 bg-[#4E4E4E] text-sm w-auto">
+                    <TabsTrigger v-for="version in model?.versions" :value="version.id"
+                      @click="handleTabChange(version.id)"
+                      class="text-sm text-white data-[state=active]:bg-[#9CA3AF] data-[state=active]:text-white h-10 px-3 py-2">
+                      {{ version.version }}
+                    </TabsTrigger>
+                  </TabsList>
+                </Tabs>
+              </div>
+              <ScrollBar orientation="horizontal" />
+            </ScrollArea>
+          </div>
         </div>
         <div
           class="text-text-text-muted-foreground text-left font-['Inter-Regular',_sans-serif] text-xs leading-5 font-normal relative flex-1">
@@ -235,7 +286,7 @@ const handleCopy = async (sign: string) => {
         <div class="flex gap-8 ">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none"
             class="cursor-pointer" @click="handleLike"
-            :style="{ stroke: currentVerssion?.liked ? '#6D28D9' : '#F9FAFB', fill: currentVerssion?.liked ? '#6D28D9' : 'none' }">
+            :style="{ stroke: currentVersion?.liked ? '#6D28D9' : '#F9FAFB', fill: currentVersion?.liked ? '#6D28D9' : 'none' }">
             <g clip-path="url(#clip0_440_1289)">
               <path
                 d="M4.66659 6.66658V14.6666M9.99992 3.91992L9.33325 6.66658H13.2199C13.4269 6.66658 13.6311 6.71478 13.8162 6.80735C14.0013 6.89992 14.1624 7.03432 14.2866 7.19992C14.4108 7.36551 14.4947 7.55775 14.5317 7.7614C14.5688 7.96506 14.5579 8.17454 14.4999 8.37325L12.9466 13.7066C12.8658 13.9835 12.6974 14.2268 12.4666 14.3999C12.2358 14.573 11.9551 14.6666 11.6666 14.6666H2.66659C2.31296 14.6666 1.97382 14.5261 1.72378 14.2761C1.47373 14.026 1.33325 13.6869 1.33325 13.3333V7.99992C1.33325 7.6463 1.47373 7.30716 1.72378 7.05711C1.97382 6.80706 2.31296 6.66658 2.66659 6.66658H4.50659C4.75464 6.66645 4.99774 6.59713 5.20856 6.4664C5.41937 6.33567 5.58953 6.14873 5.69992 5.92659L7.99992 1.33325C8.3143 1.33715 8.62374 1.41203 8.90512 1.55232C9.1865 1.6926 9.43254 1.89466 9.62486 2.14339C9.81717 2.39212 9.9508 2.68109 10.0157 2.98872C10.0807 3.29635 10.0753 3.61468 9.99992 3.91992Z"
@@ -291,11 +342,11 @@ const handleCopy = async (sign: string) => {
       <div class="flex flex-row gap-4 items-start justify-start shrink-0 relative">
         <div
           class="text-text-text-muted-foreground text-left font-['Inter-Regular',_sans-serif] text-xs leading-5 font-normal relative">
-          First Published: {{ currentVerssion?.created_at }}
+          First Published: {{ currentVersion?.created_at }}
         </div>
         <div
           class="text-text-text-muted-foreground text-left font-['Inter-Regular',_sans-serif] text-xs leading-5 font-normal relative">
-          Last Updated: {{ currentVerssion?.updated_at }}
+          Last Updated: {{ currentVersion?.updated_at }}
         </div>
       </div>
     </div>
@@ -316,8 +367,8 @@ const handleCopy = async (sign: string) => {
           <div class="flex flex-row gap-1.5 items-start justify-start self-stretch shrink-0 relative">
             <Button variant="default" v-if="props.mode === 'publicity'"
               class="w-[124px] flex h-9 px-3 py-2 justify-center items-center gap-2 flex-1 rounded-md bg-[#6D28D9]"
-              @click="handleFork" :disabled="currentVerssion?.forked">
-              {{ currentVerssion?.forked ? 'Forked' : 'Fork' }}
+              @click="handleFork" :disabled="currentVersion?.forked">
+              {{ currentVersion?.forked ? 'Forked' : 'Fork' }}
             </Button>
             <Button @click="handleApply"
               class="flex w-[170px] px-8 py-2 justify-center items-center gap-2 bg-[#F43F5E] hover:bg-[#F43F5E]/90 rounded-[6px]">
@@ -345,14 +396,14 @@ const handleCopy = async (sign: string) => {
               className="w-[100px] bg-[#4E4E4E80] p-4 text-sm  border-b border-[rgba(78,78,78,0.50)] whitespace-nowrap">
               Base Model</div>
             <div className="flex-1 p-4 border-b  border-[rgba(78,78,78,0.50)]">
-              {{ currentVerssion?.base_model }}
+              {{ currentVersion?.base_model }}
             </div>
           </div>
           <div className="flex w-full">
             <div className="w-[100px] bg-[#4E4E4E80] p-4  border-b border-[rgba(78,78,78,0.50)]">
               Published</div>
             <div className="flex-1 p-4 border-b border-[rgba(78,78,78,0.50)]">
-              {{ currentVerssion?.created_at }}
+              {{ currentVersion?.created_at }}
             </div>
           </div>
           <div className="flex w-full">
@@ -360,10 +411,10 @@ const handleCopy = async (sign: string) => {
               Hash</div>
             <div className="flex-1 p-4 border-b border-[rgba(78,78,78,0.50)] flex items-center gap-2">
               <span>
-                {{ currentVerssion?.sign ? sliceString(currentVerssion?.sign, 15) : '' }}
+                {{ currentVersion?.sign ? sliceString(currentVersion?.sign, 15) : '' }}
               </span>
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none"
-                class="cursor-pointer hover:opacity-80" @click="handleCopy(currentVerssion?.sign || '')">
+                class="cursor-pointer hover:opacity-80" @click="handleCopy(currentVersion?.sign || '')">
                 <g clip-path="url(#clip0_315_3710)">
                   <path
                     d="M2.66659 10.6666C1.93325 10.6666 1.33325 10.0666 1.33325 9.33325V2.66659C1.33325 1.93325 1.93325 1.33325 2.66659 1.33325H9.33325C10.0666 1.33325 10.6666 1.93325 10.6666 2.66659M6.66658 5.33325H13.3333C14.0696 5.33325 14.6666 5.93021 14.6666 6.66658V13.3333C14.6666 14.0696 14.0696 14.6666 13.3333 14.6666H6.66658C5.93021 14.6666 5.33325 14.0696 5.33325 13.3333V6.66658C5.33325 5.93021 5.93021 5.33325 6.66658 5.33325Z"
@@ -389,7 +440,7 @@ const handleCopy = async (sign: string) => {
                 </svg>
                 <div
                   class="text-text-text-foreground text-left font-['Inter-Regular',_sans-serif] text-sm leading-5 font-normal relative flex-1">
-                  {{ formatNumber(currentVerssion?.counter?.used_count) }}
+                  {{ formatNumber(currentVersion?.counter?.used_count) }}
                 </div>
               </div>
               <div
@@ -401,7 +452,7 @@ const handleCopy = async (sign: string) => {
                 </svg>
                 <div
                   class="text-text-text-foreground text-left font-['Inter-Regular',_sans-serif] text-sm leading-5 font-normal relative flex-1">
-                  {{ formatNumber(currentVerssion?.counter?.forked_count) }}
+                  {{ formatNumber(currentVersion?.counter?.forked_count) }}
                 </div>
               </div>
               <div
@@ -420,7 +471,7 @@ const handleCopy = async (sign: string) => {
                 </svg>
                 <div
                   class="text-text-text-foreground text-left font-['Inter-Regular',_sans-serif] text-sm leading-5 font-normal relative flex-1">
-                  {{ formatNumber(currentVerssion?.counter?.liked_count) }}
+                  {{ formatNumber(currentVersion?.counter?.liked_count) }}
                 </div>
               </div>
             </div>
@@ -434,8 +485,8 @@ const handleCopy = async (sign: string) => {
           </div>
           <div
             class="flex px-[8px] py-4 items-center self-stretch text-[#F9FAFB] font-inter text-xs font-medium leading-5">
-            {{ currentVerssion?.file_name ? sliceString(currentVerssion?.file_name, 20) : '' }} ({{
-              formatSize(currentVerssion?.file_size) }})
+            {{ currentVersion?.file_name ? sliceString(currentVersion?.file_name, 20) : '' }} ({{
+              formatSize(currentVersion?.file_size) }})
           </div>
         </div>
       </div>
@@ -444,6 +495,15 @@ const handleCopy = async (sign: string) => {
 </template>
 
 <style scoped>
+:deep([role="tablist"]) {
+  display: inline-flex;
+  min-width: min-content;
+}
+
+:deep([data-radix-scroll-area-viewport]) {
+  width: 100%;
+}
+
 .Checkpoint {
   background: rgba(109, 40, 217, 0.40);
 }

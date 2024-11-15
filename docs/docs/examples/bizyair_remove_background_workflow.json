@@ -1,46 +1,7 @@
 {
-  "last_node_id": 35,
-  "last_link_id": 47,
+  "last_node_id": 37,
+  "last_link_id": 50,
   "nodes": [
-    {
-      "id": 34,
-      "type": "BizyAirSuperResolution",
-      "pos": [
-        2158,
-        623
-      ],
-      "size": {
-        "0": 315,
-        "1": 58
-      },
-      "flags": {},
-      "order": 1,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "image",
-          "type": "IMAGE",
-          "link": 46
-        }
-      ],
-      "outputs": [
-        {
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
-            47
-          ],
-          "shape": 3,
-          "slot_index": 0
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "BizyAirSuperResolution"
-      },
-      "widgets_values": [
-        "2x"
-      ]
-    },
     {
       "id": 33,
       "type": "LoadImage",
@@ -60,7 +21,7 @@
           "name": "IMAGE",
           "type": "IMAGE",
           "links": [
-            46
+            49
           ],
           "shape": 3,
           "slot_index": 0
@@ -76,20 +37,62 @@
         "Node name for S&R": "LoadImage"
       },
       "widgets_values": [
-        "葫芦娃吐火.webp",
+        "ComfyUI_00018_.png",
         "image"
       ]
     },
     {
-      "id": 35,
+      "id": 36,
+      "type": "BizyAirRemoveBackground",
+      "pos": [
+        2167,
+        619
+      ],
+      "size": {
+        "0": 210,
+        "1": 46
+      },
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 49
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            50
+          ],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAirRemoveBackground"
+      }
+    },
+    {
+      "id": 37,
       "type": "PreviewImage",
       "pos": [
-        2165,
-        721
+        2416,
+        627
       ],
       "size": [
-        321.3333740234375,
-        364.0000305175781
+        210,
+        246
       ],
       "flags": {},
       "order": 2,
@@ -98,7 +101,7 @@
         {
           "name": "images",
           "type": "IMAGE",
-          "link": 47
+          "link": 50
         }
       ],
       "properties": {
@@ -108,18 +111,18 @@
   ],
   "links": [
     [
-      46,
+      49,
       33,
       0,
-      34,
+      36,
       0,
       "IMAGE"
     ],
     [
-      47,
-      34,
+      50,
+      36,
       0,
-      35,
+      37,
       0,
       "IMAGE"
     ]

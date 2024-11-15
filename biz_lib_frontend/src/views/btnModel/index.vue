@@ -12,10 +12,14 @@
       </svg>
       <span class="block leading h-full leading-8 text-sm">Publish</span>
     </div>
+
+
     <v-dialog
       v-model:open="modelStoreObject.showDialog"
       @onClose="onDialogClose"
-      class="px-0 overflow-hidden pb-0"
+      class="px-0 overflow-hidden pb-0 z-9000"
+      v-if="modelStoreObject.showDialog"
+      layoutClass="z-9000"
       contentClass="custom-scrollbar max-h-[80vh] overflow-y-auto w-full rounded-tl-lg rounded-tr-lg custom-shadow">
       <template #title><span class="px-6" @click="acActiveIndex = '-1'; modelBox = true">Publish a Model</span></template>
       <div v-show="modelBox" class="px-6 pb-6">
@@ -40,12 +44,12 @@
           <v-accordion-trigger class="justify-between relative">
             <span v-if="acActiveIndex !== `${i}` && e.version">{{ e.version }}</span>
             <span v-else>Add Version</span>
-            <Trash2 v-if="formData.versions.length !== 1" class="w-4 h-4" #icon @click.capture.stop="delVersion(i)" />
+            <Minus v-if="formData.versions.length !== 1" class="w-4 h-4" #icon @click.capture.stop="delVersion(i)" />
             <Progress v-if="e.progress && acActiveIndex && acActiveIndex !== `${i}`" :model-value="e.progress" class="absolute w-full bottom-0 left-0 h-1" />
           </v-accordion-trigger>
           <AccordionContent>
             <v-item label="Version Name">
-              <Input @change="e.versionError = false" :class="{'border-red-500': e.versionError}" type="text" placeholder="" v-model:model-value="e.version" />
+              <Input @change="e.versionError = false" :class="{'border-red-500': e.versionError}" type="text" placeholder="Version Name" v-model:model-value="e.version" />
             </v-item>
             <v-item label="Base Model">
               <v-select @update:open="e.baseModelError = false" :class="{'border-red-500': e.baseModelError}" v-model:model-value="e.base_model" placeholder="Select Base Model">
@@ -53,7 +57,14 @@
               </v-select>
             </v-item>
             <v-item label="Introduction">
-              <Markdown :editorId="`myeditor${i}`" @update:modelValue="val => handleMarkdownChange(val, i)" @isUploading="handleIsUploading" />
+              <!-- <Markdown :editorId="`myeditor${i}`" @update:modelValue="val => handleMarkdownChange(val, i)" @isUploading="handleIsUploading" /> -->
+                <!-- <div class="h-[500px] relative z-10000"> -->
+                  <!--  <EasyMarkdown :editor-id="`myeditor${i}`" @is-uploading="handleIsUploading" @model-value="handleUpdateValue"/> -->
+                <!-- </div> -->
+              <!-- <div class="editor-container">
+                <EasyMarkdown :editor-id="`myeditor${i}`" @is-uploading="handleIsUploading" @model-value="(val: any) => handleUpdateValue(val, i)" />
+              </div> -->
+              <Markdown v-model.modelValue="e.intro" :editorId="`myeditor${i}`" />
             </v-item>
             <v-item label="">
               <div class="flex items-center space-x-2 mt-2">
@@ -67,10 +78,10 @@
                   :class="{'border-red-500': e.filePathError}"
                   type="text"
                   @change="checkFile(e.filePath, i)"
-                  placeholder=""
+                  placeholder="File Path"
                   :disabled="typeof(e.progress) == 'number' && e.progress !== 100"
                   v-model:model-value="e.filePath" />
-                <Button  @click="interrupt(e)" class="ml-2" :disabled="e.filePath == ''">interrupt</Button>
+                <Button @click="interrupt(e)" class="ml-2" :disabled="!e.progress || e.progress == 100">interrupt</Button>
               </div>
             </v-item>
             <div v-if="e.progress">
@@ -110,11 +121,12 @@ import { useAlertDialog  } from '@/components/modules/vAlertDialog/index'
 
 import { useStatusStore} from '@/stores/userStatus'
 import { modelStore } from '@/stores/modelStatus'
-import { Markdown } from '@/components/markdown'
+// import { Markdown } from '@/components/markdown'
+import Markdown from '@/components/markdown/Index2.vue'
+// import { EasyMarkdown } from '@/components/easy-mark'
 import { create_models, checkLocalFile, submitUpload, model_types, base_model_types, put_model, interrupt_upload } from '@/api/model'
 import { onMounted } from 'vue'
-import { Trash2 } from 'lucide-vue-next'
-
+import { Minus } from 'lucide-vue-next'
 
 const statusStore = useStatusStore();
 const modelStoreObject = modelStore();
@@ -128,7 +140,11 @@ const acActiveIndex = ref('0')
 const showLayoutLoading = ref(false)
 
 const disabledPublish = computed(() => {
-  return formData.value.versions.map(e => e.progress).some(e => e !== 100)
+  const progress = formData.value.versions
+                    .map(e => e.progress)
+                    .some((e, i) => (e !== 100 && formData.value.versions[i].file_upload_id))
+
+  return progress
 })
 
 function handleChange(val: any, index: number) {
@@ -142,7 +158,7 @@ async function checkFile(val: string, index: number) {
   formData.value.versions[index].filePathError = false
   versionIndex.value = index
   await submitUpload({ upload_id: res.data.upload_id })
-  formData.value.versions[index].progress = 0
+  formData.value.versions[index].progress = 0.1
   useToaster('Start calculating the file hash')
 }
 async function delVersion(index: number) {
@@ -151,6 +167,7 @@ async function delVersion(index: number) {
     desc: 'This action cannot be undone.',
     cancel: 'No, Keep It',
     continue: 'Yes, Delete It',
+    z: 'z-9000'
   })
   if (!res) return
   const tempData = {...formData.value}
@@ -256,14 +273,14 @@ const acActiveFn = () => {
     modelBox.value = false
   }
 }
-const handleMarkdownChange = (value: string, index: number) => {
-  console.log(value, index)
-  formData.value.versions[index].intro = value
-}
-const handleIsUploading = (val: boolean) => {
-  // disabledSubmit.value = val
-  console.log(val)
-}
+// const handleUpdateValue = (value: string, index: number) => {
+//   console.log(value, index)
+//   // formData.value.versions[index].intro = value
+// }
+// const handleIsUploading = (val: boolean) => {
+//   // disabledSubmit.value = val
+//   console.log(val)
+// }
 const onDialogClose = () => {
   modelStoreObject.setDialogStatus(false, 0)
   modelStoreObject.clearModelDetail()
@@ -272,6 +289,7 @@ const onDialogClose = () => {
   modelStoreObject.uploadModelDone()
 }
 watch(() => statusStore.socketMessage, (val: any) => {
+  // const temp = [...formData.value.versions]
   if (val.type == "progress") {
     const i = formData.value.versions.findIndex((e: any) => e.file_upload_id == val.data.upload_id)
     console.log(val.data.progress)
@@ -317,5 +335,126 @@ onMounted(async () => {
 <style scoped>
 .custom-shadow {
   box-shadow: 0px -6px 20px 0px rgba(255, 255, 255, 0.10);
+}
+.editor-container {
+  position: relative;
+  min-height: 300px;
+}
+
+.editor-container :deep(.editor-toolbar) {
+  position: relative;
+  z-index: 2;
+  background-color: #1a1a1a;
+  border: 1px solid #333;
+  border-bottom: none;
+  border-radius: 4px 4px 0 0;
+  opacity: 1 !important;
+}
+
+.editor-container :deep(.CodeMirror) {
+  position: absolute;
+  top: 50px;
+  left: 0;
+  right: 0;
+  height: calc(100% - 50px) !important;
+  min-height: 300px;
+  background-color: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 0 0 4px 4px;
+  z-index: 1;
+  cursor: text;
+}
+
+.editor-container :deep(.CodeMirror-focused),
+:global(.CodeMirror-fullscreen.CodeMirror-focused) {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(74, 35, 142, 0.2);
+}
+
+.editor-container :deep(.CodeMirror-cursor),
+:global(.CodeMirror-fullscreen .CodeMirror-cursor) {
+  border-left: 2px solid #fff;
+  background-color: #fff;
+  width: 2px;
+  position: absolute;
+  z-index: 3;
+}
+
+.editor-container :deep(.CodeMirror pre.CodeMirror-line),
+:global(.CodeMirror-fullscreen pre.CodeMirror-line) {
+  padding: 0 4px;
+  position: relative;
+  z-index: 2;
+}
+
+
+.editor-container :deep(.CodeMirror-selected) {
+  background: rgba(74, 35, 142, 0.3) !important;
+}
+
+.editor-container :deep(.CodeMirror pre.CodeMirror-line) {
+  padding: 0 8px;
+}
+
+.editor-container :deep(.CodeMirror-cursor) {
+  border-left: 2px solid #fff;
+  background-color: transparent;
+  width: 0;
+  position: absolute;
+  z-index: 3;
+  margin-left: -4px;
+}
+
+:global(.CodeMirror-fullscreen .CodeMirror-cursor) {
+  border-left: 2px solid #fff;
+  background-color: transparent;
+  width: 0;
+  position: absolute;
+  z-index: 3;
+  margin-left: 4px;
+}
+
+.editor-container :deep(.CodeMirror pre.CodeMirror-line) {
+  padding: 0 4px;
+  position: relative;
+  z-index: 2;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  line-height: 1.5;
+}
+
+
+:global(.CodeMirror-fullscreen pre.CodeMirror-line) {
+  padding: 0 4px;
+  position: relative;
+  z-index: 2;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  line-height: 1.5;
+}
+
+:global(.CodeMirror-fullscreen) {
+  z-index: 9999;
+}
+
+:global(.CodeMirror-fullscreen .CodeMirror-scroll) {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.editor-container :deep(.CodeMirror-measure) {
+  position: absolute;
+  width: 100%;
+  height: 0;
+  overflow: hidden;
+  visibility: hidden;
+}
+
+.editor-container :deep(.CodeMirror-sizer) {
+  position: relative;
+  margin-left: 0 !important;
 }
 </style>
