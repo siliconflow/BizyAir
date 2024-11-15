@@ -26,30 +26,35 @@ import { sliceString, formatSize, formatNumber } from '@/utils/tool'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { ref, onMounted, nextTick } from 'vue'
-import Vditor from 'vditor'
+
 import { useAlertDialog } from '@/components/modules/vAlertDialog/index'
-// import { MdPreview, MdCatalog } from 'md-editor-v3';
+import { MdPreview, MdCatalog } from 'md-editor-v3';
 
 import { Model, ModelVersion } from '@/types/model'
 import { model_detail, like_model, fork_model, remove_model } from '@/api/model'
 import { useToaster } from '@/components/modules/toats/index'
 import 'md-editor-v3/lib/style.css';
 const modelStoreInstance = modelStore()
-const previewRef = ref<HTMLDivElement | null>(null)
+
 const model = ref<Model>()
 const currentVersion = ref<ModelVersion>()
 const downloadOpen = ref(false)
 const scrollViewportRef = ref<any | null>(null)
-const previewContent = async (content: string) => {
-  if (previewRef.value) {
-    if (!content) {
-      previewRef.value.innerHTML = '<span>No content available</span>'
-      return
-    }
-    const html = await Vditor.md2html(content, { mode: 'dark' })
-    previewRef.value.innerHTML = html
-  }
-}
+
+const content = `**那年春，一贱东来**
+![](https://bizyair-dev.oss-cn-shanghai.aliyuncs.com/img/20241115/BCByOp36cMyT1cSyjLY8YEqnFeYhbHIk.png)
+![](https://bizyair-dev.oss-cn-shanghai.aliyuncs.com/img/20241115/em67clfN48DAIxCZiHHeDHqQuv6wtJXi.png)
+![](https://bizyair-dev.oss-cn-shanghai.aliyuncs.com/img/20241115/ORt2xhNXK7Qqgl8r8vu1R5C0A42fc7lk.png)
+
+![](https://bizyair-dev.oss-cn-shanghai.aliyuncs.com/img/20241115/BCByOp36cMyT1cSyjLY8YEqnFeYhbHIk.png)
+![](https://bizyair-dev.oss-cn-shanghai.aliyuncs.com/img/20241115/em67clfN48DAIxCZiHHeDHqQuv6wtJXi.png)
+![](https://bizyair-dev.oss-cn-shanghai.aliyuncs.com/img/20241115/ORt2xhNXK7Qqgl8r8vu1R5C0A42fc7lk.png)
+
+![](https://bizyair-dev.oss-cn-shanghai.aliyuncs.com/img/20241115/BCByOp36cMyT1cSyjLY8YEqnFeYhbHIk.png)
+![](https://bizyair-dev.oss-cn-shanghai.aliyuncs.com/img/20241115/em67clfN48DAIxCZiHHeDHqQuv6wtJXi.png)
+![](https://bizyair-dev.oss-cn-shanghai.aliyuncs.com/img/20241115/ORt2xhNXK7Qqgl8r8vu1R5C0A42fc7lk.png)
+吕树
+    `
 const props = defineProps<{
   modelId: string,
   version: ModelVersion
@@ -73,14 +78,12 @@ const beforeScroll = () => {
       if (targetVersion) {
         currentVersion.value = { ...targetVersion }
         nextTick(() => {
-          previewContent(targetVersion.intro || '')
           scrollWithDelay(props.version?.id)
         })
       }
     } else {
       currentVersion.value = { ...model.value.versions[0] }
       nextTick(() => {
-        previewContent(currentVersion.value?.intro || '')
         if (currentVersion.value?.id) {
           scrollWithDelay(currentVersion.value.id)
         }
@@ -99,7 +102,6 @@ const handleTabChange = (value: number) => {
   const version = model.value?.versions?.find(v => v.id === value)
   if (version) {
     currentVersion.value = version
-    previewContent(version.intro)
   }
 }
 
@@ -149,7 +151,7 @@ const scrollWithDelay = (versionId: number) => {
     scrollToTab(versionId)
   }, 200)
 }
-
+const scrollElement = document.documentElement;
 const handleOperateChange = async (type: 'edit' | 'remove', id: string | number) => {
   if (type === 'edit') {
     modelStoreInstance.setModelDetail(model)
@@ -361,8 +363,12 @@ const handleCopy = async (sign: string) => {
     </div>
     <div class="flex flex-row gap-8  items-start justify-start self-stretch flex-1 relative">
       <div class="flex flex-col gap-4 items-start justify-start  relative min-w-[620px] w-[65%]  overflow-hidden ">
-        <div ref="previewRef"
-          class="custom-scrollbar max-h-[80vh] overflow-y-auto w-full rounded-tl-lg rounded-tr-lg custom-shadow"></div>
+        <!-- <div ref="previewRef"
+          class="custom-scrollbar max-h-[80vh] overflow-y-auto w-full rounded-tl-lg rounded-tr-lg custom-shadow"></div> -->
+
+        <MdPreview id="previewRef" :modelValue="content" :noImgZoomIn="true" :preview="true" theme="dark"
+          class="custom-scrollbar max-h-[80vh] overflow-y-auto w-full rounded-tl-lg rounded-tr-lg custom-shadow" />
+
       </div>
       <div class="flex flex-col gap-6 items-start justify-start w-[40%] relative">
         <div class="pb-8 flex flex-col gap-6 items-start justify-start shrink-0   h-[97px] relative">
