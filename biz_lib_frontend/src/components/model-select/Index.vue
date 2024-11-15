@@ -144,7 +144,7 @@ onMounted(async () => {
           <ModelFilterBar v-model:filter-state="filterState" :mode="modelListPathParams.mode"
             v-model:show-sort-popover="showSortPopover" :model-type="props.modelType"
             @update:filter-state="handleFilterStateChange" :selected-base-models="props.selectedBaseModels" />
-          <ModelTable v-if="models" :models="models" :mode="modelListPathParams.mode" />
+          <ModelTable  :models="models" :mode="modelListPathParams.mode" />
           <ModelPagination :current="modelListPathParams.current" :page_size="modelListPathParams.page_size"
             :total="modelListPathParams.total" @change="handlePageChange" />
         </TabsContent>
@@ -152,7 +152,7 @@ onMounted(async () => {
           <ModelFilterBar v-model:filter-state="filterState" :mode="modelListPathParams.mode"
             v-model:show-sort-popover="showSortPopover" :model-type="props.modelType"
             @update:filter-state="handleFilterStateChange" :selected-base-models="props.selectedBaseModels" />
-          <ModelTable v-if="models" :models="models" :mode="modelListPathParams.mode" />
+          <ModelTable  :models="models" :mode="modelListPathParams.mode" />
           <ModelPagination :current="modelListPathParams.current" :page_size="modelListPathParams.page_size"
             :total="modelListPathParams.total" @change="handlePageChange" />
         </TabsContent>
@@ -160,7 +160,7 @@ onMounted(async () => {
           <ModelFilterBar v-model:filter-state="filterState" :mode="modelListPathParams.mode"
             v-model:show-sort-popover="showSortPopover" :model-type="props.modelType"
             @update:filter-state="handleFilterStateChange" :selected-base-models="props.selectedBaseModels" />
-          <ModelTable v-if="models" :models="models" :mode="modelListPathParams.mode" />
+          <ModelTable  :models="models" :mode="modelListPathParams.mode" />
           <ModelPagination :current="modelListPathParams.current" :page_size="modelListPathParams.page_size"
             :total="modelListPathParams.total" @change="handlePageChange" />
         </TabsContent>
