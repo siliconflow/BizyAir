@@ -22,20 +22,19 @@ import {
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { modelStore } from '@/stores/modelStatus'
 
-const modelStoreInstance = modelStore()
-
 import { sliceString, formatSize, formatNumber } from '@/utils/tool'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { ref, onMounted, nextTick } from 'vue'
 import Vditor from 'vditor'
 import { useAlertDialog } from '@/components/modules/vAlertDialog/index'
-import { MdPreview, MdCatalog } from 'md-editor-v3';
+// import { MdPreview, MdCatalog } from 'md-editor-v3';
 
 import { Model, ModelVersion } from '@/types/model'
 import { model_detail, like_model, fork_model, remove_model } from '@/api/model'
 import { useToaster } from '@/components/modules/toats/index'
 import 'md-editor-v3/lib/style.css';
+const modelStoreInstance = modelStore()
 const previewRef = ref<HTMLDivElement | null>(null)
 const model = ref<Model>()
 const currentVersion = ref<ModelVersion>()
@@ -53,12 +52,11 @@ const previewContent = async (content: string) => {
 }
 const props = defineProps<{
   modelId: string,
-  mode: string,
   version: ModelVersion
 }>()
 
 const getData = async () => {
-  const res = await model_detail({ id: props.modelId, source: props.mode })
+  const res = await model_detail({ id: props.modelId, source: modelStoreInstance.mode })
   if (!res.data) {
     useToaster.error('Model not found.')
     modelStoreInstance.closeAndReload()
@@ -130,7 +128,7 @@ const scrollToTab = (versionId: number) => {
 
       const tabs = Array.from(tabsList.querySelectorAll('[role="tab"]'))
       const totalWidth = tabs.reduce((sum: number, tab) => sum + (tab as HTMLElement).offsetWidth, 0)
-        ; (tabsList as HTMLElement).style.width = `${ totalWidth }px`
+        ; (tabsList as HTMLElement).style.width = `${totalWidth}px`
 
       const tabPosition = targetTab.offsetLeft
       const viewportWidth = viewport.clientWidth
@@ -311,8 +309,8 @@ const handleCopy = async (sign: string) => {
           </svg>
 
 
-          <Popover v-if="props.mode === 'my' || props.mode === 'my_fork'" class="bg-[#353535] " :open="downloadOpen"
-            @update:open="handleDownload">
+          <Popover v-if="modelStoreInstance.mode === 'my' || modelStoreInstance.mode === 'my_fork'"
+            class="bg-[#353535] " :open="downloadOpen" @update:open="handleDownload">
             <PopoverTrigger>
               <div class="flex justify-center items-center  rounded-md w-8 relative z-50">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none"
@@ -376,7 +374,7 @@ const handleCopy = async (sign: string) => {
             {{ model?.user_name }}
           </div>
           <div class="flex flex-row gap-1.5 items-start justify-start self-stretch shrink-0 relative">
-            <Button variant="default" v-if="props.mode === 'publicity'"
+            <Button variant="default" v-if="modelStoreInstance.mode === 'publicity'"
               class="w-[124px] flex h-9 px-3 py-2 justify-center items-center gap-2 flex-1 rounded-md bg-[#6D28D9]"
               @click="handleFork" :disabled="currentVersion?.forked">
               {{ currentVersion?.forked ? 'Forked' : 'Fork' }}

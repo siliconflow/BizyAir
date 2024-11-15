@@ -16,7 +16,6 @@ const showModelDetail = ref(false)
 interface Props {
   version: ModelVersion,
   model: Model
-  mode: string
 }
 
 watch(() => modelStoreInstance.reload, (newValue: number, oldValue: number) => {
@@ -38,7 +37,7 @@ defineProps<Props>()
 <template>
   <TableRow class="bg-[#3D3D3D] hover:bg-[#4E4E4E] hover:cursor-pointer border-[#F9FAFB]/60 h-12"
     @click="handleShowModelDetail">
-    <TableCell class="pl-10 w-[40%] max-w-[200px]">
+    <TableCell class="pl-10 w-[55%] max-w-[200px]">
       <div class="text-sm text-white-500 flex items-center min-w-0">
         <span class="truncate flex-1">{{ version.version }}</span>
         <div class="flex-shrink-0 ml-2">
@@ -59,8 +58,8 @@ defineProps<Props>()
         </div>
       </div>
     </TableCell>
-    <TableCell class="w-25 truncate block">{{ version.base_model }}</TableCell>
-    <TableCell class="w-[20%]">{{ version.available ? 'Available' : 'Unavailable' }}</TableCell>
+    <TableCell class="w-[15%] truncate block">{{ version.base_model }}</TableCell>
+    <TableCell class="w-[15%]">{{ version.available ? 'Available' : 'Unavailable' }}</TableCell>
     <TableCell class="w-[15%] flex justify-start">
       <Button variant="default" @click.stop="handleApply(version, model)" :disabled="!version.available"
         :class="{ 'opacity-50': !version.available }">
@@ -69,6 +68,6 @@ defineProps<Props>()
     </TableCell>
   </TableRow>
   <vDialog v-model:open="showModelDetail" class="max-w-full h-screen px-6  pb-6 z-[8000]" :title="model.name">
-    <ModelDetail :modelId="model.id" :mode="mode" :version="version" />
+    <ModelDetail :modelId="model.id" :version="version" />
   </vDialog>
 </template>

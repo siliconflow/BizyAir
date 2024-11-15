@@ -1,4 +1,4 @@
-import { Model, ModelVersion as ModelVersionType } from '@/types/model';
+import { CommonModelType, FilterState, Model, ModelListPathParams, ModelVersion as ModelVersionType } from '@/types/model';
 import { defineStore } from 'pinia';
 interface ModelVersion {
   id?: number;
@@ -40,7 +40,23 @@ export const modelStore = defineStore('modelStore', {
     showVersionId: 0 as ShowVersionId,
     mode: 'my' as 'my' | 'my_fork' | 'publicity',
     applyObject:{version: {} as ModelVersionType, model: {} as Model},
-    reload: 0
+    reload: 0,
+    modelTypes: [] as CommonModelType[],
+    baseModelTypes: [] as CommonModelType[],
+    selectedModelTypes: [] as string[],
+    selectedBaseModels: [] as string[],
+    modelListPathParams: {
+      mode: 'my',
+      current: 1,
+      page_size: 5,
+      total: 0
+    } as ModelListPathParams,
+    filterState: {
+      keyword: '',
+      model_types: [],
+      base_models: [],
+      sort: 'Recently'
+    } as FilterState
   }),
   actions: {
     setModelDetail(data: any) {
@@ -73,6 +89,24 @@ export const modelStore = defineStore('modelStore', {
       this.closeModelSelectDialog=true;
       this.closeModelDetailDialog=true;
       this.applyObject = {version, model};
+    },
+    setModelTypes(types: CommonModelType[]) {
+      this.modelTypes = types;
+    },
+    setSelectedBaseModels(models: string[]) {
+      this.selectedBaseModels = models;
+    },
+    setSelectedModelTypes(types: string[]) {
+      this.selectedModelTypes = types;
+    },
+    setBaseModelTypes(types: CommonModelType[]) {
+      this.baseModelTypes = types;
+    },
+    setModelListPathParams(params: ModelListPathParams) {
+      this.modelListPathParams = params;
+    },
+    setFilterState(state: FilterState) {
+      this.filterState = state;
     }
   },
 });

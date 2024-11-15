@@ -7,54 +7,41 @@ import {
   TabsTrigger,
   TabsContent
 } from '@/components/ui/tabs'
-import type { Model, FilterState, ModelListPathParams, ModelVersion } from '@/types/model'
+import type { Model, ModelVersion, CommonModelType } from '@/types/model'
 import ModelFilterBar from './ModelFilterBar.vue'
 import ModelTable from './ModelTable.vue'
 import ModelPagination from './ModelPagination.vue'
-import { get_model_list } from '@/api/model'
+import { base_model_types, get_model_list, model_types } from '@/api/model'
 import { onMounted } from 'vue'
 
 import vDialog from '@/components/modules/vDialog.vue'
 import { modelStore } from '@/stores/modelStatus'
 
 const modelStoreInstance = modelStore()
-
 interface Props {
-  modelType?: string
+  modelType?: string[]
   selectedBaseModels?: string[]
 }
 
 const props = defineProps<Props>()
-const modelListPathParams = ref<ModelListPathParams>({
-  mode: 'my',
-  current: 1,
-  page_size: 5,
-  total: 0
-})
-
-const filterState = ref<FilterState>({
-  keyword: '',
-  model_types: [props.modelType || ''],
-  base_models: props.selectedBaseModels || [],
-  sort: 'Recently'
-})
 
 const isLoading = ref(false)
 
 const models = ref<Model[]>([])
 const getModelList = async () => {
+  console.log('[modelStoreInstance.filterState]', modelStoreInstance.filterState)
   try {
     isLoading.value = true
-    const response = await get_model_list(modelListPathParams.value, filterState.value)
+    const response = await get_model_list(modelStoreInstance.modelListPathParams, modelStoreInstance.filterState)
     if (response && response.data) {
-      modelListPathParams.value.total = response?.data?.total || 0
+      modelStoreInstance.modelListPathParams.total = response?.data?.total || 0
       models.value = response?.data?.list || []
     } else {
-      modelListPathParams.value.total = 0
+      modelStoreInstance.modelListPathParams.total = 0
       models.value = []
     }
   } catch (error) {
-    modelListPathParams.value.total = 0
+    modelStoreInstance.modelListPathParams.total = 0
     models.value = []
   }
   finally {
@@ -64,26 +51,35 @@ const getModelList = async () => {
 
 const showSortPopover = ref(false)
 const showDialog = ref(false)
-const handlePageChange = async (page: number) => {
-  modelListPathParams.value.current = page
-  await getModelList()
-}
 
-const handleFilterStateChange = async (value: FilterState) => {
-  filterState.value = value
-  await getModelList()
-}
 
 const handleTabChange = async (value: string | number) => {
   models.value = []
+  modelStoreInstance.mode = String(value) as 'my' | 'my_fork' | 'publicity'
   if (isLoading.value) return
-  modelListPathParams.value.mode = String(value) as 'my' | 'my_fork' | 'publicity'
-  modelListPathParams.value.current = 1
-  filterState.value.keyword = ''
-  filterState.value.model_types = [props.modelType || '']
-  filterState.value.base_models = props.selectedBaseModels || []
-  filterState.value.sort = 'Recently'
+  modelStoreInstance.modelListPathParams.mode = modelStoreInstance.mode
+  modelStoreInstance.modelListPathParams.current = 1
+
+  if (modelStoreInstance.mode !== 'publicity') {
+    modelStoreInstance.filterState.sort = 'Recently'
+  }
+
   await getModelList()
+}
+
+
+const getFilterData = async () => {
+  try {
+    const modelTypesResponse = await model_types()
+    modelStoreInstance.setModelTypes(modelTypesResponse?.data ? (modelTypesResponse.data as CommonModelType[]) : [])
+
+    const baseModelResponse = await base_model_types()
+    console.log('[baseModelResponse]', baseModelResponse)
+    modelStoreInstance.setBaseModelTypes(baseModelResponse?.data ? (baseModelResponse.data as CommonModelType[]) : [])
+  } catch (error) {
+    modelStoreInstance.setModelTypes([])
+    modelStoreInstance.setBaseModelTypes([])
+  }
 }
 
 const emit = defineEmits(['apply'])
@@ -113,6 +109,17 @@ watch(() => modelStoreInstance.reloadModelSelectList, (newVal: boolean, oldVal: 
 }, { deep: true })
 
 onMounted(async () => {
+  if (props.modelType) {
+    modelStoreInstance.selectedModelTypes = props.modelType
+    modelStoreInstance.filterState.model_types = props.modelType
+  }
+  if (props.selectedBaseModels) {
+    modelStoreInstance.selectedBaseModels = props.selectedBaseModels
+    modelStoreInstance.filterState.base_models = props.selectedBaseModels
+  }
+
+  console.log('[modelStoreInstance.filterState]', modelStoreInstance.filterState)
+  await getFilterData()
   await getModelList()
   showDialog.value = true
 })
@@ -125,7 +132,7 @@ onMounted(async () => {
         class="text-[#F9FAFB] mb-4 text-[18px] font-semibold leading-[18px] tracking-[-0.45px]">Select
         Model</span></template>
     <div class="font-['Inter']">
-      <Tabs :defaultValue="modelListPathParams.mode" class="mb-4" @update:model-value="handleTabChange">
+      <Tabs :defaultValue="modelStoreInstance.mode" class="mb-4" @update:model-value="handleTabChange">
         <TabsList class="grid w-full grid-cols-3 h-12 bg-[#4E4E4E] text-sm">
           <TabsTrigger value="my"
             class="text-sm text-white data-[state=active]:bg-[#9CA3AF] data-[state=active]:text-white h-10 px-3 py-2 focus:outline-none focus-visible:outline-none">
@@ -140,29 +147,26 @@ onMounted(async () => {
             Community Models
           </TabsTrigger>
         </TabsList>
-        <TabsContent value="my" v-if="modelListPathParams.mode === 'my'">
-          <ModelFilterBar v-model:filter-state="filterState" :mode="modelListPathParams.mode"
-            v-model:show-sort-popover="showSortPopover" :model-type="props.modelType"
-            @update:filter-state="handleFilterStateChange" :selected-base-models="props.selectedBaseModels" />
-          <ModelTable  :models="models" :mode="modelListPathParams.mode" />
-          <ModelPagination :current="modelListPathParams.current" :page_size="modelListPathParams.page_size"
-            :total="modelListPathParams.total" @change="handlePageChange" />
+        <TabsContent value="my" v-if="modelStoreInstance.mode === 'my'">
+          <ModelFilterBar v-model:show-sort-popover="showSortPopover" @fetchData="getModelList" />
+          <div class="min-h-[450px]">
+            <ModelTable v-if="models.length > 0" :models="models" />
+          </div>
+          <ModelPagination @change="getModelList" />
         </TabsContent>
-        <TabsContent value="my_fork" v-if="modelListPathParams.mode === 'my_fork'">
-          <ModelFilterBar v-model:filter-state="filterState" :mode="modelListPathParams.mode"
-            v-model:show-sort-popover="showSortPopover" :model-type="props.modelType"
-            @update:filter-state="handleFilterStateChange" :selected-base-models="props.selectedBaseModels" />
-          <ModelTable  :models="models" :mode="modelListPathParams.mode" />
-          <ModelPagination :current="modelListPathParams.current" :page_size="modelListPathParams.page_size"
-            :total="modelListPathParams.total" @change="handlePageChange" />
+        <TabsContent value="my_fork" v-if="modelStoreInstance.mode === 'my_fork'">
+          <ModelFilterBar v-model:show-sort-popover="showSortPopover" @fetchData="getModelList" />
+          <div class="min-h-[450px]">
+            <ModelTable v-if="models.length > 0" :models="models" />
+          </div>
+          <ModelPagination @change="getModelList" />
         </TabsContent>
-        <TabsContent value="publicity" v-if="modelListPathParams.mode === 'publicity'">
-          <ModelFilterBar v-model:filter-state="filterState" :mode="modelListPathParams.mode"
-            v-model:show-sort-popover="showSortPopover" :model-type="props.modelType"
-            @update:filter-state="handleFilterStateChange" :selected-base-models="props.selectedBaseModels" />
-          <ModelTable  :models="models" :mode="modelListPathParams.mode" />
-          <ModelPagination :current="modelListPathParams.current" :page_size="modelListPathParams.page_size"
-            :total="modelListPathParams.total" @change="handlePageChange" />
+        <TabsContent value="publicity" v-if="modelStoreInstance.mode === 'publicity'">
+          <ModelFilterBar v-model:show-sort-popover="showSortPopover" @fetchData="getModelList" />
+          <div class="min-h-[450px]">
+            <ModelTable v-if="models.length > 0" :models="models" />
+          </div>
+          <ModelPagination @change="getModelList" />
         </TabsContent>
       </Tabs>
     </div>
