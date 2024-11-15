@@ -34,7 +34,7 @@ model_rules:
             - ^flux/flux1-schnell.sft$
 
   - mode_type: vae
-    base_model: VAE
+    base_model: FLUX
     describe: flux-vae
     score: 1
     route: /supernode/flux-vae-bizyair-comfy-ksampler
@@ -129,7 +129,7 @@ model_rules:
   - mode_type: pulid
     base_model: FLUX
     describe: Flux Pulid
-    score: 4
+    score: 5
     route: /supernode/bizyair-flux-dev-comfy-pulid
     nodes:
       - class_type: PulidFluxModelLoader
@@ -140,7 +140,7 @@ model_rules:
   - mode_type: controlnet
     base_model: FLUX
     describe: Flux ControlNet
-    score: 4
+    score: 5
     route: /supernode/flux-dev-bizyair-comfy-ksampler-fp8-v2
     nodes:
       - class_type: ControlNetLoader
