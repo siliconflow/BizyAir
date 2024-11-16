@@ -1,7 +1,7 @@
 import base64
+import hashlib
 import os
 import re
-import time
 import urllib.request
 
 import folder_paths
@@ -43,25 +43,28 @@ class LoadImageURL(BizyAirBaseNode):
         if match:
             # get image format
             image_format = match.group(1)
-            # generate a file name with timestamp
-            timestamp = int(time.time() * 1000)  # precise to milliseconds
-            filename = f"base64-{timestamp}.{image_format}"
+            image_data = url.split(",")[1]
+
+            # calculate hash of the base64 data
+            hash_object = hashlib.md5(image_data.encode())
+            hash_value = hash_object.hexdigest()
+
+            filename = f"base64-{hash_value}.{image_format}"
             file_path = os.path.join(input_dir, filename)
 
-            # decode base64 data and save file
-            image_data = url.split(",")[1]
-            with open(file_path, "wb") as f:
-                f.write(base64.b64decode(image_data))
-            print(f"Base64 image saved as {filename}")
+            if not os.path.exists(file_path):
+                with open(file_path, "wb") as f:
+                    f.write(base64.b64decode(image_data))
+                print(f"Base64 image saved as {filename}")
+            else:
+                print(f"Base64 image {filename} already exists, skipping save.")
         else:
             filename = os.path.basename(url)
             file_path = os.path.join(input_dir, filename)
 
-            # Check if the file already exists
             if os.path.exists(file_path):
                 print(f"File {filename} already exists, skipping download.")
             else:
-                # Download the image
                 urllib.request.urlretrieve(url, file_path)
                 print(f"Image successfully downloaded and saved as {filename}.")
 
