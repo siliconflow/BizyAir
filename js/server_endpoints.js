@@ -1,15 +1,15 @@
 import { api } from "../../../scripts/api.js";
 import { app } from "../../scripts/app.js";
-import { dialog } from './subassembly/dialog.js';
+import { toast } from '../subassembly/toast.js';
 
 app.registerExtension({
 	name: "bizyair.server.endpoint.switch.dlg",
     async setup() {
         function messageHandler(event) {
-            dialog({
+            toast({
                 content: event.detail.message,
                 type: 'succeed',
-                noText: 'Close'
+                center: true
             })
         }
         api.addEventListener("bizyair.server.endpoint.switch", messageHandler);
