@@ -99,6 +99,7 @@ jobs:
         python3 tests/test_examples.py
       env:
         BIZYAIR_KEY: ${{ secrets.BIZYAIR_KEY }}
+        BIZYAIR_API_KEY: ${{ secrets.BIZYAIR_KEY }}
         PYTHONPATH: ${{ github.workspace }}/ComfyUI
 
     - name: Run ComfyUI on Windows
@@ -112,4 +113,5 @@ jobs:
         python3 tests/test_examples.py
       env:
         BIZYAIR_KEY: ${{ secrets.BIZYAIR_KEY }}
+        BIZYAIR_API_KEY: ${{ secrets.BIZYAIR_KEY }}
         PYTHONPATH: ${{ github.workspace }}/ComfyUI
