@@ -1,6 +1,6 @@
 import { api } from "../../../scripts/api.js";
 import { app } from "../../scripts/app.js";
-import { toast } from '../subassembly/toast.js';
+import { toast } from './subassembly/toast.js';
 
 app.registerExtension({
 	name: "bizyair.server.endpoint.switch.dlg",
