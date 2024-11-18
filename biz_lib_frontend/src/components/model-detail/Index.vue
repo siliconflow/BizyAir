@@ -351,14 +351,15 @@ const handleCopy = async (sign: string) => {
     <div class="flex flex-row gap-8  items-start justify-start self-stretch flex-1 relative">
       <div class="flex flex-col gap-4 items-start justify-start  relative min-w-[620px] w-[65%]  overflow-hidden ">
         <ScrollArea class="h-[80vh] w-full ">
+          <!-- <MdPreview id="previewRef" :modelValue="content" :noImgZoomIn="true" :preview="true" theme="dark"
+            class="bg-[#353535] w-full " /> -->
           <MdPreview v-if="currentVersion?.intro" id="previewRef" :modelValue="currentVersion?.intro"
-            :noImgZoomIn="true" :preview="true" theme="dark"
-            class="custom-scrollbar bg-[#353535] max-h-[80vh] overflow-y-auto w-full rounded-tl-lg rounded-tr-lg custom-shadow" />
+            :noImgZoomIn="true" :preview="true" theme="dark" class="bg-[#353535] w-full" />
           <div v-else class="w-full h-[80vh] bg-[#353535] rounded-tl-lg rounded-tr-lg">
             <div class="flex justify-center items-center h-full">
               <div
                 class="text-text-text-muted-foreground text-left font-['Inter-Regular',_sans-serif] text-xs leading-5 font-normal relative">
-                No more intro
+                No introduction yet
               </div>
             </div>
           </div>
