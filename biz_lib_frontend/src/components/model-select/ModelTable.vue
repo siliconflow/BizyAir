@@ -93,11 +93,15 @@ const handleOperateChange = async (value: 'edit' | 'remove', model: Model) => {
   }
 }
 
-const handleRemoveModel = (id: string) => {
-  remove_model(id).then((_) => {
+const handleRemoveModel = async (id: string) => {
+  try {
+    await remove_model(id)
     useToaster.success('Model removed successfully.')
     modelStoreInstance.closeAndReload()
-  })
+  } catch (error) {
+    useToaster.error('Failed to remove model.')
+    console.error('Error removing model:', error)
+  }
 }
 
 </script>
@@ -124,7 +128,7 @@ const handleRemoveModel = (id: string) => {
           </TableRow>
         </template>
         <template v-else>
-          <template v-for="model in props.models" :key="model.name + model.id">
+          <template v-for="model in props.models" :key="`${model.id}-${model.name}`">
             <TableRow class="group cursor-pointer border-[#F9FAFB]/60 hover:bg-transparent h-12">
               <TableCell class="w-[55%]" @click="toggleExpand(model.name)">
                 <div class="flex items-center space-x-2">

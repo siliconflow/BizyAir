@@ -13,19 +13,25 @@ import ModelTable from './ModelTable.vue'
 import ModelPagination from './ModelPagination.vue'
 import { base_model_types, get_model_list, model_types } from '@/api/model'
 import { onMounted } from 'vue'
-
+import { useToaster } from '@/components/modules/toats/index'
 import vDialog from '@/components/modules/vDialog.vue'
 import { modelStore } from '@/stores/modelStatus'
+import type { ModeType } from '@/types/model'
 
 const modelStoreInstance = modelStore()
 interface Props {
   modelType?: string[]
   selectedBaseModels?: string[]
 }
-
 const props = defineProps<Props>()
-
 const isLoading = ref(false)
+const modes = ['my', 'my_fork', 'publicity'] as const
+
+const tabLabels: Record<ModeType, string> = {
+  my: 'My Models',
+  my_fork: 'My Forks',
+  publicity: 'Community Models'
+}
 
 const models = ref<Model[]>([])
 const getModelList = async () => {
@@ -36,10 +42,12 @@ const getModelList = async () => {
       modelStoreInstance.modelListPathParams.total = response?.data?.total || 0
       models.value = response?.data?.list || []
     } else {
+      useToaster.error('Failed to fetch model list')
       modelStoreInstance.modelListPathParams.total = 0
       models.value = []
     }
   } catch (error) {
+    useToaster.error('Failed to fetch model list. Please check your network connection')
     modelStoreInstance.modelListPathParams.total = 0
     models.value = []
   }
@@ -50,7 +58,6 @@ const getModelList = async () => {
 
 const showSortPopover = ref(false)
 const showDialog = ref(false)
-
 
 const handleTabChange = async (value: string | number) => {
   models.value = []
@@ -75,6 +82,8 @@ const getFilterData = async () => {
     const baseModelResponse = await base_model_types()
     modelStoreInstance.setBaseModelTypes(baseModelResponse?.data ? (baseModelResponse.data as CommonModelType[]) : [])
   } catch (error) {
+    useToaster.error('Failed to fetch model types')
+    useToaster.error('Failed to fetch base model types')
     modelStoreInstance.setModelTypes([])
     modelStoreInstance.setBaseModelTypes([])
   }
@@ -131,47 +140,28 @@ onMounted(async () => {
     <div class="font-['Inter']">
       <Tabs :defaultValue="modelStoreInstance.mode" class="mb-4" @update:model-value="handleTabChange">
         <TabsList class="grid w-full grid-cols-3 h-12 bg-[#4E4E4E] text-sm">
-          <TabsTrigger value="my"
+          <TabsTrigger v-for="mode in modes" :key="mode" :value="mode"
             class="text-sm text-white data-[state=active]:bg-[#9CA3AF] data-[state=active]:text-white h-10 px-3 py-2 focus:outline-none focus-visible:outline-none">
-            My Models
-          </TabsTrigger>
-          <TabsTrigger value="my_fork"
-            class="text-sm text-white data-[state=active]:bg-[#9CA3AF] data-[state=active]:text-white h-10 px-3 py-2 focus:outline-none focus-visible:outline-none">
-            My Forks
-          </TabsTrigger>
-          <TabsTrigger value="publicity"
-            class="text-sm text-white data-[state=active]:bg-[#9CA3AF] data-[state=active]:text-white h-10 px-3 py-2 focus:outline-none focus-visible:outline-none">
-            Community Models
+            {{ tabLabels[mode] }}
           </TabsTrigger>
         </TabsList>
-        <TabsContent value="my" v-if="modelStoreInstance.mode === 'my'" class="h-[600px] flex flex-col">
-          <ModelFilterBar v-model:show-sort-popover="showSortPopover" @fetchData="getModelList" />
-          <div class="flex-1 min-h-0">
-            <ModelTable v-if="models.length > 0" :models="models" />
-          </div>
-          <ModelPagination v-if="models.length > 0" @change="getModelList" />
-        </TabsContent>
-        <TabsContent value="my_fork" v-if="modelStoreInstance.mode === 'my_fork'" class="h-[600px] flex flex-col">
-          <ModelFilterBar v-model:show-sort-popover="showSortPopover" @fetchData="getModelList" />
-          <div class="flex-1 min-h-0">
-            <ModelTable v-if="models.length > 0" :models="models" />
-          </div>
-          <ModelPagination v-if="models.length > 0" @change="getModelList" />
-        </TabsContent>
-        <TabsContent value="publicity" v-if="modelStoreInstance.mode === 'publicity'" class="h-[600px] flex flex-col">
-          <ModelFilterBar v-model:show-sort-popover="showSortPopover" @fetchData="getModelList" />
-          <div class="flex-1 min-h-0">
-            <ModelTable v-if="models.length > 0" :models="models" />
-          </div>
-          <ModelPagination v-if="models.length > 0" @change="getModelList" />
-        </TabsContent>
+
+        <template v-for="mode in modes" :key="mode">
+          <TabsContent v-if="modelStoreInstance.mode === mode" :value="mode" class="h-[600px] flex flex-col">
+            <ModelFilterBar v-model:show-sort-popover="showSortPopover" @fetchData="getModelList" />
+            <div class="flex-1 min-h-0">
+              <ModelTable v-if="models.length > 0" :models="models" />
+              <div v-else class="flex items-center justify-center h-full">
+                <div class="text-center text-gray-500">
+                  <div class="mb-2">No Data</div>
+                  <p class="text-sm">No models available</p>
+                </div>
+              </div>
+            </div>
+            <ModelPagination v-if="models.length > 0" @change="getModelList" />
+          </TabsContent>
+        </template>
       </Tabs>
     </div>
   </v-dialog>
 </template>
-
-<style scoped>
-.custom-shadow {
-  box-shadow: 0px -6px 20px 0px rgba(255, 255, 255, 0.10);
-}
-</style>

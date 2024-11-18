@@ -47,7 +47,7 @@ const props = defineProps<{
   version: ModelVersion
 }>()
 
-const getData = async () => {
+const fetchModelDetail = async () => {
   const res = await model_detail({ id: props.modelId, source: modelStoreInstance.mode })
   if (!res.data) {
     useToaster.error('Model not found.')
@@ -55,10 +55,10 @@ const getData = async () => {
     return
   }
   model.value = res.data
-  beforeScroll()
+  initializeScroll()
 }
 
-const beforeScroll = () => {
+const initializeScroll = () => {
   if (model.value && model.value.versions && model.value.versions.length > 0) {
     if (props.version?.id) {
       const targetVersion = model.value.versions.find(v => v.id === props.version.id)
@@ -81,7 +81,7 @@ const beforeScroll = () => {
 
 
 onMounted(async () => {
-  await getData()
+  await fetchModelDetail()
 
 })
 
@@ -98,12 +98,12 @@ const handleDownload = () => {
 
 const handleLike = async () => {
   await like_model(currentVersion.value?.id)
-  getData()
+  fetchModelDetail()
 }
 
 const handleFork = async () => {
   await fork_model(currentVersion.value?.id)
-  await getData()
+  await fetchModelDetail()
 }
 
 const scrollToTab = (versionId: number) => {
@@ -139,7 +139,7 @@ const scrollWithDelay = (versionId: number) => {
   }, 200)
 }
 
-const handleOperateChange = async (type: 'edit' | 'remove', id: string | number) => {
+const handleModelOperation = async (type: 'edit' | 'remove', id: string | number) => {
   if (type === 'edit') {
     modelStoreInstance.setModelDetail(model)
     modelStoreInstance.setDialogStatus(true, Number(currentVersion.value?.id))
@@ -168,11 +168,17 @@ const handleOperateChange = async (type: 'edit' | 'remove', id: string | number)
 }
 
 
-const handleRemoveModel = (id: number | string) => {
-  remove_model(id).then((_) => {
+const handleRemoveModel = async (id: number | string) => {
+  try {
+    await remove_model(id)
     useToaster.success('Model removed successfully.')
     modelStoreInstance.reload += 1
-  })
+  } catch (error) {
+    useToaster.error('Failed to remove model.')
+    console.error('Error removing model:', error)
+  }
+
+
 }
 
 
@@ -321,12 +327,12 @@ const handleCopy = async (sign: string) => {
               <Command>
                 <CommandList>
                   <CommandGroup>
-                    <CommandItem value="edit" @click="handleOperateChange('edit', model?.id)"
+                    <CommandItem value="edit" @click="handleModelOperation('edit', model?.id)"
                       class="px-2 py-1.5 mb-1 text-[#F9FAFB] cursor-pointer [&:hover]:!bg-[#6D28D9] [&:hover]:!text-[#F9FAFB]">
                       Edit
                     </CommandItem>
                     <CommandSeparator />
-                    <CommandItem value="remove" @click="handleOperateChange('remove', model?.id)"
+                    <CommandItem value="remove" @click="handleModelOperation('remove', model?.id)"
                       class="px-2 py-1.5 mb-1 mt-1 text-[#F9FAFB] cursor-pointer [&:hover]:!bg-[#6D28D9] [&:hover]:!text-[#F9FAFB]">
                       Remove
                     </CommandItem>

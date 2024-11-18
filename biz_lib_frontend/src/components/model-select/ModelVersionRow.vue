@@ -9,14 +9,14 @@ import {
 } from '@/components/ui/table'
 import type { Model, ModelVersion } from '@/types/model'
 import { ref, watch } from 'vue'
-
-const modelStoreInstance = modelStore()
-const showModelDetail = ref(false)
-
 interface Props {
   version: ModelVersion,
   model: Model
 }
+defineProps<Props>()
+const modelStoreInstance = modelStore()
+const showModelDetail = ref(false)
+
 
 watch(() => modelStoreInstance.reload, (newValue: number, oldValue: number) => {
   if (newValue !== oldValue) {
@@ -32,7 +32,7 @@ const handleShowModelDetail = () => {
   showModelDetail.value = true
 }
 
-defineProps<Props>()
+
 </script>
 <template>
   <TableRow class="bg-[#3D3D3D] hover:bg-[#4E4E4E] hover:cursor-pointer border-[#F9FAFB]/60 h-12"
