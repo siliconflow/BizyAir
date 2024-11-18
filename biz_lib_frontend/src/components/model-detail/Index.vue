@@ -26,30 +26,22 @@ import { sliceString, formatSize, formatNumber } from '@/utils/tool'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { ref, onMounted, nextTick } from 'vue'
-import Vditor from 'vditor'
+
 import { useAlertDialog } from '@/components/modules/vAlertDialog/index'
-// import { MdPreview, MdCatalog } from 'md-editor-v3';
+import { MdPreview } from 'md-editor-v3';
 
 import { Model, ModelVersion } from '@/types/model'
 import { model_detail, like_model, fork_model, remove_model } from '@/api/model'
 import { useToaster } from '@/components/modules/toats/index'
 import 'md-editor-v3/lib/style.css';
 const modelStoreInstance = modelStore()
-const previewRef = ref<HTMLDivElement | null>(null)
+
 const model = ref<Model>()
 const currentVersion = ref<ModelVersion>()
 const downloadOpen = ref(false)
 const scrollViewportRef = ref<any | null>(null)
-const previewContent = async (content: string) => {
-  if (previewRef.value) {
-    if (!content) {
-      previewRef.value.innerHTML = '<span>No content available</span>'
-      return
-    }
-    const html = await Vditor.md2html(content, { mode: 'dark' })
-    previewRef.value.innerHTML = html
-  }
-}
+
+
 const props = defineProps<{
   modelId: string,
   version: ModelVersion
@@ -73,14 +65,12 @@ const beforeScroll = () => {
       if (targetVersion) {
         currentVersion.value = { ...targetVersion }
         nextTick(() => {
-          previewContent(targetVersion.intro || '')
           scrollWithDelay(props.version?.id)
         })
       }
     } else {
       currentVersion.value = { ...model.value.versions[0] }
       nextTick(() => {
-        previewContent(currentVersion.value?.intro || '')
         if (currentVersion.value?.id) {
           scrollWithDelay(currentVersion.value.id)
         }
@@ -99,7 +89,6 @@ const handleTabChange = (value: number) => {
   const version = model.value?.versions?.find(v => v.id === value)
   if (version) {
     currentVersion.value = version
-    previewContent(version.intro)
   }
 }
 
@@ -361,8 +350,20 @@ const handleCopy = async (sign: string) => {
     </div>
     <div class="flex flex-row gap-8  items-start justify-start self-stretch flex-1 relative">
       <div class="flex flex-col gap-4 items-start justify-start  relative min-w-[620px] w-[65%]  overflow-hidden ">
-        <div ref="previewRef"
-          class="custom-scrollbar max-h-[80vh] overflow-y-auto w-full rounded-tl-lg rounded-tr-lg custom-shadow"></div>
+        <ScrollArea class="h-[80vh] w-full ">
+          <!-- <MdPreview id="previewRef" :modelValue="content" :noImgZoomIn="true" :preview="true" theme="dark"
+            class="bg-[#353535] w-full " /> -->
+          <MdPreview v-if="currentVersion?.intro" id="previewRef" :modelValue="currentVersion?.intro"
+            :noImgZoomIn="true" :preview="true" theme="dark" class="bg-[#353535] w-full" />
+          <div v-else class="w-full h-[80vh] bg-[#353535] rounded-tl-lg rounded-tr-lg">
+            <div class="flex justify-center items-center h-full">
+              <div
+                class="text-text-text-muted-foreground text-left font-['Inter-Regular',_sans-serif] text-xs leading-5 font-normal relative">
+                No introduction yet
+              </div>
+            </div>
+          </div>
+        </ScrollArea>
       </div>
       <div class="flex flex-col gap-6 items-start justify-start w-[40%] relative">
         <div class="pb-8 flex flex-col gap-6 items-start justify-start shrink-0   h-[97px] relative">
@@ -505,6 +506,47 @@ const handleCopy = async (sign: string) => {
 </template>
 
 <style scoped>
+.md-editor-dark {
+  @apply bg-[#353535] text-[#F9FAFB] text-sm;
+}
+
+.md-editor-dark {
+  @apply bg-[#353535] text-[#F9FAFB];
+}
+
+:deep(.md-editor-preview-wrapper) {
+  @apply text-[#F9FAFB];
+}
+
+:deep(.md-editor-preview) {
+  @apply text-[#F9FAFB];
+
+  p,
+  li,
+  table {
+    @apply text-[#F9FAFB];
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply text-[#F9FAFB];
+  }
+
+  code {
+    @apply text-[#F9FAFB] bg-[#424242];
+  }
+
+  blockquote {
+    @apply text-[#F9FAFB] border-l-4 border-[#6b7280];
+  }
+}
+
+
+
 :deep([role="tablist"]) {
   display: inline-flex;
   min-width: min-content;

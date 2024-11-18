@@ -17,7 +17,7 @@
     --popover: 224 71% 4%;
     --popover-foreground: 215 20.2% 65.1%;
 
-    --border: 216 34% 17%;
+    --border: 224 71% 4%;
     --input: 216 34% 17%;
 
     --card: 224 71% 4%;
@@ -48,18 +48,22 @@
     @apply bg-background text-foreground;
   }
 }
+
 @layer utilities {
   .custom-scrollbar {
     scrollbar-width: thin;
     scrollbar-color: #222 #000;
+
     &::-webkit-scrollbar {
       width: 8px;
       border-radius: 4px;
     }
+
     &::-webkit-scrollbar-thumb {
       background-color: #222;
       border-radius: 4px;
     }
+
     &::-webkit-scrollbar-track {
       background-color: #000;
       border-radius: 4px;
