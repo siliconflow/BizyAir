@@ -41,20 +41,7 @@ const currentVersion = ref<ModelVersion>()
 const downloadOpen = ref(false)
 const scrollViewportRef = ref<any | null>(null)
 
-const content = `**那年春，一贱东来**
-![](https://bizyair-dev.oss-cn-shanghai.aliyuncs.com/img/20241115/BCByOp36cMyT1cSyjLY8YEqnFeYhbHIk.png)
-![](https://bizyair-dev.oss-cn-shanghai.aliyuncs.com/img/20241115/em67clfN48DAIxCZiHHeDHqQuv6wtJXi.png)
-![](https://bizyair-dev.oss-cn-shanghai.aliyuncs.com/img/20241115/ORt2xhNXK7Qqgl8r8vu1R5C0A42fc7lk.png)
 
-![](https://bizyair-dev.oss-cn-shanghai.aliyuncs.com/img/20241115/BCByOp36cMyT1cSyjLY8YEqnFeYhbHIk.png)
-![](https://bizyair-dev.oss-cn-shanghai.aliyuncs.com/img/20241115/em67clfN48DAIxCZiHHeDHqQuv6wtJXi.png)
-![](https://bizyair-dev.oss-cn-shanghai.aliyuncs.com/img/20241115/ORt2xhNXK7Qqgl8r8vu1R5C0A42fc7lk.png)
-
-![](https://bizyair-dev.oss-cn-shanghai.aliyuncs.com/img/20241115/BCByOp36cMyT1cSyjLY8YEqnFeYhbHIk.png)
-![](https://bizyair-dev.oss-cn-shanghai.aliyuncs.com/img/20241115/em67clfN48DAIxCZiHHeDHqQuv6wtJXi.png)
-![](https://bizyair-dev.oss-cn-shanghai.aliyuncs.com/img/20241115/ORt2xhNXK7Qqgl8r8vu1R5C0A42fc7lk.png)
-吕树
-    `
 const props = defineProps<{
   modelId: string,
   version: ModelVersion
@@ -363,17 +350,19 @@ const handleCopy = async (sign: string) => {
     </div>
     <div class="flex flex-row gap-8  items-start justify-start self-stretch flex-1 relative">
       <div class="flex flex-col gap-4 items-start justify-start  relative min-w-[620px] w-[65%]  overflow-hidden ">
-        <MdPreview v-if="currentVersion?.intro" id="previewRef" :modelValue="currentVersion?.intro" :noImgZoomIn="true"
-          :preview="true" theme="dark"
-          class="custom-scrollbar bg-[#353535] max-h-[80vh] overflow-y-auto w-full rounded-tl-lg rounded-tr-lg custom-shadow" />
-        <div v-else class="w-full h-[80vh] bg-[#353535] rounded-tl-lg rounded-tr-lg">
-          <div class="flex justify-center items-center h-full">
-            <div
-              class="text-text-text-muted-foreground text-left font-['Inter-Regular',_sans-serif] text-xs leading-5 font-normal relative">
-              No more intro
+        <ScrollArea class="h-[80vh] w-full ">
+          <MdPreview v-if="currentVersion?.intro" id="previewRef" :modelValue="currentVersion?.intro"
+            :noImgZoomIn="true" :preview="true" theme="dark"
+            class="custom-scrollbar bg-[#353535] max-h-[80vh] overflow-y-auto w-full rounded-tl-lg rounded-tr-lg custom-shadow" />
+          <div v-else class="w-full h-[80vh] bg-[#353535] rounded-tl-lg rounded-tr-lg">
+            <div class="flex justify-center items-center h-full">
+              <div
+                class="text-text-text-muted-foreground text-left font-['Inter-Regular',_sans-serif] text-xs leading-5 font-normal relative">
+                No more intro
+              </div>
             </div>
           </div>
-        </div>
+        </ScrollArea>
       </div>
       <div class="flex flex-col gap-6 items-start justify-start w-[40%] relative">
         <div class="pb-8 flex flex-col gap-6 items-start justify-start shrink-0   h-[97px] relative">
@@ -554,6 +543,8 @@ const handleCopy = async (sign: string) => {
     @apply text-[#F9FAFB] border-l-4 border-[#6b7280];
   }
 }
+
+
 
 :deep([role="tablist"]) {
   display: inline-flex;

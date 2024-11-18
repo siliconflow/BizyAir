@@ -58,7 +58,7 @@ defineProps<Props>()
         </div>
       </div>
     </TableCell>
-    <TableCell class="w-[15%] truncate block">{{ version.base_model }}</TableCell>
+    <TableCell class="w-[15%] ">{{ version.base_model }}</TableCell>
     <TableCell class="w-[15%]">{{ version.available ? 'Available' : 'Unavailable' }}</TableCell>
     <TableCell class="w-[15%] flex justify-start">
       <Button variant="default" @click.stop="handleApply(version, model)" :disabled="!version.available"

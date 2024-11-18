@@ -144,26 +144,26 @@ onMounted(async () => {
             Community Models
           </TabsTrigger>
         </TabsList>
-        <TabsContent value="my" v-if="modelStoreInstance.mode === 'my'">
+        <TabsContent value="my" v-if="modelStoreInstance.mode === 'my'" class="h-[600px] flex flex-col">
           <ModelFilterBar v-model:show-sort-popover="showSortPopover" @fetchData="getModelList" />
-          <div class="min-h-[450px]">
+          <div class="flex-1 min-h-0">
             <ModelTable v-if="models.length > 0" :models="models" />
           </div>
-          <ModelPagination @change="getModelList" />
+          <ModelPagination v-if="models.length > 0" @change="getModelList" />
         </TabsContent>
-        <TabsContent value="my_fork" v-if="modelStoreInstance.mode === 'my_fork'">
+        <TabsContent value="my_fork" v-if="modelStoreInstance.mode === 'my_fork'" class="h-[600px] flex flex-col">
           <ModelFilterBar v-model:show-sort-popover="showSortPopover" @fetchData="getModelList" />
-          <div class="min-h-[450px]">
+          <div class="flex-1 min-h-0">
             <ModelTable v-if="models.length > 0" :models="models" />
           </div>
-          <ModelPagination @change="getModelList" />
+          <ModelPagination v-if="models.length > 0" @change="getModelList" />
         </TabsContent>
-        <TabsContent value="publicity" v-if="modelStoreInstance.mode === 'publicity'">
+        <TabsContent value="publicity" v-if="modelStoreInstance.mode === 'publicity'" class="h-[600px] flex flex-col">
           <ModelFilterBar v-model:show-sort-popover="showSortPopover" @fetchData="getModelList" />
-          <div class="min-h-[450px]">
+          <div class="flex-1 min-h-0">
             <ModelTable v-if="models.length > 0" :models="models" />
           </div>
-          <ModelPagination @change="getModelList" />
+          <ModelPagination v-if="models.length > 0" @change="getModelList" />
         </TabsContent>
       </Tabs>
     </div>
