@@ -57,13 +57,6 @@
               </v-select>
             </v-item>
             <v-item label="Introduction">
-              <!-- <Markdown :editorId="`myeditor${i}`" @update:modelValue="val => handleMarkdownChange(val, i)" @isUploading="handleIsUploading" /> -->
-                <!-- <div class="h-[500px] relative z-10000"> -->
-                  <!--  <EasyMarkdown :editor-id="`myeditor${i}`" @is-uploading="handleIsUploading" @model-value="handleUpdateValue"/> -->
-                <!-- </div> -->
-              <!-- <div class="editor-container">
-                <EasyMarkdown :editor-id="`myeditor${i}`" @is-uploading="handleIsUploading" @model-value="(val: any) => handleUpdateValue(val, i)" />
-              </div> -->
               <Markdown v-model.modelValue="e.intro" :editorId="`myeditor${i}`" />
             </v-item>
             <v-item label="">
@@ -122,9 +115,7 @@ import { useShadet } from '@/components/modules/vShadet/index'
 
 import { useStatusStore} from '@/stores/userStatus'
 import { modelStore } from '@/stores/modelStatus'
-// import { Markdown } from '@/components/markdown'
 import Markdown from '@/components/markdown/Index2.vue'
-// import { EasyMarkdown } from '@/components/easy-mark'
 import { create_models, checkLocalFile, submitUpload, model_types, base_model_types, put_model, interrupt_upload } from '@/api/model'
 import { onMounted } from 'vue'
 import { Minus } from 'lucide-vue-next'
@@ -346,128 +337,4 @@ onMounted(async () => {
 })
 </script>
 <style scoped>
-.custom-shadow {
-  box-shadow: 0px -6px 20px 0px rgba(255, 255, 255, 0.10);
-}
-.editor-container {
-  position: relative;
-  min-height: 300px;
-}
-
-.editor-container :deep(.editor-toolbar) {
-  position: relative;
-  z-index: 2;
-  background-color: #1a1a1a;
-  border: 1px solid #333;
-  border-bottom: none;
-  border-radius: 4px 4px 0 0;
-  opacity: 1 !important;
-}
-
-.editor-container :deep(.CodeMirror) {
-  position: absolute;
-  top: 50px;
-  left: 0;
-  right: 0;
-  height: calc(100% - 50px) !important;
-  min-height: 300px;
-  background-color: #1a1a1a;
-  border: 1px solid #333;
-  border-radius: 0 0 4px 4px;
-  z-index: 1;
-  cursor: text;
-}
-
-.editor-container :deep(.CodeMirror-focused),
-:global(.CodeMirror-fullscreen.CodeMirror-focused) {
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(74, 35, 142, 0.2);
-}
-
-.editor-container :deep(.CodeMirror-cursor),
-:global(.CodeMirror-fullscreen .CodeMirror-cursor) {
-  border-left: 2px solid #fff;
-  background-color: #fff;
-  width: 2px;
-  position: absolute;
-  z-index: 3;
-}
-
-.editor-container :deep(.CodeMirror pre.CodeMirror-line),
-:global(.CodeMirror-fullscreen pre.CodeMirror-line) {
-  padding: 0 4px;
-  position: relative;
-  z-index: 2;
-}
-
-
-.editor-container :deep(.CodeMirror-selected) {
-  background: rgba(74, 35, 142, 0.3) !important;
-}
-
-.editor-container :deep(.CodeMirror pre.CodeMirror-line) {
-  padding: 0 8px;
-}
-
-.editor-container :deep(.CodeMirror-cursor) {
-  border-left: 2px solid #fff;
-  background-color: transparent;
-  width: 0;
-  position: absolute;
-  z-index: 3;
-  margin-left: -4px;
-}
-
-:global(.CodeMirror-fullscreen .CodeMirror-cursor) {
-  border-left: 2px solid #fff;
-  background-color: transparent;
-  width: 0;
-  position: absolute;
-  z-index: 3;
-  margin-left: 4px;
-}
-
-.editor-container :deep(.CodeMirror pre.CodeMirror-line) {
-  padding: 0 4px;
-  position: relative;
-  z-index: 2;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-  line-height: 1.5;
-}
-
-
-:global(.CodeMirror-fullscreen pre.CodeMirror-line) {
-  padding: 0 4px;
-  position: relative;
-  z-index: 2;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-  line-height: 1.5;
-}
-
-:global(.CodeMirror-fullscreen) {
-  z-index: 9999;
-}
-
-:global(.CodeMirror-fullscreen .CodeMirror-scroll) {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-}
-
-.editor-container :deep(.CodeMirror-measure) {
-  position: absolute;
-  width: 100%;
-  height: 0;
-  overflow: hidden;
-  visibility: hidden;
-}
-
-.editor-container :deep(.CodeMirror-sizer) {
-  position: relative;
-  margin-left: 0 !important;
-}
 </style>
