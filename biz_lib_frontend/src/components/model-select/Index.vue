@@ -103,15 +103,15 @@ watch(() => modelStoreInstance.closeModelSelectDialog, (newVal: boolean, oldVal:
   }
 }, { deep: true })
 
-watch(() => modelStoreInstance.reload, (newVal: number, oldVal: number) => {
+watch(() => modelStoreInstance.reload, async (newVal: number, oldVal: number) => {
   if (newVal !== oldVal) {
-    getModelList()
+    await getModelList()
   }
 }, { deep: true })
 
-watch(() => modelStoreInstance.reloadModelSelectList, (newVal: boolean, oldVal: boolean) => {
+watch(() => modelStoreInstance.reloadModelSelectList, async (newVal: boolean, oldVal: boolean) => {
   if (newVal !== oldVal) {
-    getModelList()
+    await getModelList()
   }
 }, { deep: true })
 
