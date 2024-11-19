@@ -1,9 +1,6 @@
-import json
-import os
-import urllib.parse
-import urllib.request
 
-import requests
+import os
+import aiohttp
 
 import bizyair
 import bizyair.common
@@ -21,6 +18,13 @@ CLIENT_VERSION = "v20241029"
 class APIClient:
     def __init__(self):
         self.error_handler = ErrorHandler()
+        self.session = None
+        
+    async def get_session(self):
+        if self.session is None:
+            timeout = aiohttp.ClientTimeout(total=3)
+            self.session = aiohttp.ClientSession(timeout=timeout)
+        return self.session
 
     def auth_header(self):
         try:
@@ -38,62 +42,57 @@ class APIClient:
             errnos.INVALID_API_KEY.message = error_message
             return None, errnos.INVALID_API_KEY
 
-    def do_get(self, url, params=None, headers=None):
-        if params:
-            query_string = urllib.parse.urlencode(params, doseq=True)
-            url = f"{url}?{query_string}"
-        response = requests.get(url, headers=headers, timeout=3)
-        resp_json = json.loads(response.text)
-        if response.status_code != 200:
-            return None, ErrorNo(
-                response.status_code,
-                resp_json.get("code", response.status_code),
-                None,
-                resp_json.get("message", response.text),
-            )
-        return resp_json, None
+    async def do_get(self, url, params=None, headers=None):
+        session = await self.get_session()
+        async with session.get(url, params=params, headers=headers) as response:
+            resp_json = await response.json()
+            if response.status != 200:
+                return None, ErrorNo(
+                    response.status,
+                    resp_json.get("code", response.status),
+                    None,
+                    resp_json.get("message", await response.text()),
+                )
+            return resp_json, None
 
-    def do_post(self, url, data=None, headers=None):
-        if data:
-            data = json.dumps(data)
-        response = requests.post(url, data=data, headers=headers, timeout=3)
-        resp_json = json.loads(response.text)
-        if response.status_code != 200:
-            return None, ErrorNo(
-                response.status_code,
-                resp_json.get("code", response.status_code),
-                None,
-                resp_json.get("message", response.text),
-            )
-        return resp_json, None
+    async def do_post(self, url, data=None, headers=None):
+        session = await self.get_session()
+        async with session.post(url, json=data, headers=headers) as response:
+            resp_json = await response.json()
+            if response.status != 200:
+                return None, ErrorNo(
+                    response.status,
+                    resp_json.get("code", response.status),
+                    None,
+                    resp_json.get("message", await response.text()),
+                )
+            return resp_json, None
 
-    def do_put(self, url, data=None, headers=None):
-        if data:
-            data = bytes(json.dumps(data), "utf-8")
-        response = requests.put(url, data=data, headers=headers, timeout=3)
-        resp_json = json.loads(response.text)
-        if response.status_code != 200:
-            return None, ErrorNo(
-                response.status_code,
-                resp_json.get("code", response.status_code),
-                None,
-                resp_json.get("message", response.text),
-            )
-        return resp_json, None
+    async def do_put(self, url, data=None, headers=None):
+        session = await self.get_session()
+        async with session.put(url, json=data, headers=headers) as response:
+            resp_json = await response.json()
+            if response.status != 200:
+                return None, ErrorNo(
+                    response.status,
+                    resp_json.get("code", response.status),
+                    None,
+                    resp_json.get("message", await response.text()),
+                )
+            return resp_json, None
 
-    def do_delete(self, url, data=None, headers=None):
-        if data:
-            data = bytes(json.dumps(data), "utf-8")
-        response = requests.delete(url, data=data, headers=headers, timeout=3)
-        resp_json = json.loads(response.text)
-        if response.status_code != 200:
-            return None, ErrorNo(
-                response.status_code,
-                resp_json.get("code", response.status_code),
-                None,
-                resp_json.get("message", response.text),
-            )
-        return resp_json, None
+    async def do_delete(self, url, data=None, headers=None):
+        session = await self.get_session()
+        async with session.delete(url, json=data, headers=headers) as response:
+            resp_json = await response.json()
+            if response.status != 200:
+                return None, ErrorNo(
+                    response.status,
+                    resp_json.get("code", response.status),
+                    None,
+                    resp_json.get("message", await response.text()),
+                )
+            return resp_json, None
 
     async def user_info(self) -> tuple[dict | None, ErrorNo | None]:
         headers, err = self.auth_header()
@@ -102,7 +101,7 @@ class APIClient:
 
         server_url = f"{BIZYAIR_SERVER_ADDRESS}/user/info"
         try:
-            ret, err = self.do_get(server_url, headers=headers)
+            ret, err = await self.do_get(server_url, headers=headers)
             if err is not None:
                 return None, err
 
@@ -118,7 +117,7 @@ class APIClient:
             return None, err
 
         try:
-            ret, err = self.do_get(server_url, params=None, headers=headers)
+            ret, err = await self.do_get(server_url, params=None, headers=headers)
             if err is not None:
                 return None, err
 
@@ -142,7 +141,7 @@ class APIClient:
             return None, err
 
         try:
-            ret, err = self.do_post(server_url, data=payload, headers=headers)
+            ret, err = await self.do_post(server_url, data=payload, headers=headers)
             if err is not None:
                 return None, err
 
@@ -159,7 +158,7 @@ class APIClient:
             return None, err
 
         try:
-            ret, err = self.do_post(server_url, data=payload, headers=headers)
+            ret, err = await self.do_post(server_url, data=payload, headers=headers)
             if err is not None:
                 return None, err
 
@@ -178,7 +177,7 @@ class APIClient:
             return None, err
 
         try:
-            ret, err = self.do_delete(server_url, headers=headers)
+            ret, err = await self.do_delete(server_url, headers=headers)
             if err is not None:
                 return None, err
 
@@ -212,7 +211,7 @@ class APIClient:
             return None, err
 
         try:
-            ret, err = self.do_get(server_url, params=params, headers=headers)
+            ret, err = await self.do_get(server_url, params=params, headers=headers)
             if err is not None:
                 return None, err
 
@@ -247,7 +246,7 @@ class APIClient:
             return None, err
 
         try:
-            ret, err = self.do_get(server_url, params=params, headers=headers)
+            ret, err = await self.do_get(server_url, params=params, headers=headers)
             if err is not None:
                 return None, err
 
@@ -268,7 +267,7 @@ class APIClient:
             return None, err
 
         try:
-            ret, err = self.do_get(server_url, headers=headers)
+            ret, err = await self.do_get(server_url, headers=headers)
             if err is not None:
                 return None, err
 
@@ -287,7 +286,7 @@ class APIClient:
             return None, err
 
         try:
-            ret, err = self.do_get(server_url, headers=headers)
+            ret, err = await self.do_get(server_url, headers=headers)
             if err is not None:
                 return None, err
 
@@ -306,7 +305,7 @@ class APIClient:
             return None, err
 
         try:
-            ret, err = self.do_post(server_url, headers=headers)
+            ret, err = await self.do_post(server_url, headers=headers)
             if err is not None:
                 return None, err
 
@@ -327,7 +326,7 @@ class APIClient:
         data = {"name": name, "type": type_, "versions": versions}
 
         try:
-            ret, err = self.do_put(server_url, data=data, headers=headers)
+            ret, err = await self.do_put(server_url, data=data, headers=headers)
             if err is not None:
                 return None, err
 
@@ -346,7 +345,7 @@ class APIClient:
             return None, err
 
         try:
-            ret, err = self.do_get(server_url, headers=headers)
+            ret, err = await self.do_get(server_url, headers=headers)
             if err is not None:
                 return None, err
 
@@ -370,7 +369,7 @@ class APIClient:
             return None, err
 
         try:
-            ret, err = self.do_post(server_url, headers=headers)
+            ret, err = await self.do_post(server_url, headers=headers)
             if err is not None:
                 return None, err
 
@@ -389,7 +388,7 @@ class APIClient:
             return None, err
 
         try:
-            ret, err = self.do_get(server_url, headers=headers)
+            ret, err = await self.do_get(server_url, headers=headers)
             if err is not None:
                 return None, err
 
