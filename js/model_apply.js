@@ -19,7 +19,7 @@ app.registerExtension({
             };
         }
     },
-    
+
 
 
     async nodeCreated(node) {
@@ -28,9 +28,9 @@ app.registerExtension({
 
             let lastClickTime = 0;
             const DEBOUNCE_DELAY = 300; // 300ms防抖延迟
-        
+
             hideWidget(node, "model_version_id");
-                   
+
             node.onMouseDown = function( e, pos, canvas ) {
                 console.log(this.size, this.widgets)
                 const lora_name = this.widgets.find(widget => widget.name === "lora_name")
