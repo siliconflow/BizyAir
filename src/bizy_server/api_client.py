@@ -4,6 +4,7 @@ import aiohttp
 
 import bizyair
 import bizyair.common
+from bizyair.common.env_var import BIZYAIR_SERVER_ADDRESS
 
 from .errno import ErrorNo, errnos
 from .error_handler import ErrorHandler
@@ -19,7 +20,7 @@ class APIClient:
     def __init__(self):
         self.error_handler = ErrorHandler()
         self.session = None
-        
+
     async def get_session(self):
         if self.session is None:
             timeout = aiohttp.ClientTimeout(total=3)

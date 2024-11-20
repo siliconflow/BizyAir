@@ -29,7 +29,7 @@ def load_yaml_config(file_path):
 
 def get_service_route(service_config: Dict[str, str]) -> Union[str, None]:
     if {"route"}.issubset(service_config):
-        return service_config.get(
-            "service_address", BIZYAIR_SERVER_ADDRESS
+        return str(
+            service_config.get("service_address", BIZYAIR_SERVER_ADDRESS)
         ) + service_config.get("route")
     return None
