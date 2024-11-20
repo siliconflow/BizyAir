@@ -109,7 +109,6 @@ const saveShareId = async () => {
       continue: 'Yes, Delete It',
       z: 'z-9000'
     })
-    console.log(statusStore.infoData.share_id)
     if (!res) {
       statusStore.infoData.share_id = recordShareId.value;
     } else {

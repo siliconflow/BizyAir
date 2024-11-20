@@ -63,32 +63,21 @@ export const showModelSelect = (options: { [x: string]: unknown; } | null | unde
 
 let app = createApp(App)
 app.use(createPinia())
-// 修改 mount 方法接收 props
 export function mount(container: string | Element,comfyUIApp?: any) {
-  // console.log('mount', container, comfyUIApp, props)
-  // if (app) {
-  //   console.warn('应用已经挂载，请先卸载后再重新挂载')
-  //   return
-  // }
 
   app.provide('comfyUIApp', comfyUIApp);
-  // app.component
 
   app.mount(container)
-  // return app
 }
 
-// 导出卸载方法
 export function unmount() {
   if (!app) {
-    console.warn('应用尚未挂载，无需卸载')
     return
   }
   app.unmount()
 
 }
 
-// 如果是直接运行而不是作为库使用，则自动挂载
 if (import.meta.env.MODE !== 'production') {
   mount('#app')
 }
