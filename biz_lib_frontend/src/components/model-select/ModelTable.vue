@@ -38,6 +38,10 @@ const props = defineProps({
     type: Array as PropType<Model[]>,
     required: true
   },
+  isLoading: {
+    type: Boolean,
+    default: false
+  }
 })
 
 const expandedModels = ref<Set<string>>(new Set())
@@ -121,7 +125,7 @@ const handleRemoveModel = async (id: string) => {
         </TableRow>
       </TableHeader>
       <TableBody>
-        <template v-if="props.models.length === 0">
+        <template v-if="props.isLoading">
           <TableRow v-for="i in 5" :key="i">
             <TableCell class="w-[55%]">
               <div class="flex items-center space-x-2">
@@ -144,74 +148,85 @@ const handleRemoveModel = async (id: string) => {
           </TableRow>
         </template>
         <template v-else>
-          <template v-for="model in props.models" :key="`${model.id}-${model.name}`">
-            <TableRow class=" group cursor-pointer border-[#F9FAFB]/60 hover:bg-transparent h-12">
-              <TableCell class="w-[55%]" @click="toggleExpand(model.name)">
-                <div class="flex items-center space-x-2">
-                  <span class="text-sm">
-                    <svg v-if="expandedModels.has(model.name)" xmlns="http://www.w3.org/2000/svg" width="16" height="17"
-                      viewBox="0 0 16 17" fill="none">
-                      <path d="M4 6L8 10L12 6" stroke="#F9FAFB" stroke-width="1.5" stroke-linecap="round"
-                        stroke-linejoin="round" />
-                    </svg>
-                    <svg v-else xmlns="http://www.w3.org/2000/svg" width="16" height="17" viewBox="0 0 16 17"
-                      fill="none">
-                      <path d="M6 4L10 8L6 12" stroke="#F9FAFB" stroke-width="1.5" stroke-linecap="round"
-                        stroke-linejoin="round" />
-                    </svg>
-                  </span>
-                  <span>{{ model.name }}</span>
-                  <Badge variant="default">{{ model.type }}</Badge>
-                </div>
-              </TableCell>
-              <TableCell class="w-[15%]">-</TableCell>
-              <TableCell class="w-[15%]">-</TableCell>
-              <TableCell class="w-[15%]">
-                <div class="flex justify-end h-full">
-                  <Popover v-if="modelStoreInstance.mode === 'my' || modelStoreInstance.mode === 'my_fork'"
-                    class="bg-[#353535] z-[5100]mmm" :open="currentOperateModel === model.name"
-                    @update:open="(value) => value ? currentOperateModel = model.name : currentOperateModel = ''">
-                    <PopoverTrigger>
-                      <div class="flex justify-center items-center hover:bg-[#222222] rounded-md w-8 h-8">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                          <path fill="white"
-                            d="M12 16a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2" />
-                        </svg>
-                      </div>
-                    </PopoverTrigger>
-                    <PopoverContent side="bottom" align="end"
-                      class="w-[150px] p-0 bg-[#353535] rounded-lg group-hover:visible">
-                      <Command>
-                        <CommandList>
-                          <CommandGroup>
-                            <CommandItem value="edit" @click="handleOperateChange('edit', model)"
-                              class="px-2 py-1.5 mb-1 text-[#F9FAFB] cursor-pointer [&:hover]:!bg-[#6D28D9] [&:hover]:!text-[#F9FAFB]">
-                              Edit
-                            </CommandItem>
-                            <CommandSeparator />
-                            <CommandItem value="remove" @click="handleOperateChange('remove', model)"
-                              class="px-2 py-1.5 mb-1 mt-1 text-[#F9FAFB] cursor-pointer [&:hover]:!bg-[#6D28D9] [&:hover]:!text-[#F9FAFB]">
-                              Remove
-                            </CommandItem>
-                          </CommandGroup>
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
-                  <div v-else class="w-8 h-8"></div>
+          <template v-if="props.models.length > 0">
+            <template v-for="model in props.models" :key="`${model.id}-${model.name}`">
+              <TableRow class=" group cursor-pointer border-[#F9FAFB]/60 hover:bg-transparent h-12">
+                <TableCell class="w-[55%]" @click="toggleExpand(model.name)">
+                  <div class="flex items-center space-x-2">
+                    <span class="text-sm">
+                      <svg v-if="expandedModels.has(model.name)" xmlns="http://www.w3.org/2000/svg" width="16"
+                        height="17" viewBox="0 0 16 17" fill="none">
+                        <path d="M4 6L8 10L12 6" stroke="#F9FAFB" stroke-width="1.5" stroke-linecap="round"
+                          stroke-linejoin="round" />
+                      </svg>
+                      <svg v-else xmlns="http://www.w3.org/2000/svg" width="16" height="17" viewBox="0 0 16 17"
+                        fill="none">
+                        <path d="M6 4L10 8L6 12" stroke="#F9FAFB" stroke-width="1.5" stroke-linecap="round"
+                          stroke-linejoin="round" />
+                      </svg>
+                    </span>
+                    <span>{{ model.name }}</span>
+                    <Badge variant="default">{{ model.type }}</Badge>
+                  </div>
+                </TableCell>
+                <TableCell class="w-[15%]">-</TableCell>
+                <TableCell class="w-[15%]">-</TableCell>
+                <TableCell class="w-[15%]">
+                  <div class="flex justify-end h-full">
+                    <Popover v-if="modelStoreInstance.mode === 'my' || modelStoreInstance.mode === 'my_fork'"
+                      class="bg-[#353535] z-[5100]mmm" :open="currentOperateModel === model.name"
+                      @update:open="(value) => value ? currentOperateModel = model.name : currentOperateModel = ''">
+                      <PopoverTrigger>
+                        <div class="flex justify-center items-center hover:bg-[#222222] rounded-md w-8 h-8">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                            <path fill="white"
+                              d="M12 16a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2" />
+                          </svg>
+                        </div>
+                      </PopoverTrigger>
+                      <PopoverContent side="bottom" align="end"
+                        class="w-[150px] p-0 bg-[#353535] rounded-lg group-hover:visible">
+                        <Command>
+                          <CommandList>
+                            <CommandGroup>
+                              <CommandItem value="edit" @click="handleOperateChange('edit', model)"
+                                class="px-2 py-1.5 mb-1 text-[#F9FAFB] cursor-pointer [&:hover]:!bg-[#6D28D9] [&:hover]:!text-[#F9FAFB]">
+                                Edit
+                              </CommandItem>
+                              <CommandSeparator />
+                              <CommandItem value="remove" @click="handleOperateChange('remove', model)"
+                                class="px-2 py-1.5 mb-1 mt-1 text-[#F9FAFB] cursor-pointer [&:hover]:!bg-[#6D28D9] [&:hover]:!text-[#F9FAFB]">
+                                Remove
+                              </CommandItem>
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                    <div v-else class="w-8 h-8"></div>
+                  </div>
+                </TableCell>
+              </TableRow>
+              <template v-if="expandedModels.has(model.name) && model.versions">
+                <ModelVersionRow v-for="version in model.versions" :model="model" :key="version.version"
+                  :version="version" />
+              </template>
+            </template>
+          </template>
+          <template v-else>
+            <TableRow class="hover:bg-transparent">
+              <TableCell colspan="4" class="h-[400px]">
+                <div class="flex items-center justify-center  h-full text-[#F9FAFB] ">
+                  No available data
                 </div>
               </TableCell>
             </TableRow>
-            <template v-if="expandedModels.has(model.name) && model.versions">
-              <ModelVersionRow v-for="version in model.versions" :model="model" :key="version.version"
-                :version="version" />
-            </template>
           </template>
         </template>
       </TableBody>
     </Table>
     <div class="w-full flex justify-center mt-8">
-      <template v-if="props.models.length === 0">
+      <template v-if="props.isLoading">
         <div class="flex items-center gap-1">
           <Skeleton class="h-10 w-10 rounded-md bg-[#353535]" />
           <Skeleton class="h-10 w-10 rounded-md bg-[#353535] " />
@@ -220,7 +235,7 @@ const handleRemoveModel = async (id: string) => {
           <Skeleton class="h-10 w-10 rounded-md bg-[#353535]" />
         </div>
       </template>
-      <ModelPagination v-show="props.models.length > 0" @change="modelStoreInstance.reload++" />
+      <ModelPagination v-else @change="modelStoreInstance.reload++" />
     </div>
   </div>
 </template>

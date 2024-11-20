@@ -158,7 +158,7 @@ onMounted(async () => {
                 <ModelFilterBar v-model:show-sort-popover="showSortPopover" @fetchData="getModelList"
                   class="shrink-0" />
                 <div class="h-full">
-                  <ModelTable :models="models" />
+                  <ModelTable :models="models" :isLoading="isLoading"/>
                 </div>
               </div>
               <div class="h-4"></div>
