@@ -5,6 +5,7 @@ import { createPinia } from 'pinia';
 import { ModelSelect } from '@/components/model-select/'
 
 export const showModelSelect = (options: { [x: string]: unknown; } | null | undefined) => {
+  let isMounted = false;
   const existingContainer = document.getElementById('bizyair-model-select');
   if (existingContainer) {
     document.body.removeChild(existingContainer);
@@ -15,7 +16,10 @@ export const showModelSelect = (options: { [x: string]: unknown; } | null | unde
   const app = createApp(ModelSelect, {
     ...options,
     onClose: () => {
-      app.unmount();
+      if (isMounted) {
+        app.unmount();
+        isMounted = false;
+      }
       if (document.body.contains(container)) {
         document.body.removeChild(container);
       }
@@ -23,7 +27,10 @@ export const showModelSelect = (options: { [x: string]: unknown; } | null | unde
     onApply: (...args: unknown[]) => {
       if (options?.onApply) {
         (options.onApply as (...args: unknown[]) => void)(...args);
-        app.unmount();
+        if (isMounted) {
+          app.unmount();
+          isMounted = false;
+        }
         if (document.body.contains(container)) {
           document.body.removeChild(container);
         }
@@ -48,6 +55,7 @@ export const showModelSelect = (options: { [x: string]: unknown; } | null | unde
   })
 
   const instance = app.mount(container);
+  isMounted = true;
   return {
     instance
   };

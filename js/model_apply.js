@@ -8,9 +8,8 @@ app.registerExtension({
     name: "bizyair.siliconcloud.share.lora.loader.new",
     async beforeRegisterNodeDef(nodeType, nodeData, app) {
         if (nodeData.name === "BizyAir_LoraLoaderNew") {
-
             function setWigetCallback() {
-                console.log(this)
+               
             }
             const onNodeCreated = nodeType.prototype.onNodeCreated
             nodeType.prototype.onNodeCreated = function () {
