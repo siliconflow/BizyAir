@@ -41,7 +41,6 @@ const currentVersion = ref<ModelVersion>()
 const downloadOpen = ref(false)
 const scrollViewportRef = ref<any | null>(null)
 
-
 const props = defineProps<{
   modelId: string,
   version: ModelVersion
@@ -210,8 +209,7 @@ const handleCopy = async (sign: string) => {
 
 <template>
   <div v-if="model"
-    class="bg-[#353535] rounded-radius-rounded-lg border-solid border-border-border-toast-destructive border p-6 pb-12 flex flex-col gap-4 items-start justify-start  min-w-[1000px] min-h-screen  relative"
-    style="box-shadow: 0px 20px 40px 0px rgba(0, 0, 0, 0.25)">
+    class="p-6 pb-12 flex flex-col gap-4 items-start justify-start min-w-[1000px]   relative shadow-[0px_20px_40px_0px_rgba(0,0,0,0.25)]">
     <div class="flex flex-col gap-1.5 items-start justify-start self-stretch shrink-0 relative">
       <div class="flex flex-row gap-2 items-center justify-start self-stretch shrink-0 relative">
         <div
@@ -267,14 +265,15 @@ const handleCopy = async (sign: string) => {
       <div class="flex flex-row gap-1 items-center justify-start self-stretch shrink-0 relative">
         <div
           class="bg-[#4e4e4e] rounded-lg p-1 flex flex-row gap-4 items-start justify-start self-stretch shrink-0 relative">
-          <div class="w-[300px]">
+          <div class="min-w-[200px] max-w-[600px]">
             <ScrollArea ref="scrollViewportRef" class="rounded-md w-full">
               <div class="whitespace-nowrap">
                 <Tabs :defaultValue="currentVersion?.id" :value="currentVersion?.id">
-                  <TabsList class="inline-flex h-12 bg-[#4E4E4E] text-sm w-auto">
+                  <TabsList class="inline-flex h-12  bg-transparent text-sm w-auto">
                     <TabsTrigger v-for="version in model?.versions" :value="version.id"
                       @click="handleTabChange(version.id)" :class="['version-tab', `version-tab-${version.id}`]"
-                      class="text-sm text-white data-[state=active]:bg-[#9CA3AF] data-[state=active]:text-white h-10 px-3 py-2">
+                      class="text-sm text-white bg-[#9CA3AF] data-[state=active]:bg-[#7C3AED] data-[state=active]:text-white h-10 px-3 py-2 mx-1">
+
                       {{ version.version }}
                     </TabsTrigger>
                   </TabsList>
@@ -355,12 +354,10 @@ const handleCopy = async (sign: string) => {
       </div>
     </div>
     <div class="flex flex-row gap-8  items-start justify-start self-stretch flex-1 relative">
-      <div class="flex flex-col gap-4 items-start justify-start  relative min-w-[620px] w-[65%]  overflow-hidden ">
-        <ScrollArea class="h-[80vh] w-full ">
-          <!-- <MdPreview id="previewRef" :modelValue="content" :noImgZoomIn="true" :preview="true" theme="dark"
-            class="bg-[#353535] w-full " /> -->
+      <div class="flex flex-col gap-4 items-start justify-start  relative min-w-[620px] w-[65%]   overflow-hidden ">
+        <div class="w-full min-h-[80vh]">
           <MdPreview v-if="currentVersion?.intro" id="previewRef" :modelValue="currentVersion?.intro"
-            :noImgZoomIn="true" :preview="true" theme="dark" class="bg-[#353535] w-full" />
+            :noImgZoomIn="true" :preview="true" theme="dark" class="bg-[#353535] w-full min-h-[80vh]" />
           <div v-else class="w-full h-[80vh] bg-[#353535] rounded-tl-lg rounded-tr-lg">
             <div class="flex justify-center items-center h-full">
               <div
@@ -369,7 +366,7 @@ const handleCopy = async (sign: string) => {
               </div>
             </div>
           </div>
-        </ScrollArea>
+        </div>
       </div>
       <div class="flex flex-col gap-6 items-start justify-start w-[40%] relative">
         <div class="pb-8 flex flex-col gap-6 items-start justify-start shrink-0   h-[97px] relative">

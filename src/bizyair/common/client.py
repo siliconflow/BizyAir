@@ -110,6 +110,7 @@ def send_request(
 ) -> dict:
     try:
         headers = kwargs.pop("headers") if "headers" in kwargs else _headers()
+        headers["User-Agent"] = "BizyAir Client"
 
         req = urllib.request.Request(
             url, data=data, headers=headers, method=method, **kwargs

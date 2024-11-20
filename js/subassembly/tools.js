@@ -1,5 +1,4 @@
 export const hideWidget = (node, widget_name) => {
-  console.log('[hideWidget]', widget_name)
   const widget = node.widgets.find(widget => widget.name === widget_name)
   if (!widget) {
     return
