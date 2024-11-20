@@ -357,8 +357,8 @@ const handleCopy = async (sign: string) => {
     <div class="flex flex-row gap-8  items-start justify-start self-stretch flex-1 relative">
       <div class="flex flex-col gap-4 items-start justify-start  relative min-w-[620px] w-[65%]   overflow-hidden ">
         <div class="w-full min-h-[80vh]">
-          <MdPreview v-if="currentVersion?.intro" id="previewRef" :modelValue="currentVersion?.intro" :noImgZoomIn="true"
-            :preview="true" theme="dark" class="bg-[#353535] w-full min-h-[80vh]" />
+          <MdPreview v-if="currentVersion?.intro" id="previewRef" :modelValue="currentVersion?.intro"
+            :noImgZoomIn="true" :preview="true" theme="dark" class="bg-[#353535] w-full min-h-[80vh]" />
           <div v-else class="w-full h-[80vh] bg-[#353535] rounded-tl-lg rounded-tr-lg">
             <div class="flex justify-center items-center h-full">
               <div
@@ -368,7 +368,6 @@ const handleCopy = async (sign: string) => {
             </div>
           </div>
         </div>
-        <!-- </ScrollArea> -->
       </div>
       <div class="flex flex-col gap-6 items-start justify-start w-[40%] relative">
         <div class="pb-8 flex flex-col gap-6 items-start justify-start shrink-0   h-[97px] relative">
