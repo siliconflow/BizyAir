@@ -7,16 +7,17 @@ import {
   TableCell,
   TableRow,
 } from '@/components/ui/table'
+
 import type { Model, ModelVersion } from '@/types/model'
 import { ref, watch } from 'vue'
-
-const modelStoreInstance = modelStore()
-const showModelDetail = ref(false)
-
 interface Props {
   version: ModelVersion,
   model: Model
 }
+defineProps<Props>()
+const modelStoreInstance = modelStore()
+const showModelDetail = ref(false)
+
 
 watch(() => modelStoreInstance.reload, (newValue: number, oldValue: number) => {
   if (newValue !== oldValue) {
@@ -32,10 +33,10 @@ const handleShowModelDetail = () => {
   showModelDetail.value = true
 }
 
-defineProps<Props>()
+
 </script>
 <template>
-  <TableRow class="bg-[#3D3D3D] hover:bg-[#4E4E4E] hover:cursor-pointer border-[#F9FAFB]/60 h-12"
+  <TableRow class=" bg-[#3D3D3D] hover:bg-[#4E4E4E] hover:cursor-pointer border-[#F9FAFB]/60 h-12"
     @click="handleShowModelDetail">
     <TableCell class="pl-10 w-[55%] max-w-[200px]">
       <div class="text-sm text-white-500 flex items-center min-w-0">
@@ -67,7 +68,9 @@ defineProps<Props>()
       </Button>
     </TableCell>
   </TableRow>
-  <vDialog v-model:open="showModelDetail" class="max-w-full h-screen px-6  pb-6 z-[8000]" :title="model.name">
+  <vDialog v-model:open="showModelDetail" class="max-w-full h-screen px-6 overflow-hidden  pb-6 z-[8000]"
+    contentClass="custom-scrollbar max-h-[100vh-120px]  overflow-y-auto w-full rounded-tl-lg rounded-tr-lg custom-shadow"
+    :title="model.name">
     <ModelDetail :modelId="model.id" :version="version" />
   </vDialog>
 </template>

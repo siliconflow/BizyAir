@@ -47,7 +47,7 @@ const props = defineProps<{
   version: ModelVersion
 }>()
 
-const getData = async () => {
+const fetchModelDetail = async () => {
   const res = await model_detail({ id: props.modelId, source: modelStoreInstance.mode })
   if (!res.data) {
     useToaster.error('Model not found.')
@@ -55,10 +55,10 @@ const getData = async () => {
     return
   }
   model.value = res.data
-  beforeScroll()
+  initializeScroll()
 }
 
-const beforeScroll = () => {
+const initializeScroll = () => {
   if (model.value && model.value.versions && model.value.versions.length > 0) {
     if (props.version?.id) {
       const targetVersion = model.value.versions.find(v => v.id === props.version.id)
@@ -81,7 +81,7 @@ const beforeScroll = () => {
 
 
 onMounted(async () => {
-  await getData()
+  await fetchModelDetail()
 
 })
 
@@ -98,12 +98,12 @@ const handleDownload = () => {
 
 const handleLike = async () => {
   await like_model(currentVersion.value?.id)
-  getData()
+  fetchModelDetail()
 }
 
 const handleFork = async () => {
   await fork_model(currentVersion.value?.id)
-  await getData()
+  await fetchModelDetail()
 }
 
 const scrollToTab = (versionId: number) => {
@@ -139,7 +139,7 @@ const scrollWithDelay = (versionId: number) => {
   }, 200)
 }
 
-const handleOperateChange = async (type: 'edit' | 'remove', id: string | number) => {
+const handleModelOperation = async (type: 'edit' | 'remove', id: string | number) => {
   if (type === 'edit') {
     modelStoreInstance.setModelDetail(model)
     modelStoreInstance.setDialogStatus(true, Number(currentVersion.value?.id))
@@ -168,11 +168,17 @@ const handleOperateChange = async (type: 'edit' | 'remove', id: string | number)
 }
 
 
-const handleRemoveModel = (id: number | string) => {
-  remove_model(id).then((_) => {
+const handleRemoveModel = async (id: number | string) => {
+  try {
+    await remove_model(id)
     useToaster.success('Model removed successfully.')
     modelStoreInstance.reload += 1
-  })
+  } catch (error) {
+    useToaster.error('Failed to remove model.')
+    console.error('Error removing model:', error)
+  }
+
+
 }
 
 
@@ -204,8 +210,7 @@ const handleCopy = async (sign: string) => {
 
 <template>
   <div v-if="model"
-    class="bg-[#353535] rounded-radius-rounded-lg border-solid border-border-border-toast-destructive border p-6 pb-12 flex flex-col gap-4 items-start justify-start  min-w-[1000px] min-h-screen  relative"
-    style="box-shadow: 0px 20px 40px 0px rgba(0, 0, 0, 0.25)">
+    class="p-6 pb-12 flex flex-col gap-4 items-start justify-start min-w-[1000px]   relative shadow-[0px_20px_40px_0px_rgba(0,0,0,0.25)]">
     <div class="flex flex-col gap-1.5 items-start justify-start self-stretch shrink-0 relative">
       <div class="flex flex-row gap-2 items-center justify-start self-stretch shrink-0 relative">
         <div
@@ -261,14 +266,15 @@ const handleCopy = async (sign: string) => {
       <div class="flex flex-row gap-1 items-center justify-start self-stretch shrink-0 relative">
         <div
           class="bg-[#4e4e4e] rounded-lg p-1 flex flex-row gap-4 items-start justify-start self-stretch shrink-0 relative">
-          <div class="w-[300px]">
+          <div class="min-w-[200px] max-w-[600px]">
             <ScrollArea ref="scrollViewportRef" class="rounded-md w-full">
               <div class="whitespace-nowrap">
                 <Tabs :defaultValue="currentVersion?.id" :value="currentVersion?.id">
-                  <TabsList class="inline-flex h-12 bg-[#4E4E4E] text-sm w-auto">
+                  <TabsList class="inline-flex h-12  bg-transparent text-sm w-auto">
                     <TabsTrigger v-for="version in model?.versions" :value="version.id"
                       @click="handleTabChange(version.id)" :class="['version-tab', `version-tab-${version.id}`]"
-                      class="text-sm text-white data-[state=active]:bg-[#9CA3AF] data-[state=active]:text-white h-10 px-3 py-2">
+                      class="text-sm text-white bg-[#9CA3AF] data-[state=active]:bg-[#7C3AED] data-[state=active]:text-white h-10 px-3 py-2 mx-1">
+
                       {{ version.version }}
                     </TabsTrigger>
                   </TabsList>
@@ -321,12 +327,12 @@ const handleCopy = async (sign: string) => {
               <Command>
                 <CommandList>
                   <CommandGroup>
-                    <CommandItem value="edit" @click="handleOperateChange('edit', model?.id)"
+                    <CommandItem value="edit" @click="handleModelOperation('edit', model?.id)"
                       class="px-2 py-1.5 mb-1 text-[#F9FAFB] cursor-pointer [&:hover]:!bg-[#6D28D9] [&:hover]:!text-[#F9FAFB]">
                       Edit
                     </CommandItem>
                     <CommandSeparator />
-                    <CommandItem value="remove" @click="handleOperateChange('remove', model?.id)"
+                    <CommandItem value="remove" @click="handleModelOperation('remove', model?.id)"
                       class="px-2 py-1.5 mb-1 mt-1 text-[#F9FAFB] cursor-pointer [&:hover]:!bg-[#6D28D9] [&:hover]:!text-[#F9FAFB]">
                       Remove
                     </CommandItem>
@@ -349,12 +355,10 @@ const handleCopy = async (sign: string) => {
       </div>
     </div>
     <div class="flex flex-row gap-8  items-start justify-start self-stretch flex-1 relative">
-      <div class="flex flex-col gap-4 items-start justify-start  relative min-w-[620px] w-[65%]  overflow-hidden ">
-        <ScrollArea class="h-[80vh] w-full ">
-          <!-- <MdPreview id="previewRef" :modelValue="content" :noImgZoomIn="true" :preview="true" theme="dark"
-            class="bg-[#353535] w-full " /> -->
+      <div class="flex flex-col gap-4 items-start justify-start  relative min-w-[620px] w-[65%]   overflow-hidden ">
+        <div class="w-full min-h-[80vh]">
           <MdPreview v-if="currentVersion?.intro" id="previewRef" :modelValue="currentVersion?.intro"
-            :noImgZoomIn="true" :preview="true" theme="dark" class="bg-[#353535] w-full" />
+            :noImgZoomIn="true" :preview="true" theme="dark" class="bg-[#353535] w-full min-h-[80vh]" />
           <div v-else class="w-full h-[80vh] bg-[#353535] rounded-tl-lg rounded-tr-lg">
             <div class="flex justify-center items-center h-full">
               <div
@@ -363,7 +367,7 @@ const handleCopy = async (sign: string) => {
               </div>
             </div>
           </div>
-        </ScrollArea>
+        </div>
       </div>
       <div class="flex flex-col gap-6 items-start justify-start w-[40%] relative">
         <div class="pb-8 flex flex-col gap-6 items-start justify-start shrink-0   h-[97px] relative">

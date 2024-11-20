@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { onMounted, ref } from 'vue'
 import { modelStore } from '@/stores/modelStatus'
-
+import type { SortValue } from '@/types/model'
 const modelStoreInstance = modelStore()
 import {
   Popover,
@@ -33,27 +33,22 @@ interface Emits {
 defineProps<Props>()
 const emit = defineEmits<Emits>()
 
-
-
-const handleSortChange = (value: 'Recently' | 'Most Forked' | 'Most Used') => {
+const handleSortChange = (value: SortValue) => {
   modelStoreInstance.filterState.sort = value
   emit('fetchData')
   emit('update:showSortPopover', false)
 }
 
 const handleModelTypeChange = (type: string) => {
-  if (modelStoreInstance.selectedBaseModels.length === 0) {
-    const types = [...modelStoreInstance.filterState.model_types]
-    const index = types.indexOf(type)
-    if (index === -1) {
-      types.push(type)
-    } else {
-      types.splice(index, 1)
-    }
-    modelStoreInstance.filterState.model_types = types
-    emit('fetchData')
-    emit('update:showSortPopover', false)
-  }
+  if (modelStoreInstance.selectedBaseModels.length !== 0) return
+
+  const types = [...modelStoreInstance.filterState.model_types]
+  const index = types.indexOf(type)
+  index === -1 ? types.push(type) : types.splice(index, 1)
+
+  modelStoreInstance.filterState.model_types = types
+  emit('fetchData')
+  emit('update:showSortPopover', false)
 }
 
 const handleBaseModelChange = (model: string) => {
@@ -77,7 +72,6 @@ const handleBaseModelChange = (model: string) => {
 }
 
 const handleSearch = () => {
-  modelStoreInstance.filterState.keyword = modelStoreInstance.filterState.keyword
   emit('fetchData')
   emit('update:showSortPopover', false)
 }

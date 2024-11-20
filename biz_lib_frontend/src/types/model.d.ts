@@ -1,3 +1,6 @@
+export type ModeType = 'my' | 'my_fork' | 'publicity'
+
+export type SortValue = 'Recently' | 'Most Forked' | 'Most Used'
 export interface Model {
   id: string
   name: string
