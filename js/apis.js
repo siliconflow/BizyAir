@@ -80,7 +80,6 @@ export function set_api_key ( data ) {
 }
 
 export function models_files ( params, data ) {
-    // return customFetch(`/bizyair/modelhost/models/files?type=${data.type}&public=${data.public}`, {method: 'GET'})
     let actualParams = ''
     for (const i in params) {
         actualParams += `${i}=${params[i]}&`

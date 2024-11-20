@@ -64,7 +64,6 @@ const vditorConfig: IOptions = {
       }
     }
   ],
-  // cdn: 'https://bizyair-dev.oss-cn-shanghai.aliyuncs.com/assets/vditor',
   upload: {
     url: '/bizyair/community/files/upload',
     max: 20 * 1024 * 1024,

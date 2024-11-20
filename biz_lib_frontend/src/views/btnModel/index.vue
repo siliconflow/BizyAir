@@ -122,7 +122,6 @@ import { Minus } from 'lucide-vue-next'
 
 const statusStore = useStatusStore();
 const modelStoreObject = modelStore();
-// const disabledSubmit = ref(false);
 const modelBox = ref(true);
 const versionIndex = ref(0);
 const typeLis = ref([{ value: '', label: '' }]);
@@ -253,7 +252,9 @@ async function submit() {
     return
   }
   showLayoutLoading.value = true
-
+  setTimeout(() => {
+    showLayoutLoading.value = false
+  }, 5000)
   if (formData.value.id) {
     await put_model(formData.value)
   } else {
@@ -269,14 +270,6 @@ const acActiveFn = () => {
     modelBox.value = false
   }
 }
-// const handleUpdateValue = (value: string, index: number) => {
-//   console.log(value, index)
-//   // formData.value.versions[index].intro = value
-// }
-// const handleIsUploading = (val: boolean) => {
-//   // disabledSubmit.value = val
-//   console.log(val)
-// }
 const onDialogClose = () => {
   modelStoreObject.setDialogStatus(false, 0)
   modelStoreObject.clearModelDetail()
@@ -287,7 +280,6 @@ const onDialogClose = () => {
 watch(() => statusStore.socketMessage, (val: any) => {
   if (val.type == "progress") {
     const i = formData.value.versions.findIndex((e: any) => e.file_upload_id == val.data.upload_id)
-    console.log(val.data.progress)
     formData.value.versions[i].progress = Number(val.data.progress.replace('%', ''))
   }
   if (val.type == "status" && val.data.status == 'finish') {

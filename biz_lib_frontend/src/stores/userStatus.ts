@@ -32,12 +32,9 @@ export const useStatusStore = defineStore('userStatus', {
     sendSocket() {
       const wsClient = new WebSocketClient(`ws://${location.host}/bizyair/ws?clientId=${sessionStorage.getItem('clientId')}`, []);
       wsClient.onMessage = message => {
-          // notifySubscribers('socketMessage', message);
-          // console.log('socketMessage', message)
           const res = JSON.parse(message.data);
           this.socketMessage = res;
           if (res && res.type === 'errors') {
-              // toast.error(res.data.message)
               console.error(res.data.message)
           }
       }

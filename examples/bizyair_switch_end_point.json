@@ -1,0 +1,42 @@
+{
+  "last_node_id": 1,
+  "last_link_id": 0,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "BizyAirToggleServerEndpoint",
+      "pos": {
+        "0": 714,
+        "1": 197
+      },
+      "size": {
+        "0": 403.1999816894531,
+        "1": 58
+      },
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "BizyAirToggleServerEndpoint"
+      },
+      "widgets_values": [
+        "https://bizyair-api-st.siliconflow.cn/x/v1"
+      ]
+    }
+  ],
+  "links": [],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 1,
+      "offset": [
+        0,
+        0
+      ]
+    }
+  },
+  "version": 0.4
+}

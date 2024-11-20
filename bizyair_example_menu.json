@@ -35,5 +35,6 @@
     },
     "Remove the background from the image": "bizyair_showcase_remove_background.json",
     "Recreate an existing image": "bizyair_flux_joycaption_img2img_workflow.json",
-    "Text Guided Segment Anything": "bizyair_text_guided_segment-anything.json"
+    "Text Guided Segment Anything": "bizyair_text_guided_segment-anything.json",
+    "Choose BizyAir Server Endpoint": "bizyair_switch_end_point.json"
 }

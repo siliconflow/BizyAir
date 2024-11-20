@@ -4,6 +4,7 @@ import aiohttp
 
 import bizyair
 import bizyair.common
+from bizyair.common.env_var import BIZYAIR_SERVER_ADDRESS
 
 from .errno import ErrorNo, errnos
 from .error_handler import ErrorHandler

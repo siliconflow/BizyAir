@@ -34,9 +34,9 @@ export const modelStore = defineStore('modelStore', {
       versions: []
     } as ModelDetail,
     showDialog: false,
-    reloadModelSelectList:false, // reload model select list
-    closeModelSelectDialog:false, // close model select dialog
-    closeModelDetailDialog:false, // close model detail dialog
+    reloadModelSelectList:false,
+    closeModelSelectDialog:false,
+    closeModelDetailDialog:false,
     showVersionId: 0 as ShowVersionId,
     mode: 'my' as 'my' | 'my_fork' | 'publicity',
     applyObject:{version: {} as ModelVersionType, model: {} as Model},

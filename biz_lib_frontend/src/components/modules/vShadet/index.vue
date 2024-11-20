@@ -1,16 +1,12 @@
 <script setup lang="ts">
 import { defineProps, defineEmits } from 'vue'
 import { cn } from '@/lib/utils';
-// import { X } from 'lucide-vue-next'
 const props = defineProps({
   content: String,
   z: String,
   class: [String, Object, Array] as any
 })
 const emit = defineEmits(['update:open'])
-// const close = () => {
-//   emit('update:open', false)
-// }
 </script>
 <template>
     <div :class="cn('w-[100vw] h-[100vh] fixed inset-0 z-50 bg-black/80', props.z)">

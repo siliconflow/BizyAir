@@ -38,7 +38,7 @@ export class WebSocketClient {
     };
 
     this.ws.onclose = () => {
-      console.warn('WebSocket 连接已关闭，准备重连');
+      console.warn('The WebSocket connection has been closed and is ready to be reconnected');
       this.onClose();
       this.scheduleReconnect();
     };
@@ -65,7 +65,7 @@ export class WebSocketClient {
     if (this.reconnectTimer) return;
 
     this.reconnectTimer = setTimeout(() => {
-      console.log(`尝试重新连接...`);
+      console.log(`Attempt to reconnect...`);
       this.connect();
       this.reconnectTimer = null;
 
@@ -88,7 +88,7 @@ export class WebSocketClient {
   }
 
   onError(error: Event) {
-    console.error('WebSocket 错误: ', error);
+    console.error('WebSocket Error: ', error);
   }
 
   onClose() {
