@@ -266,14 +266,15 @@ const handleCopy = async (sign: string) => {
       <div class="flex flex-row gap-1 items-center justify-start self-stretch shrink-0 relative">
         <div
           class="bg-[#4e4e4e] rounded-lg p-1 flex flex-row gap-4 items-start justify-start self-stretch shrink-0 relative">
-          <div class="w-[300px]">
+          <div class="min-w-[200px] max-w-[600px]">
             <ScrollArea ref="scrollViewportRef" class="rounded-md w-full">
               <div class="whitespace-nowrap">
                 <Tabs :defaultValue="currentVersion?.id" :value="currentVersion?.id">
-                  <TabsList class="inline-flex h-12 bg-[#4E4E4E] text-sm w-auto">
+                  <TabsList class="inline-flex h-12  bg-transparent text-sm w-auto">
                     <TabsTrigger v-for="version in model?.versions" :value="version.id"
                       @click="handleTabChange(version.id)" :class="['version-tab', `version-tab-${version.id}`]"
-                      class="text-sm text-white data-[state=active]:bg-[#9CA3AF] data-[state=active]:text-white h-10 px-3 py-2">
+                      class="text-sm text-white bg-[#9CA3AF] data-[state=active]:bg-[#7C3AED] data-[state=active]:text-white h-10 px-3 py-2 mx-1">
+
                       {{ version.version }}
                     </TabsTrigger>
                   </TabsList>
@@ -354,17 +355,16 @@ const handleCopy = async (sign: string) => {
       </div>
     </div>
     <div class="flex flex-row gap-8  items-start justify-start self-stretch flex-1 relative">
-      <div class="flex flex-col gap-4 items-start justify-start  relative min-w-[620px] w-[65%]  overflow-hidden ">
-        <!-- <ScrollArea class="h-[100vh-120px] w-full "> -->
-        <!-- <MdPreview id="previewRef" :modelValue="content" :noImgZoomIn="true" :preview="true" theme="dark"
-            class="bg-[#353535] w-full " /> -->
-        <MdPreview v-if="currentVersion?.intro" id="previewRef" :modelValue="currentVersion?.intro" :noImgZoomIn="true"
-          :preview="true" theme="dark" class="bg-[#353535] w-full" />
-        <div v-else class="w-full h-[80vh] bg-[#353535] rounded-tl-lg rounded-tr-lg">
-          <div class="flex justify-center items-center h-full">
-            <div
-              class="text-text-text-muted-foreground text-left font-['Inter-Regular',_sans-serif] text-xs leading-5 font-normal relative">
-              No introduction yet
+      <div class="flex flex-col gap-4 items-start justify-start  relative min-w-[620px] w-[65%]   overflow-hidden ">
+        <div class="w-full min-h-[80vh]">
+          <MdPreview v-if="currentVersion?.intro" id="previewRef" :modelValue="currentVersion?.intro" :noImgZoomIn="true"
+            :preview="true" theme="dark" class="bg-[#353535] w-full min-h-[80vh]" />
+          <div v-else class="w-full h-[80vh] bg-[#353535] rounded-tl-lg rounded-tr-lg">
+            <div class="flex justify-center items-center h-full">
+              <div
+                class="text-text-text-muted-foreground text-left font-['Inter-Regular',_sans-serif] text-xs leading-5 font-normal relative">
+                No introduction yet
+              </div>
             </div>
           </div>
         </div>
