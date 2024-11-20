@@ -292,7 +292,6 @@ class BizyAirServer:
 
             if mode in ["my", "my_fork"]:
                 # 调用API查询模型
-                # start_time = time.time()
                 resp, err = await self.api_client.query_models(
                     mode,
                     current,
@@ -304,7 +303,6 @@ class BizyAirServer:
                 )
             elif mode == "publicity":
                 # 调用API查询社区模型
-                # start_time = time.time()
                 resp, err = await self.api_client.query_community_models(
                     current,
                     page_size,

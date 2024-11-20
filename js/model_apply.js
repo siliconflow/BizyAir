@@ -10,7 +10,7 @@ app.registerExtension({
         if (nodeData.name === "BizyAir_LoraLoader") {
 
             function setWigetCallback() {
-               
+
             }
             const onNodeCreated = nodeType.prototype.onNodeCreated
             nodeType.prototype.onNodeCreated = function () {
@@ -27,8 +27,7 @@ app.registerExtension({
             const original_onMouseDown = node.onMouseDown;
 
             let lastClickTime = 0;
-            const DEBOUNCE_DELAY = 300; // 300ms防抖延迟
-
+            const DEBOUNCE_DELAY = 300;
 
             hideWidget(node, "model_version_id");
 

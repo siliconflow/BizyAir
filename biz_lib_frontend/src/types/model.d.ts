@@ -14,7 +14,7 @@ export interface Model {
 export interface ModelVersion {
   available: boolean
   version: string
-  base_model: string 
+  base_model: string
   bizy_model_id: number
   sign:string
   path:string
@@ -36,7 +36,7 @@ export interface ModelListPathParams {
   page_size: number
   mode: string
   total:number
- 
+
 }
 
 export interface FilterState {
