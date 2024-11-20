@@ -379,7 +379,11 @@ class BizyAir_ControlNetLoader(BizyAirBaseNode):
     def INPUT_TYPES(s):
         return {
             "required": {
-                "control_net_name": (folder_paths.get_filename_list("controlnet"),),
+                "control_net_name": (
+                    [
+                        "to choose",
+                    ],
+                ),
                 "model_version_id": ("STRING", {"default": "", "multiline": False}),
             }
         }
@@ -389,6 +393,14 @@ class BizyAir_ControlNetLoader(BizyAirBaseNode):
     FUNCTION = "load_controlnet"
 
     CATEGORY = f"{PREFIX}/loaders"
+
+    @classmethod
+    def VALIDATE_INPUTS(cls, control_net_name, model_version_id):
+        if control_net_name == "to choose":
+            return False
+        if model_version_id is not None and model_version_id != "":
+            return True
+        return True
 
     def load_controlnet(self, control_net_name, model_version_id):
         if model_version_id is not None and model_version_id != "":
