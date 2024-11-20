@@ -44,8 +44,6 @@ const toolbar = [
   'mermaid', 'katex', '-',
   'link', '=',
   'preview',
-  // 'previewOnly',
-
   0
 ];
 const isFullscreen = ref(false);
@@ -150,10 +148,6 @@ config({
   },
 
 });
-// onMounted(() => {
-//   console.log(mdEditorFull.value.toggleFullscreen)
-//   mdEditorFull.value.toggleFullscreen();
-// });
 </script>
 <style scoped>
 :deep(.md-editor-toolbar-item svg.md-editor-icon) {

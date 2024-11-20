@@ -2,8 +2,8 @@
 import { ref, PropType, onMounted, watch } from 'vue'
 import { useToaster } from '@/components/modules/toats/index'
 import { Badge } from '@/components/ui/badge'
-import { remove_model } from '@/api/model'
-import { ScrollArea } from '@/components/ui/scroll-area'
+import { remove_model, model_detail } from '@/api/model'
+import ModelPagination from './ModelPagination.vue'
 import { modelStore } from '@/stores/modelStatus'
 import {
   Table,
@@ -26,6 +26,7 @@ import {
   CommandSeparator
 } from '@/components/ui/command'
 import { useAlertDialog } from '@/components/modules/vAlertDialog/index'
+import { Skeleton } from '@/components/ui/skeleton'
 
 import type { Model } from '@/types/model'
 import ModelVersionRow from './ModelVersionRow.vue'
@@ -69,7 +70,8 @@ const handleOperateChange = async (value: 'edit' | 'remove', model: Model) => {
   const { id, name, versions } = model
   currentOperateModel.value = name
   if (value === 'edit') {
-    modelStoreInstance.setModelDetail(model)
+    const res = await model_detail({ id: model.id, source: modelStoreInstance.mode })
+    modelStoreInstance.setModelDetail(res.data)
     modelStoreInstance.setDialogStatus(true)
     currentOperateModel.value = ''
   }
@@ -93,6 +95,8 @@ const handleOperateChange = async (value: 'edit' | 'remove', model: Model) => {
   }
 }
 
+
+
 const handleRemoveModel = async (id: string) => {
   try {
     await remove_model(id)
@@ -106,8 +110,7 @@ const handleRemoveModel = async (id: string) => {
 
 </script>
 <template>
-
-  <ScrollArea class="h-[450px] w-full ">
+  <div>
     <Table>
       <TableHeader>
         <TableRow class="hover:bg-transparent border-[#F9FAFB]/60">
@@ -119,17 +122,30 @@ const handleRemoveModel = async (id: string) => {
       </TableHeader>
       <TableBody>
         <template v-if="props.models.length === 0">
-          <TableRow>
-            <TableCell colspan="4" class="min-h-[400px]">
-              <div class="flex items-center justify-center h-full text-gray-500">
-                No data available
+          <TableRow v-for="i in 5" :key="i">
+            <TableCell class="w-[55%]">
+              <div class="flex items-center space-x-2">
+                <Skeleton class="h-8 w-4 bg-[#353535]" />
+                <Skeleton class="h-8 w-[180px] bg-[#353535]" />
+                <Skeleton class="h-8 w-[60px] bg-[#353535]" />
+              </div>
+            </TableCell>
+            <TableCell class="w-[15%]">
+              <Skeleton class="h-8 w-[80px] bg-[#353535]" />
+            </TableCell>
+            <TableCell class="w-[15%]">
+              <Skeleton class="h-8 w-[80px] bg-[#353535]" />
+            </TableCell>
+            <TableCell class="w-[15%]">
+              <div class="flex justify-end">
+                <Skeleton class="h-8 w-8 bg-[#353535]" />
               </div>
             </TableCell>
           </TableRow>
         </template>
         <template v-else>
           <template v-for="model in props.models" :key="`${model.id}-${model.name}`">
-            <TableRow class="group cursor-pointer border-[#F9FAFB]/60 hover:bg-transparent h-12">
+            <TableRow class=" group cursor-pointer border-[#F9FAFB]/60 hover:bg-transparent h-12">
               <TableCell class="w-[55%]" @click="toggleExpand(model.name)">
                 <div class="flex items-center space-x-2">
                   <span class="text-sm">
@@ -182,6 +198,7 @@ const handleRemoveModel = async (id: string) => {
                       </Command>
                     </PopoverContent>
                   </Popover>
+                  <div v-else class="w-8 h-8"></div>
                 </div>
               </TableCell>
             </TableRow>
@@ -193,5 +210,17 @@ const handleRemoveModel = async (id: string) => {
         </template>
       </TableBody>
     </Table>
-  </ScrollArea>
+    <div class="w-full flex justify-center mt-8">
+      <template v-if="props.models.length === 0">
+        <div class="flex items-center gap-1">
+          <Skeleton class="h-10 w-10 rounded-md bg-[#353535]" />
+          <Skeleton class="h-10 w-10 rounded-md bg-[#353535] " />
+          <Skeleton class="h-10 w-10 rounded-md bg-[#353535]" />
+          <Skeleton class="h-10 w-10 rounded-md bg-[#353535]" />
+          <Skeleton class="h-10 w-10 rounded-md bg-[#353535]" />
+        </div>
+      </template>
+      <ModelPagination v-show="props.models.length > 0" @change="modelStoreInstance.reload++" />
+    </div>
+  </div>
 </template>

@@ -24,16 +24,6 @@ export function customFetch(url: string, options = {}) {
     .then(data => {
       const { code, message } = data;
       if (code !== 20000) {
-        // dialog({
-        //     type: 'warning',
-        //     content: message,
-        //     noText: 'Close',
-        //     onNo: () => {
-        //         if (code === 401000) {
-        //             document.querySelector('.menus-item-key').click()
-        //         }
-        //     }
-        // })
         useToaster.error(message)
         return;
       }
