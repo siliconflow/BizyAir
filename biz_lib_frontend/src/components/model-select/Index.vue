@@ -42,7 +42,6 @@ const getModelList = async () => {
       modelStoreInstance.modelListPathParams.total = response?.data?.total || 0
       models.value = response?.data?.list || []
     } else {
-      useToaster.error('Failed to fetch model list')
       modelStoreInstance.modelListPathParams.total = 0
       models.value = []
     }

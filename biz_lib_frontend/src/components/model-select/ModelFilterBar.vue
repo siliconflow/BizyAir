@@ -72,6 +72,7 @@ const handleBaseModelChange = (model: string) => {
 }
 
 const handleSearch = () => {
+  modelStoreInstance.modelListPathParams.current = 1
   emit('fetchData')
   emit('update:showSortPopover', false)
 }
