@@ -210,8 +210,7 @@ const handleCopy = async (sign: string) => {
 
 <template>
   <div v-if="model"
-    class="bg-[#353535] rounded-radius-rounded-lg border-solid border-border-border-toast-destructive border p-6 pb-12 flex flex-col gap-4 items-start justify-start  min-w-[1000px] min-h-screen  relative"
-    style="box-shadow: 0px 20px 40px 0px rgba(0, 0, 0, 0.25)">
+    class="p-6 pb-12 flex flex-col gap-4 items-start justify-start min-w-[1000px]   relative shadow-[0px_20px_40px_0px_rgba(0,0,0,0.25)]">
     <div class="flex flex-col gap-1.5 items-start justify-start self-stretch shrink-0 relative">
       <div class="flex flex-row gap-2 items-center justify-start self-stretch shrink-0 relative">
         <div
@@ -356,20 +355,20 @@ const handleCopy = async (sign: string) => {
     </div>
     <div class="flex flex-row gap-8  items-start justify-start self-stretch flex-1 relative">
       <div class="flex flex-col gap-4 items-start justify-start  relative min-w-[620px] w-[65%]  overflow-hidden ">
-        <ScrollArea class="h-[80vh] w-full ">
-          <!-- <MdPreview id="previewRef" :modelValue="content" :noImgZoomIn="true" :preview="true" theme="dark"
+        <!-- <ScrollArea class="h-[100vh-120px] w-full "> -->
+        <!-- <MdPreview id="previewRef" :modelValue="content" :noImgZoomIn="true" :preview="true" theme="dark"
             class="bg-[#353535] w-full " /> -->
-          <MdPreview v-if="currentVersion?.intro" id="previewRef" :modelValue="currentVersion?.intro"
-            :noImgZoomIn="true" :preview="true" theme="dark" class="bg-[#353535] w-full" />
-          <div v-else class="w-full h-[80vh] bg-[#353535] rounded-tl-lg rounded-tr-lg">
-            <div class="flex justify-center items-center h-full">
-              <div
-                class="text-text-text-muted-foreground text-left font-['Inter-Regular',_sans-serif] text-xs leading-5 font-normal relative">
-                No introduction yet
-              </div>
+        <MdPreview v-if="currentVersion?.intro" id="previewRef" :modelValue="currentVersion?.intro" :noImgZoomIn="true"
+          :preview="true" theme="dark" class="bg-[#353535] w-full" />
+        <div v-else class="w-full h-[80vh] bg-[#353535] rounded-tl-lg rounded-tr-lg">
+          <div class="flex justify-center items-center h-full">
+            <div
+              class="text-text-text-muted-foreground text-left font-['Inter-Regular',_sans-serif] text-xs leading-5 font-normal relative">
+              No introduction yet
             </div>
           </div>
-        </ScrollArea>
+        </div>
+        <!-- </ScrollArea> -->
       </div>
       <div class="flex flex-col gap-6 items-start justify-start w-[40%] relative">
         <div class="pb-8 flex flex-col gap-6 items-start justify-start shrink-0   h-[97px] relative">

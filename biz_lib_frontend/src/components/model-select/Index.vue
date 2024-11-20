@@ -10,7 +10,7 @@ import {
 import type { Model, ModelVersion, CommonModelType } from '@/types/model'
 import ModelFilterBar from './ModelFilterBar.vue'
 import ModelTable from './ModelTable.vue'
-import ModelPagination from './ModelPagination.vue'
+
 import { base_model_types, get_model_list, model_types } from '@/api/model'
 import { onMounted } from 'vue'
 import { useToaster } from '@/components/modules/toats/index'
@@ -133,13 +133,17 @@ onMounted(async () => {
 </script>
 
 <template>
-  <v-dialog v-model:open="showDialog" class="max-w-[70%] px-6  pb-6">
-    <template #title><span
-        class="text-[#F9FAFB] mb-4 text-[18px] font-semibold leading-[18px] tracking-[-0.45px]">Select
-        Model</span></template>
-    <div class="font-['Inter']">
-      <Tabs :defaultValue="modelStoreInstance.mode" class="mb-4" @update:model-value="handleTabChange">
-        <TabsList class="grid w-full grid-cols-3 h-12 bg-[#4E4E4E] text-sm">
+  <v-dialog v-model:open="showDialog" class="max-w-[70%]  px-6 pb-6 overflow-hidden"
+    contentClass="custom-scrollbar max-h-[80vh] overflow-y-auto w-full rounded-tl-lg rounded-tr-lg custom-shadow">
+    <template #title>
+      <span class="text-[#F9FAFB] mb-4 text-[18px] font-semibold leading-[18px] tracking-[-0.45px]">
+        Select Model
+      </span>
+    </template>
+
+    <div class="font-['Inter'] flex flex-col ">
+      <Tabs :defaultValue="modelStoreInstance.mode" class="h-full flex flex-col" @update:model-value="handleTabChange">
+        <TabsList class="grid w-full grid-cols-3 h-12 bg-[#4E4E4E] text-sm shrink-0">
           <TabsTrigger v-for="mode in modes" :key="mode" :value="mode"
             class="text-sm text-white data-[state=active]:bg-[#9CA3AF] data-[state=active]:text-white h-10 px-3 py-2 focus:outline-none focus-visible:outline-none">
             {{ tabLabels[mode] }}
@@ -147,18 +151,18 @@ onMounted(async () => {
         </TabsList>
 
         <template v-for="mode in modes" :key="mode">
-          <TabsContent v-if="modelStoreInstance.mode === mode" :value="mode" class="h-[600px] flex flex-col">
-            <ModelFilterBar v-model:show-sort-popover="showSortPopover" @fetchData="getModelList" />
-            <div class="flex-1 min-h-0">
-              <ModelTable v-if="models.length > 0" :models="models" />
-              <div v-else class="flex items-center justify-center h-full">
-                <div class="text-center text-gray-500">
-                  <div class="mb-2">No Data</div>
-                  <p class="text-sm">No models available</p>
+          <TabsContent v-show="modelStoreInstance.mode === mode" :value="mode"
+            class="flex-1 flex flex-col overflow-hidden ">
+            <div class="flex flex-col min-h-[650px] ">
+              <div class="flex-1 relative">
+                <ModelFilterBar v-model:show-sort-popover="showSortPopover" @fetchData="getModelList"
+                  class="shrink-0" />
+                <div class="h-full">
+                  <ModelTable :models="models" />
                 </div>
               </div>
+              <div class="h-4"></div>
             </div>
-            <ModelPagination v-if="models.length > 0" @change="getModelList" />
           </TabsContent>
         </template>
       </Tabs>
