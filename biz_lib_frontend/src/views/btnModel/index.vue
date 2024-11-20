@@ -253,7 +253,9 @@ async function submit() {
     return
   }
   showLayoutLoading.value = true
-
+  setTimeout(() => {
+    showLayoutLoading.value = false
+  }, 5000)
   if (formData.value.id) {
     await put_model(formData.value)
   } else {

@@ -2,7 +2,7 @@
 import { ref, PropType, onMounted, watch } from 'vue'
 import { useToaster } from '@/components/modules/toats/index'
 import { Badge } from '@/components/ui/badge'
-import { remove_model } from '@/api/model'
+import { remove_model, model_detail } from '@/api/model'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { modelStore } from '@/stores/modelStatus'
 import {
@@ -69,7 +69,8 @@ const handleOperateChange = async (value: 'edit' | 'remove', model: Model) => {
   const { id, name, versions } = model
   currentOperateModel.value = name
   if (value === 'edit') {
-    modelStoreInstance.setModelDetail(model)
+    const res = await model_detail({ id: model.id, source: modelStoreInstance.mode })
+    modelStoreInstance.setModelDetail(res.data)
     modelStoreInstance.setDialogStatus(true)
     currentOperateModel.value = ''
   }
