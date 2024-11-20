@@ -41,7 +41,6 @@ const currentVersion = ref<ModelVersion>()
 const downloadOpen = ref(false)
 const scrollViewportRef = ref<any | null>(null)
 
-
 const props = defineProps<{
   modelId: string,
   version: ModelVersion
