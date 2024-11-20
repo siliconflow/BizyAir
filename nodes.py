@@ -4,11 +4,11 @@ from typing import List
 import comfy
 
 from bizyair import BizyAirBaseNode, BizyAirNodeIO, create_node_data, data_types
+from bizyair.configs.conf import config_manager
 from bizyair.path_utils import path_manager as folder_paths
 
 LOGO = "☁️"
 PREFIX = f"{LOGO}BizyAir"
-
 MAX_RESOLUTION = 16384  # https://github.com/comfyanonymous/ComfyUI/blob/7390ff3b1ec2e15017ba4a52d6eaabc4aa4636e3/nodes.py#L45
 
 
@@ -241,7 +241,7 @@ class BizyAir_VAEDecode(BizyAirBaseNode):
         return new_vae.send_request()
 
 
-class BizyAir_LoraLoader(BizyAirBaseNode):
+class BizyAir_LoraLoader_Legacy(BizyAirBaseNode):
     @classmethod
     def INPUT_TYPES(s):
         return {
@@ -262,7 +262,7 @@ class BizyAir_LoraLoader(BizyAirBaseNode):
 
     RETURN_TYPES = (data_types.MODEL, data_types.CLIP)
     RETURN_NAMES = ("MODEL", "CLIP")
-
+    DEPRECATED = True
     FUNCTION = "load_lora"
 
     CATEGORY = f"{PREFIX}/loaders"
@@ -345,7 +345,7 @@ class BizyAir_VAEEncodeForInpaint(BizyAirBaseNode):
         return new_vae.send_request()
 
 
-class BizyAir_ControlNetLoader(BizyAirBaseNode):
+class BizyAir_ControlNetLoader_Legacy(BizyAirBaseNode):
     @classmethod
     def INPUT_TYPES(s):
         return {
@@ -361,6 +361,52 @@ class BizyAir_ControlNetLoader(BizyAirBaseNode):
     CATEGORY = f"{PREFIX}/loaders"
 
     def load_controlnet(self, control_net_name):
+
+        node_data = create_node_data(
+            class_type="ControlNetLoader",
+            inputs={
+                "control_net_name": control_net_name,
+            },
+            outputs={"slot_index": 0},
+        )
+        assigned_id = self.assigned_id
+        node = BizyAirNodeIO(assigned_id, {assigned_id: node_data})
+        return (node,)
+
+
+class BizyAir_ControlNetLoader(BizyAirBaseNode):
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "control_net_name": (
+                    [
+                        "to choose",
+                    ],
+                ),
+                "model_version_id": ("STRING", {"default": "", "multiline": False}),
+            }
+        }
+
+    RETURN_TYPES = (data_types.CONTROL_NET,)
+    RETURN_NAMES = ("CONTROL_NET",)
+    FUNCTION = "load_controlnet"
+
+    CATEGORY = f"{PREFIX}/loaders"
+
+    @classmethod
+    def VALIDATE_INPUTS(cls, control_net_name, model_version_id):
+        if control_net_name == "to choose":
+            return False
+        if model_version_id is not None and model_version_id != "":
+            return True
+        return True
+
+    def load_controlnet(self, control_net_name, model_version_id):
+        if model_version_id is not None and model_version_id != "":
+            control_net_name = (
+                f"{config_manager.get_model_version_id_prefix()}{model_version_id}"
+            )
 
         node_data = create_node_data(
             class_type="ControlNetLoader",
@@ -771,7 +817,7 @@ class InpaintModelConditioning(BizyAirBaseNode):
     CATEGORY = "conditioning/inpaint"
 
 
-class SharedLoraLoader(BizyAir_LoraLoader):
+class SharedLoraLoader(BizyAir_LoraLoader_Legacy):
     @classmethod
     def INPUT_TYPES(s):
         return {
@@ -958,7 +1004,7 @@ class ConditioningSetMask(BizyAirBaseNode):
     CATEGORY = "conditioning"
 
 
-class BizyAir_LoraLoaderNew(BizyAirBaseNode):
+class BizyAir_LoraLoader(BizyAirBaseNode):
     @classmethod
     def INPUT_TYPES(s):
         return {
@@ -1000,13 +1046,18 @@ class BizyAir_LoraLoaderNew(BizyAirBaseNode):
         lora_name,
         strength_model,
         strength_clip,
-        model_version_id=None,
+        model_version_id: str = None,
     ):
         assigned_id = self.assigned_id
         new_model: BizyAirNodeIO = model.copy(assigned_id)
         new_clip: BizyAirNodeIO = clip.copy(assigned_id)
         instances: List[BizyAirNodeIO] = [new_model, new_clip]
-        BIZYAIR_MODEL_VERSION_ID_PREFIX = "BIZYAIR_MODEL_VERSION_ID:"
+
+        if model_version_id is not None and model_version_id != "":
+            # use model version id as lora name
+            lora_name = (
+                f"{config_manager.get_model_version_id_prefix()}{model_version_id}"
+            )
 
         for slot_index, ins in zip(range(2), instances):
             ins.add_node_data(
@@ -1014,7 +1065,7 @@ class BizyAir_LoraLoaderNew(BizyAirBaseNode):
                 inputs={
                     "model": model,
                     "clip": clip,
-                    "lora_name": f"{BIZYAIR_MODEL_VERSION_ID_PREFIX}{model_version_id}",
+                    "lora_name": lora_name,
                     "strength_model": strength_model,
                     "strength_clip": strength_clip,
                 },
