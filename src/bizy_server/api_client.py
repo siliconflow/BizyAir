@@ -8,6 +8,7 @@ import requests
 
 import bizyair
 import bizyair.common
+from bizyair.common.env_var import BIZYAIR_SERVER_ADDRESS
 
 from .errno import (
     CHANGE_PUBLIC_ERR,
@@ -29,10 +30,6 @@ from .errno import (
     ErrorNo,
 )
 from .error_handler import ErrorHandler
-
-BIZYAIR_SERVER_ADDRESS = os.getenv(
-    "BIZYAIR_SERVER_ADDRESS", "https://bizyair-api.siliconflow.cn/x/v1"
-)
 
 
 class APIClient:
