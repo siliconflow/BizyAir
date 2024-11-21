@@ -1,4 +1,5 @@
 import os
+import urllib
 
 import aiohttp
 
@@ -44,8 +45,11 @@ class APIClient:
             return None, errnos.INVALID_API_KEY
 
     async def do_get(self, url, params=None, headers=None):
+        if params:
+            query_string = urllib.parse.urlencode(params, doseq=True)
+            url = f"{url}?{query_string}"
         session = await self.get_session()
-        async with session.get(url, params=params, headers=headers) as response:
+        async with session.get(url, headers=headers) as response:
             resp_json = await response.json()
             if response.status != 200:
                 return None, ErrorNo(

@@ -33,32 +33,23 @@ import ModelVersionRow from './ModelVersionRow.vue'
 
 
 const modelStoreInstance = modelStore()
-const props = defineProps({
-  models: {
-    type: Array as PropType<Model[]>,
-    required: true
-  },
-  isLoading: {
-    type: Boolean,
-    default: false
-  }
-})
+
 
 const expandedModels = ref<Set<string>>(new Set())
 const currentOperateModel = ref<string>('')
 
 onMounted(() => {
-  if (props.models.length > 0) {
-    expandedModels.value.add(props.models[0].name)
-  }
+
 })
 
-watch(() => props.models, (newModels: Model[]) => {
+
+
+watch(() => modelStoreInstance.models, (newModels: Model[]) => {
   if (newModels.length > 0) {
     expandedModels.value.clear()
     expandedModels.value.add(newModels[0].name)
   }
-}, { deep: true })
+}, { deep: true, immediate: true })
 
 
 
@@ -125,7 +116,7 @@ const handleRemoveModel = async (id: string) => {
         </TableRow>
       </TableHeader>
       <TableBody>
-        <template v-if="props.isLoading">
+        <template v-if="modelStoreInstance.isLoading">
           <TableRow v-for="i in 5" :key="i">
             <TableCell class="w-[55%]">
               <div class="flex items-center space-x-2">
@@ -148,8 +139,8 @@ const handleRemoveModel = async (id: string) => {
           </TableRow>
         </template>
         <template v-else>
-          <template v-if="props.models.length > 0">
-            <template v-for="model in props.models" :key="`${model.id}-${model.name}`">
+          <template v-if="modelStoreInstance.models.length > 0">
+            <template v-for="model in modelStoreInstance.models" :key="`${model.id}-${model.name}`">
               <TableRow class=" group cursor-pointer border-[#F9FAFB]/60 hover:bg-transparent h-12">
                 <TableCell class="w-[55%]" @click="toggleExpand(model.name)">
                   <div class="flex items-center space-x-2">
@@ -226,7 +217,7 @@ const handleRemoveModel = async (id: string) => {
       </TableBody>
     </Table>
     <div class="w-full flex justify-center mt-8">
-      <template v-if="props.isLoading">
+      <template v-if="modelStoreInstance.isLoading">
         <div class="flex items-center gap-1">
           <Skeleton class="h-10 w-10 rounded-md bg-[#353535]" />
           <Skeleton class="h-10 w-10 rounded-md bg-[#353535] " />
@@ -235,7 +226,7 @@ const handleRemoveModel = async (id: string) => {
           <Skeleton class="h-10 w-10 rounded-md bg-[#353535]" />
         </div>
       </template>
-      <ModelPagination v-else @change="modelStoreInstance.reload++" />
+      <ModelPagination v-else />
     </div>
   </div>
 </template>

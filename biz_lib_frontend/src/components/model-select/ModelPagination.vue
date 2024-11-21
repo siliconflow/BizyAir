@@ -19,18 +19,14 @@ import { computed } from 'vue';
 
 const modelStoreInstance = modelStore()
 
-interface Emits {
-  (e: 'change'): void
-}
 const showPagination = computed(() => {
   return modelStoreInstance.modelListPathParams.total / modelStoreInstance.modelListPathParams.page_size > 1
 })
 
-const emit = defineEmits<Emits>()
+
 
 const handlePageChange = (page: number) => {
-  modelStoreInstance.modelListPathParams.current = page
-  emit('change')
+  modelStoreInstance.updatePagination(page)
 }
 </script>
 
