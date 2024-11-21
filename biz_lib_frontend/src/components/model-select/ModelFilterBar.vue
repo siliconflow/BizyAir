@@ -180,7 +180,7 @@ onMounted(async () => {
               <CommandItem value="base-models" class="p-2">
                 <div class="flex flex-wrap gap-2">
                   <Badge variant="secondary"
-                    v-for="model in modelStoreInstance.baseModelTypes.filter(m => modelStoreInstance.selectedBaseModels?.includes(m.value))"
+                    v-for="model in modelStoreInstance.selectedBaseModels?.length ? modelStoreInstance.baseModelTypes.filter(m => modelStoreInstance.selectedBaseModels?.includes(m.value)) : modelStoreInstance.baseModelTypes"
                     :key="model.value" @click="handleBaseModelChange(model.value)" :class="[
                       'cursor-pointer hover:!bg-inherit',
                       modelStoreInstance.filterState.base_models.includes(model.value) ? 'bg-[#6D28D9] hover:!bg-[#6D28D9]' : 'bg-[#4E4E4E] hover:!bg-[#4E4E4E]'

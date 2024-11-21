@@ -24,7 +24,6 @@ interface Props {
   selectedBaseModels?: string[]
 }
 const props = defineProps<Props>()
-const isLoading = ref(false)
 const modes = ['my', 'my_fork', 'publicity'] as const
 
 const tabLabels: Record<ModeType, string> = {
@@ -33,35 +32,36 @@ const tabLabels: Record<ModeType, string> = {
   publicity: 'Community Models'
 }
 
-const models = ref<Model[]>([])
-const getModelList = async () => {
-  try {
-    isLoading.value = true
-    const response = await get_model_list(modelStoreInstance.modelListPathParams, modelStoreInstance.filterState)
-    if (response && response.data) {
-      modelStoreInstance.modelListPathParams.total = response?.data?.total || 0
-      models.value = response?.data?.list || []
-    } else {
+
+const getModelList = () => {
+  modelStoreInstance.setIsLoading(true)
+  get_model_list(modelStoreInstance.modelListPathParams, modelStoreInstance.filterState)
+    .then(response => {
+      if (response && response.data) {
+        modelStoreInstance.modelListPathParams.total = response?.data?.total || 0
+        modelStoreInstance.models = response?.data?.list || []
+      } else {
+        modelStoreInstance.modelListPathParams.total = 0
+        modelStoreInstance.models = []
+      }
+    })
+    .catch(error => {
+      useToaster.error(`Failed to fetch model list. ${error}`)
       modelStoreInstance.modelListPathParams.total = 0
-      models.value = []
-    }
-  } catch (error) {
-    useToaster.error('Failed to fetch model list. Please check your network connection')
-    modelStoreInstance.modelListPathParams.total = 0
-    models.value = []
-  }
-  finally {
-    isLoading.value = false
-  }
+      modelStoreInstance.models = []
+    })
+    .finally(() => {
+      modelStoreInstance.setIsLoading(false)
+    })
 }
 
 const showSortPopover = ref(false)
 const showDialog = ref(false)
 
 const handleTabChange = async (value: string | number) => {
-  models.value = []
+  modelStoreInstance.models = []
   modelStoreInstance.mode = String(value) as 'my' | 'my_fork' | 'publicity'
-  if (isLoading.value) return
+
   modelStoreInstance.modelListPathParams.mode = modelStoreInstance.mode
   modelStoreInstance.modelListPathParams.current = 1
 
@@ -73,19 +73,20 @@ const handleTabChange = async (value: string | number) => {
 }
 
 
-const getFilterData = async () => {
-  try {
-    const modelTypesResponse = await model_types()
-    modelStoreInstance.setModelTypes(modelTypesResponse?.data ? (modelTypesResponse.data as CommonModelType[]) : [])
-
-    const baseModelResponse = await base_model_types()
-    modelStoreInstance.setBaseModelTypes(baseModelResponse?.data ? (baseModelResponse.data as CommonModelType[]) : [])
-  } catch (error) {
-    useToaster.error('Failed to fetch model types')
-    useToaster.error('Failed to fetch base model types')
-    modelStoreInstance.setModelTypes([])
-    modelStoreInstance.setBaseModelTypes([])
-  }
+const getFilterData = () => {
+  return model_types()
+    .then(modelTypesResponse => {
+      modelStoreInstance.setModelTypes(modelTypesResponse?.data ? (modelTypesResponse.data as CommonModelType[]) : [])
+      return base_model_types()
+    })
+    .then(baseModelResponse => {
+      modelStoreInstance.setBaseModelTypes(baseModelResponse?.data ? (baseModelResponse.data as CommonModelType[]) : [])
+    })
+    .catch(error => {
+      useToaster.error(`Failed to fetch base model types${error}`) 
+      modelStoreInstance.setModelTypes([])
+      modelStoreInstance.setBaseModelTypes([])
+    })
 }
 
 const emit = defineEmits(['apply'])
@@ -102,17 +103,18 @@ watch(() => modelStoreInstance.closeModelSelectDialog, (newVal: boolean, oldVal:
   }
 }, { deep: true })
 
-watch(() => modelStoreInstance.reload, async (newVal: number, oldVal: number) => {
+watch(() => modelStoreInstance.reload, (newVal: number, oldVal: number) => {
   if (newVal !== oldVal) {
-    await getModelList()
+    getModelList()
   }
 }, { deep: true })
 
-watch(() => modelStoreInstance.reloadModelSelectList, async (newVal: boolean, oldVal: boolean) => {
+watch(() => modelStoreInstance.reloadModelSelectList, (newVal: boolean, oldVal: boolean) => {
   if (newVal !== oldVal) {
-    await getModelList()
+    getModelList()
   }
 }, { deep: true })
+
 
 onMounted(async () => {
   if (props.modelType) {
@@ -129,10 +131,31 @@ onMounted(async () => {
   showDialog.value = true
 })
 
+watch(() => showDialog.value, async (newVal) => {
+  if (newVal) {
+    if (props.modelType) {
+      modelStoreInstance.selectedModelTypes = props.modelType
+      modelStoreInstance.filterState.model_types = props.modelType
+    }
+    if (props.selectedBaseModels) {
+      modelStoreInstance.selectedBaseModels = props.selectedBaseModels
+      modelStoreInstance.filterState.base_models = props.selectedBaseModels
+    }
+    await getModelList()
+  } else {
+    modelStoreInstance.resetModelListPathParams()
+  }
+})
+
+const handleClose = () => {
+  modelStoreInstance.models = []
+  showDialog.value = false
+
+}
 </script>
 
 <template>
-  <v-dialog v-model:open="showDialog" class="max-w-[70%]  px-6 pb-6 overflow-hidden"
+  <v-dialog v-model:open="showDialog" class="max-w-[70%]  px-6 pb-6 overflow-hidden" @onClose="handleClose"
     contentClass="custom-scrollbar max-h-[80vh] overflow-y-auto w-full rounded-tl-lg rounded-tr-lg custom-shadow">
     <template #title>
       <span class="text-[#F9FAFB] mb-4 text-[18px] font-semibold leading-[18px] tracking-[-0.45px]">
@@ -150,14 +173,14 @@ onMounted(async () => {
         </TabsList>
 
         <template v-for="mode in modes" :key="mode">
-          <TabsContent v-show="modelStoreInstance.mode === mode" :value="mode"
+          <TabsContent v-if="modelStoreInstance.mode === mode" :value="mode"
             class="flex-1 flex flex-col overflow-hidden ">
             <div class="flex flex-col min-h-[650px] ">
               <div class="flex-1 relative">
                 <ModelFilterBar v-model:show-sort-popover="showSortPopover" @fetchData="getModelList"
                   class="shrink-0" />
                 <div class="h-full">
-                  <ModelTable :models="models" :isLoading="isLoading"/>
+                  <ModelTable />
                 </div>
               </div>
               <div class="h-4"></div>

@@ -28,6 +28,7 @@ interface ModelDetail {
 type ShowVersionId = number | undefined;
 export const modelStore = defineStore('modelStore', {
   state: () => ({
+    isLoading: false,
     modelDetail: {
       name: '',
       type: '',
@@ -45,6 +46,7 @@ export const modelStore = defineStore('modelStore', {
     baseModelTypes: [] as CommonModelType[],
     selectedModelTypes: [] as string[],
     selectedBaseModels: [] as string[],
+    models: [] as Model[],
     modelListPathParams: {
       mode: 'my',
       current: 1,
@@ -107,6 +109,29 @@ export const modelStore = defineStore('modelStore', {
     },
     setFilterState(state: FilterState) {
       this.filterState = state;
+    },
+    setIsLoading(status: boolean) {
+      this.isLoading = status;
+    },
+    resetModelListPathParams() {
+      this.isLoading = false
+      this.mode = 'my'
+      this.modelListPathParams = {
+        mode: 'my',
+        current: 1,
+        page_size: 5,
+        total: 0
+      }
+      this.filterState = {
+        keyword: '',
+        model_types: [],
+        base_models: [],
+        sort: 'Recently'
+      }
+    },
+    updatePagination(page: number) {
+      this.modelListPathParams.current = page
+      this.reload++
     }
   },
 });
