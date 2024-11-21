@@ -33,7 +33,7 @@ const handlePageChange = (page: number) => {
 <template>
   <div v-if="showPagination">
     <Pagination v-slot="{ page }" :total="modelStoreInstance.modelListPathParams.total"
-      :page-size="modelStoreInstance.modelListPathParams.page_size"
+      :items-per-page="modelStoreInstance.modelListPathParams.page_size"
       :default-page="modelStoreInstance.modelListPathParams.current" :sibling-count="1" show-edges
       @update:page="handlePageChange">
       <PaginationList v-slot="{ items }" class="flex items-center gap-1">
