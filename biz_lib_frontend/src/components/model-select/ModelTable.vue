@@ -95,8 +95,7 @@ const handleRemoveModel = async (id: string) => {
     useToaster.success('Model removed successfully.')
     modelStoreInstance.closeAndReload()
   } catch (error) {
-    useToaster.error('Failed to remove model.')
-    console.error('Error removing model:', error)
+    useToaster.error(`Failed to remove model. ${error}`)
   }
 }
 

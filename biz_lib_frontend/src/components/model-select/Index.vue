@@ -53,7 +53,6 @@ const getModelList = async () => {
     .finally(async () => {
       modelStoreInstance.setIsLoading(false)
     })
-  console.log('index', modelStoreInstance.isLoading)
 }
 
 const showSortPopover = ref(false)
@@ -125,7 +124,6 @@ watch(() => modelStoreInstance.modelListPathParams.current, async (newVal: numbe
 
 
 onMounted(async () => {
-  console.log('index onMounted')
   if (props.modelType) {
     modelStoreInstance.selectedModelTypes = props.modelType
     modelStoreInstance.filterState.model_types = props.modelType
