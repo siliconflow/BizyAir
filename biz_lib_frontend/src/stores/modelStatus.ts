@@ -16,7 +16,6 @@ interface ModelVersion {
   file_upload_id?: string;
   file_name?: string;
 }
-
 interface ModelDetail {
   name: string;
   nameError?: boolean;

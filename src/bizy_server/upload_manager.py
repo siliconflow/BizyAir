@@ -73,6 +73,9 @@ class UploadManager:
 
             sign_data, err = await self.server.api_client.sign(sha256sum)
             if err is not None:
+                err.data = {
+                    "upload_id": upload_id
+                }
                 self.server.send_sync_error(err=err, sid=sid)
                 return
 
@@ -143,7 +146,9 @@ class UploadManager:
                     )
                 except oss2.exceptions.OssError as e:
                     print(f"\033[31m[BizyAir]\033[0m OSS err:{str(e)}")
-                    self.server.send_sync_error(errnos.UPLOAD, sid)
+                    err = errnos.UPLOAD
+                    err.data = {"upload_id": upload_id}
+                    self.server.send_sync_error(err, sid)
                     return
                 finally:
                     self.oss_clients.pop(upload_id, None)
@@ -152,6 +157,7 @@ class UploadManager:
                     signature=sha256sum, object_key=file_record.get("object_key")
                 )
                 if err is not None:
+                    err.data = {"upload_id": upload_id}
                     self.server.send_sync_error(err)
                     return
 

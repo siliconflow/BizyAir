@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model:open="statusStore.showApiKeyDialog" layoutClass="z-8000" class="max-w-[680px] z-8000" @on-close="statusStore.handleApiKeyDialog(false)">
+  <v-dialog v-model:open="statusStore.showApiKeyDialog" layoutClass="z-9000" class="max-w-[680px] z-9000" @on-close="statusStore.handleApiKeyDialog(false)">
     <template #title>Set API Key</template>
     <div class="comfy-modal-content-sml">
       <Input
