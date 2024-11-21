@@ -10,10 +10,6 @@ from bizyair.common.env_var import BIZYAIR_SERVER_ADDRESS
 from .errno import ErrorNo, errnos
 from .error_handler import ErrorHandler
 
-BIZYAIR_SERVER_ADDRESS = os.getenv(
-    "BIZYAIR_SERVER_ADDRESS", "https://bizyair-api.siliconflow.cn/x/v1"
-)
-
 CLIENT_VERSION = "v20241029"
 
 
