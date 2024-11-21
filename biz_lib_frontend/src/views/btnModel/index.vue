@@ -246,9 +246,6 @@ async function interrupt ({ file_upload_id }: any, i: number) {
 
   await interrupt_upload({ upload_id: file_upload_id })
 
-  delete formData.value.versions[i].progress
-
-
 }
 
 async function submit() {
@@ -311,7 +308,11 @@ watch(() => statusStore.socketMessage, (val: any) => {
   console.log(val)
   if (val.type === "errors" && val.data && val.data.code === 500101) {
     calculating.close()
+    console.log(val.data.data)
     useToaster.error(val.data.message)
+    const i = formData.value.versions.findIndex((e: any) => e.file_upload_id == val.data.data.upload_id)
+    delete formData.value.versions[i].progress
+    formData.value.versions[i].filePath = ''
   }
 }, {
   deep: true
