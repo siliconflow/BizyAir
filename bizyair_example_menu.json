@@ -9,7 +9,7 @@
         "FLUX ControlNet Canny": "bizyair-flux1-tools-canny.json",
         "FLUX ControlNet Depth": "bizyair-flux1-tools-depth.json",
         "FLUX Redux": "bizyair-flux1-tools-redux.json",
-        "FLUX Fill": "bizyair-flux-fill1-inpaint.json "
+        "FLUX Fill": "bizyair-flux-fill1-inpaint.json"
     },
     "ControlNet Union": {
         "Generate an image from a line drawing": "bizyair_showcase_interior_design.json",
