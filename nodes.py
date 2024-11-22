@@ -771,6 +771,24 @@ class InpaintModelConditioning(BizyAirBaseNode):
     CATEGORY = "conditioning/inpaint"
 
 
+#  noise_mask newly added in https://github.com/comfyanonymous/ComfyUI/blob/8f0009aad0591ceee59a147738aa227187b07898/nodes.py#L385
+# "noise_mask": ("BOOLEAN", {"default": False, "tooltip": "Add a noise mask to the latent so sampling will only happen within the mask. Might improve results or completely break things depending on the model."}),
+class InpaintModelConditioning_v2(InpaintModelConditioning):
+    CLASS_TYPE_NAME = "InpaintModelConditioning"
+
+    @classmethod
+    def INPUT_TYPES(s):
+        ret = super().INPUT_TYPES()
+        ret["required"]["noise_mask"] = (
+            "BOOLEAN",
+            {
+                "default": False,
+                "tooltip": "Add a noise mask to the latent so sampling will only happen within the mask. Might improve results or completely break things depending on the model.",
+            },
+        )
+        return ret
+
+
 class SharedLoraLoader(BizyAir_LoraLoader):
     @classmethod
     def INPUT_TYPES(s):
@@ -1015,3 +1033,46 @@ class SharedControlNetLoader(BizyAir_ControlNetLoader):
 
     def load_controlnet(self, control_net_name, share_id, **kwargs):
         return super().load_controlnet(control_net_name=control_net_name, **kwargs)
+
+
+class CLIPVisionEncode(BizyAirBaseNode):
+    @classmethod
+    def INPUT_TYPES(s):
+        return {"required": {"clip_vision": ("CLIP_VISION",), "image": ("IMAGE",)}}
+
+    RETURN_TYPES = ("CLIP_VISION_OUTPUT",)
+    # FUNCTION = "encode"
+
+    CATEGORY = "conditioning"
+
+
+class StyleModelLoader(BizyAirBaseNode):
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "style_model_name": (folder_paths.get_filename_list("style_models"),)
+            }
+        }
+
+    RETURN_TYPES = (data_types.STYLE_MODEL,)
+    # FUNCTION = "load_style_model"
+
+    CATEGORY = "loaders"
+
+
+class StyleModelApply(BizyAirBaseNode):
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "conditioning": (data_types.CONDITIONING,),
+                "style_model": (data_types.STYLE_MODEL,),
+                "clip_vision_output": ("CLIP_VISION_OUTPUT",),
+            }
+        }
+
+    RETURN_TYPES = (data_types.CONDITIONING,)
+    # FUNCTION = "apply_stylemodel"
+
+    CATEGORY = "conditioning/style_model"
