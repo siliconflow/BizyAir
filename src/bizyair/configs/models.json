@@ -17,14 +17,14 @@
     ]
   },
   "sd3.5_large.safetensors", "sd3.5_large_turbo.safetensors"],
-  "clip_vision": {
+  "clip_vision": [{
     "models": [
       "CLIP-ViT-H-14-laion2B-s32B-b79K.safetensors"
     ],
     "kolors": [
       "pytorch_model.bin"
     ]
-  },
+  }, "sigclip_vision_patch14_384.safetensors"],
   "controlnet": {
     "kolors": [
       "Kolors-ControlNet-Canny.safetensors",
@@ -62,17 +62,20 @@
     "flux": [
       "flux1-schnell.sft",
       "flux1-dev.sft",
-      "pixelwave-flux1-dev.safetensors"
+      "pixelwave-flux1-dev.safetensors",
+      "flux1-canny-dev.safetensors",
+      "flux1-depth-dev.safetensors",
+      "flux1-fill-dev.safetensors"
     ]
   },
-  "vae": {
+  "vae": [{
     "sdxl": [
       "sdxl_vae.safetensors"
     ],
     "flux": [
       "ae.sft"
     ]
-  },
+  }, "flux.1-canny-vae.safetensors", "flux.1-depth-vae.safetensors", "flux.1-fill-vae.safetensors"],
   "clip": [
     "clip_l.safetensors",
     "clip_g.safetensors",
@@ -87,5 +90,8 @@
   ],
   "pulid": [
     "pulid_flux.safetensors"
+  ],
+  "style_models": [
+    "flux1-redux-dev.safetensors"
   ]
 }
