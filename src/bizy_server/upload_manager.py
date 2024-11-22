@@ -73,9 +73,7 @@ class UploadManager:
 
             sign_data, err = await self.server.api_client.sign(sha256sum)
             if err is not None:
-                err.data = {
-                    "upload_id": upload_id
-                }
+                err.data = {"upload_id": upload_id}
                 self.server.send_sync_error(err=err, sid=sid)
                 return
 

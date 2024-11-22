@@ -109,11 +109,10 @@ export const modelStore = defineStore('modelStore', {
     setFilterState(state: FilterState) {
       this.filterState = state;
     },
-    setIsLoading(status: boolean) {
+     setIsLoading(status: boolean) {
       this.isLoading = status;
     },
     resetModelListPathParams() {
-      this.isLoading = false
       this.mode = 'my'
       this.modelListPathParams = {
         mode: 'my',
@@ -130,7 +129,6 @@ export const modelStore = defineStore('modelStore', {
     },
     updatePagination(page: number) {
       this.modelListPathParams.current = page
-      this.reload++
     }
   },
 });

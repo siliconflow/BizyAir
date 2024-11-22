@@ -33,9 +33,9 @@ const tabLabels: Record<ModeType, string> = {
 }
 
 
-const getModelList = () => {
+const getModelList = async () => {
   modelStoreInstance.setIsLoading(true)
-  get_model_list(modelStoreInstance.modelListPathParams, modelStoreInstance.filterState)
+  await get_model_list(modelStoreInstance.modelListPathParams, modelStoreInstance.filterState)
     .then(response => {
       if (response && response.data) {
         modelStoreInstance.modelListPathParams.total = response?.data?.total || 0
@@ -50,7 +50,7 @@ const getModelList = () => {
       modelStoreInstance.modelListPathParams.total = 0
       modelStoreInstance.models = []
     })
-    .finally(() => {
+    .finally(async () => {
       modelStoreInstance.setIsLoading(false)
     })
 }
@@ -83,7 +83,7 @@ const getFilterData = () => {
       modelStoreInstance.setBaseModelTypes(baseModelResponse?.data ? (baseModelResponse.data as CommonModelType[]) : [])
     })
     .catch(error => {
-      useToaster.error(`Failed to fetch base model types${error}`) 
+      useToaster.error(`Failed to fetch base model types${error}`)
       modelStoreInstance.setModelTypes([])
       modelStoreInstance.setBaseModelTypes([])
     })
@@ -103,17 +103,24 @@ watch(() => modelStoreInstance.closeModelSelectDialog, (newVal: boolean, oldVal:
   }
 }, { deep: true })
 
-watch(() => modelStoreInstance.reload, (newVal: number, oldVal: number) => {
+watch(() => modelStoreInstance.reload, async (newVal: number, oldVal: number) => {
   if (newVal !== oldVal) {
-    getModelList()
+    await getModelList()
   }
 }, { deep: true })
 
-watch(() => modelStoreInstance.reloadModelSelectList, (newVal: boolean, oldVal: boolean) => {
+watch(() => modelStoreInstance.reloadModelSelectList, async (newVal: boolean, oldVal: boolean) => {
   if (newVal !== oldVal) {
-    getModelList()
+    await getModelList()
   }
 }, { deep: true })
+
+watch(() => modelStoreInstance.modelListPathParams.current, async (newVal: number, oldVal: number) => {
+
+  if (newVal !== oldVal && showDialog.value) {
+    await getModelList()
+  }
+})
 
 
 onMounted(async () => {
@@ -125,13 +132,11 @@ onMounted(async () => {
     modelStoreInstance.selectedBaseModels = props.selectedBaseModels
     modelStoreInstance.filterState.base_models = props.selectedBaseModels
   }
-
   await getFilterData()
-  await getModelList()
   showDialog.value = true
 })
 
-watch(() => showDialog.value, async (newVal) => {
+watch(() => showDialog.value, async (newVal: boolean) => {
   if (newVal) {
     if (props.modelType) {
       modelStoreInstance.selectedModelTypes = props.modelType
@@ -148,9 +153,7 @@ watch(() => showDialog.value, async (newVal) => {
 })
 
 const handleClose = () => {
-  modelStoreInstance.models = []
   showDialog.value = false
-
 }
 </script>
 
