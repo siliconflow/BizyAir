@@ -101,7 +101,7 @@ onMounted(async () => {
 
     <Popover class="bg-[#353535] z-[5100]" :open="showSortPopover"
       @update:open="emit('update:showSortPopover', $event)">
-      <PopoverTrigger>
+      <PopoverTrigger class="bg-transparent">
         <Button variant="default" class="w-[44px] h-[44px] hover:border-2 hover:border-white cursor-pointer group">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path
@@ -142,7 +142,7 @@ onMounted(async () => {
     </Popover>
 
     <Popover class="z-[5100]">
-      <PopoverTrigger>
+      <PopoverTrigger class="bg-transparent">
         <Button variant="default" class="w-[44px] h-[44px] hover:border-2 hover:border-white cursor-pointer">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none" class="mr-2">
             <path d="M14.6666 2H1.33325L6.66658 8.30667V12.6667L9.33325 14V8.30667L14.6666 2Z" stroke="#F9FAFB"
@@ -180,7 +180,7 @@ onMounted(async () => {
               <CommandItem value="base-models" class="p-2">
                 <div class="flex flex-wrap gap-2">
                   <Badge variant="secondary"
-                    v-for="model in modelStoreInstance.selectedBaseModels?.length ? modelStoreInstance.baseModelTypes.filter(m => modelStoreInstance.selectedBaseModels?.includes(m.value)) : modelStoreInstance.baseModelTypes"
+                    v-for="model in modelStoreInstance.baseModelTypes.filter((m: any) => modelStoreInstance.selectedBaseModels?.includes(m.value))"
                     :key="model.value" @click="handleBaseModelChange(model.value)" :class="[
                       'cursor-pointer hover:!bg-inherit',
                       modelStoreInstance.filterState.base_models.includes(model.value) ? 'bg-[#6D28D9] hover:!bg-[#6D28D9]' : 'bg-[#4E4E4E] hover:!bg-[#4E4E4E]'

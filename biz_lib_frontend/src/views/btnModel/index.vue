@@ -74,7 +74,7 @@
                   placeholder="File Path"
                   :disabled="typeof(e.progress) == 'number' && e.progress !== 100"
                   v-model:model-value="e.filePath" />
-                <Button @click="interrupt(e, i)" class="ml-2" :disabled="!e.progress || e.progress == 100">interrupt</Button>
+                <Button @click="interrupt(e)" class="ml-2" :disabled="!e.progress || e.progress == 100">interrupt</Button>
               </div>
             </v-item>
             <div v-if="e.progress">
@@ -242,7 +242,7 @@ function verifyVersion() {
   return tempData.versions.every((e: any) => e.version && e.base_model && e.filePath)
 }
 
-async function interrupt ({ file_upload_id }: any, i: number) {
+async function interrupt ({ file_upload_id }: any) {
 
   await interrupt_upload({ upload_id: file_upload_id })
 

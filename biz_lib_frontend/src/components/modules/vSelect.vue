@@ -24,10 +24,12 @@ const forwarded = useForwardPropsEmits(props, emits)
 
 <template>
   <Select v-bind="forwarded">
-    <SelectTrigger :class="class">
-      <SelectValue :placeholder="placeholder" />
-    </SelectTrigger>
-    <SelectContent class="z-9000">
+    <div class="shadcn-root">
+      <SelectTrigger :class="class">
+        <SelectValue :placeholder="placeholder" />
+      </SelectTrigger>
+    </div>
+    <SelectContent class="z-9000 shadcn-root">
       <SelectGroup>
         <slot />
       </SelectGroup>

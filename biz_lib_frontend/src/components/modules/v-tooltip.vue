@@ -1,5 +1,5 @@
 <template>
-  <TooltipProvider>
+  <TooltipProvider class="shadcn-root">
     <Tooltip>
       <TooltipTrigger as-child>
         <span>

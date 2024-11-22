@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, PropType, onMounted, watch } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useToaster } from '@/components/modules/toats/index'
 import { Badge } from '@/components/ui/badge'
 import { remove_model, model_detail } from '@/api/model'
@@ -166,8 +166,8 @@ const handleRemoveModel = async (id: string) => {
                   <div class="flex justify-end h-full">
                     <Popover v-if="modelStoreInstance.mode === 'my' || modelStoreInstance.mode === 'my_fork'"
                       class="bg-[#353535] z-[5100]mmm" :open="currentOperateModel === model.name"
-                      @update:open="(value) => value ? currentOperateModel = model.name : currentOperateModel = ''">
-                      <PopoverTrigger>
+                      @update:open="(value: any) => value ? currentOperateModel = model.name : currentOperateModel = ''">
+                      <PopoverTrigger class="bg-transparent">
                         <div class="flex justify-center items-center hover:bg-[#222222] rounded-md w-8 h-8">
                           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                             <path fill="white"

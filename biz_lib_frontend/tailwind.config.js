@@ -6,6 +6,10 @@ module.exports = {
   safelist: ["dark"],
   prefix: "",
 
+  corePlugins: {
+    preflight: false,  // 禁用预设样式
+  },
+
   content: [
     './pages/**/*.{ts,tsx,vue}',
     './components/**/*.{ts,tsx,vue}',

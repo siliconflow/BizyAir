@@ -305,7 +305,7 @@ const handleCopy = async (sign: string) => {
 
           <Popover v-if="modelStoreInstance.mode === 'my' || modelStoreInstance.mode === 'my_fork'"
             class="bg-[#353535] " :open="downloadOpen" @update:open="handleDownload">
-            <PopoverTrigger>
+            <PopoverTrigger class="bg-transparent">
               <div class="flex justify-center items-center  rounded-md w-8 relative z-50">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none"
                   class="cursor-pointer">

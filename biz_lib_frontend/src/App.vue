@@ -1,10 +1,12 @@
 <template>
-  <btnExample />
-  <btnProfile v-if="statusStore.isLogin" />
-  <btnApiKey  v-else />
-  <btnModel />
-  <btnNews />
-  <apiKeyDialog />
+  <div class="shadcn-root flex w-full">
+    <btnExample />
+    <btnProfile v-if="statusStore.isLogin" />
+    <btnApiKey  v-else />
+    <btnModel />
+    <btnNews />
+    <apiKeyDialog />
+  </div>
 </template>
 <script setup lang="ts">
 import btnExample from '@/views/btnExample/index.vue'
