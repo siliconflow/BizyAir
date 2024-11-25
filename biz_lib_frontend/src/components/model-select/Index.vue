@@ -158,7 +158,7 @@ const handleClose = () => {
 </script>
 
 <template>
-  <v-dialog v-model:open="showDialog" class="max-w-[70%]  px-6 pb-6 overflow-hidden" @onClose="handleClose"
+  <v-dialog v-model:open="showDialog" class=" max-w-[70%]  px-6 pb-6 overflow-hidden" @onClose="handleClose"
     contentClass="custom-scrollbar max-h-[80vh] overflow-y-auto w-full rounded-tl-lg rounded-tr-lg custom-shadow">
     <template #title>
       <span class="text-[#F9FAFB] mb-4 text-[18px] font-semibold leading-[18px] tracking-[-0.45px]">
@@ -168,9 +168,9 @@ const handleClose = () => {
 
     <div class="font-['Inter'] flex flex-col ">
       <Tabs :defaultValue="modelStoreInstance.mode" class="h-full flex flex-col" @update:model-value="handleTabChange">
-        <TabsList class="grid w-full grid-cols-3 h-12 bg-[#4E4E4E] text-sm shrink-0">
+        <TabsList class="grid w-full grid-cols-3 h-12 bg-[#4E4E4E] text-white text-sm shrink-0">
           <TabsTrigger v-for="mode in modes" :key="mode" :value="mode"
-            class="text-sm text-white data-[state=active]:bg-[#9CA3AF] data-[state=active]:text-white h-10 px-3 py-2 focus:outline-none focus-visible:outline-none">
+            class="text-sm  data-[state=active]:bg-[#9CA3AF] bg-[#4E4E4E]  h-10 px-3 py-2 focus:outline-none focus-visible:outline-none">
             {{ tabLabels[mode] }}
           </TabsTrigger>
         </TabsList>
