@@ -5,6 +5,7 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import AutoImport from 'unplugin-auto-import/vite'
 import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js'
+import postcssNesting from 'tailwindcss/nesting'; // 导入插件
 
 export default defineConfig({
   define: {
@@ -12,7 +13,7 @@ export default defineConfig({
   },
   css: {
     postcss: {
-      plugins: [tailwind(), autoprefixer()],
+      plugins: [tailwind(), autoprefixer(), postcssNesting()],
     },
   },
   plugins: [
@@ -44,6 +45,7 @@ export default defineConfig({
     }
   },
   server: {
+    port: 5174,
     proxy: {
       '/bizyair': {
         target: 'http://localhost:8188',

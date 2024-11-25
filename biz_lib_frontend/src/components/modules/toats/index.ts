@@ -7,7 +7,7 @@ export function useToaster(options: { [x: string]: unknown; } | string) {
     containerBox = document.querySelector('.bizyair-toaster-container') as HTMLDivElement
   } else {
     containerBox = document.createElement('div')
-    containerBox.className = 'bizyair-toaster-container'
+    containerBox.className = 'bizyair-toaster-container shadcn-root'
   }
   containerBox.style.position = 'fixed'
   containerBox.style.zIndex = '12002'
