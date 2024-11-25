@@ -269,10 +269,10 @@ const handleCopy = async (sign: string) => {
             <ScrollArea ref="scrollViewportRef" class="rounded-md w-full">
               <div class="whitespace-nowrap">
                 <Tabs :defaultValue="currentVersion?.id" :value="currentVersion?.id">
-                  <TabsList class="inline-flex h-12  bg-transparent text-sm w-auto">
+                  <TabsList class="inline-flex h-12  bg-transparent text-sm text-white w-auto">
                     <TabsTrigger v-for="version in model?.versions" :value="version.id"
                       @click="handleTabChange(version.id)" :class="['version-tab', `version-tab-${version.id}`]"
-                      class="text-sm text-white bg-[#9CA3AF] data-[state=active]:bg-[#7C3AED] data-[state=active]:text-white h-10 px-3 py-2 mx-1">
+                      class="text-sm t bg-[#9CA3AF] data-[state=active]:bg-[#7C3AED] h-10 px-3 py-2 mx-1">
 
                       {{ version.version }}
                     </TabsTrigger>
