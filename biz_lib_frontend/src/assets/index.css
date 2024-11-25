@@ -41,10 +41,6 @@
 
 /* 强制使用暗色主题，移除 .dark 选择器的限制 */
 @layer base {
-  * {
-    @apply border-border;
-  }
-
   body {
     @apply bg-background text-foreground;
   }
