@@ -105,7 +105,7 @@ const handleRemoveModel = async (id: string) => {
     <Table>
       <TableHeader>
         <TableRow class="hover:bg-transparent border-[#F9FAFB]/60">
-          <TableHead class="w-[55%]">Name{{ isLoading }}</TableHead>
+          <TableHead class="w-[55%]">Name</TableHead>
           <TableHead class="w-[15%]">Base Model</TableHead>
           <TableHead class="w-[15%]">Status</TableHead>
           <TableHead class="w-[15%]">Operate</TableHead>
