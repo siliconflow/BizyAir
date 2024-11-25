@@ -8,10 +8,11 @@ CONTROL_NET = "BIZYAIR_CONTROL_NET"
 UPSCALE_MODEL = "BIZYAIR_UPSCALE_MODEL"
 INSTANTID = "BIZYAIR_INSTANTID"
 FACEANALYSIS = "BIZYAIR_FACEANALYSIS"
+STYLE_MODEL = "BIZYAIR_STYLE_MODEL"
 
 
 def is_model_datatype(datatype):
-    return datatype in [MODEL, CLIP, VAE, CONDITIONING, CONTROL_NET]
+    return datatype in [MODEL, CLIP, VAE, CONDITIONING, CONTROL_NET, STYLE_MODEL]
 
 
 # https://docs.comfy.org/essentials/custom_node_images_and_masks

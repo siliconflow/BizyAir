@@ -5,7 +5,11 @@
         "FLUX-dev Image to Image": "bizyair_flux_img2img_workflow.json",
         "FLUX Simple Lora ": "bizyair_flux_simple_lora_workflow.json",
         "FLUX PuLID": "bizyair_flux_pulid.json",
-        "PixelWave Flux.1-dev Text to Image": "bizyair_flux_pixelwave_txt2img.json"
+        "PixelWave Flux.1-dev Text to Image": "bizyair_flux_pixelwave_txt2img.json",
+        "FLUX ControlNet Canny": "bizyair-flux1-tools-canny.json",
+        "FLUX ControlNet Depth": "bizyair-flux1-tools-depth.json",
+        "FLUX Redux": "bizyair-flux1-tools-redux.json",
+        "FLUX Fill": "bizyair-flux-fill1-inpaint.json"
     },
     "ControlNet Union": {
         "Generate an image from a line drawing": "bizyair_showcase_interior_design.json",
