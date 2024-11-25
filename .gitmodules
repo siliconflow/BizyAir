@@ -1,0 +1,3 @@
+[submodule "biz_lib_frontend"]
+	path = biz_lib_frontend
+	url = git@github.com:siliconflow/bizyair_frontend.git
