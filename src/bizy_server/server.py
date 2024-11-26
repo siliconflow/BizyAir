@@ -622,7 +622,7 @@ class BizyAirServer:
                     removed.append(version_id)
                     continue
 
-                if model_version["available"]:
+                if "available" in model_version and model_version["available"]:
                     self.send_sync(
                         event="synced",
                         data={
