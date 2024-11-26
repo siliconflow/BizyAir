@@ -590,7 +590,7 @@ class BizyAirServer:
 
     def send_sync_error(self, err: ErrorNo, sid=None):
         self.send_sync(
-            event="errors",
+            event="error",
             data={"message": err.message, "code": err.code, "data": err.data},
             sid=sid,
         )
