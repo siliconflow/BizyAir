@@ -41,56 +41,56 @@ class APIClient:
         if params:
             query_string = urllib.parse.urlencode(params, doseq=True)
             url = f"{url}?{query_string}"
-        session = await self.get_session()
-        async with session.get(url, headers=headers) as response:
-            resp_json = await response.json()
-            if response.status != 200:
-                return None, ErrorNo(
-                    response.status,
-                    resp_json.get("code", response.status),
-                    None,
-                    resp_json.get("message", await response.text()),
-                )
-            return resp_json, None
+        async with await self.get_session() as session:
+            async with session.get(url, headers=headers) as response:
+                resp_json = await response.json()
+                if response.status != 200:
+                    return None, ErrorNo(
+                        response.status,
+                        resp_json.get("code", response.status),
+                        None,
+                        resp_json.get("message", await response.text()),
+                    )
+                return resp_json, None
 
     async def do_post(self, url, data=None, headers=None):
-        session = await self.get_session()
-        async with session.post(url, json=data, headers=headers) as response:
-            resp_json = await response.json()
-            if response.status != 200:
-                return None, ErrorNo(
-                    response.status,
-                    resp_json.get("code", response.status),
-                    None,
-                    resp_json.get("message", await response.text()),
-                )
-            return resp_json, None
+        async with await self.get_session() as session:
+            async with session.post(url, json=data, headers=headers) as response:
+                resp_json = await response.json()
+                if response.status != 200:
+                    return None, ErrorNo(
+                        response.status,
+                        resp_json.get("code", response.status),
+                        None,
+                        resp_json.get("message", await response.text()),
+                    )
+                return resp_json, None
 
     async def do_put(self, url, data=None, headers=None):
-        session = await self.get_session()
-        async with session.put(url, json=data, headers=headers) as response:
-            resp_json = await response.json()
-            if response.status != 200:
-                return None, ErrorNo(
-                    response.status,
-                    resp_json.get("code", response.status),
-                    None,
-                    resp_json.get("message", await response.text()),
-                )
-            return resp_json, None
+        async with await self.get_session() as session:
+            async with session.put(url, json=data, headers=headers) as response:
+                resp_json = await response.json()
+                if response.status != 200:
+                    return None, ErrorNo(
+                        response.status,
+                        resp_json.get("code", response.status),
+                        None,
+                        resp_json.get("message", await response.text()),
+                    )
+                return resp_json, None
 
     async def do_delete(self, url, data=None, headers=None):
-        session = await self.get_session()
-        async with session.delete(url, json=data, headers=headers) as response:
-            resp_json = await response.json()
-            if response.status != 200:
-                return None, ErrorNo(
-                    response.status,
-                    resp_json.get("code", response.status),
-                    None,
-                    resp_json.get("message", await response.text()),
-                )
-            return resp_json, None
+        async with await self.get_session() as session:
+            async with session.delete(url, json=data, headers=headers) as response:
+                resp_json = await response.json()
+                if response.status != 200:
+                    return None, ErrorNo(
+                        response.status,
+                        resp_json.get("code", response.status),
+                        None,
+                        resp_json.get("message", await response.text()),
+                    )
+                return resp_json, None
 
     async def user_info(self) -> tuple[dict | None, ErrorNo | None]:
         headers, err = self.auth_header()
