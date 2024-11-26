@@ -16,13 +16,10 @@ CLIENT_VERSION = "v20241029"
 class APIClient:
     def __init__(self):
         self.error_handler = ErrorHandler()
-        self.session = None
 
     async def get_session(self):
-        if self.session is None:
-            timeout = aiohttp.ClientTimeout(total=3)
-            self.session = aiohttp.ClientSession(timeout=timeout)
-        return self.session
+        timeout = aiohttp.ClientTimeout(total=30)
+        return aiohttp.ClientSession(timeout=timeout)
 
     def auth_header(self):
         try:
