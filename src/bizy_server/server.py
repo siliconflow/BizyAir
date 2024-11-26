@@ -264,7 +264,7 @@ class BizyAirServer:
             # 开启线程检查同步状态
             threading.Thread(
                 target=self.check_sync_status,
-                args=(self, resp["id"], resp["version_ids"], sid),
+                args=(resp["id"], resp["version_ids"], sid),
                 daemon=True,
             ).start()
 
@@ -414,7 +414,7 @@ class BizyAirServer:
             # 开启线程检查同步状态
             threading.Thread(
                 target=self.check_sync_status,
-                args=(self, resp["id"], resp["version_ids"]),
+                args=(resp["id"], resp["version_ids"]),
                 daemon=True,
             ).start()
 
