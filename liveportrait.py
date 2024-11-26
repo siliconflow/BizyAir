@@ -7,7 +7,6 @@ from PIL import Image
 from bizyair.common.env_var import BIZYAIR_SERVER_ADDRESS
 from bizyair.image_utils import decode_base64_to_np, encode_image_to_base64
 
-#from .route_sam import SAM_COORDINATE
 from .utils import get_api_key, send_post_request
 
 
@@ -39,20 +38,40 @@ class BizyAirLPExpressionEditor:
                 "sample_parts": (["OnlyExpression", "OnlyRotation", "OnlyMouth", "OnlyEyes", "All"],),
                 "crop_factor": ("FLOAT", {"default": 1.7, "min": 1.5, "max": 2.5, "step": 0.1}),
 
-                "src_image": ("IMAGE",), 
+                "src_image": ("IMAGE",),
             },
 
-            "optional": {"sample_image": ("IMAGE",),},
+            "optional": {
+                "sample_image": ("IMAGE",),
+            },
         }
-
 
     RETURN_TYPES = ("IMAGE",)
     FUNCTION = "run"
 
     CATEGORY = "☁️BizyAir/liveportrait"
 
-    def run(self, rotate_pitch, rotate_yaw, rotate_roll, blink, eyebrow, wink, pupil_x, pupil_y, aaa, eee, woo, smile,
-            src_ratio, sample_ratio, sample_parts, crop_factor, src_image, sample_image=None):
+    def run(
+        self,
+        rotate_pitch,
+        rotate_yaw,
+        rotate_roll,
+        blink,
+        eyebrow,
+        wink,
+        pupil_x,
+        pupil_y,
+        aaa,
+        eee,
+        woo,
+        smile,
+        src_ratio,
+        sample_ratio,
+        sample_parts,
+        crop_factor,
+        src_image,
+        sample_image=None,
+    ):
         API_KEY = get_api_key()
         device = src_image.device
 
@@ -91,7 +110,6 @@ class BizyAirLPExpressionEditor:
             sample_image_pil = Image.fromarray((sample_image * 255).astype(np.uint8))
             sample_str = encode_image_to_base64(sample_image_pil, format="PNG")
             payload["sample_image"] = sample_str
-
 
         ret: str = send_post_request(self.API_URL, payload=payload, headers=headers)
         ret = json.loads(ret)

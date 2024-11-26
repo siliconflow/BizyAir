@@ -13,6 +13,7 @@ WEB_DIRECTORY = "./js"
 from . import (
     auth,
     bizyair_extras,
+    liveportrait,
     llm,
     mzkolors,
     nodes,
@@ -21,7 +22,6 @@ from . import (
     segment_anything,
     showcase,
     supernode,
-    liveportrait
 )
 
 
