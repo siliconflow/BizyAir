@@ -21,6 +21,7 @@ from . import (
     segment_anything,
     showcase,
     supernode,
+    liveportrait
 )
 
 
@@ -36,6 +37,7 @@ update_mappings(nodes_controlnet_aux)
 update_mappings(nodes_controlnet_union_sdxl)
 update_mappings(mzkolors)
 update_mappings(segment_anything)
+update_mappings(liveportrait)
 
 # bizy_server
 bizyair_adv_is_not_installed = False
