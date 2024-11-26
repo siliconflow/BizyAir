@@ -264,7 +264,7 @@ class BizyAirServer:
             # 开启线程检查同步状态
             threading.Thread(
                 target=self.check_sync_status,
-                args=(self, resp["id"], resp["version_ids"], sid),
+                args=(resp["id"], resp["version_ids"], sid),
                 daemon=True,
             ).start()
 
@@ -414,7 +414,7 @@ class BizyAirServer:
             # 开启线程检查同步状态
             threading.Thread(
                 target=self.check_sync_status,
-                args=(self, resp["id"], resp["version_ids"]),
+                args=(resp["id"], resp["version_ids"]),
                 daemon=True,
             ).start()
 
@@ -622,7 +622,7 @@ class BizyAirServer:
                     removed.append(version_id)
                     continue
 
-                if model_version["available"]:
+                if "available" in model_version and model_version["available"]:
                     self.send_sync(
                         event="synced",
                         data={
