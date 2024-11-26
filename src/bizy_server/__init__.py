@@ -4,6 +4,7 @@ from .execution import upload_worker
 from .server import BizyAirServer
 
 bizy_server = BizyAirServer()
+# deprecated
 threading.Thread(
     target=upload_worker,
     daemon=True,

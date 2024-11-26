@@ -14,7 +14,7 @@ from .error_handler import ErrorHandler
 from .oss import AliOssStorageClient
 from .utils import is_string_valid
 
-
+# deprecated
 class UploadManager:
     def __init__(self, server):
         self.error_handler = ErrorHandler()

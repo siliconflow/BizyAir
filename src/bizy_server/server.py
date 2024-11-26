@@ -40,11 +40,14 @@ class BizyAirServer:
     def __init__(self):
         BizyAirServer.instance = self
         self.api_client = APIClient()
+        # deprecated
         self.upload_manager = UploadManager(self)
         self.error_handler = ErrorHandler()
         self.prompt_server = PromptServer.instance
         self.sockets = dict()
+        # deprecated
         self.uploads = dict()
+        # deprecated
         self.upload_queue = UploadQueue()
         self.loop = asyncio.get_event_loop()
 
@@ -98,6 +101,7 @@ class BizyAirServer:
                 self.sockets.pop(sid, None)
             return ws
 
+        # deprecated
         @self.prompt_server.routes.get(f"/{COMMUNITY_API}/check_local_file")
         async def check_local_file(request):
             absolute_path = request.rel_url.query.get("absolute_path")
@@ -130,6 +134,7 @@ class BizyAirServer:
 
             return OKResponse(data)
 
+        # deprecated
         @self.prompt_server.routes.post(f"/{COMMUNITY_API}/models/check_workflow")
         async def check_workflow(request):
             sid = request.rel_url.query.get("clientId", "")
@@ -167,6 +172,40 @@ class BizyAirServer:
 
             return OKResponse(data)
 
+        @self.prompt_server.routes.get(f"/{COMMUNITY_API}/sign")
+        async def sign(request):
+            sha256sum = request.rel_url.query.get("sha256sum")
+
+            if not is_string_valid(sha256sum):
+                return ErrResponse(errnos.EMPTY_SHA256SUM)
+
+            sign_data, err = await self.api_client.sign(sha256sum)
+            if err is not None:
+                return ErrResponse(err)
+
+            return OKResponse(sign_data)
+
+        @self.prompt_server.routes.post(f"/{COMMUNITY_API}/commit_file")
+        async def commit_file(request):
+            json_data = await request.json()
+
+            if "sha256sum" not in json_data:
+                return ErrResponse(errnos.EMPTY_SHA256SUM)
+            sha256sum = json_data.get("sha256sum")
+
+            if "object_key" not in json_data:
+                return ErrResponse(errnos.INVALID_OBJECT_KEY)
+            object_key = json_data.get("object_key")
+
+            commit_data, err = await self.api_client.commit_file(
+                signature=sha256sum, object_key=object_key
+            )
+            if err is not None:
+                return ErrResponse(err)
+
+            return OKResponse(None)
+
+        # deprecated
         @self.prompt_server.routes.post(f"/{COMMUNITY_API}/submit_upload")
         async def submit_upload(request):
             sid = request.rel_url.query.get("clientId", "")
@@ -187,6 +226,7 @@ class BizyAirServer:
 
             return OKResponse(None)
 
+        # deprecated
         @self.prompt_server.routes.post(f"/{COMMUNITY_API}/interrupt_upload")
         async def interrupt_upload(request):
             sid = request.rel_url.query.get("clientId", "")
