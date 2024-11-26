@@ -74,7 +74,7 @@
                   placeholder="File Path"
                   :disabled="typeof(e.progress) == 'number' && e.progress !== 100"
                   v-model:model-value="e.filePath" />
-                <Button @click="interrupt(e, i)" class="ml-2" :disabled="!e.progress || e.progress == 100">interrupt</Button>
+                <Button @click="interrupt(e)" class="ml-2" :disabled="!e.progress || e.progress == 100">interrupt</Button>
               </div>
             </v-item>
             <div v-if="e.progress">
@@ -242,12 +242,9 @@ function verifyVersion() {
   return tempData.versions.every((e: any) => e.version && e.base_model && e.filePath)
 }
 
-async function interrupt ({ file_upload_id }: any, i: number) {
+async function interrupt ({ file_upload_id }: any) {
 
   await interrupt_upload({ upload_id: file_upload_id })
-
-  delete formData.value.versions[i].progress
-
 
 }
 
@@ -311,7 +308,11 @@ watch(() => statusStore.socketMessage, (val: any) => {
   console.log(val)
   if (val.type === "errors" && val.data && val.data.code === 500101) {
     calculating.close()
+    console.log(val.data.data)
     useToaster.error(val.data.message)
+    const i = formData.value.versions.findIndex((e: any) => e.file_upload_id == val.data.data.upload_id)
+    delete formData.value.versions[i].progress
+    formData.value.versions[i].filePath = ''
   }
 }, {
   deep: true

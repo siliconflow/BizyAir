@@ -162,3 +162,79 @@ model_rules:
         inputs:
           lora_name:
             - '.*'
+
+  - mode_type: style_model
+    base_model: FLUX
+    describe: Flux Style Model
+    score: 5
+    route: /supernode/bizyair-flux1-tools-redux
+    nodes:
+      - class_type: StyleModelLoader
+        inputs:
+          style_model_name:
+            - ^flux1-redux-dev.safetensors$
+
+  - mode_type: unet
+    base_model: FLUX1-Fill
+    describe: flux1-fill
+    score: 3
+    route: /supernode/bizyair-flux1-tools-fill
+    nodes:
+      - class_type: UNETLoader
+        inputs:
+          unet_name:
+            - ^flux/flux1-fill-dev.safetensors$
+
+  - mode_type: vae
+    base_model: FLUX1-Fill
+    describe: flux1-fill-vae
+    score: 1
+    route: /supernode/bizyair-flux1-tools-fill
+    nodes:
+      - class_type: VAELoader
+        inputs:
+          vae_name:
+            - ^flux.1-fill-vae.safetensors$
+  - mode_type: unet
+    base_model: FLUX1-Depth
+    describe: flux1-depth
+    score: 3
+    route: /supernode/bizyair-flux1-tools-depth
+    nodes:
+      - class_type: UNETLoader
+        inputs:
+          unet_name:
+            - ^flux/flux1-depth-dev.safetensors$
+
+  - mode_type: vae
+    base_model: FLUX1-Depth
+    describe: flux1-depth-vae
+    score: 1
+    route: /supernode/bizyair-flux1-tools-depth
+    nodes:
+      - class_type: VAELoader
+        inputs:
+          vae_name:
+            - ^flux.1-depth-vae.safetensors$
+
+  - mode_type: unet
+    base_model: FLUX1-Canny
+    describe: flux1-canny
+    score: 3
+    route: /supernode/bizyair-flux1-tools-canny
+    nodes:
+      - class_type: UNETLoader
+        inputs:
+          unet_name:
+            - ^flux/flux1-canny-dev.safetensors$
+
+  - mode_type: vae
+    base_model: FLUX1-Canny
+    describe: flux1-canny-vae
+    score: 1
+    route: /supernode/bizyair-flux1-tools-canny
+    nodes:
+      - class_type: VAELoader
+        inputs:
+          vae_name:
+            - ^flux.1-canny-vae.safetensors$

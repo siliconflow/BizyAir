@@ -4,11 +4,11 @@ from typing import List
 import comfy
 
 from bizyair import BizyAirBaseNode, BizyAirNodeIO, create_node_data, data_types
-from bizyair.configs.conf import config_manager
 from bizyair.path_utils import path_manager as folder_paths
 
 LOGO = "☁️"
 PREFIX = f"{LOGO}BizyAir"
+
 MAX_RESOLUTION = 16384  # https://github.com/comfyanonymous/ComfyUI/blob/7390ff3b1ec2e15017ba4a52d6eaabc4aa4636e3/nodes.py#L45
 
 
@@ -241,7 +241,7 @@ class BizyAir_VAEDecode(BizyAirBaseNode):
         return new_vae.send_request()
 
 
-class BizyAir_LoraLoader_Legacy(BizyAirBaseNode):
+class BizyAir_LoraLoader(BizyAirBaseNode):
     @classmethod
     def INPUT_TYPES(s):
         return {
@@ -262,7 +262,7 @@ class BizyAir_LoraLoader_Legacy(BizyAirBaseNode):
 
     RETURN_TYPES = (data_types.MODEL, data_types.CLIP)
     RETURN_NAMES = ("MODEL", "CLIP")
-    DEPRECATED = True
+
     FUNCTION = "load_lora"
 
     CATEGORY = f"{PREFIX}/loaders"
@@ -345,7 +345,7 @@ class BizyAir_VAEEncodeForInpaint(BizyAirBaseNode):
         return new_vae.send_request()
 
 
-class BizyAir_ControlNetLoader_Legacy(BizyAirBaseNode):
+class BizyAir_ControlNetLoader(BizyAirBaseNode):
     @classmethod
     def INPUT_TYPES(s):
         return {
@@ -361,52 +361,6 @@ class BizyAir_ControlNetLoader_Legacy(BizyAirBaseNode):
     CATEGORY = f"{PREFIX}/loaders"
 
     def load_controlnet(self, control_net_name):
-
-        node_data = create_node_data(
-            class_type="ControlNetLoader",
-            inputs={
-                "control_net_name": control_net_name,
-            },
-            outputs={"slot_index": 0},
-        )
-        assigned_id = self.assigned_id
-        node = BizyAirNodeIO(assigned_id, {assigned_id: node_data})
-        return (node,)
-
-
-class BizyAir_ControlNetLoader(BizyAirBaseNode):
-    @classmethod
-    def INPUT_TYPES(s):
-        return {
-            "required": {
-                "control_net_name": (
-                    [
-                        "to choose",
-                    ],
-                ),
-                "model_version_id": ("STRING", {"default": "", "multiline": False}),
-            }
-        }
-
-    RETURN_TYPES = (data_types.CONTROL_NET,)
-    RETURN_NAMES = ("CONTROL_NET",)
-    FUNCTION = "load_controlnet"
-
-    CATEGORY = f"{PREFIX}/loaders"
-
-    @classmethod
-    def VALIDATE_INPUTS(cls, control_net_name, model_version_id):
-        if control_net_name == "to choose":
-            return False
-        if model_version_id is not None and model_version_id != "":
-            return True
-        return True
-
-    def load_controlnet(self, control_net_name, model_version_id):
-        if model_version_id is not None and model_version_id != "":
-            control_net_name = (
-                f"{config_manager.get_model_version_id_prefix()}{model_version_id}"
-            )
 
         node_data = create_node_data(
             class_type="ControlNetLoader",
@@ -817,7 +771,25 @@ class InpaintModelConditioning(BizyAirBaseNode):
     CATEGORY = "conditioning/inpaint"
 
 
-class SharedLoraLoader(BizyAir_LoraLoader_Legacy):
+#  noise_mask newly added in https://github.com/comfyanonymous/ComfyUI/blob/8f0009aad0591ceee59a147738aa227187b07898/nodes.py#L385
+# "noise_mask": ("BOOLEAN", {"default": False, "tooltip": "Add a noise mask to the latent so sampling will only happen within the mask. Might improve results or completely break things depending on the model."}),
+class InpaintModelConditioning_v2(InpaintModelConditioning):
+    CLASS_TYPE_NAME = "InpaintModelConditioning"
+
+    @classmethod
+    def INPUT_TYPES(s):
+        ret = super().INPUT_TYPES()
+        ret["required"]["noise_mask"] = (
+            "BOOLEAN",
+            {
+                "default": False,
+                "tooltip": "Add a noise mask to the latent so sampling will only happen within the mask. Might improve results or completely break things depending on the model.",
+            },
+        )
+        return ret
+
+
+class SharedLoraLoader(BizyAir_LoraLoader):
     @classmethod
     def INPUT_TYPES(s):
         return {
@@ -1004,80 +976,103 @@ class ConditioningSetMask(BizyAirBaseNode):
     CATEGORY = "conditioning"
 
 
-class BizyAir_LoraLoader(BizyAirBaseNode):
+class ConditioningZeroOut(BizyAirBaseNode):
+    @classmethod
+    def INPUT_TYPES(s):
+        return {"required": {"conditioning": (data_types.CONDITIONING,)}}
+
+    RETURN_TYPES = (data_types.CONDITIONING,)
+    # FUNCTION = "zero_out"
+
+    CATEGORY = "advanced/conditioning"
+
+
+class ConditioningSetTimestepRange(BizyAirBaseNode):
     @classmethod
     def INPUT_TYPES(s):
         return {
             "required": {
-                "model": (data_types.MODEL,),
-                "clip": (data_types.CLIP,),
-                "lora_name": (
-                    [
-                        "to choose",
-                    ],
-                ),
-                "strength_model": (
+                "conditioning": (data_types.CONDITIONING,),
+                "start": (
                     "FLOAT",
-                    {"default": 1.0, "min": -100.0, "max": 100.0, "step": 0.01},
+                    {"default": 0.0, "min": 0.0, "max": 1.0, "step": 0.001},
                 ),
-                "strength_clip": (
+                "end": (
                     "FLOAT",
-                    {"default": 1.0, "min": -100.0, "max": 100.0, "step": 0.01},
-                ),
-                "model_version_id": (
-                    "STRING",
-                    {
-                        "default": "",
-                    },
+                    {"default": 1.0, "min": 0.0, "max": 1.0, "step": 0.001},
                 ),
             }
         }
 
-    RETURN_TYPES = (data_types.MODEL, data_types.CLIP)
-    RETURN_NAMES = ("MODEL", "CLIP")
+    RETURN_TYPES = (data_types.CONDITIONING,)
+    # FUNCTION = "set_range"
 
-    FUNCTION = "load_lora"
-    CATEGORY = f"{PREFIX}/loaders"
+    CATEGORY = "advanced/conditioning"
 
-    def load_lora(
-        self,
-        model,
-        clip,
-        lora_name,
-        strength_model,
-        strength_clip,
-        model_version_id: str = None,
-    ):
-        assigned_id = self.assigned_id
-        new_model: BizyAirNodeIO = model.copy(assigned_id)
-        new_clip: BizyAirNodeIO = clip.copy(assigned_id)
-        instances: List[BizyAirNodeIO] = [new_model, new_clip]
 
-        if model_version_id is not None and model_version_id != "":
-            # use model version id as lora name
-            lora_name = (
-                f"{config_manager.get_model_version_id_prefix()}{model_version_id}"
-            )
+class SharedControlNetLoader(BizyAir_ControlNetLoader):
+    @classmethod
+    def INPUT_TYPES(s):
+        ret = super().INPUT_TYPES()
+        ret["required"]["share_id"] = ("STRING", {"default": "share_id"})
+        return ret
 
-        for slot_index, ins in zip(range(2), instances):
-            ins.add_node_data(
-                class_type="LoraLoader",
-                inputs={
-                    "model": model,
-                    "clip": clip,
-                    "lora_name": lora_name,
-                    "strength_model": strength_model,
-                    "strength_clip": strength_clip,
-                },
-                outputs={"slot_index": slot_index},
-            )
-        return (
-            new_model,
-            new_clip,
-        )
+    NODE_DISPLAY_NAME = "Shared Load ControlNet Model"
 
     @classmethod
-    def VALIDATE_INPUTS(cls, lora_name):
-        if lora_name == "" or lora_name is None:
-            return False
+    def VALIDATE_INPUTS(cls, share_id: str, control_net_name: str):
+        if control_net_name in folder_paths.filename_path_mapping.get("controlnet", {}):
+            return True
+
+        outs = folder_paths.get_share_filename_list("controlnet", share_id=share_id)
+        if control_net_name not in outs:
+            raise ValueError(
+                f"ControlNet {control_net_name} not found in share {share_id} with {outs}"
+            )
         return True
+
+    def load_controlnet(self, control_net_name, share_id, **kwargs):
+        return super().load_controlnet(control_net_name=control_net_name, **kwargs)
+
+
+class CLIPVisionEncode(BizyAirBaseNode):
+    @classmethod
+    def INPUT_TYPES(s):
+        return {"required": {"clip_vision": ("CLIP_VISION",), "image": ("IMAGE",)}}
+
+    RETURN_TYPES = ("CLIP_VISION_OUTPUT",)
+    # FUNCTION = "encode"
+
+    CATEGORY = "conditioning"
+
+
+class StyleModelLoader(BizyAirBaseNode):
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "style_model_name": (folder_paths.get_filename_list("style_models"),)
+            }
+        }
+
+    RETURN_TYPES = (data_types.STYLE_MODEL,)
+    # FUNCTION = "load_style_model"
+
+    CATEGORY = "loaders"
+
+
+class StyleModelApply(BizyAirBaseNode):
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "conditioning": (data_types.CONDITIONING,),
+                "style_model": (data_types.STYLE_MODEL,),
+                "clip_vision_output": ("CLIP_VISION_OUTPUT",),
+            }
+        }
+
+    RETURN_TYPES = (data_types.CONDITIONING,)
+    # FUNCTION = "apply_stylemodel"
+
+    CATEGORY = "conditioning/style_model"

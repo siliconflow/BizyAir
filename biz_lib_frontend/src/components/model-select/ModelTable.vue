@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { ref, PropType, onMounted, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { useToaster } from '@/components/modules/toats/index'
 import { Badge } from '@/components/ui/badge'
 import { remove_model, model_detail } from '@/api/model'
 import ModelPagination from './ModelPagination.vue'
 import { modelStore } from '@/stores/modelStatus'
+import { Loader2 } from 'lucide-vue-next'
 import {
   Table,
   TableBody,
@@ -26,7 +27,6 @@ import {
   CommandSeparator
 } from '@/components/ui/command'
 import { useAlertDialog } from '@/components/modules/vAlertDialog/index'
-import { Skeleton } from '@/components/ui/skeleton'
 
 import type { Model } from '@/types/model'
 import ModelVersionRow from './ModelVersionRow.vue'
@@ -38,10 +38,7 @@ const modelStoreInstance = modelStore()
 const expandedModels = ref<Set<string>>(new Set())
 const currentOperateModel = ref<string>('')
 
-onMounted(() => {
-
-})
-
+const isLoading = computed(() => modelStoreInstance.isLoading)
 
 
 watch(() => modelStoreInstance.models, (newModels: Model[]) => {
@@ -49,7 +46,7 @@ watch(() => modelStoreInstance.models, (newModels: Model[]) => {
     expandedModels.value.clear()
     expandedModels.value.add(newModels[0].name)
   }
-}, { deep: true, immediate: true })
+}, { deep: true })
 
 
 
@@ -98,8 +95,7 @@ const handleRemoveModel = async (id: string) => {
     useToaster.success('Model removed successfully.')
     modelStoreInstance.closeAndReload()
   } catch (error) {
-    useToaster.error('Failed to remove model.')
-    console.error('Error removing model:', error)
+    useToaster.error(`Failed to remove model. ${error}`)
   }
 }
 
@@ -116,32 +112,20 @@ const handleRemoveModel = async (id: string) => {
         </TableRow>
       </TableHeader>
       <TableBody>
-        <template v-if="modelStoreInstance.isLoading">
-          <TableRow v-for="i in 5" :key="i">
-            <TableCell class="w-[55%]">
-              <div class="flex items-center space-x-2">
-                <Skeleton class="h-8 w-4 bg-[#353535]" />
-                <Skeleton class="h-8 w-[180px] bg-[#353535]" />
-                <Skeleton class="h-8 w-[60px] bg-[#353535]" />
-              </div>
-            </TableCell>
-            <TableCell class="w-[15%]">
-              <Skeleton class="h-8 w-[80px] bg-[#353535]" />
-            </TableCell>
-            <TableCell class="w-[15%]">
-              <Skeleton class="h-8 w-[80px] bg-[#353535]" />
-            </TableCell>
-            <TableCell class="w-[15%]">
-              <div class="flex justify-end">
-                <Skeleton class="h-8 w-8 bg-[#353535]" />
+        <template v-if="isLoading">
+
+          <TableRow class="bg-transparent hover:bg-transparent">
+            <TableCell colspan="4" class="h-[400px]">
+              <div class="flex items-center justify-center h-full ">
+                <Loader2 class="h-8 w-8 animate-spin text-[#F9FAFB]" />
               </div>
             </TableCell>
           </TableRow>
         </template>
         <template v-else>
-          <template v-if="modelStoreInstance.models.length > 0">
+          <template v-if="!isLoading && modelStoreInstance.models.length > 0">
             <template v-for="model in modelStoreInstance.models" :key="`${model.id}-${model.name}`">
-              <TableRow class=" group cursor-pointer border-[#F9FAFB]/60 hover:bg-transparent h-12">
+              <TableRow class="group cursor-pointer border-[#F9FAFB]/60 hover:bg-transparent h-12">
                 <TableCell class="w-[55%]" @click="toggleExpand(model.name)">
                   <div class="flex items-center space-x-2">
                     <span class="text-sm">
@@ -166,8 +150,8 @@ const handleRemoveModel = async (id: string) => {
                   <div class="flex justify-end h-full">
                     <Popover v-if="modelStoreInstance.mode === 'my' || modelStoreInstance.mode === 'my_fork'"
                       class="bg-[#353535] z-[5100]mmm" :open="currentOperateModel === model.name"
-                      @update:open="(value) => value ? currentOperateModel = model.name : currentOperateModel = ''">
-                      <PopoverTrigger>
+                      @update:open="(value: any) => value ? currentOperateModel = model.name : currentOperateModel = ''">
+                      <PopoverTrigger class="bg-transparent">
                         <div class="flex justify-center items-center hover:bg-[#222222] rounded-md w-8 h-8">
                           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                             <path fill="white"
@@ -217,16 +201,7 @@ const handleRemoveModel = async (id: string) => {
       </TableBody>
     </Table>
     <div class="w-full flex justify-center mt-8">
-      <template v-if="modelStoreInstance.isLoading">
-        <div class="flex items-center gap-1">
-          <Skeleton class="h-10 w-10 rounded-md bg-[#353535]" />
-          <Skeleton class="h-10 w-10 rounded-md bg-[#353535] " />
-          <Skeleton class="h-10 w-10 rounded-md bg-[#353535]" />
-          <Skeleton class="h-10 w-10 rounded-md bg-[#353535]" />
-          <Skeleton class="h-10 w-10 rounded-md bg-[#353535]" />
-        </div>
-      </template>
-      <ModelPagination v-else />
+      <ModelPagination v-if="!isLoading" />
     </div>
   </div>
 </template>

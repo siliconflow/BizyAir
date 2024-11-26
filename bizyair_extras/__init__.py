@@ -2,8 +2,10 @@ from .nodes_comfyui_instantid import *
 from .nodes_comfyui_pulid_flux import *
 from .nodes_controlnet import *
 from .nodes_custom_sampler import *
+from .nodes_differential_diffusion import *
 from .nodes_flux import *
 from .nodes_image_utils import *
+from .nodes_ip2p import *
 from .nodes_ipadapter_plus.nodes_ipadapter_plus import *
 from .nodes_kolors_mz import *
 from .nodes_model_advanced import *

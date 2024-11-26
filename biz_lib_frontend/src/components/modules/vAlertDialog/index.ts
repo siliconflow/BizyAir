@@ -4,6 +4,7 @@ import AlertDialog from './index.vue'
 export function useAlertDialog(options: { title?: string; desc?: string; cancel?: string; continue?: string; z?: string;}) {
   return new Promise((resolve) => {
     const container = document.createElement('div')
+    container.className = 'shadcn-root'
     document.body.appendChild(container)
 
     const app = createApp({

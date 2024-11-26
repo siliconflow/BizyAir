@@ -137,7 +137,7 @@ class BizyAirBaseNode:
         ]
 
     def _determine_class_type(self):
-        class_type = type(self).__name__
+        class_type = getattr(self, "CLASS_TYPE_NAME", type(self).__name__)
         if class_type.startswith(f"{PREFIX}_"):
             class_type = class_type[len(PREFIX) + 1 :]
         return class_type
