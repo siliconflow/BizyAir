@@ -19,30 +19,30 @@ class BizyAirLPExpressionEditor:
         display = "number"
         return {
             "required": {
-                "rotate_pitch": ("FLOAT", {"default": 0, "min": -20, "max": 20, "step": 0.5, "display": display}),
-                "rotate_yaw": ("FLOAT", {"default": 0, "min": -20, "max": 20, "step": 0.5, "display": display}),
-                "rotate_roll": ("FLOAT", {"default": 0, "min": -20, "max": 20, "step": 0.5, "display": display}),
+                "rotate_pitch": ("FLOAT", {"default": 0, "min": -20, "max": 20, "step": 0.5, "display": display, "tooltip": "looking up or down"}),
+                "rotate_yaw": ("FLOAT", {"default": 0, "min": -20, "max": 20, "step": 0.5, "display": display, "tooltip": "looking left or right"}),
+                "rotate_roll": ("FLOAT", {"default": 0, "min": -20, "max": 20, "step": 0.5, "display": display, "tooltip": "tilting head"}),
 
                 "blink": ("FLOAT", {"default": 0, "min": -20, "max": 5, "step": 0.5, "display": display}),
-                "eyebrow": ("FLOAT", {"default": 0, "min": -10, "max": 15, "step": 0.5, "display": display}),
-                "wink": ("FLOAT", {"default": 0, "min": 0, "max": 25, "step": 0.5, "display": display}),
-                "pupil_x": ("FLOAT", {"default": 0, "min": -15, "max": 15, "step": 0.5, "display": display}),
-                "pupil_y": ("FLOAT", {"default": 0, "min": -15, "max": 15, "step": 0.5, "display": display}),
-                "aaa": ("FLOAT", {"default": 0, "min": -30, "max": 120, "step": 1, "display": display}),
-                "eee": ("FLOAT", {"default": 0, "min": -20, "max": 15, "step": 0.2, "display": display}),
-                "woo": ("FLOAT", {"default": 0, "min": -20, "max": 15, "step": 0.2, "display": display}),
+                "eyebrow": ("FLOAT", {"default": 0, "min": -10, "max": 15, "step": 0.5, "display": display, "tooltip": "move eyebrow up or down"}),
+                "wink": ("FLOAT", {"default": 0, "min": 0, "max": 25, "step": 0.5, "display": display, "tooltip": "left eye wink"}),
+                "pupil_x": ("FLOAT", {"default": 0, "min": -15, "max": 15, "step": 0.5, "display": display, "tooltip": "shift pupil without moving eyes"}),
+                "pupil_y": ("FLOAT", {"default": 0, "min": -15, "max": 15, "step": 0.5, "display": display, "tooltip": "shift pupil without moving eyes"}),
+                "aaa": ("FLOAT", {"default": 0, "min": -30, "max": 120, "step": 1, "display": display, "tooltip": "张嘴"}),
+                "eee": ("FLOAT", {"default": 0, "min": -20, "max": 15, "step": 0.2, "display": display, "tooltip": "咧嘴"}),
+                "woo": ("FLOAT", {"default": 0, "min": -20, "max": 15, "step": 0.2, "display": display, "tooltip": "嘟嘴"}),
                 "smile": ("FLOAT", {"default": 0, "min": -0.3, "max": 1.3, "step": 0.01, "display": display}),
 
                 "src_ratio": ("FLOAT", {"default": 1, "min": 0, "max": 1, "step": 0.01, "display": display}),
                 "sample_ratio": ("FLOAT", {"default": 1, "min": -0.2, "max": 1.2, "step": 0.01, "display": display}),
-                "sample_parts": (["OnlyExpression", "OnlyRotation", "OnlyMouth", "OnlyEyes", "All"],),
-                "crop_factor": ("FLOAT", {"default": 1.7, "min": 1.5, "max": 2.5, "step": 0.1}),
+                "sample_parts": (["OnlyExpression", "OnlyRotation", "OnlyMouth", "OnlyEyes", "All"], {"tooltip": "which part of the sample image is applied to source image"}),
+                "crop_factor": ("FLOAT", {"default": 1.7, "min": 1.5, "max": 2.5, "step": 0.1, "tooltip": "a multiplier to the size of cropped space from face detection"}),
 
                 "src_image": ("IMAGE",),
             },
 
             "optional": {
-                "sample_image": ("IMAGE",),
+                "sample_image": ("IMAGE", {"tooltip": "an optional image to apply to source image"}),
             },
         }
 
