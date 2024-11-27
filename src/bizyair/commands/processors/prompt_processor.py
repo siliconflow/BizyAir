@@ -91,9 +91,8 @@ class PromptProcessor(Processor):
         for node_id, node_data in prompt.items():
             for k, v in node_data.get("inputs", {}).items():
                 if isinstance(v, str) and v.startswith(model_version_id_prefix):
-                    exec_info["model_version_ids"].append(
-                        v[len(model_version_id_prefix) :]
-                    )
+                    model_version_id = int(v[len(model_version_id_prefix) :])
+                    exec_info["model_version_ids"].append(model_version_id)
         return exec_info
 
     def process(
