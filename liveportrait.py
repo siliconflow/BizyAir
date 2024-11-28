@@ -60,7 +60,7 @@ class BizyAirLPExpressionEditor:
                         "max": 5,
                         "step": 0.5,
                         "display": display,
-                        "tooltip": "睁眼，范围：[-20, 5]"
+                        "tooltip": "睁眼，范围：[-20, 5]",
                     },
                 ),
                 "eyebrow": (
@@ -148,7 +148,7 @@ class BizyAirLPExpressionEditor:
                         "max": 1.3,
                         "step": 0.01,
                         "display": display,
-                        "tooltip": "笑，范围：[-0.3, 1.3]"
+                        "tooltip": "笑，范围：[-0.3, 1.3]",
                     },
                 ),
                 "src_ratio": (
@@ -159,7 +159,7 @@ class BizyAirLPExpressionEditor:
                         "max": 1,
                         "step": 0.01,
                         "display": display,
-                        "tooltip": "原图系数，范围：[0, 1]"
+                        "tooltip": "原图系数，范围：[0, 1]",
                     },
                 ),
                 "sample_ratio": (
@@ -170,14 +170,12 @@ class BizyAirLPExpressionEditor:
                         "max": 1.2,
                         "step": 0.01,
                         "display": display,
-                        "tooltip": "采样图系数，范围：[-0.2, 1.2]"
+                        "tooltip": "采样图系数，范围：[-0.2, 1.2]",
                     },
                 ),
                 "sample_parts": (
                     ["OnlyExpression", "OnlyRotation", "OnlyMouth", "OnlyEyes", "All"],
-                    {
-                        "tooltip": "采样图采样部位"
-                    },
+                    {"tooltip": "采样图采样部位"},
                 ),
                 "crop_factor": (
                     "FLOAT",
