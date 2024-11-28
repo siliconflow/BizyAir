@@ -170,7 +170,7 @@ class BizyAirLPExpressionEditor:
                         "max": 1.2,
                         "step": 0.01,
                         "display": display,
-                        "tooltip": "采样图系数，范围：[0, 1]"
+                        "tooltip": "采样图系数，范围：[-0.2, 1.2]"
                     },
                 ),
                 "sample_parts": (
