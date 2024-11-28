@@ -27,7 +27,7 @@ class BizyAirLPExpressionEditor:
                         "max": 20,
                         "step": 0.5,
                         "display": display,
-                        "tooltip": "looking up or down",
+                        "tooltip": "抬头低头，范围：[-20, 20]",
                     },
                 ),
                 "rotate_yaw": (
@@ -38,7 +38,7 @@ class BizyAirLPExpressionEditor:
                         "max": 20,
                         "step": 0.5,
                         "display": display,
-                        "tooltip": "looking left or right",
+                        "tooltip": "左右转头，范围：[-20, 20]",
                     },
                 ),
                 "rotate_roll": (
@@ -49,7 +49,7 @@ class BizyAirLPExpressionEditor:
                         "max": 20,
                         "step": 0.5,
                         "display": display,
-                        "tooltip": "tilting head",
+                        "tooltip": "歪头，范围：[-20, 20]",
                     },
                 ),
                 "blink": (
@@ -60,6 +60,7 @@ class BizyAirLPExpressionEditor:
                         "max": 5,
                         "step": 0.5,
                         "display": display,
+                        "tooltip": "睁眼，范围：[-20, 5]"
                     },
                 ),
                 "eyebrow": (
@@ -70,7 +71,7 @@ class BizyAirLPExpressionEditor:
                         "max": 15,
                         "step": 0.5,
                         "display": display,
-                        "tooltip": "move eyebrow up or down",
+                        "tooltip": "眉毛垂直位移，范围：[-10, 15]",
                     },
                 ),
                 "wink": (
@@ -81,7 +82,7 @@ class BizyAirLPExpressionEditor:
                         "max": 25,
                         "step": 0.5,
                         "display": display,
-                        "tooltip": "left eye wink",
+                        "tooltip": "左眼眨眼，范围：[0, 25]",
                     },
                 ),
                 "pupil_x": (
@@ -92,7 +93,7 @@ class BizyAirLPExpressionEditor:
                         "max": 15,
                         "step": 0.5,
                         "display": display,
-                        "tooltip": "shift pupil without moving eyes",
+                        "tooltip": "瞳孔水平位移，范围：[-15, 15]",
                     },
                 ),
                 "pupil_y": (
@@ -103,7 +104,7 @@ class BizyAirLPExpressionEditor:
                         "max": 15,
                         "step": 0.5,
                         "display": display,
-                        "tooltip": "shift pupil without moving eyes",
+                        "tooltip": "瞳孔垂直位移，范围：[-15, 15]",
                     },
                 ),
                 "aaa": (
@@ -114,7 +115,7 @@ class BizyAirLPExpressionEditor:
                         "max": 120,
                         "step": 1,
                         "display": display,
-                        "tooltip": "张嘴",
+                        "tooltip": "张嘴，范围：[-30, 120]",
                     },
                 ),
                 "eee": (
@@ -125,7 +126,7 @@ class BizyAirLPExpressionEditor:
                         "max": 15,
                         "step": 0.2,
                         "display": display,
-                        "tooltip": "咧嘴",
+                        "tooltip": "咧嘴，范围：[-20, 15]",
                     },
                 ),
                 "woo": (
@@ -136,7 +137,7 @@ class BizyAirLPExpressionEditor:
                         "max": 15,
                         "step": 0.2,
                         "display": display,
-                        "tooltip": "嘟嘴",
+                        "tooltip": "嘟嘴，范围：[-20, 15]",
                     },
                 ),
                 "smile": (
@@ -147,6 +148,7 @@ class BizyAirLPExpressionEditor:
                         "max": 1.3,
                         "step": 0.01,
                         "display": display,
+                        "tooltip": "笑，范围：[-0.3, 1.3]"
                     },
                 ),
                 "src_ratio": (
@@ -157,6 +159,7 @@ class BizyAirLPExpressionEditor:
                         "max": 1,
                         "step": 0.01,
                         "display": display,
+                        "tooltip": "原图系数，范围：[0, 1]"
                     },
                 ),
                 "sample_ratio": (
@@ -167,12 +170,13 @@ class BizyAirLPExpressionEditor:
                         "max": 1.2,
                         "step": 0.01,
                         "display": display,
+                        "tooltip": "采样图系数，范围：[0, 1]"
                     },
                 ),
                 "sample_parts": (
                     ["OnlyExpression", "OnlyRotation", "OnlyMouth", "OnlyEyes", "All"],
                     {
-                        "tooltip": "which part of the sample image is applied to source image"
+                        "tooltip": "采样图采样部位"
                     },
                 ),
                 "crop_factor": (
@@ -182,15 +186,18 @@ class BizyAirLPExpressionEditor:
                         "min": 1.5,
                         "max": 2.5,
                         "step": 0.1,
-                        "tooltip": "a multiplier to the size of cropped space from face detection",
+                        "tooltip": "面部捕捉裁剪区域乘数, 范围：[1.5, 2.5]",
                     },
                 ),
-                "src_image": ("IMAGE",),
+                "src_image": (
+                    "IMAGE",
+                    {"tooltip": "原图（必须）"},
+                ),
             },
             "optional": {
                 "sample_image": (
                     "IMAGE",
-                    {"tooltip": "an optional image to apply to source image"},
+                    {"tooltip": "采样图（可选）"},
                 ),
             },
         }
