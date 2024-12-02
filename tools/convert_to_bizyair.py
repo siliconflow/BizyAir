@@ -120,23 +120,53 @@ def get_bizyair_display_name(class_type: str) -> str:
 def convert_to_bizyair(inputs: dict):
     bizyair.NODE_CLASS_MAPPINGS
 
-    for x in inputs.copy():
-        class_type = inputs[x]["class_type"]
-        bizyair_cls_type = f"{bizyair.nodes_base.PREFIX}_{class_type}"
-        is_converted = False
-        if bizyair_cls_type in bizyair.NODE_CLASS_MAPPINGS:
-            inputs[x]["class_type"] = bizyair_cls_type
-            display_name = get_bizyair_display_name(class_type)
-            inputs[x]["_meta"]["title"] = display_name
-            is_converted = True
+    is_converted = False
 
-        pprint.pprint(
-            {
-                "original_class_type": class_type,
-                "bizyair_cls_type": bizyair_cls_type,
-                "is_converted": is_converted,
-            }
-        )
+    if "nodes" in inputs:
+        nodes = inputs["nodes"]
+        for node in nodes:
+            class_type = node["type"]
+            node_inputs = node.get("inputs")
+            node_outputs = node.get("outputs")
+
+            bizyair_cls_type = f"{bizyair.nodes_base.PREFIX}_{class_type}"
+
+            if bizyair_cls_type in bizyair.NODE_CLASS_MAPPINGS:
+                node["type"] = bizyair_cls_type
+
+                display_name = get_bizyair_display_name(class_type)
+                node["properties"]["Node name for S&R"] = display_name
+
+                if node_inputs:
+                    for input_node in node_inputs:
+                        input_type = input_node["type"]
+                        input_node["type"] = f"{bizyair.nodes_base.PREFIX}_{input_type}"
+
+                if node_outputs:
+                    for output_node in node_outputs:
+                        output_type = output_node["type"]
+                        output_node["type"] = (
+                            f"{bizyair.nodes_base.PREFIX}_{output_type}"
+                        )
+
+    else:
+        for x in inputs.copy():
+            class_type = inputs[x]["class_type"]
+            bizyair_cls_type = f"{bizyair.nodes_base.PREFIX}_{class_type}"
+            if bizyair_cls_type in bizyair.NODE_CLASS_MAPPINGS:
+                inputs[x]["class_type"] = bizyair_cls_type
+                display_name = get_bizyair_display_name(class_type)
+                inputs[x]["_meta"]["title"] = display_name
+
+    is_converted = True
+    pprint.pprint(
+        {
+            "original_class_type": class_type,
+            "bizyair_cls_type": bizyair_cls_type,
+            "is_converted": is_converted,
+        }
+    )
+
     return inputs
 
 
