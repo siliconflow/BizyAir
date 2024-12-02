@@ -268,7 +268,7 @@ def is_image_tensor(tensor) -> bool:
 def _(output, **kwargs):
     if is_image_tensor(output) and not kwargs.get("disable_image_marker", False):
         old_version = kwargs.get("old_version", False)
-        lossless = kwargs.get("lossless", False)
+        lossless = kwargs.get("lossless", True)
         return IMAGE_MARKER + encode_comfy_image(
             output, image_format="WEBP", old_version=old_version, lossless=lossless
         )
