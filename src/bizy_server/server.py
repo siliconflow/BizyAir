@@ -1,7 +1,5 @@
 import asyncio
 import logging
-import os
-import tempfile
 import threading
 import time
 import urllib.parse
@@ -13,17 +11,13 @@ from server import PromptServer
 from .api_client import APIClient
 from .errno import ErrorNo, errnos
 from .error_handler import ErrorHandler
-from .execution import UploadQueue
 from .oss import AliOssStorageClient
 from .resp import ErrResponse, OKResponse
-from .upload_manager import UploadManager
 from .utils import (
     base_model_types,
     check_str_param,
     check_type,
-    is_allow_ext_name,
     is_string_valid,
-    to_slash,
     types,
 )
 
@@ -38,15 +32,9 @@ class BizyAirServer:
     def __init__(self):
         BizyAirServer.instance = self
         self.api_client = APIClient()
-        # deprecated
-        self.upload_manager = UploadManager(self)
         self.error_handler = ErrorHandler()
         self.prompt_server = PromptServer.instance
         self.sockets = dict()
-        # deprecated
-        self.uploads = dict()
-        # deprecated
-        self.upload_queue = UploadQueue()
         self.loop = asyncio.get_event_loop()
 
         self.setup_routes()
@@ -99,77 +87,6 @@ class BizyAirServer:
                 self.sockets.pop(sid, None)
             return ws
 
-        # deprecated
-        @self.prompt_server.routes.get(f"/{COMMUNITY_API}/check_local_file")
-        async def check_local_file(request):
-            absolute_path = request.rel_url.query.get("absolute_path")
-
-            if not is_string_valid(absolute_path):
-                return ErrResponse(errnos.EMPTY_ABS_PATH)
-
-            if not os.path.isabs(absolute_path):
-                return ErrResponse(errnos.NO_ABS_PATH)
-
-            if not os.path.exists(absolute_path):
-                return ErrResponse(errnos.PATH_NOT_EXISTS)
-
-            if not os.path.isfile(absolute_path):
-                return ErrResponse(errnos.NOT_A_FILE)
-
-            if not is_allow_ext_name(absolute_path):
-                return ErrResponse(errnos.NOT_ALLOWED_EXT_NAME)
-
-            file_size = os.path.getsize(absolute_path)
-            relative_path = os.path.basename(absolute_path)
-
-            upload_id = uuid.uuid4().hex
-            data = {
-                "upload_id": upload_id,
-                "root": os.path.dirname(absolute_path),
-                "files": [{"path": to_slash(relative_path), "size": file_size}],
-            }
-            self.uploads[upload_id] = data
-
-            return OKResponse(data)
-
-        # deprecated
-        @self.prompt_server.routes.post(f"/{COMMUNITY_API}/models/check_workflow")
-        async def check_workflow(request):
-            sid = request.rel_url.query.get("clientId", "")
-            if not is_string_valid(sid):
-                return ErrResponse(errnos.INVALID_CLIENT_ID)
-
-            reader = await request.multipart()
-            field = await reader.next()
-            if not field or field.name != "file":
-                return ErrResponse(errnos.NO_FILE_UPLOAD)
-
-            filename = field.filename
-            if not filename:
-                return ErrResponse(errnos.NO_FILE_UPLOAD)
-
-            temp_dir = tempfile.gettempdir()
-            if not os.path.exists(temp_dir):
-                os.makedirs(temp_dir)
-
-            temp_file_path = os.path.join(temp_dir, filename)
-            with open(temp_file_path, "wb") as f:
-                while chunk := await field.read_chunk():
-                    f.write(chunk)
-
-            file_size = os.path.getsize(temp_file_path)
-            relative_path = os.path.basename(temp_file_path)
-
-            upload_id = uuid.uuid4().hex
-            data = {
-                "upload_id": upload_id,
-                "root": temp_dir,
-                "files": [{"path": to_slash(relative_path), "size": file_size}],
-            }
-            self.uploads[upload_id] = data
-
-            return OKResponse(data)
-
         @self.prompt_server.routes.get(f"/{COMMUNITY_API}/sign")
         async def sign(request):
             sha256sum = request.rel_url.query.get("sha256sum")
@@ -200,50 +117,6 @@ class BizyAirServer:
             )
             if err is not None:
                 return ErrResponse(err)
-
-            return OKResponse(None)
-
-        # deprecated
-        @self.prompt_server.routes.post(f"/{COMMUNITY_API}/submit_upload")
-        async def submit_upload(request):
-            sid = request.rel_url.query.get("clientId", "")
-            if not is_string_valid(sid):
-                return ErrResponse(errnos.INVALID_CLIENT_ID)
-
-            json_data = await request.json()
-            err = check_str_param(json_data, "upload_id", errnos.EMPTY_UPLOAD_ID)
-            if err is not None:
-                return err
-
-            upload_id = json_data.get("upload_id")
-            if upload_id not in self.uploads:
-                return ErrResponse(errnos.INVALID_UPLOAD_ID)
-
-            self.uploads[upload_id]["sid"] = sid
-            self.upload_queue.put(self.uploads[upload_id])
-
-            return OKResponse(None)
-
-        # deprecated
-        @self.prompt_server.routes.post(f"/{COMMUNITY_API}/interrupt_upload")
-        async def interrupt_upload(request):
-            sid = request.rel_url.query.get("clientId", "")
-            if not is_string_valid(sid):
-                return ErrResponse(errnos.INVALID_CLIENT_ID)
-
-            json_data = await request.json()
-            err = check_str_param(json_data, "upload_id", errnos.EMPTY_UPLOAD_ID)
-            if err is not None:
-                return err
-
-            upload_id = json_data.get("upload_id")
-            if upload_id not in self.uploads:
-                return ErrResponse(errnos.INVALID_UPLOAD_ID)
-
-            if self.uploads.get(upload_id) is None:
-                return ErrResponse(errnos.INVALID_UPLOAD_ID)
-
-            await self.upload_manager.interrupt_uploading(upload_id)
 
             return OKResponse(None)
 
