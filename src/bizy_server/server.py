@@ -679,5 +679,4 @@ class BizyAirServer:
                         sid=sid,
                     )
                     removed.append(version_id)
-                    return
             time.sleep(5)
