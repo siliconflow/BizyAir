@@ -4,6 +4,9 @@ import pprint
 import urllib.error
 import urllib.request
 import warnings
+from abc import ABC, abstractmethod
+from collections import defaultdict
+from typing import Any, Union
 
 import aiohttp
 
@@ -106,8 +109,9 @@ def send_request(
     data: bytes = None,
     verbose=False,
     callback: callable = process_response_data,
+    response_handler: callable = json.loads,
     **kwargs,
-) -> dict:
+) -> Union[dict, Any]:
     try:
         headers = kwargs.pop("headers") if "headers" in kwargs else _headers()
         headers["User-Agent"] = "BizyAir Client"
@@ -133,9 +137,11 @@ def send_request(
                 + "Also, verify your network settings and disable any proxies if necessary.\n"
                 + "After checking, please restart the ComfyUI service."
             )
+    if response_handler:
+        response_data = response_handler(response_data)
     if callback:
-        return callback(json.loads(response_data))
-    return json.loads(response_data)
+        return callback(response_data)
+    return response_data
 
 
 async def async_send_request(
@@ -196,3 +202,87 @@ def fetch_models_by_type(
         verbose=verbose,
     )
     return msg
+
+
+def get_task_result(task_id: str, offset: int = 0) -> dict:
+    """
+    Get the result of a task.
+    """
+    # TODO fix url to config
+    url = f"https://uat-bizyair-api.siliconflow.cn/x/v1/bizy_task/{task_id}"
+    out = send_request(
+        url=url,
+        data=json.dumps({"offset": offset}).encode("utf-8"),
+        callback=lambda x: x,
+    )
+    import ipdb
+
+    ipdb.set_trace()
+    return out
+
+
+@dataclass
+class BizyAirTask:
+    task_id: str
+    data: list[dict] = field(default_factory=list)
+    data_status: str = None
+
+    @classmethod
+    def from_data(cls, data: dict) -> "BizyAirTask":
+        import ipdb
+
+        self = cls()
+        ipdb.set_trace()
+        self.task_id = data["task_id"]
+        self.data_status = data["status"]
+        self = cls()
+        return self
+
+    def is_finished(self) -> bool:
+        # TODO: fix this
+        return self.data_status == "finished"
+
+    def _check_request_result(self, data: dict) -> bool:
+        # TODO: fix this
+        import ipdb
+
+        ipdb.set_trace()
+        return False
+
+    def send_request(self, offset: int = 0) -> dict:
+        if offset >= len(self.data):
+            return get_task_result(self.task_id, offset)
+        else:
+            return self.data[offset]
+
+    # def get_next_data(self, wait_for_result: bool = False) -> dict:
+
+    #     # if self.next_offset >= len(self.data):
+    #     #     if self.is_finished():
+    #     #         raise ValueError(f"No more data to get for task {self.task_id}")
+    #     #     else:
+    #     #         data = get_task_result(self.task_id, self.next_offset)
+    #     #         if self._check_request_result(data):
+    #     #             self.data.extend(data)
+    #     #             self.next_offset += 1
+    #     #         else:
+    #     #             import ipdb; ipdb.set_trace()
+
+
+# class BizyAirTasks:
+#     def __init__(self):
+#         self.task_data_pool = defaultdict(BizyAirTaskData)
+
+#     @classmethod
+#     def from_data(cls, data: dict) -> "BizyAirTasks":
+#         self = cls()
+#         task_id = data["task_id"]
+#         self.task_data_pool[task_id] = BizyAirTaskData(task_id=task_id)
+#         return self
+
+#     def get_task_data(self, task_id: str, offset: int = 0) -> dict:
+#         if task_id not in self.task_data_pool:
+#             raise ValueError(f"Task {task_id} not found")
+
+#         task_data = self.task_data_pool[task_id]
+#         return task_data.get_next_data(wait_for_result=wait_for_result)

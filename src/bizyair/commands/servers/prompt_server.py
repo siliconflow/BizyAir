@@ -1,7 +1,11 @@
+import json
 import pprint
 import traceback
 from typing import Any, Dict, List
 
+import requests
+
+from bizyair.common import BizyAirTask
 from bizyair.common.env_var import BIZYAIR_DEBUG
 from bizyair.common.utils import truncate_long_strings
 from bizyair.image_utils import decode_data, encode_data
@@ -13,6 +17,39 @@ class PromptServer(Command):
     def __init__(self, router: Processor, processor: Processor):
         self.router = router
         self.processor = processor
+
+    # def _get_result(self, result: Dict[str, Any]):
+    #     try:
+    #         response_data = result["data"]
+    #         if result.get("code") == 20000 and result.get("data", {}).get("task_id"):
+    #             task_id = result["data"]["task_id"]
+    #             bz_task = BizyAirTask.from_data(result["data"])
+
+    #             i = 0
+    #             while i < 1000:
+    #                 import time
+
+    #                 time.sleep(1)
+    #                 try:
+    #                     resp = bz_task.send_request(offset=i)
+    #                     import ipdb
+
+    #                     ipdb.set_trace()
+    #                     i += 1
+    #                 except Exception as e:
+    #                     print(f"Exception: {e}")
+
+    #         if "upload_to_s3" in result and result["upload_to_s3"]:
+    #             upload_url = result["data"]
+    #             response = requests.get(upload_url)
+    #             assert response.status_code == 200
+    #             response_data = response.json()
+    #         out = response_data["payload"]
+    #         return out
+    #     except Exception as e:
+    #         raise RuntimeError(
+    #             f'Unexpected error accessing result["data"]["payload"]. Result: {result}'
+    #         ) from e
 
     def execute(
         self,
@@ -39,12 +76,7 @@ class PromptServer(Command):
         if result is None:
             raise RuntimeError("result is None")
 
-        try:
-            out = result["data"]["payload"]
-        except Exception as e:
-            raise RuntimeError(
-                f'Unexpected error accessing result["data"]["payload"]. Result: {result}'
-            ) from e
+        out = self._get_result(result)
         try:
             real_out = decode_data(out)
             return real_out[0]
