@@ -638,6 +638,11 @@ class BizyAirServer:
     def check_sync_status(self, bizy_model_id: str, version_ids: list, sid=None):
         while True:
             removed = []
+            # 从version_ids中移除removed中的version_id
+            version_ids = [version_id for version_id in version_ids if version_id not in removed]
+            if len(version_ids) == 0:
+                return
+
             for version_id in version_ids:
                 future = asyncio.run_coroutine_threadsafe(
                     self.api_client.get_model_version_detail(version_id=version_id),
@@ -646,33 +651,33 @@ class BizyAirServer:
 
                 model_version, err = future.result(timeout=2)
 
-            if err is not None:
-                self.send_sync(
-                    event="error",
-                    data={
-                        "message": err.message,
-                        "code": err.code,
-                        "data": {
-                            "bizy_model_id": bizy_model_id,
-                            "version_id": version_id,
+                if err is not None:
+                    self.send_sync(
+                        event="error",
+                        data={
+                            "message": err.message,
+                            "code": err.code,
+                            "data": {
+                                "bizy_model_id": bizy_model_id,
+                                "version_id": version_id,
+                            },
                         },
-                    },
-                    sid=sid,
-                )
-                removed.append(version_id)
-                continue
+                        sid=sid,
+                    )
+                    removed.append(version_id)
+                    continue
 
-            if "available" in model_version and model_version["available"]:
-                self.send_sync(
-                    event="synced",
-                    data={
-                        "version_id": model_version["id"],
-                        "version": model_version["version"],
-                        "model_id": bizy_model_id,
-                        "model_name": model_version["bizy_model_name"],
-                    },
-                    sid=sid,
-                )
-                removed.append(version_id)
-                return
-        time.sleep(5)
+                if "available" in model_version and model_version["available"]:
+                    self.send_sync(
+                        event="synced",
+                        data={
+                            "version_id": model_version["id"],
+                            "version": model_version["version"],
+                            "model_id": bizy_model_id,
+                            "model_name": model_version["bizy_model_name"],
+                        },
+                        sid=sid,
+                    )
+                    removed.append(version_id)
+                    return
+            time.sleep(5)
