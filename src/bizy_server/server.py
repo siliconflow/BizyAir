@@ -8,10 +8,8 @@ import urllib.parse
 import uuid
 
 import aiohttp
+
 from server import PromptServer
-
-import bizyair.common
-
 from .api_client import APIClient
 from .errno import ErrorNo, errnos
 from .error_handler import ErrorHandler
@@ -271,7 +269,7 @@ class BizyAirServer:
 
             # 校验versions
             if "versions" not in json_data or not isinstance(
-                json_data["versions"], list
+                    json_data["versions"], list
             ):
                 return ErrResponse(errnos.INVALID_VERSIONS)
 
@@ -285,7 +283,7 @@ class BizyAirServer:
 
                 # 检查version字段是否合法
                 if not is_string_valid(version.get("version")) or "/" in version.get(
-                    "version"
+                        "version"
                 ):
                     return ErrResponse(errnos.INVALID_VERSION_NAME)
 
@@ -421,7 +419,7 @@ class BizyAirServer:
 
             # 校验versions
             if "versions" not in json_data or not isinstance(
-                json_data["versions"], list
+                    json_data["versions"], list
             ):
                 return ErrResponse(errnos.INVALID_VERSIONS)
 
@@ -435,7 +433,7 @@ class BizyAirServer:
 
                 # 检查version字段是否合法
                 if not is_string_valid(version.get("version")) or "/" in version.get(
-                    "version"
+                        "version"
                 ):
                     return ErrResponse(errnos.INVALID_VERSION_NAME)
 
@@ -621,9 +619,9 @@ class BizyAirServer:
         try:
             await function(message)
         except (
-            aiohttp.ClientError,
-            aiohttp.ClientPayloadError,
-            ConnectionResetError,
+                aiohttp.ClientError,
+                aiohttp.ClientPayloadError,
+                ConnectionResetError,
         ) as err:
             logging.warning("send error: {}".format(err))
 
@@ -648,35 +646,33 @@ class BizyAirServer:
 
                 model_version, err = future.result(timeout=2)
 
-                if err is not None:
-                    self.send_sync(
-                        event="error",
-                        data={
-                            "message": err.message,
-                            "code": err.code,
-                            "data": {
-                                "bizy_model_id": bizy_model_id,
-                                "version_id": version_id,
-                            },
+            if err is not None:
+                self.send_sync(
+                    event="error",
+                    data={
+                        "message": err.message,
+                        "code": err.code,
+                        "data": {
+                            "bizy_model_id": bizy_model_id,
+                            "version_id": version_id,
                         },
-                        sid=sid,
-                    )
-                    removed.append(version_id)
-                    continue
+                    },
+                    sid=sid,
+                )
+                removed.append(version_id)
+                continue
 
-                if "available" in model_version and model_version["available"]:
-                    self.send_sync(
-                        event="synced",
-                        data={
-                            "version_id": model_version["id"],
-                            "version": model_version["version"],
-                            "model_id": bizy_model_id,
-                            "model_name": model_version["bizy_model_name"],
-                        },
-                        sid=sid,
-                    )
-                    removed.append(version_id)
-                    return
-
-            version_ids = [item for item in version_ids if item not in removed]
-            time.sleep(5)
+            if "available" in model_version and model_version["available"]:
+                self.send_sync(
+                    event="synced",
+                    data={
+                        "version_id": model_version["id"],
+                        "version": model_version["version"],
+                        "model_id": bizy_model_id,
+                        "model_name": model_version["bizy_model_name"],
+                    },
+                    sid=sid,
+                )
+                removed.append(version_id)
+                return
+        time.sleep(5)
