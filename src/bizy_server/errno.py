@@ -5,6 +5,8 @@ class ErrorNo:
         self.message = message
         self.data = payload
 
+    def copy(self):
+        return ErrorNo(self.http_status_code, self.code, self.data, self.message)
 
 class errnos:
     OK = ErrorNo(200, 20000, None, "Success")

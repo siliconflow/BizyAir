@@ -294,7 +294,9 @@ class BizyAirServer:
                 # 检查base_model, path和sign是否有值
                 for field in ["base_model", "path", "sign"]:
                     if not is_string_valid(version.get(field)):
-                        return ErrResponse(errnos.INVALID_VERSION_FIELD(field))
+                        err = errnos.INVALID_VERSION_FIELD.copy()
+                        err.message = "Invalid version field: " + field
+                        return ErrResponse(err)
 
             # 调用API提交模型
             resp, err = await self.api_client.commit_bizy_model(payload=json_data)

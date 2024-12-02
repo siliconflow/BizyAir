@@ -1,7 +1,7 @@
 import { app } from "../../scripts/app.js";
 import { $el } from "../../scripts/ui.js";
 import { styleMenus } from "./subassembly/styleMenus.js";
-import './biz_lib_frontend.js'
+import './bizyair_frontend.js'
 class FloatingButton {
     constructor(show_cases) {
         this.show_cases = show_cases
