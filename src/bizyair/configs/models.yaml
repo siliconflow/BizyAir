@@ -49,7 +49,7 @@ model_rules:
             - ^flux/ae.sft$
 
   - mode_type: unet
-    base_model: FLUX
+    base_model: FLUX_PIXELWAVE
     describe: PixelWave Flux.1-dev 03 fine tuned!
     score: 3
     route: /supernode/bizyair-flux1-dev-fp8-pixelwave
