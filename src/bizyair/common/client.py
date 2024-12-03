@@ -1,6 +1,7 @@
 import asyncio
 import json
 import pprint
+import time
 import urllib.error
 import urllib.request
 import warnings
@@ -208,52 +209,86 @@ def get_task_result(task_id: str, offset: int = 0) -> dict:
     """
     Get the result of a task.
     """
-    # TODO fix url to config
+
+    print(f"get_task_result: {task_id}, {offset}")
+    import requests
+
     url = f"https://uat-bizyair-api.siliconflow.cn/x/v1/bizy_task/{task_id}"
-    out = send_request(
-        url=url,
-        data=json.dumps({"offset": offset}).encode("utf-8"),
-        callback=lambda x: x,
-    )
     import ipdb
 
     ipdb.set_trace()
-    return out
+    response = requests.get(url, headers=_headers(), params={"offset": offset})
+    if response.status_code == 200:
+        return response.json()
+    else:
+        raise Exception(
+            f"bizyair get task resp failed, status_code: {response.status_code}, response: {response.json()}"
+        )
+
+    # TODO fix url to config
+    # # url = f"https://uat-bizyair-api.siliconflow.cn/x/v1/bizy_task/{task_id}"
+    # # out = send_request(
+    #     url=url,
+    #     data=json.dumps({"offset": offset}).encode("utf-8"),
+    #     callback=lambda x: x,
+    # )
+    # import ipdb
+
+    # ipdb.set_trace()
+    # return out
 
 
 @dataclass
 class BizyAirTask:
     task_id: str
-    data: list[dict] = field(default_factory=list)
+    data_pool: list[dict] = field(default_factory=list)
     data_status: str = None
 
-    @classmethod
-    def from_data(cls, data: dict) -> "BizyAirTask":
-        import ipdb
+    @staticmethod
+    def check_inputs(inputs: dict) -> bool:
+        return (
+            inputs.get("code") == 20000
+            and inputs.get("status", False)
+            and "task_id" in inputs.get("data", {})
+        )
 
-        self = cls()
-        ipdb.set_trace()
-        self.task_id = data["task_id"]
-        self.data_status = data["status"]
-        self = cls()
-        return self
+    @classmethod
+    def from_data(cls, inputs: dict, check_inputs: bool = True) -> "BizyAirTask":
+        if check_inputs and not cls.check_inputs(inputs):
+            raise ValueError(f"Invalid inputs: {inputs}")
+        data = inputs.get("data", {})
+        task_id = data.get("task_id", "")
+        return cls(task_id=task_id, data_pool=[], data_status="started")
 
     def is_finished(self) -> bool:
         # TODO: fix this
         return self.data_status == "finished"
 
-    def _check_request_result(self, data: dict) -> bool:
-        # TODO: fix this
-        import ipdb
-
-        ipdb.set_trace()
-        return False
-
     def send_request(self, offset: int = 0) -> dict:
-        if offset >= len(self.data):
+        if offset >= len(self.data_pool):
             return get_task_result(self.task_id, offset)
         else:
-            return self.data[offset]
+            return self.data_pool[offset]
+
+    def get_all_outputs(self, timeout: int = 240) -> list[dict]:
+        offset = 0
+        start_time = time.time()
+        while not self.is_finished():
+            try:
+                data = self.send_request(offset)
+                import ipdb
+
+                ipdb.set_trace()
+                self.data_pool.extend(data)
+                offset += 1
+            except Exception as e:
+                print(f"Exception: {e}")
+            finally:
+                if time.time() - start_time > timeout:
+                    raise TimeoutError(
+                        f"Timeout waiting for task {self.task_id} to finish"
+                    )
+        return self.data_pool
 
     # def get_next_data(self, wait_for_result: bool = False) -> dict:
 
