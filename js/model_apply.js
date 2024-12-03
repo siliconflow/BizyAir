@@ -1,6 +1,6 @@
 import { app } from "../../scripts/app.js";
 
-import './biz_lib_frontend.js'
+import './bizyair_frontend.js'
 import { hideWidget } from './subassembly/tools.js'
 
 
