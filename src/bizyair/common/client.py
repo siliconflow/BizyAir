@@ -216,7 +216,8 @@ def get_task_result(task_id: str, offset: int = 0) -> dict:
     url = f"https://uat-bizyair-api.siliconflow.cn/x/v1/bizy_task/{task_id}"
     response = requests.get(url, headers=_headers(), params={"offset": offset})
     if response.status_code == 200:
-        return response.json()
+        out = response.json()
+        return out
     else:
         raise Exception(
             f"bizyair get task resp failed, status_code: {response.status_code}, response: {response.json()}"
@@ -272,7 +273,12 @@ class BizyAirTask:
             return self.data_pool[offset]
 
     def get_last_data(self) -> dict:
-        return self.data_pool[-1]
+        out = self.data_pool[-1]
+        import requests
+
+        if out.get("data").startswith("https://"):
+            out["data"] = requests.get(out.get("data")).json()
+        return out
 
     def do_task_until_completed(self, *, timeout: int = 480) -> list[dict]:
         offset = 0
@@ -283,6 +289,7 @@ class BizyAirTask:
                 data_lst = data.get("data", {}).get("events", [])
                 if not data_lst:
                     raise ValueError(f"No data found in task {self.task_id}")
+
                 self.data_pool.extend(data_lst)
                 offset += len(data_lst)
             except Exception as e:

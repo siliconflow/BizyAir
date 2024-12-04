@@ -3,8 +3,6 @@ import pprint
 import traceback
 from typing import Any, Dict, List
 
-import requests
-
 from bizyair.common import BizyAirTask
 from bizyair.common.env_var import BIZYAIR_DEBUG
 from bizyair.common.utils import truncate_long_strings
@@ -36,13 +34,7 @@ class PromptServer(Command):
                 bz_task = BizyAirTask.from_data(result, check_inputs=False)
                 bz_task.do_task_until_completed()
                 last_data = bz_task.get_last_data()
-                response_data = last_data
-
-            # if "upload_to_s3" in result and result["upload_to_s3"]:
-            #     upload_url = result["data"]
-            #     response = requests.get(upload_url)
-            #     assert response.status_code == 200
-            #     response_data = response.json()
+                response_data = last_data.get("data")
             out = response_data["payload"]
             return out
         except Exception as e:
@@ -77,6 +69,8 @@ class PromptServer(Command):
 
         out = self._get_result(result)
         try:
+            if "error" in out:
+                raise RuntimeError(out["error"])
             real_out = decode_data(out)
             return real_out[0]
         except Exception as e:
