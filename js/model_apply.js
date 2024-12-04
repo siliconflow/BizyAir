@@ -46,6 +46,45 @@ function createSetWidgetCallback(modelType) {
     }
 }
 
+function setupNodeMouseBehavior(node, modelType) {
+    hideWidget(node, "model_version_id");
+    let lastClickTime = 0;
+    const DEBOUNCE_DELAY = 300;
+    node.onMouseDown = function(e, pos, canvas) {
+        const lora_name = this.widgets.find(widget => widget.name === "lora_name")
+        const model_widget = this.widgets.find(widget => widget.name === "model_version_id") // hidden
+        if (pos[1] - lora_name.last_y > 0 && pos[1] - lora_name.last_y < 20) {
+            const litecontextmenu = document.querySelector('.litegraph.litecontextmenu')
+            if (litecontextmenu) {
+                litecontextmenu.style.display = 'none'
+            }
+            e.stopImmediatePropagation();
+            e.preventDefault();
+            if (e.button !== 0) {
+                return false;
+            }
+            const currentTime = new Date().getTime();
+            if (currentTime - lastClickTime < DEBOUNCE_DELAY) {
+                return false;
+            }
+            lastClickTime = currentTime;
+            bizyAirLib.showModelSelect({
+                modelType: [modelType],
+                selectedBaseModels: [],
+                onApply: (version, model) => {
+                    if (model && model_widget && lora_name && version) {
+                        lora_name.value = model
+                        model_widget.value = version.id
+                    }
+                }
+            })
+            return false;
+        } else {
+            return original_onMouseDown?.apply(this, arguments);
+        }
+    }
+}
+
 app.registerExtension({
     name: "bizyair.siliconcloud.share.lora.loader.new",
     async beforeRegisterNodeDef(nodeType, nodeData, app) {
@@ -65,7 +104,7 @@ app.registerExtension({
 
     async nodeCreated(node) {
         if (node?.comfyClass === "BizyAir_LoraLoader") {
-            hideWidget(node, "model_version_id");
+            setupNodeMouseBehavior(node, "LoRA");
         }
     }
 })
@@ -89,7 +128,7 @@ app.registerExtension({
 
     async nodeCreated(node) {
         if (node?.comfyClass === "BizyAir_ControlNetLoader") {
-            hideWidget(node, "model_version_id");
+            setupNodeMouseBehavior(node, "LoRA");
         }
     }
 })
