@@ -51,7 +51,7 @@ app.registerExtension({
                     lastClickTime = currentTime;
                     bizyAirLib.showModelSelect({
                         modelType:["LoRA"],
-                        selectedBaseModels:["Flux.1 D","SDXL"],
+                        selectedBaseModels:[],
                         onApply: (version,model) => {
                             if(model && model_widget && lora_name && version){
                                 lora_name.value = model
@@ -119,7 +119,7 @@ app.registerExtension({
                     lastClickTime = currentTime;
                     bizyAirLib.showModelSelect({
                         modelType:["Controlnet"],
-                        selectedBaseModels:["Flux.1 D","SDXL"],
+                        selectedBaseModels:[],
                         onApply: (version,model) => {
                             if(model && model_widget && lora_name && version){
                                 lora_name.value = model
