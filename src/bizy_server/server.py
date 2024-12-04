@@ -112,9 +112,14 @@ class BizyAirServer:
                 return ErrResponse(errnos.INVALID_OBJECT_KEY)
             object_key = json_data.get("object_key")
 
+            md5_hash = ""
+            if "md5_hash" in json_data:
+                md5_hash = json_data.get("md5_hash")
+
             commit_data, err = await self.api_client.commit_file(
-                signature=sha256sum, object_key=object_key
+                signature=sha256sum, object_key=object_key, md5_hash=md5_hash
             )
+            print("commit_data", commit_data)
             if err is not None:
                 return ErrResponse(err)
 
@@ -173,7 +178,8 @@ class BizyAirServer:
             resp, err = await self.api_client.commit_bizy_model(payload=json_data)
             if err:
                 return ErrResponse(err)
-
+            
+            print("resp------------------------------->", json_data, resp)
             # 开启线程检查同步状态
             threading.Thread(
                 target=self.check_sync_status,
