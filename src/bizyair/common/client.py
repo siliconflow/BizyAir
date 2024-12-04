@@ -214,9 +214,6 @@ def get_task_result(task_id: str, offset: int = 0) -> dict:
     import requests
 
     url = f"https://uat-bizyair-api.siliconflow.cn/x/v1/bizy_task/{task_id}"
-    import ipdb
-
-    ipdb.set_trace()
     response = requests.get(url, headers=_headers(), params={"offset": offset})
     if response.status_code == 200:
         return response.json()
@@ -240,6 +237,7 @@ def get_task_result(task_id: str, offset: int = 0) -> dict:
 
 @dataclass
 class BizyAirTask:
+    TASK_DATA_STATUS = ["PENDING", "PROCESSING", "COMPLETED"]
     task_id: str
     data_pool: list[dict] = field(default_factory=list)
     data_status: str = None
@@ -261,8 +259,11 @@ class BizyAirTask:
         return cls(task_id=task_id, data_pool=[], data_status="started")
 
     def is_finished(self) -> bool:
-        # TODO: fix this
-        return self.data_status == "finished"
+        if not self.data_pool:
+            return False
+        if self.data_pool[-1].get("data_status") == self.TASK_DATA_STATUS[-1]:
+            return True
+        return False
 
     def send_request(self, offset: int = 0) -> dict:
         if offset >= len(self.data_pool):
@@ -270,17 +271,20 @@ class BizyAirTask:
         else:
             return self.data_pool[offset]
 
-    def get_all_outputs(self, timeout: int = 240) -> list[dict]:
+    def get_last_data(self) -> dict:
+        return self.data_pool[-1]
+
+    def do_task_until_completed(self, *, timeout: int = 480) -> list[dict]:
         offset = 0
         start_time = time.time()
         while not self.is_finished():
             try:
                 data = self.send_request(offset)
-                import ipdb
-
-                ipdb.set_trace()
-                self.data_pool.extend(data)
-                offset += 1
+                data_lst = data.get("data", {}).get("events", [])
+                if not data_lst:
+                    raise ValueError(f"No data found in task {self.task_id}")
+                self.data_pool.extend(data_lst)
+                offset += len(data_lst)
             except Exception as e:
                 print(f"Exception: {e}")
             finally:
@@ -288,36 +292,5 @@ class BizyAirTask:
                     raise TimeoutError(
                         f"Timeout waiting for task {self.task_id} to finish"
                     )
+                time.sleep(2)
         return self.data_pool
-
-    # def get_next_data(self, wait_for_result: bool = False) -> dict:
-
-    #     # if self.next_offset >= len(self.data):
-    #     #     if self.is_finished():
-    #     #         raise ValueError(f"No more data to get for task {self.task_id}")
-    #     #     else:
-    #     #         data = get_task_result(self.task_id, self.next_offset)
-    #     #         if self._check_request_result(data):
-    #     #             self.data.extend(data)
-    #     #             self.next_offset += 1
-    #     #         else:
-    #     #             import ipdb; ipdb.set_trace()
-
-
-# class BizyAirTasks:
-#     def __init__(self):
-#         self.task_data_pool = defaultdict(BizyAirTaskData)
-
-#     @classmethod
-#     def from_data(cls, data: dict) -> "BizyAirTasks":
-#         self = cls()
-#         task_id = data["task_id"]
-#         self.task_data_pool[task_id] = BizyAirTaskData(task_id=task_id)
-#         return self
-
-#     def get_task_data(self, task_id: str, offset: int = 0) -> dict:
-#         if task_id not in self.task_data_pool:
-#             raise ValueError(f"Task {task_id} not found")
-
-#         task_data = self.task_data_pool[task_id]
-#         return task_data.get_next_data(wait_for_result=wait_for_result)

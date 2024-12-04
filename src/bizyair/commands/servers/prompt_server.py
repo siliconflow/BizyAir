@@ -34,26 +34,15 @@ class PromptServer(Command):
             response_data = result["data"]
             if BizyAirTask.check_inputs(result):
                 bz_task = BizyAirTask.from_data(result, check_inputs=False)
+                bz_task.do_task_until_completed()
+                last_data = bz_task.get_last_data()
+                response_data = last_data
 
-                i = 0
-                while i < 1000:
-                    import time
-
-                    time.sleep(1)
-                    try:
-                        _ = bz_task.send_request(offset=i)
-                        import ipdb
-
-                        ipdb.set_trace()
-                        i += 1
-                    except Exception as e:
-                        print(f"Exception: {e}")
-
-            if "upload_to_s3" in result and result["upload_to_s3"]:
-                upload_url = result["data"]
-                response = requests.get(upload_url)
-                assert response.status_code == 200
-                response_data = response.json()
+            # if "upload_to_s3" in result and result["upload_to_s3"]:
+            #     upload_url = result["data"]
+            #     response = requests.get(upload_url)
+            #     assert response.status_code == 200
+            #     response_data = response.json()
             out = response_data["payload"]
             return out
         except Exception as e:
