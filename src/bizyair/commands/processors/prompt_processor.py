@@ -8,7 +8,7 @@ from bizyair.common.env_var import (
     BIZYAIR_DEV_REQUEST_URL,
     BIZYAIR_SERVER_ADDRESS,
 )
-from bizyair.configs.conf import ModelRule
+from bizyair.configs.conf import ModelRule, config_manager
 from bizyair.path_utils import (
     convert_prompt_label_path_to_real_path,
     guess_url_from_node,
@@ -83,14 +83,29 @@ class SearchServiceRouter(Processor):
 
 
 class PromptProcessor(Processor):
+    def _exec_info(self, prompt: Dict[str, Dict[str, Any]]):
+        exec_info = {
+            "model_version_ids": [],
+        }
+        model_version_id_prefix = config_manager.get_model_version_id_prefix()
+        for node_id, node_data in prompt.items():
+            for k, v in node_data.get("inputs", {}).items():
+                if isinstance(v, str) and v.startswith(model_version_id_prefix):
+                    model_version_id = int(v[len(model_version_id_prefix) :])
+                    exec_info["model_version_ids"].append(model_version_id)
+        return exec_info
+
     def process(
         self, url: str, prompt: Dict[str, Dict[str, Any]], last_node_ids: List[str]
     ):
-        prompt = convert_prompt_label_path_to_real_path(prompt)
         return client.send_request(
             url=url,
             data=json.dumps(
-                {"prompt": prompt, "last_node_id": last_node_ids[0]}
+                {
+                    "prompt": prompt,
+                    "last_node_id": last_node_ids[0],
+                    "exec_info": self._exec_info(prompt),
+                }
             ).encode("utf-8"),
         )
 
