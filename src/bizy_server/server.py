@@ -1,31 +1,23 @@
 import asyncio
 import logging
-import os
-import tempfile
 import threading
 import time
 import urllib.parse
 import uuid
 
 import aiohttp
+
 from server import PromptServer
-
-import bizyair.common
-
 from .api_client import APIClient
 from .errno import ErrorNo, errnos
 from .error_handler import ErrorHandler
-from .execution import UploadQueue
 from .oss import AliOssStorageClient
 from .resp import ErrResponse, OKResponse
-from .upload_manager import UploadManager
 from .utils import (
     base_model_types,
     check_str_param,
     check_type,
-    is_allow_ext_name,
     is_string_valid,
-    to_slash,
     types,
 )
 
@@ -40,12 +32,9 @@ class BizyAirServer:
     def __init__(self):
         BizyAirServer.instance = self
         self.api_client = APIClient()
-        self.upload_manager = UploadManager(self)
         self.error_handler = ErrorHandler()
         self.prompt_server = PromptServer.instance
         self.sockets = dict()
-        self.uploads = dict()
-        self.upload_queue = UploadQueue()
         self.loop = asyncio.get_event_loop()
 
         self.setup_routes()
@@ -98,114 +87,41 @@ class BizyAirServer:
                 self.sockets.pop(sid, None)
             return ws
 
-        @self.prompt_server.routes.get(f"/{COMMUNITY_API}/check_local_file")
-        async def check_local_file(request):
-            absolute_path = request.rel_url.query.get("absolute_path")
+        @self.prompt_server.routes.get(f"/{COMMUNITY_API}/sign")
+        async def sign(request):
+            sha256sum = request.rel_url.query.get("sha256sum")
 
-            if not is_string_valid(absolute_path):
-                return ErrResponse(errnos.EMPTY_ABS_PATH)
+            if not is_string_valid(sha256sum):
+                return ErrResponse(errnos.EMPTY_SHA256SUM)
 
-            if not os.path.isabs(absolute_path):
-                return ErrResponse(errnos.NO_ABS_PATH)
-
-            if not os.path.exists(absolute_path):
-                return ErrResponse(errnos.PATH_NOT_EXISTS)
-
-            if not os.path.isfile(absolute_path):
-                return ErrResponse(errnos.NOT_A_FILE)
-
-            if not is_allow_ext_name(absolute_path):
-                return ErrResponse(errnos.NOT_ALLOWED_EXT_NAME)
-
-            file_size = os.path.getsize(absolute_path)
-            relative_path = os.path.basename(absolute_path)
-
-            upload_id = uuid.uuid4().hex
-            data = {
-                "upload_id": upload_id,
-                "root": os.path.dirname(absolute_path),
-                "files": [{"path": to_slash(relative_path), "size": file_size}],
-            }
-            self.uploads[upload_id] = data
-
-            return OKResponse(data)
-
-        @self.prompt_server.routes.post(f"/{COMMUNITY_API}/models/check_workflow")
-        async def check_workflow(request):
-            sid = request.rel_url.query.get("clientId", "")
-            if not is_string_valid(sid):
-                return ErrResponse(errnos.INVALID_CLIENT_ID)
-
-            reader = await request.multipart()
-            field = await reader.next()
-            if not field or field.name != "file":
-                return ErrResponse(errnos.NO_FILE_UPLOAD)
-
-            filename = field.filename
-            if not filename:
-                return ErrResponse(errnos.NO_FILE_UPLOAD)
-
-            temp_dir = tempfile.gettempdir()
-            if not os.path.exists(temp_dir):
-                os.makedirs(temp_dir)
-
-            temp_file_path = os.path.join(temp_dir, filename)
-            with open(temp_file_path, "wb") as f:
-                while chunk := await field.read_chunk():
-                    f.write(chunk)
-
-            file_size = os.path.getsize(temp_file_path)
-            relative_path = os.path.basename(temp_file_path)
-
-            upload_id = uuid.uuid4().hex
-            data = {
-                "upload_id": upload_id,
-                "root": temp_dir,
-                "files": [{"path": to_slash(relative_path), "size": file_size}],
-            }
-            self.uploads[upload_id] = data
-
-            return OKResponse(data)
-
-        @self.prompt_server.routes.post(f"/{COMMUNITY_API}/submit_upload")
-        async def submit_upload(request):
-            sid = request.rel_url.query.get("clientId", "")
-            if not is_string_valid(sid):
-                return ErrResponse(errnos.INVALID_CLIENT_ID)
-
-            json_data = await request.json()
-            err = check_str_param(json_data, "upload_id", errnos.EMPTY_UPLOAD_ID)
+            sign_data, err = await self.api_client.sign(sha256sum)
             if err is not None:
-                return err
+                return ErrResponse(err)
 
-            upload_id = json_data.get("upload_id")
-            if upload_id not in self.uploads:
-                return ErrResponse(errnos.INVALID_UPLOAD_ID)
+            return OKResponse(sign_data)
 
-            self.uploads[upload_id]["sid"] = sid
-            self.upload_queue.put(self.uploads[upload_id])
-
-            return OKResponse(None)
-
-        @self.prompt_server.routes.post(f"/{COMMUNITY_API}/interrupt_upload")
-        async def interrupt_upload(request):
-            sid = request.rel_url.query.get("clientId", "")
-            if not is_string_valid(sid):
-                return ErrResponse(errnos.INVALID_CLIENT_ID)
-
+        @self.prompt_server.routes.post(f"/{COMMUNITY_API}/commit_file")
+        async def commit_file(request):
             json_data = await request.json()
-            err = check_str_param(json_data, "upload_id", errnos.EMPTY_UPLOAD_ID)
+
+            if "sha256sum" not in json_data:
+                return ErrResponse(errnos.EMPTY_SHA256SUM)
+            sha256sum = json_data.get("sha256sum")
+
+            if "object_key" not in json_data:
+                return ErrResponse(errnos.INVALID_OBJECT_KEY)
+            object_key = json_data.get("object_key")
+
+            md5_hash = ""
+            if "md5_hash" in json_data:
+                md5_hash = json_data.get("md5_hash")
+
+            commit_data, err = await self.api_client.commit_file(
+                signature=sha256sum, object_key=object_key, md5_hash=md5_hash
+            )
+            print("commit_data", commit_data)
             if err is not None:
-                return err
-
-            upload_id = json_data.get("upload_id")
-            if upload_id not in self.uploads:
-                return ErrResponse(errnos.INVALID_UPLOAD_ID)
-
-            if self.uploads.get(upload_id) is None:
-                return ErrResponse(errnos.INVALID_UPLOAD_ID)
-
-            await self.upload_manager.interrupt_uploading(upload_id)
+                return ErrResponse(err)
 
             return OKResponse(None)
 
@@ -231,7 +147,7 @@ class BizyAirServer:
 
             # 校验versions
             if "versions" not in json_data or not isinstance(
-                json_data["versions"], list
+                    json_data["versions"], list
             ):
                 return ErrResponse(errnos.INVALID_VERSIONS)
 
@@ -245,7 +161,7 @@ class BizyAirServer:
 
                 # 检查version字段是否合法
                 if not is_string_valid(version.get("version")) or "/" in version.get(
-                    "version"
+                        "version"
                 ):
                     return ErrResponse(errnos.INVALID_VERSION_NAME)
 
@@ -254,13 +170,16 @@ class BizyAirServer:
                 # 检查base_model, path和sign是否有值
                 for field in ["base_model", "path", "sign"]:
                     if not is_string_valid(version.get(field)):
-                        return ErrResponse(errnos.INVALID_VERSION_FIELD(field))
+                        err = errnos.INVALID_VERSION_FIELD.copy()
+                        err.message = "Invalid version field: " + field
+                        return ErrResponse(err)
 
             # 调用API提交模型
             resp, err = await self.api_client.commit_bizy_model(payload=json_data)
             if err:
                 return ErrResponse(err)
-
+            
+            print("resp------------------------------->", json_data, resp)
             # 开启线程检查同步状态
             threading.Thread(
                 target=self.check_sync_status,
@@ -379,7 +298,7 @@ class BizyAirServer:
 
             # 校验versions
             if "versions" not in json_data or not isinstance(
-                json_data["versions"], list
+                    json_data["versions"], list
             ):
                 return ErrResponse(errnos.INVALID_VERSIONS)
 
@@ -393,7 +312,7 @@ class BizyAirServer:
 
                 # 检查version字段是否合法
                 if not is_string_valid(version.get("version")) or "/" in version.get(
-                    "version"
+                        "version"
                 ):
                     return ErrResponse(errnos.INVALID_VERSION_NAME)
 
@@ -579,9 +498,9 @@ class BizyAirServer:
         try:
             await function(message)
         except (
-            aiohttp.ClientError,
-            aiohttp.ClientPayloadError,
-            ConnectionResetError,
+                aiohttp.ClientError,
+                aiohttp.ClientPayloadError,
+                ConnectionResetError,
         ) as err:
             logging.warning("send error: {}".format(err))
 
@@ -598,6 +517,11 @@ class BizyAirServer:
     def check_sync_status(self, bizy_model_id: str, version_ids: list, sid=None):
         while True:
             removed = []
+            # 从version_ids中移除removed中的version_id
+            version_ids = [version_id for version_id in version_ids if version_id not in removed]
+            if len(version_ids) == 0:
+                return
+
             for version_id in version_ids:
                 future = asyncio.run_coroutine_threadsafe(
                     self.api_client.get_model_version_detail(version_id=version_id),
@@ -634,7 +558,4 @@ class BizyAirServer:
                         sid=sid,
                     )
                     removed.append(version_id)
-                    return
-
-            version_ids = [item for item in version_ids if item not in removed]
             time.sleep(5)

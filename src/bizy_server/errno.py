@@ -5,6 +5,8 @@ class ErrorNo:
         self.message = message
         self.data = payload
 
+    def copy(self):
+        return ErrorNo(self.http_status_code, self.code, self.data, self.message)
 
 class errnos:
     OK = ErrorNo(200, 20000, None, "Success")
@@ -37,6 +39,8 @@ class errnos:
     INVALID_MODEL_VERSION_ID = ErrorNo(400, 400128, None, "Invalid model version id")
     UNSUPPORT_LIKE_TYPE = ErrorNo(400, 400130, None, "Unsupport like type")
     INVALID_SIGN = ErrorNo(400, 400131, None, "Invalid file sign")
+    EMPTY_SHA256SUM = ErrorNo(400, 400132, None, "Empty sha256sum")
+    INVALID_OBJECT_KEY = ErrorNo(400, 400133, None, "Invalid object key")
 
     INVALID_API_KEY = ErrorNo(401, 401000, None, "Invalid API key")
     INVALID_USER = ErrorNo(401, 401001, None, "Invalid user")
