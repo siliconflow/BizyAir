@@ -18,7 +18,7 @@ async def get_bizyair_news(base_url="https://bizyair.siliconflow.cn"):
     url = f"{base_url}/bznews.json"
     try:
         async with aiohttp.ClientSession() as session:
-            async with session.get(url, timeout=5) as response:
+            async with session.get(url, timeout=2) as response:
                 if response.status == 200:
                     data = await response.text()
                     return json.loads(data)
