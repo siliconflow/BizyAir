@@ -131,6 +131,7 @@ def workflow_convert(inputs: dict, status):
         node_outputs = node.get("outputs")
 
         bizyair_cls_type = f"{bizyair.nodes_base.PREFIX}_{class_type}"
+        is_converted = False
 
         if bizyair_cls_type in bizyair.NODE_CLASS_MAPPINGS:
             node["type"] = bizyair_cls_type
@@ -147,48 +148,51 @@ def workflow_convert(inputs: dict, status):
                 for output_node in node_outputs:
                     output_type = output_node["type"]
                     output_node["type"] = f"{bizyair.nodes_base.PREFIX}_{output_type}"
-            status = True
+            is_converted = True
         pprint.pprint(
             {
                 "original_class_type": class_type,
                 "bizyair_cls_type": bizyair_cls_type,
-                "is_converted": status,
+                "is_converted": is_converted,
             }
         )
+        assert is_converted == True
 
     return (inputs, status)
 
 
-def workflow_api_convert(inputs: dict, status):
+def workflow_api_convert(inputs: dict):
     for x in inputs.copy():
         class_type = inputs[x]["class_type"]
         bizyair_cls_type = f"{bizyair.nodes_base.PREFIX}_{class_type}"
+        is_converted = False
+
         if bizyair_cls_type in bizyair.NODE_CLASS_MAPPINGS:
             inputs[x]["class_type"] = bizyair_cls_type
             display_name = get_bizyair_display_name(class_type)
             inputs[x]["_meta"]["title"] = display_name
-            status = True
+            is_converted = True
+
         pprint.pprint(
             {
                 "original_class_type": class_type,
                 "bizyair_cls_type": bizyair_cls_type,
-                "is_converted": status,
+                "is_converted": is_converted,
             }
         )
+        assert is_converted == True
 
-    return (inputs, status)
+    return inputs
 
 
 def convert_to_bizyair(inputs: dict):
     bizyair.NODE_CLASS_MAPPINGS
 
-    is_converted = False
     input_format = get_trans_format(inputs)
     if input_format == "workflow_api":
-        inputs, is_converted = workflow_api_convert(inputs, is_converted)
+        inputs = workflow_api_convert(inputs)
     elif input_format == "workflow":
-        inputs, is_converted = workflow_convert(inputs, is_converted)
-    assert is_converted == True
+        inputs = workflow_convert(inputs)
 
     return inputs
 
