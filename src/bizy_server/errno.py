@@ -8,6 +8,7 @@ class ErrorNo:
     def copy(self):
         return ErrorNo(self.http_status_code, self.code, self.data, self.message)
 
+
 class errnos:
     OK = ErrorNo(200, 20000, None, "Success")
     NO_MODEL_FOUND = ErrorNo(404, 20226, None, "No model found")

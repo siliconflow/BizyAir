@@ -6,20 +6,14 @@ import urllib.parse
 import uuid
 
 import aiohttp
-
 from server import PromptServer
+
 from .api_client import APIClient
 from .errno import ErrorNo, errnos
 from .error_handler import ErrorHandler
 from .oss import AliOssStorageClient
 from .resp import ErrResponse, OKResponse
-from .utils import (
-    base_model_types,
-    check_str_param,
-    check_type,
-    is_string_valid,
-    types,
-)
+from .utils import base_model_types, check_str_param, check_type, is_string_valid, types
 
 API_PREFIX = "bizyair"
 COMMUNITY_API = f"{API_PREFIX}/community"
@@ -147,7 +141,7 @@ class BizyAirServer:
 
             # 校验versions
             if "versions" not in json_data or not isinstance(
-                    json_data["versions"], list
+                json_data["versions"], list
             ):
                 return ErrResponse(errnos.INVALID_VERSIONS)
 
@@ -161,7 +155,7 @@ class BizyAirServer:
 
                 # 检查version字段是否合法
                 if not is_string_valid(version.get("version")) or "/" in version.get(
-                        "version"
+                    "version"
                 ):
                     return ErrResponse(errnos.INVALID_VERSION_NAME)
 
@@ -178,7 +172,7 @@ class BizyAirServer:
             resp, err = await self.api_client.commit_bizy_model(payload=json_data)
             if err:
                 return ErrResponse(err)
-            
+
             print("resp------------------------------->", json_data, resp)
             # 开启线程检查同步状态
             threading.Thread(
@@ -298,7 +292,7 @@ class BizyAirServer:
 
             # 校验versions
             if "versions" not in json_data or not isinstance(
-                    json_data["versions"], list
+                json_data["versions"], list
             ):
                 return ErrResponse(errnos.INVALID_VERSIONS)
 
@@ -312,7 +306,7 @@ class BizyAirServer:
 
                 # 检查version字段是否合法
                 if not is_string_valid(version.get("version")) or "/" in version.get(
-                        "version"
+                    "version"
                 ):
                     return ErrResponse(errnos.INVALID_VERSION_NAME)
 
@@ -498,9 +492,9 @@ class BizyAirServer:
         try:
             await function(message)
         except (
-                aiohttp.ClientError,
-                aiohttp.ClientPayloadError,
-                ConnectionResetError,
+            aiohttp.ClientError,
+            aiohttp.ClientPayloadError,
+            ConnectionResetError,
         ) as err:
             logging.warning("send error: {}".format(err))
 
@@ -518,7 +512,9 @@ class BizyAirServer:
         while True:
             removed = []
             # 从version_ids中移除removed中的version_id
-            version_ids = [version_id for version_id in version_ids if version_id not in removed]
+            version_ids = [
+                version_id for version_id in version_ids if version_id not in removed
+            ]
             if len(version_ids) == 0:
                 return
 

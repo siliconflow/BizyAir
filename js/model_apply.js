@@ -15,7 +15,7 @@ function createSetWidgetCallback(modelType) {
                     if (e.type === "pointerdown" || e.type === "mousedown" || e.type === "click" || e.type === "pointerup") {
                         e.preventDefault();
                         e.stopPropagation();
-                        
+
                         if (typeof bizyAirLib !== 'undefined' && typeof bizyAirLib.showModelSelect === 'function') {
                             bizyAirLib.showModelSelect({
                                 modelType: [modelType],
@@ -110,7 +110,7 @@ app.registerExtension({
 })
 
 app.registerExtension({
-    name: "bizyair.siliconcloud.share.controlnet.loader.new", 
+    name: "bizyair.siliconcloud.share.controlnet.loader.new",
     async beforeRegisterNodeDef(nodeType, nodeData, app) {
         if (nodeData.name === "BizyAir_ControlNetLoader") {
             const onNodeCreated = nodeType.prototype.onNodeCreated;
