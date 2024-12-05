@@ -50,3 +50,61 @@ class ControlNetApplySD3(BizyAirBaseNode):
     NODE_DISPLAY_NAME = "Apply Controlnet with VAE"
     RETURN_TYPES = (data_types.CONDITIONING, data_types.CONDITIONING)
     RETURN_NAMES = ("positive", "negative")
+
+
+class DetailDaemonSampler(BizyAirBaseNode):
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "sampler": ("SAMPLER",),
+                "detail_amount": (
+                    "FLOAT",
+                    {"default": 0.1, "min": -5.0, "max": 5.0, "step": 0.01},
+                ),
+                "start": (
+                    "FLOAT",
+                    {"default": 0.2, "min": 0.0, "max": 1.0, "step": 0.01},
+                ),
+                "end": (
+                    "FLOAT",
+                    {"default": 0.8, "min": 0.0, "max": 1.0, "step": 0.01},
+                ),
+                "bias": (
+                    "FLOAT",
+                    {"default": 0.5, "min": 0.0, "max": 1.0, "step": 0.01},
+                ),
+                "exponent": (
+                    "FLOAT",
+                    {"default": 1.0, "min": 0.0, "max": 10.0, "step": 0.05},
+                ),
+                "start_offset": (
+                    "FLOAT",
+                    {"default": 0.0, "min": -1.0, "max": 1.0, "step": 0.01},
+                ),
+                "end_offset": (
+                    "FLOAT",
+                    {"default": 0.0, "min": -1.0, "max": 1.0, "step": 0.01},
+                ),
+                "fade": (
+                    "FLOAT",
+                    {"default": 0.0, "min": 0.0, "max": 1.0, "step": 0.05},
+                ),
+                "smooth": ("BOOLEAN", {"default": True}),
+                "cfg_scale_override": (
+                    "FLOAT",
+                    {
+                        "default": 0,
+                        "min": 0.0,
+                        "max": 100.0,
+                        "step": 0.5,
+                        "round": 0.01,
+                        "tooltip": "If set to 0, the sampler will automatically determine the CFG scale (if possible). Set to some other value to override.",
+                    },
+                ),
+            }
+        }
+
+    RETURN_TYPES = ("SAMPLER",)
+    CATEGORY = "sampling/custom_sampling/samplers"
+    NODE_DISPLAY_NAME = "Detail Daemon Sampler"
