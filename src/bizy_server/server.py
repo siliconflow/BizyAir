@@ -6,8 +6,8 @@ import urllib.parse
 import uuid
 
 import aiohttp
-
 from server import PromptServer
+
 from .api_client import APIClient
 from .errno import ErrorNo, errnos
 from .error_handler import ErrorHandler
@@ -492,9 +492,9 @@ class BizyAirServer:
         try:
             await function(message)
         except (
-                aiohttp.ClientError,
-                aiohttp.ClientPayloadError,
-                ConnectionResetError,
+            aiohttp.ClientError,
+            aiohttp.ClientPayloadError,
+            ConnectionResetError,
         ) as err:
             logging.warning("send error: {}".format(err))
 
@@ -512,7 +512,9 @@ class BizyAirServer:
         removed = []
         while True:
             # 从version_ids中移除removed中的version_id
-            version_ids = [version_id for version_id in version_ids if version_id not in removed]
+            version_ids = [
+                version_id for version_id in version_ids if version_id not in removed
+            ]
             if len(version_ids) == 0:
                 return
 
