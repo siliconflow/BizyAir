@@ -17,6 +17,7 @@ from .utils import base_model_types, check_str_param, check_type, is_string_vali
 
 API_PREFIX = "bizyair"
 COMMUNITY_API = f"{API_PREFIX}/community"
+MODEL_HOST_API = f"{API_PREFIX}/modelhost"
 USER_API = f"{API_PREFIX}/user"
 
 logging.basicConfig(level=logging.DEBUG)
@@ -470,6 +471,34 @@ class BizyAirServer:
             except Exception as e:
                 print(f"\033[31m[BizyAir]\033[0m Fail to download JSON: {str(e)}")
                 return ErrResponse(errnos.DOWNLOAD_JSON)
+
+        @self.prompt_server.routes.get(f"/{MODEL_HOST_API}" + "/{shareId}/models/files")
+        async def list_share_model_files(request):
+            shareId = request.match_info["shareId"]
+
+            if not is_string_valid(shareId):
+                return ErrResponse("INVALID_SHARE_ID")
+
+            err = check_type(request.rel_url.query)
+            if err is not None:
+                return err
+
+            payload = {
+                "type": request.rel_url.query["type"],
+            }
+
+            if "name" in request.rel_url.query:
+                payload["name"] = request.rel_url.query["name"]
+
+            if "ext_name" in request.rel_url.query:
+                payload["ext_name"] = request.rel_url.query["ext_name"]
+            model_files, err = await self.api_client.get_share_model_files(
+                shareId=shareId, payload=payload
+            )
+            if err is not None:
+                return ErrResponse(err)
+
+            return OKResponse(model_files)
 
     async def send_json(self, event, data, sid=None):
         message = {"type": event, "data": data}
