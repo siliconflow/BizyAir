@@ -78,3 +78,6 @@ class errnos:
     TOGGLE_USER_LIKE = ErrorNo(500, 500125, None, "Failed to toggle user like")
     GET_DOWNLOAD_URL = ErrorNo(500, 500126, None, "Failed to get download url")
     DOWNLOAD_JSON = ErrorNo(500, 500127, None, "Failed to download json")
+    LIST_SHARE_MODEL_FILE_ERR = ErrorNo(
+        500, 500128, None, "Failed to list share model file"
+    )
