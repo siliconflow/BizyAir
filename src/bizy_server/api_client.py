@@ -395,3 +395,32 @@ class APIClient:
         except Exception as e:
             print(f"\033[31m[BizyAir]\033[0m Fail to get download url: {str(e)}")
             return None, errnos.GET_DOWNLOAD_URL
+
+    async def get_share_model_files(self, shareId, payload) -> (dict, ErrorNo):
+        server_url = f"{BIZYAIR_SERVER_ADDRESS}/{shareId}/models/files"
+        try:
+
+            def callback(ret: dict):
+                if ret["code"] != errnos.OK.code:
+                    return [], ErrorNo(500, ret["code"], None, f"{ret}")
+                if not ret or "data" not in ret or ret["data"] is None:
+                    return [], None
+
+                outputs = [
+                    x["label_path"] for x in ret["data"]["files"] if x["label_path"]
+                ]
+                outputs = bizyair.path_utils.filter_files_extensions(
+                    outputs,
+                    extensions=bizyair.path_utils.path_manager.supported_pt_extensions,
+                )
+                return outputs, None
+
+            ret = await bizyair.common.client.async_send_request(
+                method="GET", url=server_url, params=payload, callback=callback
+            )
+            return ret[0], ret[1]
+        except Exception as e:
+            print(
+                f"\033[31m[BizyAir]\033[0m Fail to list share model files: response {ret} error {str(e)}"
+            )
+            return [], errnos.LIST_SHARE_MODEL_FILE_ERR
