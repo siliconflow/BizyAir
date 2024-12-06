@@ -50,6 +50,7 @@ function setupNodeMouseBehavior(node, modelType) {
     hideWidget(node, "model_version_id");
     let lastClickTime = 0;
     const DEBOUNCE_DELAY = 300;
+    const original_onMouseDown = node.onMouseDown;
     node.onMouseDown = function(e, pos, canvas) {
         const lora_name = this.widgets.find(widget => widget.name === "lora_name")
         const model_widget = this.widgets.find(widget => widget.name === "model_version_id") // hidden
