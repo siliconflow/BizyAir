@@ -1157,7 +1157,6 @@ class SharedControlNetLoader(BizyAir_ControlNetLoader_Legacy):
                 f"ControlNet {control_net_name} not found in share {share_id} with {outs}"
             )
 
-        folder_paths.filename_path_mapping["controlnet"][control_net_name]
         return True
 
     def load_controlnet(self, control_net_name, share_id, **kwargs):
