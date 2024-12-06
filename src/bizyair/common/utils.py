@@ -14,6 +14,10 @@ def truncate_long_strings(obj, max_length=50):
         return {k: truncate_long_strings(v, max_length) for k, v in obj.items()}
     elif isinstance(obj, list):
         return [truncate_long_strings(v, max_length) for v in obj]
+    elif isinstance(obj, tuple):
+        return tuple(truncate_long_strings(v, max_length) for v in obj)
+    elif isinstance(obj, torch.Tensor):
+        return obj.shape, obj.dtype, obj.device
     else:
         return obj
 
