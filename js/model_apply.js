@@ -3,12 +3,16 @@ import { app } from "../../scripts/app.js";
 import './bizyair_frontend.js'
 import { hideWidget } from './subassembly/tools.js'
 
+const possibleWidgetNames=[
+    "lora_name",
+    "control_net_name"
+]
 function createSetWidgetCallback(modelType) {
     return function setWidgetCallback() {
-        const lora_name = this.widgets.find(widget => widget.name === "lora_name");
-        if (lora_name) {
-            lora_name.value = lora_name.value || "to choose"
-            lora_name.mouse = function(e, pos, canvas) {
+        const targetWidget = this.widgets.find(widget => possibleWidgetNames.includes(widget.name));
+        if (targetWidget) {
+            targetWidget.value = targetWidget.value || "to choose"
+            targetWidget.mouse = function(e, pos, canvas) {
                 try {
                     if (e.type === "pointerdown" || e.type === "mousedown" || e.type === "click" || e.type === "pointerup") {
                         e.preventDefault();
@@ -29,7 +33,7 @@ function createSetWidgetCallback(modelType) {
                                 onApply: (version, model) => {
                                     if (!currentNode || !currentNode.widgets) return;
                                     
-                                    const currentLora = currentNode.widgets.find(w => w.name === "lora_name");
+                                    const currentLora = currentNode.widgets.find(widget => possibleWidgetNames.includes(widget.name));
                                     const currentModel = currentNode.widgets.find(w => w.name === "model_version_id");
                                     
                                     if (model && currentModel && version) {
@@ -49,12 +53,12 @@ function createSetWidgetCallback(modelType) {
                 }
             };
             
-            lora_name.node = this;
-            lora_name.options = lora_name.options || {};
-            lora_name.options.values = () => [];
-            lora_name.options.editable = false;
-            lora_name.clickable = true;
-            lora_name.processMouse = true;
+            targetWidget.node = this;
+            targetWidget.options = targetWidget.options || {};
+            targetWidget.options.values = () => [];
+            targetWidget.options.editable = false;
+            targetWidget.clickable = true;
+            targetWidget.processMouse = true;
         }
     }
 }
@@ -75,9 +79,10 @@ function setupNodeMouseBehavior(node, modelType) {
             return this._bizyairState.original_onMouseDown?.apply(this, arguments);
         }
 
-        const lora_name = this.widgets.find(widget => widget.name === "lora_name");
-        
-        if (pos[1] - lora_name.last_y > 0 && pos[1] - lora_name.last_y < 20) {
+      
+
+        const targetWidget = this.widgets.find(widget => possibleWidgetNames.includes(widget.name));
+        if (targetWidget && pos[1] - targetWidget.last_y > 0 && pos[1] - targetWidget.last_y < 20) {
             const litecontextmenu = document.querySelector('.litegraph.litecontextmenu')
             if (litecontextmenu) {
                 litecontextmenu.style.display = 'none'
@@ -101,7 +106,7 @@ function setupNodeMouseBehavior(node, modelType) {
                 onApply: (version, model) => {
                     if (!currentNode || !currentNode.widgets) return;
                     
-                    const currentLora = currentNode.widgets.find(w => w.name === "lora_name");
+                    const currentLora = currentNode.widgets.find(widget => possibleWidgetNames.includes(widget.name));
                     const currentModel = currentNode.widgets.find(w => w.name === "model_version_id");
                     
                     if (model && currentModel && version) {
