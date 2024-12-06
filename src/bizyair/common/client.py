@@ -1,11 +1,19 @@
 import asyncio
 import json
 import pprint
+import time
 import urllib.error
 import urllib.request
 import warnings
+from abc import ABC, abstractmethod
+from collections import defaultdict
+from typing import Any, Union
 
 import aiohttp
+import comfy
+
+# TODO refine
+import server  # comfyui module
 
 __all__ = ["send_request"]
 
@@ -106,8 +114,9 @@ def send_request(
     data: bytes = None,
     verbose=False,
     callback: callable = process_response_data,
+    response_handler: callable = json.loads,
     **kwargs,
-) -> dict:
+) -> Union[dict, Any]:
     try:
         headers = kwargs.pop("headers") if "headers" in kwargs else _headers()
         headers["User-Agent"] = "BizyAir Client"
@@ -133,9 +142,11 @@ def send_request(
                 + "Also, verify your network settings and disable any proxies if necessary.\n"
                 + "After checking, please restart the ComfyUI service."
             )
+    if response_handler:
+        response_data = response_handler(response_data)
     if callback:
-        return callback(json.loads(response_data))
-    return json.loads(response_data)
+        return callback(response_data)
+    return response_data
 
 
 async def async_send_request(
@@ -196,3 +207,133 @@ def fetch_models_by_type(
         verbose=verbose,
     )
     return msg
+
+
+def get_task_result(task_id: str, offset: int = 0) -> dict:
+    """
+    Get the result of a task.
+    """
+    import requests
+
+    url = f"https://uat-bizyair-api.siliconflow.cn/x/v1/bizy_task/{task_id}"
+    response_json = send_request(
+        method="GET", url=url, data=json.dumps({"offset": offset}).encode("utf-8")
+    )
+    out = response_json
+    events = out.get("data", {}).get("events", [])
+    new_events = []
+    for event in events:
+        if (
+            "data" in event
+            and isinstance(event["data"], str)
+            and event["data"].startswith("https://")
+        ):
+            event["data"] = requests.get(event["data"]).json()
+        new_events.append(event)
+    out["data"]["events"] = new_events
+    return out
+
+
+@dataclass
+class BizyAirTask:
+    TASK_DATA_STATUS = ["PENDING", "PROCESSING", "COMPLETED"]
+    task_id: str
+    data_pool: list[dict] = field(default_factory=list)
+    data_status: str = None
+
+    @staticmethod
+    def check_inputs(inputs: dict) -> bool:
+        return (
+            inputs.get("code") == 20000
+            and inputs.get("status", False)
+            and "task_id" in inputs.get("data", {})
+        )
+
+    @classmethod
+    def from_data(cls, inputs: dict, check_inputs: bool = True) -> "BizyAirTask":
+        if check_inputs and not cls.check_inputs(inputs):
+            raise ValueError(f"Invalid inputs: {inputs}")
+        data = inputs.get("data", {})
+        task_id = data.get("task_id", "")
+        return cls(task_id=task_id, data_pool=[], data_status="started")
+
+    def is_finished(self) -> bool:
+        if not self.data_pool:
+            return False
+        if self.data_pool[-1].get("data_status") == self.TASK_DATA_STATUS[-1]:
+            return True
+        return False
+
+    def send_request(self, offset: int = 0) -> dict:
+        if offset >= len(self.data_pool):
+            return get_task_result(self.task_id, offset)
+        else:
+            return self.data_pool[offset]
+
+    def get_data(self, offset: int = 0) -> dict:
+        if offset >= len(self.data_pool):
+            return {}
+        return self.data_pool[offset]
+
+    @staticmethod
+    def _fetch_remote_data(url: str) -> dict:
+        import requests
+
+        return requests.get(url).json()
+
+    def get_last_data(self) -> dict:
+        return self.get_data(len(self.data_pool) - 1)
+
+    def do_task_until_completed(self, *, timeout: int = 480) -> list[dict]:
+        offset = 0
+        start_time = time.time()
+        #     pbar = comfy.utils.ProgressBar(steps)
+        # def callback(step, x0, x, total_steps):
+        #     if x0_output_dict is not None:
+        #         x0_output_dict["x0"] = x0
+
+        #     preview_bytes = None
+        #     if previewer:
+        #         preview_bytes = previewer.decode_latent_to_preview_image(preview_format, x0)
+        #     pbar.update_absolute(step + 1, total_steps, preview_bytes)
+        pbar = None
+        while not self.is_finished():
+            try:
+                print(f"do_task_until_completed: {offset}")
+                data = self.send_request(offset)
+                data_lst = data.get("data", {}).get("events", [])
+                if not data_lst:
+                    raise ValueError(f"No data found in task {self.task_id}")
+                self.data_pool.extend(data_lst)
+                offset += len(data_lst)
+
+                for data in data_lst:
+                    message = data.get("data", {}).get("message", {})
+                    if (
+                        isinstance(message, dict)
+                        and message.get("event", None) == "progress"
+                    ):
+                        value = message["data"]["value"]
+                        total = message["data"]["max"]
+                        if pbar is None:
+                            pbar = comfy.utils.ProgressBar(total)
+                        print("===" * 10, "start")
+                        print(message)
+                        print("===" * 20)
+                        pbar.update_absolute(value + 1, total, None)
+                        # progress = {"value": value, "max": total, "prompt_id": server.last_prompt_id, "node": server.last_node_id}
+                        # server.send_sync("progress", progress, server.client_id)
+
+            except Exception as e:
+                print(f"Exception: {e}")
+            finally:
+                if time.time() - start_time > timeout:
+                    raise TimeoutError(
+                        f"Timeout waiting for task {self.task_id} to finish"
+                    )
+                time.sleep(2)
+
+        real_result = get_task_result(self.task_id)
+        all_events = real_result["data"]["events"]
+        assert len(self.data_pool) == len(all_events)
+        return self.data_pool

@@ -1,4 +1,5 @@
 from .client import (
+    BizyAirTask,
     fetch_models_by_type,
     get_api_key,
     send_request,
