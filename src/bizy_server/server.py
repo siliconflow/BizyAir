@@ -475,29 +475,18 @@ class BizyAirServer:
         @self.prompt_server.routes.get(f"/{MODEL_HOST_API}" + "/{shareId}/models/files")
         async def list_share_model_files(request):
             shareId = request.match_info["shareId"]
-
             if not is_string_valid(shareId):
                 return ErrResponse("INVALID_SHARE_ID")
-
-            err = check_type(request.rel_url.query)
-            if err is not None:
-                return err
-
-            payload = {
-                "type": request.rel_url.query["type"],
-            }
-
-            if "name" in request.rel_url.query:
-                payload["name"] = request.rel_url.query["name"]
-
-            if "ext_name" in request.rel_url.query:
-                payload["ext_name"] = request.rel_url.query["ext_name"]
+            payload = {}
+            query_params = ["type", "name", "ext_name"]
+            for param in query_params:
+                if param in request.rel_url.query and request.rel_url.query[param]:
+                    payload[param] = request.rel_url.query[param]
             model_files, err = await self.api_client.get_share_model_files(
                 shareId=shareId, payload=payload
             )
             if err is not None:
                 return ErrResponse(err)
-
             return OKResponse(model_files)
 
     async def send_json(self, event, data, sid=None):
