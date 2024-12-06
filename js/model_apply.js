@@ -155,7 +155,7 @@ app.registerExtension({
             nodeType.prototype.onNodeCreated = function() {
                 try {
                     const result = onNodeCreated?.apply(this, arguments);
-                    createSetWidgetCallback("LoRA").call(this);
+                    createSetWidgetCallback("ControlNet").call(this);
                     return result;
                 } catch (error) {
                     console.error("Error in node creation:", error);
@@ -166,7 +166,7 @@ app.registerExtension({
 
     async nodeCreated(node) {
         if (node?.comfyClass === "BizyAir_ControlNetLoader") {
-            setupNodeMouseBehavior(node, "LoRA");
+            setupNodeMouseBehavior(node, "ControlNet");
         }
     }
 })
