@@ -1,4 +1,5 @@
 {
+    "12/05 更新自定义模型上传和分享方式，原有上传方法不再支持，请尽快升级 BizyAir": "#",
     "09/19 更新模型上传功能，显示上传进度条，上传模型大小不受 ComfyUI 限制": "https://siliconflow.github.io/BizyAir/model-host/introduce.html",
     "09/06 发布 v0.2.0，支持使用自定义 LoRA，欢迎升级使用": "https://siliconflow.github.io/BizyAir/model-host/introduce.html"
 }

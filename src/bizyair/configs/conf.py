@@ -77,8 +77,9 @@ class ModelPathManager:
 class ConfigManager:
     def __init__(self, model_path_config: str, model_rule_config: str):
         self.model_path_manager = ModelPathManager(config_path=model_path_config)
+        self.model_rule_config = load_config_file(model_rule_config)
         self.model_rules = ModelRuleManager(
-            model_rules=load_config_file(model_rule_config)["model_rules"]
+            model_rules=self.model_rule_config["model_rules"]
         )
 
     def get_filenames(self, folder_name: str) -> List[str]:
@@ -88,6 +89,9 @@ class ConfigManager:
         if class_type.startswith("BizyAir_"):
             class_type = class_type[8:]
         return self.model_rules.find_rules(class_type)
+
+    def get_model_version_id_prefix(self):
+        return self.model_rule_config["model_version_config"]["model_version_id_prefix"]
 
 
 model_path_config = os.path.join(os.path.dirname(__file__), "models.json")
