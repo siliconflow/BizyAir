@@ -956,10 +956,11 @@ class SharedLoraLoader(BizyAir_LoraLoader_Legacy):
     def shared_load_lora(
         self, model, clip, lora_name, strength_model, strength_clip, **kwargs
     ):
+        resolved_path = folder_paths.filename_path_mapping["loras"][lora_name]
         return super().load_lora(
             model=model,
             clip=clip,
-            lora_name=lora_name,
+            lora_name=resolved_path,
             strength_model=strength_model,
             strength_clip=strength_clip,
         )
@@ -1155,10 +1156,14 @@ class SharedControlNetLoader(BizyAir_ControlNetLoader_Legacy):
             raise ValueError(
                 f"ControlNet {control_net_name} not found in share {share_id} with {outs}"
             )
+
         return True
 
     def load_controlnet(self, control_net_name, share_id, **kwargs):
-        return super().load_controlnet(control_net_name=control_net_name, **kwargs)
+        resolved_path = folder_paths.filename_path_mapping["controlnet"][
+            control_net_name
+        ]
+        return super().load_controlnet(control_net_name=resolved_path, **kwargs)
 
 
 class CLIPVisionEncode(BizyAirBaseNode):
