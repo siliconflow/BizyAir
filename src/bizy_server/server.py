@@ -527,8 +527,8 @@ class BizyAirServer:
         )
 
     def check_sync_status(self, bizy_model_id: str, version_ids: list, sid=None):
+        removed = []
         while True:
-            removed = []
             # 从version_ids中移除removed中的version_id
             version_ids = [
                 version_id for version_id in version_ids if version_id not in removed
