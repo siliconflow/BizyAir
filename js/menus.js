@@ -1,22 +1,7 @@
 import { app } from "../../scripts/app.js";
 import { $el } from "../../scripts/ui.js";
-import { exampleBtn } from "./itemButton/btnExample.js";
-import { apiKeyBtn } from "./itemButton/btnApiKey.js";
-import { profileBtn } from "./itemButton/profile.js";
-import { modelBtn } from "./itemButton/btnModel.js";
-import { newsBtn } from "./itemButton/btnNews.js";
-import { styleExample } from "./subassembly/styleExample.js";
 import { styleMenus } from "./subassembly/styleMenus.js";
-import { styleUploadFile } from "./subassembly/styleUploadFile.js";
-import { styleDialog } from './subassembly/styleDialog.js';
-import { styleProfile } from './subassembly/styleProfile.js';
-import { notifySubscribers, subscribe } from './subassembly/subscribers.js'
-import { WebSocketClient } from './subassembly/socket.js'
-import { toast } from './subassembly/toast.js'
-import { getUserInfo } from './apis.js'
-
-let userMenu = apiKeyBtn
-
+import './bizyair_frontend.js'
 class FloatingButton {
     constructor(show_cases) {
         this.show_cases = show_cases
@@ -28,17 +13,17 @@ class FloatingButton {
             $el("h2.bizyair-logo"),
             $el("div.bizyair-menu", {}, [
                 $el('strong', {}, ['BizyAir']),
-                $el("div.bizyair-menu-item", {}, [
-                    exampleBtn,
-                    userMenu,
-                    modelBtn,
-                    newsBtn,
-                ]),
+                $el("div.bizyair-menu-item", {
+                    id: 'bizyair-menu-item',
+                }),
             ]),
             $el('div.cmfy-floating-button-closer', {
                 onclick: () => this.toggleVisibility(event)
             })
         ]);
+
+        bizyAirLib.mount('#bizyair-menu-item', app)
+
 
         this.dragging = false;
         this.visible = true;
@@ -96,47 +81,6 @@ app.registerExtension({
             textContent: styleMenus,
             parent: document.head,
         });
-        $el("style", {
-            textContent: styleExample,
-            parent: document.head,
-        });
-        $el("style", {
-            textContent: styleUploadFile,
-            parent: document.head,
-        });
-        $el("style", {
-            textContent: styleDialog,
-            parent: document.head,
-        });
-        $el("style", {
-            textContent: styleProfile,
-            parent: document.head,
-        });
-        getUserInfo().then(info => {
-            sessionStorage.setItem('userInfo', JSON.stringify(info.data))
-            userMenu = info?.data ? profileBtn() : apiKeyBtn
-            new FloatingButton();
-        }).catch(() => {
-            new FloatingButton();
-        })
-
-        const wsClient = new WebSocketClient(`ws://${location.host}/bizyair/modelhost/ws?clientId=${sessionStorage.getItem('clientId')}`);
-        wsClient.onMessage = message => {
-            notifySubscribers('socketMessage', message);
-            const res = JSON.parse(message.data);
-            if (res && res.type === 'errors') {
-                toast.error(res.data.message)
-            }
-        }
-        subscribe('loginRefresh', () => {
-            document.querySelector('.comfy-floating-button').remove()
-            getUserInfo().then(info => {
-                sessionStorage.setItem('userInfo', JSON.stringify(info.data))
-                userMenu = info?.data ? profileBtn() : apiKeyBtn
-                new FloatingButton();
-            }).catch(() => {
-                new FloatingButton();
-            })
-        })
+        new FloatingButton();
     },
 });

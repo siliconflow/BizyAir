@@ -1,4 +1,8 @@
 # Common configuration
+model_version_config:
+  model_version_id_prefix: "BIZYAIR_MODEL_VERSION_ID:"
+
+
 model_hub:
   find_model:
     route: /models/files
