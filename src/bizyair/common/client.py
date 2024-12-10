@@ -1,4 +1,3 @@
-import asyncio
 import json
 import pprint
 import time
@@ -11,9 +10,6 @@ from typing import Any, Union
 
 import aiohttp
 import comfy
-
-# TODO refine
-import server  # comfyui module
 
 __all__ = ["send_request"]
 
@@ -284,29 +280,19 @@ class BizyAirTask:
     def get_last_data(self) -> dict:
         return self.get_data(len(self.data_pool) - 1)
 
-    def do_task_until_completed(self, *, timeout: int = 480) -> list[dict]:
+    def do_task_until_completed(
+        self, *, timeout: int = 480, poll_interval: float = 1
+    ) -> list[dict]:
         offset = 0
         start_time = time.time()
-        #     pbar = comfy.utils.ProgressBar(steps)
-        # def callback(step, x0, x, total_steps):
-        #     if x0_output_dict is not None:
-        #         x0_output_dict["x0"] = x0
-
-        #     preview_bytes = None
-        #     if previewer:
-        #         preview_bytes = previewer.decode_latent_to_preview_image(preview_format, x0)
-        #     pbar.update_absolute(step + 1, total_steps, preview_bytes)
         pbar = None
         while not self.is_finished():
             try:
                 print(f"do_task_until_completed: {offset}")
                 data = self.send_request(offset)
-                data_lst = data.get("data", {}).get("events", [])
-                if not data_lst:
-                    raise ValueError(f"No data found in task {self.task_id}")
+                data_lst = self._extract_data_list(data)
                 self.data_pool.extend(data_lst)
                 offset += len(data_lst)
-
                 for data in data_lst:
                     message = data.get("data", {}).get("message", {})
                     if (
@@ -317,23 +303,19 @@ class BizyAirTask:
                         total = message["data"]["max"]
                         if pbar is None:
                             pbar = comfy.utils.ProgressBar(total)
-                        print("===" * 10, "start")
-                        print(message)
-                        print("===" * 20)
                         pbar.update_absolute(value + 1, total, None)
-                        # progress = {"value": value, "max": total, "prompt_id": server.last_prompt_id, "node": server.last_node_id}
-                        # server.send_sync("progress", progress, server.client_id)
-
             except Exception as e:
                 print(f"Exception: {e}")
-            finally:
-                if time.time() - start_time > timeout:
-                    raise TimeoutError(
-                        f"Timeout waiting for task {self.task_id} to finish"
-                    )
-                time.sleep(2)
 
-        real_result = get_task_result(self.task_id)
-        all_events = real_result["data"]["events"]
-        assert len(self.data_pool) == len(all_events)
+            if time.time() - start_time > timeout:
+                raise TimeoutError(f"Timeout waiting for task {self.task_id} to finish")
+
+            time.sleep(poll_interval)
+
         return self.data_pool
+
+    def _extract_data_list(self, data):
+        data_lst = data.get("data", {}).get("events", [])
+        if not data_lst:
+            raise ValueError(f"No data found in task {self.task_id}")
+        return data_lst
