@@ -49,6 +49,7 @@ class PromptServer(Command):
         *args,
         **kwargs,
     ):
+
         prompt = encode_data(prompt)
         if BIZYAIR_DEBUG:
             debug_info = {

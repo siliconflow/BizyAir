@@ -4,6 +4,7 @@ from typing import List
 import comfy
 
 from bizyair import BizyAirBaseNode, BizyAirNodeIO, create_node_data, data_types
+from bizyair.configs.conf import config_manager
 from bizyair.path_utils import path_manager as folder_paths
 
 LOGO = "☁️"
@@ -248,6 +249,85 @@ class BizyAir_LoraLoader(BizyAirBaseNode):
             "required": {
                 "model": (data_types.MODEL,),
                 "clip": (data_types.CLIP,),
+                "lora_name": (
+                    [
+                        "to choose",
+                    ],
+                ),
+                "strength_model": (
+                    "FLOAT",
+                    {"default": 1.0, "min": -100.0, "max": 100.0, "step": 0.01},
+                ),
+                "strength_clip": (
+                    "FLOAT",
+                    {"default": 1.0, "min": -100.0, "max": 100.0, "step": 0.01},
+                ),
+                "model_version_id": (
+                    "STRING",
+                    {
+                        "default": "",
+                    },
+                ),
+            }
+        }
+
+    RETURN_TYPES = (data_types.MODEL, data_types.CLIP)
+    RETURN_NAMES = ("MODEL", "CLIP")
+
+    FUNCTION = "load_lora"
+    CATEGORY = f"{PREFIX}/loaders"
+
+    def load_lora(
+        self,
+        model,
+        clip,
+        lora_name,
+        strength_model,
+        strength_clip,
+        model_version_id: str = None,
+    ):
+        assigned_id = self.assigned_id
+        new_model: BizyAirNodeIO = model.copy(assigned_id)
+        new_clip: BizyAirNodeIO = clip.copy(assigned_id)
+        instances: List[BizyAirNodeIO] = [new_model, new_clip]
+
+        if model_version_id is not None and model_version_id != "":
+            # use model version id as lora name
+            lora_name = (
+                f"{config_manager.get_model_version_id_prefix()}{model_version_id}"
+            )
+
+        for slot_index, ins in zip(range(2), instances):
+            ins.add_node_data(
+                class_type="LoraLoader",
+                inputs={
+                    "model": model,
+                    "clip": clip,
+                    "lora_name": lora_name,
+                    "strength_model": strength_model,
+                    "strength_clip": strength_clip,
+                },
+                outputs={"slot_index": slot_index},
+            )
+        return (
+            new_model,
+            new_clip,
+        )
+
+    @classmethod
+    def VALIDATE_INPUTS(cls, lora_name):
+        if lora_name == "" or lora_name is None:
+            return False
+        return True
+
+
+class BizyAir_LoraLoader_Legacy(BizyAirBaseNode):
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "model": (data_types.MODEL,),
+                "clip": (data_types.CLIP,),
                 "lora_name": (folder_paths.get_filename_list("loras"),),
                 "strength_model": (
                     "FLOAT",
@@ -346,6 +426,52 @@ class BizyAir_VAEEncodeForInpaint(BizyAirBaseNode):
 
 
 class BizyAir_ControlNetLoader(BizyAirBaseNode):
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "control_net_name": (
+                    [
+                        "to choose",
+                    ],
+                ),
+                "model_version_id": ("STRING", {"default": "", "multiline": False}),
+            }
+        }
+
+    RETURN_TYPES = (data_types.CONTROL_NET,)
+    RETURN_NAMES = ("CONTROL_NET",)
+    FUNCTION = "load_controlnet"
+
+    CATEGORY = f"{PREFIX}/loaders"
+
+    @classmethod
+    def VALIDATE_INPUTS(cls, control_net_name, model_version_id):
+        if control_net_name == "to choose":
+            return False
+        if model_version_id is not None and model_version_id != "":
+            return True
+        return True
+
+    def load_controlnet(self, control_net_name, model_version_id):
+        if model_version_id is not None and model_version_id != "":
+            control_net_name = (
+                f"{config_manager.get_model_version_id_prefix()}{model_version_id}"
+            )
+
+        node_data = create_node_data(
+            class_type="ControlNetLoader",
+            inputs={
+                "control_net_name": control_net_name,
+            },
+            outputs={"slot_index": 0},
+        )
+        assigned_id = self.assigned_id
+        node = BizyAirNodeIO(assigned_id, {assigned_id: node_data})
+        return (node,)
+
+
+class BizyAir_ControlNetLoader_Legacy(BizyAirBaseNode):
     @classmethod
     def INPUT_TYPES(s):
         return {
@@ -789,7 +915,7 @@ class InpaintModelConditioning_v2(InpaintModelConditioning):
         return ret
 
 
-class SharedLoraLoader(BizyAir_LoraLoader):
+class SharedLoraLoader(BizyAir_LoraLoader_Legacy):
     @classmethod
     def INPUT_TYPES(s):
         return {
@@ -830,10 +956,11 @@ class SharedLoraLoader(BizyAir_LoraLoader):
     def shared_load_lora(
         self, model, clip, lora_name, strength_model, strength_clip, **kwargs
     ):
+        resolved_path = folder_paths.filename_path_mapping["loras"][lora_name]
         return super().load_lora(
             model=model,
             clip=clip,
-            lora_name=lora_name,
+            lora_name=resolved_path,
             strength_model=strength_model,
             strength_clip=strength_clip,
         )
@@ -1010,7 +1137,7 @@ class ConditioningSetTimestepRange(BizyAirBaseNode):
     CATEGORY = "advanced/conditioning"
 
 
-class SharedControlNetLoader(BizyAir_ControlNetLoader):
+class SharedControlNetLoader(BizyAir_ControlNetLoader_Legacy):
     @classmethod
     def INPUT_TYPES(s):
         ret = super().INPUT_TYPES()
@@ -1029,10 +1156,14 @@ class SharedControlNetLoader(BizyAir_ControlNetLoader):
             raise ValueError(
                 f"ControlNet {control_net_name} not found in share {share_id} with {outs}"
             )
+
         return True
 
     def load_controlnet(self, control_net_name, share_id, **kwargs):
-        return super().load_controlnet(control_net_name=control_net_name, **kwargs)
+        resolved_path = folder_paths.filename_path_mapping["controlnet"][
+            control_net_name
+        ]
+        return super().load_controlnet(control_net_name=resolved_path, **kwargs)
 
 
 class CLIPVisionEncode(BizyAirBaseNode):
