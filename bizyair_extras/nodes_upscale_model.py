@@ -105,3 +105,18 @@ class UpscaleModelLoader(BizyAirBaseNode):
         model = BizyAirNodeIO(self.assigned_id)
         model.add_node_data(class_type="UpscaleModelLoader", inputs=kwargs)
         return (model,)
+
+
+class ImageUpscaleWithModel(BizyAirBaseNode):
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "upscale_model": (UPSCALE_MODEL,),
+                "image": ("IMAGE",),
+            }
+        }
+
+    RETURN_TYPES = ("IMAGE",)
+    # FUNCTION = "upscale"
+    CATEGORY = "image/upscaling"
