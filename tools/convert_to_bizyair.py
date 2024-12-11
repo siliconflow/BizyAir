@@ -117,13 +117,55 @@ def get_bizyair_display_name(class_type: str) -> str:
     return f"{bizyair_logo}{bizyair_cls_prefix} {bizyair.NODE_DISPLAY_NAME_MAPPINGS.get(class_type, class_type)}"
 
 
-def convert_to_bizyair(inputs: dict):
-    bizyair.NODE_CLASS_MAPPINGS
+def get_trans_format(inputs: dict):
+    if "nodes" in inputs:
+        return "workflow"
+    return "workflow_api"
 
+
+def workflow_convert(inputs: dict):
+    nodes = inputs["nodes"]
+    for node in nodes:
+        class_type = node["type"]
+        node_inputs = node.get("inputs")
+        node_outputs = node.get("outputs")
+
+        bizyair_cls_type = f"{bizyair.nodes_base.PREFIX}_{class_type}"
+        is_converted = False
+
+        if bizyair_cls_type in bizyair.NODE_CLASS_MAPPINGS:
+            node["type"] = bizyair_cls_type
+
+            display_name = get_bizyair_display_name(class_type)
+            node["properties"]["Node name for S&R"] = display_name
+
+            if node_inputs:
+                for input_node in node_inputs:
+                    input_type = input_node["type"]
+                    input_node["type"] = f"{bizyair.nodes_base.PREFIX}_{input_type}"
+
+            if node_outputs:
+                for output_node in node_outputs:
+                    output_type = output_node["type"]
+                    output_node["type"] = f"{bizyair.nodes_base.PREFIX}_{output_type}"
+            is_converted = True
+        pprint.pprint(
+            {
+                "original_class_type": class_type,
+                "bizyair_cls_type": bizyair_cls_type,
+                "is_converted": is_converted,
+            }
+        )
+
+    return inputs
+
+
+def workflow_api_convert(inputs: dict):
     for x in inputs.copy():
         class_type = inputs[x]["class_type"]
         bizyair_cls_type = f"{bizyair.nodes_base.PREFIX}_{class_type}"
         is_converted = False
+
         if bizyair_cls_type in bizyair.NODE_CLASS_MAPPINGS:
             inputs[x]["class_type"] = bizyair_cls_type
             display_name = get_bizyair_display_name(class_type)
@@ -137,6 +179,19 @@ def convert_to_bizyair(inputs: dict):
                 "is_converted": is_converted,
             }
         )
+
+    return inputs
+
+
+def convert_to_bizyair(inputs: dict):
+    bizyair.NODE_CLASS_MAPPINGS
+
+    input_format = get_trans_format(inputs)
+    if input_format == "workflow_api":
+        inputs = workflow_api_convert(inputs)
+    elif input_format == "workflow":
+        inputs = workflow_convert(inputs)
+
     return inputs
 
 
