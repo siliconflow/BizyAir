@@ -6,7 +6,7 @@ import nodes
 from bizyair import BizyAirBaseNode, data_types
 
 
-class OutFluxModelSamplingPredNode(BizyAirBaseNode):
+class OutFluxModelSamplingPred(BizyAirBaseNode):
     DESCRIPTION = ""
     RETURN_TYPES = (data_types.MODEL,)
     NODE_DISPLAY_NAME = "Outverse Flux Model Pred"
@@ -48,7 +48,7 @@ class OutFluxModelSamplingPredNode(BizyAirBaseNode):
         }
 
 
-class InFluxModelSamplingPredNode(BizyAirBaseNode):
+class InFluxModelSamplingPred(BizyAirBaseNode):
     RETURN_TYPES = (data_types.MODEL,)
     CATEGORY = "sampling/custom_sampling/samplers"
     NODE_DISPLAY_NAME = "Inverse Flux Model Pred"
@@ -88,7 +88,7 @@ class InFluxModelSamplingPredNode(BizyAirBaseNode):
         }
 
 
-class FluxForwardODESamplerNode(BizyAirBaseNode):
+class FluxForwardODESampler(BizyAirBaseNode):
     RETURN_TYPES = ("SAMPLER",)
     # FUNCTION = "build"
     CATEGORY = "sampling/custom_sampling/samplers"
@@ -109,7 +109,7 @@ class FluxForwardODESamplerNode(BizyAirBaseNode):
         }
 
 
-class FluxReverseODESamplerNode(BizyAirBaseNode):
+class FluxReverseODESampler(BizyAirBaseNode):
     RETURN_TYPES = ("SAMPLER",)
     # FUNCTION = "build"
     CATEGORY = "sampling/custom_sampling/samplers"
