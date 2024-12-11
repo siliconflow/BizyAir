@@ -32,6 +32,34 @@ def wait_for_comfy_ready(host="127.0.0.1", port=8188, wait_time_secs=120):
     exit(1)
 
 
+def modify_steps_decorator(func):
+    def wrapper(*args, **kwargs):
+        json_content = func(*args, **kwargs)
+
+        try:
+            data = json.loads(json_content)
+        except json.JSONDecodeError as e:
+            raise ValueError(f"Invalid JSON content: {e}")
+
+        for node in data["nodes"]:
+            if node["type"] == "BizyAir_BasicScheduler":
+                if len(node["widgets_values"]) == 3:
+                    node["widgets_values"][1] = 1
+                else:
+                    raise ValueError("BizyAir_BasicScheduler widget_values is wrong")
+            if node["type"] == "BizyAir_KSampler":
+                if len(node["widgets_values"]) == 7:
+                    node["widgets_values"][2] = 1
+                else:
+                    raise ValueError("BizyAir_KSampler widget_values is wrong")
+
+        modified_json_content = json.dumps(data, indent=2)
+        return modified_json_content
+
+    return wrapper
+
+
+@modify_steps_decorator
 def read_workflow_json(filename) -> str:
     _, extension = os.path.splitext(filename)
     if extension.endswith("json"):
