@@ -42,6 +42,7 @@ class PromptServer(Command):
 
         try:
             out = result["data"]["payload"]
+            assert out is not None
         except Exception as e:
             raise RuntimeError(
                 f'Unexpected error accessing result["data"]["payload"]. Result: {result}'
