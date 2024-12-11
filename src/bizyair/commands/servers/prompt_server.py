@@ -1,7 +1,9 @@
+import json
 import pprint
 import traceback
 from typing import Any, Dict, List
 
+from bizyair.common import BizyAirTask
 from bizyair.common.env_var import BIZYAIR_DEBUG
 from bizyair.common.utils import truncate_long_strings
 from bizyair.image_utils import decode_data, encode_data
@@ -13,6 +15,32 @@ class PromptServer(Command):
     def __init__(self, router: Processor, processor: Processor):
         self.router = router
         self.processor = processor
+
+    def get_task_id(self, result: Dict[str, Any]) -> str:
+        return result.get("data", {}).get("task_id", "")
+
+    def is_async_task(self, result: Dict[str, Any]) -> str:
+        """Determine if the result indicates an asynchronous task."""
+        return (
+            result.get("code") == 20000
+            and result.get("status", False)
+            and "task_id" in result.get("data", {})
+        )
+
+    def _get_result(self, result: Dict[str, Any]):
+        try:
+            response_data = result["data"]
+            if BizyAirTask.check_inputs(result):
+                bz_task = BizyAirTask.from_data(result, check_inputs=False)
+                bz_task.do_task_until_completed()
+                last_data = bz_task.get_last_data()
+                response_data = last_data.get("data")
+            out = response_data["payload"]
+            return out
+        except Exception as e:
+            raise RuntimeError(
+                f'Unexpected error accessing result["data"]["payload"]. Result: {result}'
+            ) from e
 
     def execute(
         self,
@@ -40,13 +68,10 @@ class PromptServer(Command):
         if result is None:
             raise RuntimeError("result is None")
 
+        out = self._get_result(result)
         try:
-            out = result["data"]["payload"]
-        except Exception as e:
-            raise RuntimeError(
-                f'Unexpected error accessing result["data"]["payload"]. Result: {result}'
-            ) from e
-        try:
+            if "error" in out:
+                raise RuntimeError(out["error"])
             real_out = decode_data(out)
             return real_out[0]
         except Exception as e:
