@@ -16,7 +16,7 @@ class OutFluxModelSamplingPredNode(BizyAirBaseNode):
     def INPUT_TYPES(s):
         return {
             "required": {
-                "model": ("MODEL",),
+                "model": (data_types.MODEL,),
                 "max_shift": (
                     "FLOAT",
                     {"default": 1.15, "min": 0.0, "max": 100.0, "step": 0.01},
@@ -57,7 +57,7 @@ class InFluxModelSamplingPredNode(BizyAirBaseNode):
     def INPUT_TYPES(s):
         return {
             "required": {
-                "model": ("MODEL",),
+                "model": (data_types.MODEL,),
                 "max_shift": (
                     "FLOAT",
                     {"default": 1.15, "min": 0.0, "max": 100.0, "step": 0.01},
