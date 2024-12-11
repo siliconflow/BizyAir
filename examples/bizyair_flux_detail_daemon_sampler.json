@@ -148,8 +148,7 @@
           "name": "IMAGE",
           "type": "IMAGE",
           "links": [
-            49,
-            196
+            49
           ],
           "slot_index": 0
         }
@@ -275,8 +274,7 @@
           "name": "IMAGE",
           "type": "IMAGE",
           "links": [
-            95,
-            197
+            95
           ],
           "slot_index": 0
         }
@@ -634,54 +632,6 @@
       "widgets_values": []
     },
     {
-      "id": 97,
-      "type": "Image Comparer (rgthree)",
-      "pos": [
-        1674.254150390625,
-        -79
-      ],
-      "size": [
-        438.29681396484375,
-        458.221435546875
-      ],
-      "flags": {},
-      "order": 16,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "image_a",
-          "type": "IMAGE",
-          "link": 196,
-          "dir": 3
-        },
-        {
-          "name": "image_b",
-          "type": "IMAGE",
-          "link": 197,
-          "dir": 3
-        }
-      ],
-      "outputs": [],
-      "title": "Compare with default",
-      "properties": {
-        "comparer_mode": "Slide"
-      },
-      "widgets_values": [
-        [
-          {
-            "name": "A",
-            "selected": true,
-            "url": "/api/view?filename=rgthree.compare._temp_ubgze_00009_.png&type=temp&subfolder=&rand=0.894475432841835"
-          },
-          {
-            "name": "B",
-            "selected": true,
-            "url": "/api/view?filename=rgthree.compare._temp_ubgze_00010_.png&type=temp&subfolder=&rand=0.8683585741049846"
-          }
-        ]
-      ]
-    },
-    {
       "id": 67,
       "type": "PreviewImage",
       "pos": [
@@ -848,22 +798,6 @@
       "SIGMAS"
     ],
     [
-      196,
-      8,
-      0,
-      97,
-      0,
-      "IMAGE"
-    ],
-    [
-      197,
-      65,
-      0,
-      97,
-      1,
-      "IMAGE"
-    ],
-    [
       208,
       104,
       0,
@@ -927,10 +861,10 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 0.513158118230708,
+      "scale": 0.620921323059157,
       "offset": [
-        -274.10376749471607,
-        96.85496843502256
+        -571.0595802762427,
+        391.4724845097179
       ]
     }
   },
