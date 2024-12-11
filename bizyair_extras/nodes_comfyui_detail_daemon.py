@@ -5,8 +5,7 @@ Reference: https://github.com/Jonseed/ComfyUI-Detail-Daemon
 from bizyair import BizyAirBaseNode
 
 
-class DetailDaemonSampler(BizyAirBaseNode):
-    CLASS_TYPE_NAME = "DetailDaemonSamplerNode"
+class DetailDaemonSamplerNode(BizyAirBaseNode):
     DESCRIPTION = "This sampler wrapper works by adjusting the sigma passed to the model, while the rest of sampling stays the same."
     CATEGORY = "sampling/custom_sampling/samplers"
     RETURN_TYPES = ("SAMPLER",)
