@@ -31,6 +31,7 @@ def wait_for_comfy_ready(host="127.0.0.1", port=8188, wait_time_secs=120):
     print(f"Timeout {wait_time_secs} secs. ComfyUI Server not ready.")
     exit(1)
 
+
 def modify_steps_decorator(func):
     def wrapper(*args, **kwargs):
         json_content = func(*args, **kwargs)
@@ -51,6 +52,7 @@ def modify_steps_decorator(func):
         return modified_json_content
     
     return wrapper
+
 
 @modify_steps_decorator
 def read_workflow_json(filename) -> str:
