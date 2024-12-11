@@ -25,7 +25,7 @@
       "pytorch_model.bin"
     ]
   }, "sigclip_vision_patch14_384.safetensors"],
-  "controlnet": {
+  "controlnet": [{
     "kolors": [
       "Kolors-ControlNet-Canny.safetensors",
       "Kolors-ControlNet-Depth.safetensors"
@@ -39,7 +39,7 @@
     "instantid": [
       "diffusion_pytorch_model.safetensors"
     ]
-  },
+  }, "sd3.5_large_controlnet_blur.safetensors", "sd3.5_large_controlnet_canny.safetensors", "sd3.5_large_controlnet_depth.safetensors"],
   "ipadapter": {
     "kolors": [
       "ip_adapter_plus_general.bin"

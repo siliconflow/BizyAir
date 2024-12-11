@@ -1,15 +1,36 @@
 import os
 from pathlib import Path
 
-from .errno import INVALID_TYPE
+from .errno import errnos
 from .resp import ErrResponse
 
 TYPE_OPTIONS = {
-    "lora": "bizyair/lora",
-    "controlnet": "bizyair/controlnet",
-    # "other": "other",
+    "LoRA": "LoRA",
+    "Controlnet": "Controlnet",
 }
+
+BASE_MODEL_TYPE_OPTIONS = {
+    "Flux.1 D": "Flux.1 D",
+    "SDXL": "SDXL",
+    "SD 1.5": "SD 1.5",
+    "SD 3.5": "SD 3.5",
+    "Pony": "Pony",
+    "Kolors": "Kolors",
+    "Hunyuan 1": "Hunyuan 1",
+    "Other": "Other",
+}
+
 ALLOW_TYPES = list(TYPE_OPTIONS.values())
+ALLOW_BASE_MODEL_TYPES = list(BASE_MODEL_TYPE_OPTIONS.values())
+ALLOW_UPLOADABLE_EXT_NAMES = [
+    ".safetensors",
+    ".pth",
+    ".bin",
+    ".pt",
+    ".ckpt",
+    ".gguf",
+    ".sft",
+]
 
 current_path = os.path.abspath(os.path.dirname(__file__))
 
@@ -43,14 +64,32 @@ def check_str_param(json_data, param_name: str, err):
 
 def check_type(json_data):
     if "type" not in json_data:
-        return ErrResponse(INVALID_TYPE)
-    if not is_string_valid(json_data["type"]) or json_data["type"] not in ALLOW_TYPES:
-        return ErrResponse(INVALID_TYPE)
+        return ErrResponse(errnos.INVALID_TYPE)
+    if (
+        not is_string_valid(json_data["type"])
+        or json_data["type"] not in ALLOW_TYPES
+        or json_data["type"] == "Workflow"
+    ):
+        return ErrResponse(errnos.INVALID_TYPE)
     return None
 
 
-def list_types():
+def types():
     types = []
     for k, v in TYPE_OPTIONS.items():
         types.append({"label": k, "value": v})
     return types
+
+
+def base_model_types():
+    base_model_types = []
+    for k, v in BASE_MODEL_TYPE_OPTIONS.items():
+        base_model_types.append({"label": k, "value": v})
+    return base_model_types
+
+
+def is_allow_ext_name(local_file_name):
+    if not os.path.isfile(local_file_name):
+        return False
+    _, ext = os.path.splitext(local_file_name)
+    return ext.lower() in ALLOW_UPLOADABLE_EXT_NAMES

@@ -47,6 +47,14 @@ export function dialog(params) {
                 e.stopPropagation();
             }
         }, [
+            (!params.closeOnClickModal ? $el('div.bizyair-icon-operate.bizyair-icon-nude-close.bizyair-dialog-content-close', {
+                onclick: () => {
+                    if (params.onNo) {
+                        params.onNo();
+                    }
+                    removeDialog(document.getElementById(id))
+                }
+            }) : ''),
             (params.title ? $el("p.bizyair-new-dialog-title", {}, [params.title]) : ''),
             setContent(),
             $el('div.bizyair-new-dialog-footer', {}, [
@@ -118,13 +126,19 @@ export function dialog(params) {
             el.style.opacity = '0';
             setTimeout(() => {
                 el.remove();
+                if (params.onClose) {
+                    params.onClose();
+                }
             }, 200);
         });
         document.removeEventListener("keydown", fnEscapeClose);
         dialogStack = dialogStack.filter(d => d !== el);
     }
-
-    return removeDialog;
+    return {
+        close: () => {
+            removeDialog(document.getElementById(id))
+        }
+    }
 }
 dialog.succeed = params => {
     if (typeof params === 'string') {

@@ -1,4 +1,8 @@
 # Common configuration
+model_version_config:
+  model_version_id_prefix: "BIZYAIR_MODEL_VERSION_ID:"
+
+
 model_hub:
   find_model:
     route: /models/files
@@ -45,7 +49,7 @@ model_rules:
             - ^flux/ae.sft$
 
   - mode_type: unet
-    base_model: FLUX
+    base_model: FLUX_PIXELWAVE
     describe: PixelWave Flux.1-dev 03 fine tuned!
     score: 3
     route: /supernode/bizyair-flux1-dev-fp8-pixelwave
@@ -162,8 +166,8 @@ model_rules:
   - mode_type: style_model
     base_model: FLUX
     describe: Flux Style Model
-    score: 5
-    route: /supernode/bizyair-flux1-tools-redux
+    score: 4
+    route: /supernode/flux-dev-bizyair-comfy-ksampler-fp8-v2
     nodes:
       - class_type: StyleModelLoader
         inputs:

@@ -25,14 +25,15 @@ class UploadQueue:
                 if timeout is not None and len(self.queue) == 0:
                     return None
             item = heapq.heappop(self.queue)
-            i = self.task_counter
-            self.currently_running[i] = copy.deepcopy(item)
+            # i = self.task_counter
+            upload_id = item["upload_id"]
+            self.currently_running[upload_id] = copy.deepcopy(item)
             self.task_counter += 1
-            return (item, i)
+            return (item, upload_id)
 
-    def task_done(self, item_id):
+    def task_done(self, upload_id):
         with self.mutex:
-            self.currently_running.pop(item_id)
+            self.currently_running.pop(upload_id)
 
 
 def upload_worker(server, q):
@@ -44,10 +45,10 @@ def upload_worker(server, q):
         try:
             queue_item = q.get(timeout=timeout)
             if queue_item is not None:
-                item, item_id = queue_item
+                item, upload_id = queue_item
                 loop = asyncio.get_event_loop()
                 loop.run_until_complete(server.upload_manager.do_upload(item))
-                q.task_done(item_id)
+                q.task_done(upload_id)
             else:
                 continue
         except Exception as e:
