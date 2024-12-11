@@ -1,41 +1,7 @@
 {
-  "last_node_id": 106,
-  "last_link_id": 220,
+  "last_node_id": 109,
+  "last_link_id": 222,
   "nodes": [
-    {
-      "id": 28,
-      "type": "BizyAir_KSamplerSelect",
-      "pos": [
-        230,
-        480
-      ],
-      "size": [
-        315,
-        58
-      ],
-      "flags": {},
-      "order": 0,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [
-        {
-          "name": "SAMPLER",
-          "type": "SAMPLER",
-          "links": [
-            99,
-            219
-          ],
-          "slot_index": 0,
-          "shape": 3
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "☁️BizyAir KSamplerSelect"
-      },
-      "widgets_values": [
-        "dpmpp_2m"
-      ]
-    },
     {
       "id": 5,
       "type": "EmptyLatentImage",
@@ -48,7 +14,7 @@
         106
       ],
       "flags": {},
-      "order": 1,
+      "order": 0,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -57,7 +23,9 @@
           "type": "LATENT",
           "links": [
             30,
-            100
+            100,
+            145,
+            160
           ],
           "slot_index": 0
         }
@@ -72,6 +40,43 @@
       ]
     },
     {
+      "id": 30,
+      "type": "BizyAir_RandomNoise",
+      "pos": [
+        230,
+        330
+      ],
+      "size": [
+        315.3865661621094,
+        82
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "NOISE",
+          "type": "NOISE",
+          "links": [
+            23,
+            97,
+            141,
+            156
+          ],
+          "slot_index": 0,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "☁️BizyAir RandomNoise"
+      },
+      "widgets_values": [
+        55268804028075,
+        "fixed"
+      ]
+    },
+    {
       "id": 25,
       "type": "BizyAir_BasicGuider",
       "pos": [
@@ -83,7 +88,7 @@
         46
       ],
       "flags": {},
-      "order": 9,
+      "order": 12,
       "mode": 0,
       "inputs": [
         {
@@ -104,7 +109,9 @@
           "type": "GUIDER",
           "links": [
             17,
-            98
+            98,
+            142,
+            157
           ],
           "slot_index": 0,
           "shape": 3
@@ -129,7 +136,7 @@
       "flags": {
         "collapsed": true
       },
-      "order": 12,
+      "order": 17,
       "mode": 0,
       "inputs": [
         {
@@ -148,7 +155,8 @@
           "name": "IMAGE",
           "type": "IMAGE",
           "links": [
-            49
+            49,
+            196
           ],
           "slot_index": 0
         }
@@ -157,6 +165,102 @@
         "Node name for S&R": "☁️BizyAir VAEDecode"
       },
       "widgets_values": []
+    },
+    {
+      "id": 98,
+      "type": "Image Comparer (rgthree)",
+      "pos": [
+        1724.0548095703125,
+        479.48919677734375
+      ],
+      "size": [
+        427.1917419433594,
+        458.9107666015625
+      ],
+      "flags": {},
+      "order": 25,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image_a",
+          "type": "IMAGE",
+          "link": 198,
+          "dir": 3
+        },
+        {
+          "name": "image_b",
+          "type": "IMAGE",
+          "link": 199,
+          "dir": 3
+        }
+      ],
+      "outputs": [],
+      "title": "Compare with default",
+      "properties": {
+        "comparer_mode": "Slide"
+      },
+      "widgets_values": [
+        [
+          {
+            "name": "A",
+            "selected": true,
+            "url": "/api/view?filename=rgthree.compare._temp_vthgs_00003_.png&type=temp&subfolder=&rand=0.5267630243386807"
+          },
+          {
+            "name": "B",
+            "selected": true,
+            "url": "/api/view?filename=rgthree.compare._temp_vthgs_00004_.png&type=temp&subfolder=&rand=0.40674812463326226"
+          }
+        ]
+      ]
+    },
+    {
+      "id": 99,
+      "type": "Image Comparer (rgthree)",
+      "pos": [
+        1740.3529052734375,
+        1039.474853515625
+      ],
+      "size": [
+        430.4796142578125,
+        457.0982971191406
+      ],
+      "flags": {},
+      "order": 27,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image_a",
+          "type": "IMAGE",
+          "link": 200,
+          "dir": 3
+        },
+        {
+          "name": "image_b",
+          "type": "IMAGE",
+          "link": 201,
+          "dir": 3
+        }
+      ],
+      "outputs": [],
+      "title": "Compare with default",
+      "properties": {
+        "comparer_mode": "Slide"
+      },
+      "widgets_values": [
+        [
+          {
+            "name": "A",
+            "selected": true,
+            "url": "/api/view?filename=rgthree.compare._temp_kbvnt_00003_.png&type=temp&subfolder=&rand=0.7263013530023406"
+          },
+          {
+            "name": "B",
+            "selected": true,
+            "url": "/api/view?filename=rgthree.compare._temp_kbvnt_00004_.png&type=temp&subfolder=&rand=0.2597588988458055"
+          }
+        ]
+      ]
     },
     {
       "id": 38,
@@ -170,7 +274,7 @@
         394.8694152832031
       ],
       "flags": {},
-      "order": 7,
+      "order": 8,
       "mode": 0,
       "inputs": [
         {
@@ -199,54 +303,67 @@
       ]
     },
     {
-      "id": 29,
-      "type": "BizyAir_BasicScheduler",
+      "id": 79,
+      "type": "PreviewImage",
       "pos": [
-        231,
-        607
+        1268.0548095703125,
+        474.48919677734375
       ],
       "size": [
-        315,
-        106
+        441.1180114746094,
+        464.446533203125
       ],
       "flags": {},
-      "order": 8,
+      "order": 24,
       "mode": 0,
       "inputs": [
         {
-          "name": "model",
-          "type": "BIZYAIR_MODEL",
-          "link": 209,
-          "slot_index": 0
+          "name": "images",
+          "type": "IMAGE",
+          "link": 149
         }
       ],
-      "outputs": [
-        {
-          "name": "SIGMAS",
-          "type": "SIGMAS",
-          "links": [
-            96,
-            163
-          ],
-          "slot_index": 0,
-          "shape": 3
-        }
-      ],
+      "outputs": [],
+      "title": "Lying Sigma Sampler preview image",
       "properties": {
-        "Node name for S&R": "☁️BizyAir BasicScheduler"
+        "Node name for S&R": "PreviewImage"
       },
-      "widgets_values": [
-        "beta",
-        20,
-        1
-      ]
+      "widgets_values": []
     },
     {
-      "id": 65,
+      "id": 82,
+      "type": "PreviewImage",
+      "pos": [
+        1279.35302734375,
+        1029.474853515625
+      ],
+      "size": [
+        448.5738525390625,
+        467.3197021484375
+      ],
+      "flags": {},
+      "order": 26,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 155
+        }
+      ],
+      "outputs": [],
+      "title": "Multiply Sigmas preview image",
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 81,
       "type": "BizyAir_VAEDecode",
       "pos": [
-        886.3881225585938,
-        736.4633178710938
+        914.353759765625,
+        1416.4744873046875
       ],
       "size": [
         210,
@@ -255,7 +372,157 @@
       "flags": {
         "collapsed": true
       },
-      "order": 13,
+      "order": 20,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 162
+        },
+        {
+          "name": "vae",
+          "type": "BIZYAIR_VAE",
+          "link": 154
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            155,
+            200
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "☁️BizyAir VAEDecode"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 96,
+      "type": "UnetLoaderGGUF",
+      "pos": [
+        -132,
+        99
+      ],
+      "size": [
+        315,
+        58
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 4,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "UnetLoaderGGUF"
+      },
+      "widgets_values": [
+        "flux\\flux1-dev-Q8_0.gguf"
+      ]
+    },
+    {
+      "id": 97,
+      "type": "Image Comparer (rgthree)",
+      "pos": [
+        1747,
+        -79
+      ],
+      "size": [
+        438.29681396484375,
+        458.221435546875
+      ],
+      "flags": {},
+      "order": 23,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image_a",
+          "type": "IMAGE",
+          "link": 196,
+          "dir": 3
+        },
+        {
+          "name": "image_b",
+          "type": "IMAGE",
+          "link": 197,
+          "dir": 3
+        }
+      ],
+      "outputs": [],
+      "title": "Compare with default",
+      "properties": {
+        "comparer_mode": "Slide"
+      },
+      "widgets_values": [
+        [
+          {
+            "name": "A",
+            "selected": true,
+            "url": "/api/view?filename=rgthree.compare._temp_lvszu_00003_.png&type=temp&subfolder=&rand=0.6486221825183796"
+          },
+          {
+            "name": "B",
+            "selected": true,
+            "url": "/api/view?filename=rgthree.compare._temp_lvszu_00004_.png&type=temp&subfolder=&rand=0.08567498815928909"
+          }
+        ]
+      ]
+    },
+    {
+      "id": 37,
+      "type": "PreviewImage",
+      "pos": [
+        1285,
+        -64
+      ],
+      "size": [
+        444.4699401855469,
+        458.221435546875
+      ],
+      "flags": {},
+      "order": 21,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 49
+        }
+      ],
+      "outputs": [],
+      "title": "Detail Daemon preview image",
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 65,
+      "type": "BizyAir_VAEDecode",
+      "pos": [
+        5,
+        1204
+      ],
+      "size": [
+        210,
+        46
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 18,
       "mode": 0,
       "inputs": [
         {
@@ -274,7 +541,10 @@
           "name": "IMAGE",
           "type": "IMAGE",
           "links": [
-            95
+            95,
+            197,
+            199,
+            201
           ],
           "slot_index": 0
         }
@@ -283,6 +553,40 @@
         "Node name for S&R": "☁️BizyAir VAEDecode"
       },
       "widgets_values": []
+    },
+    {
+      "id": 104,
+      "type": "BizyAir_UNETLoader",
+      "pos": [
+        -164,
+        -51
+      ],
+      "size": [
+        315,
+        82
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "BIZYAIR_MODEL",
+          "type": "BIZYAIR_MODEL",
+          "links": [
+            208,
+            209
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "☁️BizyAir UNETLoader"
+      },
+      "widgets_values": [
+        "flux/flux1-dev.sft",
+        "fp8_e4m3fn"
+      ]
     },
     {
       "id": 22,
@@ -298,7 +602,7 @@
       "flags": {
         "collapsed": false
       },
-      "order": 2,
+      "order": 4,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -333,7 +637,7 @@
         58
       ],
       "flags": {},
-      "order": 3,
+      "order": 5,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -342,7 +646,9 @@
           "type": "BIZYAIR_VAE",
           "links": [
             25,
-            103
+            103,
+            150,
+            154
           ],
           "slot_index": 0,
           "shape": 3
@@ -356,146 +662,39 @@
       ]
     },
     {
-      "id": 26,
-      "type": "BizyAir_SamplerCustomAdvanced",
+      "id": 67,
+      "type": "PreviewImage",
       "pos": [
-        750,
-        280
+        226.1640167236328,
+        1024.362060546875
       ],
       "size": [
-        260.3999938964844,
-        106
+        447.607177734375,
+        461.6881103515625
       ],
-      "flags": {
-        "collapsed": false
-      },
-      "order": 10,
+      "flags": {},
+      "order": 22,
       "mode": 0,
       "inputs": [
         {
-          "name": "noise",
-          "type": "NOISE",
-          "link": 23
-        },
-        {
-          "name": "guider",
-          "type": "GUIDER",
-          "link": 17
-        },
-        {
-          "name": "sampler",
-          "type": "SAMPLER",
-          "link": 220
-        },
-        {
-          "name": "sigmas",
-          "type": "SIGMAS",
-          "link": 163
-        },
-        {
-          "name": "latent_image",
-          "type": "LATENT",
-          "link": 30
+          "name": "images",
+          "type": "IMAGE",
+          "link": 95
         }
       ],
-      "outputs": [
-        {
-          "name": "output",
-          "type": "LATENT",
-          "links": [
-            110
-          ],
-          "slot_index": 0,
-          "shape": 3
-        },
-        {
-          "name": "denoised_output",
-          "type": "LATENT",
-          "links": [],
-          "slot_index": 1,
-          "shape": 3
-        }
-      ],
+      "outputs": [],
+      "title": "Default preview image (no detailer)",
       "properties": {
-        "Node name for S&R": "☁️BizyAir SamplerCustomAdvanced"
+        "Node name for S&R": "PreviewImage"
       },
       "widgets_values": []
-    },
-    {
-      "id": 104,
-      "type": "BizyAir_UNETLoader",
-      "pos": [
-        -146.43075561523438,
-        50.51093292236328
-      ],
-      "size": [
-        315,
-        82
-      ],
-      "flags": {},
-      "order": 4,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [
-        {
-          "name": "BIZYAIR_MODEL",
-          "type": "BIZYAIR_MODEL",
-          "links": [
-            208,
-            209
-          ],
-          "slot_index": 0
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "☁️BizyAir UNETLoader"
-      },
-      "widgets_values": [
-        "flux/flux1-dev.sft",
-        "fp8_e4m3fn"
-      ]
-    },
-    {
-      "id": 30,
-      "type": "BizyAir_RandomNoise",
-      "pos": [
-        230,
-        330
-      ],
-      "size": [
-        315.3865661621094,
-        82
-      ],
-      "flags": {},
-      "order": 5,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [
-        {
-          "name": "NOISE",
-          "type": "NOISE",
-          "links": [
-            23,
-            97
-          ],
-          "slot_index": 0,
-          "shape": 3
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "☁️BizyAir RandomNoise"
-      },
-      "widgets_values": [
-        55268804028075,
-        "fixed"
-      ]
     },
     {
       "id": 66,
       "type": "BizyAir_SamplerCustomAdvanced",
       "pos": [
-        815.3881225585938,
-        597.4635620117188
+        -66,
+        1065
       ],
       "size": [
         355.20001220703125,
@@ -504,7 +703,7 @@
       "flags": {
         "collapsed": true
       },
-      "order": 11,
+      "order": 14,
       "mode": 0,
       "inputs": [
         {
@@ -557,24 +756,281 @@
       "widgets_values": []
     },
     {
-      "id": 106,
-      "type": "BizyAir_DetailDaemonSamplerNode",
+      "id": 26,
+      "type": "BizyAir_SamplerCustomAdvanced",
       "pos": [
-        738.7815551757812,
-        -71.39924621582031
+        750,
+        280
       ],
       "size": [
-        390.5999755859375,
-        274
+        260.3999938964844,
+        106
+      ],
+      "flags": {
+        "collapsed": false
+      },
+      "order": 13,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "noise",
+          "type": "NOISE",
+          "link": 23
+        },
+        {
+          "name": "guider",
+          "type": "GUIDER",
+          "link": 17
+        },
+        {
+          "name": "sampler",
+          "type": "SAMPLER",
+          "link": 216
+        },
+        {
+          "name": "sigmas",
+          "type": "SIGMAS",
+          "link": 163
+        },
+        {
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 30
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "type": "LATENT",
+          "links": [
+            110
+          ],
+          "slot_index": 0,
+          "shape": 3
+        },
+        {
+          "name": "denoised_output",
+          "type": "LATENT",
+          "links": [],
+          "slot_index": 1,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "☁️BizyAir SamplerCustomAdvanced"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 28,
+      "type": "BizyAir_KSamplerSelect",
+      "pos": [
+        230,
+        480
+      ],
+      "size": [
+        315,
+        58
       ],
       "flags": {},
       "order": 6,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "SAMPLER",
+          "type": "SAMPLER",
+          "links": [
+            99,
+            166,
+            215,
+            221
+          ],
+          "slot_index": 0,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "☁️BizyAir KSamplerSelect"
+      },
+      "widgets_values": [
+        "dpmpp_2m"
+      ]
+    },
+    {
+      "id": 78,
+      "type": "BizyAir_VAEDecode",
+      "pos": [
+        873.6319580078125,
+        788.88720703125
+      ],
+      "size": [
+        210,
+        46
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 19,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 148
+        },
+        {
+          "name": "vae",
+          "type": "BIZYAIR_VAE",
+          "link": 150
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            149,
+            198
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "☁️BizyAir VAEDecode"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 29,
+      "type": "BizyAir_BasicScheduler",
+      "pos": [
+        231,
+        607
+      ],
+      "size": [
+        315,
+        106
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "BIZYAIR_MODEL",
+          "link": 209,
+          "slot_index": 0
+        }
+      ],
+      "outputs": [
+        {
+          "name": "SIGMAS",
+          "type": "SIGMAS",
+          "links": [
+            96,
+            163,
+            164,
+            219
+          ],
+          "slot_index": 0,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "☁️BizyAir BasicScheduler"
+      },
+      "widgets_values": [
+        "beta",
+        20,
+        1
+      ]
+    },
+    {
+      "id": 83,
+      "type": "BizyAir_SamplerCustomAdvanced",
+      "pos": [
+        892.3538208007812,
+        1367.4744873046875
+      ],
+      "size": [
+        355.20001220703125,
+        106
+      ],
+      "flags": {
+        "collapsed": false
+      },
+      "order": 16,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "noise",
+          "type": "NOISE",
+          "link": 156
+        },
+        {
+          "name": "guider",
+          "type": "GUIDER",
+          "link": 157
+        },
+        {
+          "name": "sampler",
+          "type": "SAMPLER",
+          "link": 166
+        },
+        {
+          "name": "sigmas",
+          "type": "SIGMAS",
+          "link": 220
+        },
+        {
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 160
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "type": "LATENT",
+          "links": [
+            162
+          ],
+          "slot_index": 0,
+          "shape": 3
+        },
+        {
+          "name": "denoised_output",
+          "type": "LATENT",
+          "links": [],
+          "slot_index": 1,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "☁️BizyAir SamplerCustomAdvanced"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 109,
+      "type": "BizyAir_LyingSigmaSampler",
+      "pos": [
+        838.8573608398438,
+        501.6441650390625
+      ],
+      "size": [
+        365.4000244140625,
+        106
+      ],
+      "flags": {},
+      "order": 10,
       "mode": 0,
       "inputs": [
         {
           "name": "sampler",
           "type": "SAMPLER",
-          "link": 219
+          "link": 221
         }
       ],
       "outputs": [
@@ -582,7 +1038,153 @@
           "name": "SAMPLER",
           "type": "SAMPLER",
           "links": [
+            222
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_LyingSigmaSampler"
+      },
+      "widgets_values": [
+        -0.05,
+        0.1,
+        0.9
+      ]
+    },
+    {
+      "id": 77,
+      "type": "BizyAir_SamplerCustomAdvanced",
+      "pos": [
+        822.94873046875,
+        688.6613159179688
+      ],
+      "size": [
+        355.20001220703125,
+        106
+      ],
+      "flags": {
+        "collapsed": false
+      },
+      "order": 15,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "noise",
+          "type": "NOISE",
+          "link": 141
+        },
+        {
+          "name": "guider",
+          "type": "GUIDER",
+          "link": 142
+        },
+        {
+          "name": "sampler",
+          "type": "SAMPLER",
+          "link": 222
+        },
+        {
+          "name": "sigmas",
+          "type": "SIGMAS",
+          "link": 164
+        },
+        {
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 145
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "type": "LATENT",
+          "links": [
+            148
+          ],
+          "slot_index": 0,
+          "shape": 3
+        },
+        {
+          "name": "denoised_output",
+          "type": "LATENT",
+          "links": [],
+          "slot_index": 1,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "☁️BizyAir SamplerCustomAdvanced"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 108,
+      "type": "BizyAir_MultiplySigmas",
+      "pos": [
+        877.872314453125,
+        1119.735107421875
+      ],
+      "size": [
+        315,
+        106
+      ],
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "sigmas",
+          "type": "SIGMAS",
+          "link": 219
+        }
+      ],
+      "outputs": [
+        {
+          "name": "SIGMAS",
+          "type": "SIGMAS",
+          "links": [
             220
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_MultiplySigmas"
+      },
+      "widgets_values": [
+        0.9410000000000001,
+        0,
+        0.998
+      ]
+    },
+    {
+      "id": 106,
+      "type": "BizyAir_DetailDaemonSamplerNode",
+      "pos": [
+        787.7808837890625,
+        -68.57552337646484
+      ],
+      "size": [
+        390.5999755859375,
+        274
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "sampler",
+          "type": "SAMPLER",
+          "link": 215
+        }
+      ],
+      "outputs": [
+        {
+          "name": "SAMPLER",
+          "type": "SAMPLER",
+          "links": [
+            216
           ],
           "slot_index": 0
         }
@@ -602,62 +1204,6 @@
         false,
         0
       ]
-    },
-    {
-      "id": 37,
-      "type": "PreviewImage",
-      "pos": [
-        1196.657470703125,
-        -79.58975219726562
-      ],
-      "size": [
-        444.4699401855469,
-        458.221435546875
-      ],
-      "flags": {},
-      "order": 14,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "images",
-          "type": "IMAGE",
-          "link": 49
-        }
-      ],
-      "outputs": [],
-      "title": "Detail Daemon preview image",
-      "properties": {
-        "Node name for S&R": "PreviewImage"
-      },
-      "widgets_values": []
-    },
-    {
-      "id": 67,
-      "type": "PreviewImage",
-      "pos": [
-        1113.4393310546875,
-        530.0723876953125
-      ],
-      "size": [
-        447.607177734375,
-        461.6881103515625
-      ],
-      "flags": {},
-      "order": 15,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "images",
-          "type": "IMAGE",
-          "link": 95
-        }
-      ],
-      "outputs": [],
-      "title": "Default preview image (no detailer)",
-      "properties": {
-        "Node name for S&R": "PreviewImage"
-      },
-      "widgets_values": []
     }
   ],
   "links": [
@@ -790,12 +1336,172 @@
       "CLIP"
     ],
     [
+      141,
+      30,
+      0,
+      77,
+      0,
+      "NOISE"
+    ],
+    [
+      142,
+      25,
+      0,
+      77,
+      1,
+      "GUIDER"
+    ],
+    [
+      145,
+      5,
+      0,
+      77,
+      4,
+      "LATENT"
+    ],
+    [
+      148,
+      77,
+      0,
+      78,
+      0,
+      "LATENT"
+    ],
+    [
+      149,
+      78,
+      0,
+      79,
+      0,
+      "IMAGE"
+    ],
+    [
+      150,
+      27,
+      0,
+      78,
+      1,
+      "VAE"
+    ],
+    [
+      154,
+      27,
+      0,
+      81,
+      1,
+      "VAE"
+    ],
+    [
+      155,
+      81,
+      0,
+      82,
+      0,
+      "IMAGE"
+    ],
+    [
+      156,
+      30,
+      0,
+      83,
+      0,
+      "NOISE"
+    ],
+    [
+      157,
+      25,
+      0,
+      83,
+      1,
+      "GUIDER"
+    ],
+    [
+      160,
+      5,
+      0,
+      83,
+      4,
+      "LATENT"
+    ],
+    [
+      162,
+      83,
+      0,
+      81,
+      0,
+      "LATENT"
+    ],
+    [
       163,
       29,
       0,
       26,
       3,
       "SIGMAS"
+    ],
+    [
+      164,
+      29,
+      0,
+      77,
+      3,
+      "SIGMAS"
+    ],
+    [
+      166,
+      28,
+      0,
+      83,
+      2,
+      "SAMPLER"
+    ],
+    [
+      196,
+      8,
+      0,
+      97,
+      0,
+      "IMAGE"
+    ],
+    [
+      197,
+      65,
+      0,
+      97,
+      1,
+      "IMAGE"
+    ],
+    [
+      198,
+      78,
+      0,
+      98,
+      0,
+      "IMAGE"
+    ],
+    [
+      199,
+      65,
+      0,
+      98,
+      1,
+      "IMAGE"
+    ],
+    [
+      200,
+      81,
+      0,
+      99,
+      0,
+      "IMAGE"
+    ],
+    [
+      201,
+      65,
+      0,
+      99,
+      1,
+      "IMAGE"
     ],
     [
       208,
@@ -814,7 +1520,7 @@
       "MODEL"
     ],
     [
-      219,
+      215,
       28,
       0,
       106,
@@ -822,15 +1528,73 @@
       "SAMPLER"
     ],
     [
-      220,
+      216,
       106,
       0,
       26,
       2,
       "SAMPLER"
+    ],
+    [
+      219,
+      29,
+      0,
+      108,
+      0,
+      "SIGMAS"
+    ],
+    [
+      220,
+      108,
+      0,
+      83,
+      3,
+      "SIGMAS"
+    ],
+    [
+      221,
+      28,
+      0,
+      109,
+      0,
+      "SAMPLER"
+    ],
+    [
+      222,
+      109,
+      0,
+      77,
+      2,
+      "SAMPLER"
     ]
   ],
   "groups": [
+    {
+      "id": 1,
+      "title": "Multiply Sigmas",
+      "bounding": [
+        735.3538208007812,
+        964.4746704101562,
+        1450,
+        543
+      ],
+      "color": "#8A8",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "id": 2,
+      "title": "Lying Sigmas",
+      "bounding": [
+        721.7677612304688,
+        419.2020263671875,
+        1445,
+        530
+      ],
+      "color": "#b58b2a",
+      "font_size": 24,
+      "flags": {}
+    },
     {
       "id": 3,
       "title": "Detail Daemon",
@@ -848,8 +1612,8 @@
       "id": 4,
       "title": "Default (no detailer)",
       "bounding": [
-        731.38818359375,
-        457.4639587402344,
+        -150,
+        925,
         857,
         555
       ],
@@ -861,10 +1625,10 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 0.620921323059157,
+      "scale": 0.3548513207457764,
       "offset": [
-        -571.0595802762427,
-        391.4724845097179
+        -549.7148161193775,
+        -139.26704932894233
       ]
     }
   },
