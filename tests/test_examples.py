@@ -46,7 +46,12 @@ def modify_steps_decorator(func):
                 if len(node["widgets_values"]) == 3:
                     node["widgets_values"][1] = 1
                 else:
-                    raise ValueError("BizyAir_BasicScheduler widget values is wrong")
+                    raise ValueError("BizyAir_BasicScheduler widget_values is wrong")
+            if node["type"] == "BizyAir_KSampler":
+                if len(node["widgets_values"]) == 7:
+                    node["widgets_values"][2] = 1
+                else:
+                    raise ValueError("BizyAir_KSampler widget_values is wrong")
 
         modified_json_content = json.dumps(data, indent=2)
         return modified_json_content
