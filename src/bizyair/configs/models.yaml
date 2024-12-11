@@ -166,8 +166,8 @@ model_rules:
   - mode_type: style_model
     base_model: FLUX
     describe: Flux Style Model
-    score: 5
-    route: /supernode/bizyair-flux1-tools-redux
+    score: 4
+    route: /supernode/flux-dev-bizyair-comfy-ksampler-fp8-v2
     nodes:
       - class_type: StyleModelLoader
         inputs:
