@@ -123,7 +123,7 @@ def get_trans_format(inputs: dict):
     return "workflow_api"
 
 
-def workflow_convert(inputs: dict, status):
+def workflow_convert(inputs: dict):
     nodes = inputs["nodes"]
     for node in nodes:
         class_type = node["type"]
@@ -156,9 +156,8 @@ def workflow_convert(inputs: dict, status):
                 "is_converted": is_converted,
             }
         )
-        assert is_converted == True
 
-    return (inputs, status)
+    return inputs
 
 
 def workflow_api_convert(inputs: dict):
@@ -180,7 +179,6 @@ def workflow_api_convert(inputs: dict):
                 "is_converted": is_converted,
             }
         )
-        assert is_converted == True
 
     return inputs
 
