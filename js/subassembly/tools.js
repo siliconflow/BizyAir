@@ -6,8 +6,8 @@ export const hideWidget = (node, widget_name) => {
 
   const originalComputeSize = widget.computeSize;
   const originalType = widget.type;
-  
-  widget.computeSize = () => [0, -4]; 
+
+  widget.computeSize = () => [0, -4];
   widget.height = 0;
   widget.type = "hidden";
   widget.options = widget.options || {};
