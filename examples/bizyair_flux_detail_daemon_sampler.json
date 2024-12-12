@@ -1,0 +1,938 @@
+{
+  "last_node_id": 106,
+  "last_link_id": 220,
+  "nodes": [
+    {
+      "id": 28,
+      "type": "BizyAir_KSamplerSelect",
+      "pos": [
+        230,
+        480
+      ],
+      "size": [
+        315,
+        58
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "SAMPLER",
+          "type": "SAMPLER",
+          "links": [
+            99,
+            219
+          ],
+          "slot_index": 0,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "☁️BizyAir KSamplerSelect"
+      },
+      "widgets_values": [
+        "dpmpp_2m"
+      ]
+    },
+    {
+      "id": 5,
+      "type": "EmptyLatentImage",
+      "pos": [
+        230,
+        170
+      ],
+      "size": [
+        315,
+        106
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            30,
+            100
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "EmptyLatentImage"
+      },
+      "widgets_values": [
+        1024,
+        1024,
+        1
+      ]
+    },
+    {
+      "id": 25,
+      "type": "BizyAir_BasicGuider",
+      "pos": [
+        240,
+        60
+      ],
+      "size": [
+        241.79998779296875,
+        46
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "BIZYAIR_MODEL",
+          "link": 208
+        },
+        {
+          "name": "conditioning",
+          "type": "BIZYAIR_CONDITIONING",
+          "link": 51,
+          "slot_index": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "GUIDER",
+          "type": "GUIDER",
+          "links": [
+            17,
+            98
+          ],
+          "slot_index": 0,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "☁️BizyAir BasicGuider"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 8,
+      "type": "BizyAir_VAEDecode",
+      "pos": [
+        780,
+        340
+      ],
+      "size": [
+        210,
+        46
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 12,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 110
+        },
+        {
+          "name": "vae",
+          "type": "BIZYAIR_VAE",
+          "link": 25
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            49,
+            196
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "☁️BizyAir VAEDecode"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 38,
+      "type": "BizyAir_CLIPTextEncodeFlux",
+      "pos": [
+        -149,
+        513
+      ],
+      "size": [
+        348.0617980957031,
+        394.8694152832031
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "BIZYAIR_CLIP",
+          "link": 140
+        }
+      ],
+      "outputs": [
+        {
+          "name": "conditioning",
+          "type": "BIZYAIR_CONDITIONING",
+          "links": [
+            51
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "☁️BizyAir CLIPTextEncodeFlux"
+      },
+      "widgets_values": [
+        "a photo of a majestic, vividly colored peacock standing proudly in an exotic, lush jungle. The bird's feathers display an iridescent array of blues, greens, and purples, with intricate eye patterns. Taken with a Canon EOS 5D Mark IV and a Canon EF 100-400mm f/4.5-5.6L IS II USM lens at 200mm, the scene includes tropical plants, vibrant flowers, and distant waterfalls under a bright, sunny sky, creating a rich and detailed paradise setting. The peacock is the focal point, exuding elegance and grace. Tack sharp, with many details. Other elements of wildlife, like colorful butterflies and exotic birds, add life to the scene, enhancing the overall photographic quality.",
+        "a photo of a majestic, vividly colored peacock standing proudly in an exotic, lush jungle. The bird's feathers display an iridescent array of blues, greens, and purples, with intricate eye patterns. Taken with a Canon EOS 5D Mark IV and a Canon EF 100-400mm f/4.5-5.6L IS II USM lens at 200mm, the scene includes tropical plants, vibrant flowers, and distant waterfalls under a bright, sunny sky, creating a rich and detailed paradise setting. The peacock is the focal point, exuding elegance and grace. Tack sharp, with many details. Other elements of wildlife, like colorful butterflies and exotic birds, add life to the scene, enhancing the overall photographic quality.",
+        3.5
+      ]
+    },
+    {
+      "id": 29,
+      "type": "BizyAir_BasicScheduler",
+      "pos": [
+        231,
+        607
+      ],
+      "size": [
+        315,
+        106
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "BIZYAIR_MODEL",
+          "link": 209,
+          "slot_index": 0
+        }
+      ],
+      "outputs": [
+        {
+          "name": "SIGMAS",
+          "type": "SIGMAS",
+          "links": [
+            96,
+            163
+          ],
+          "slot_index": 0,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "☁️BizyAir BasicScheduler"
+      },
+      "widgets_values": [
+        "beta",
+        20,
+        1
+      ]
+    },
+    {
+      "id": 65,
+      "type": "BizyAir_VAEDecode",
+      "pos": [
+        886.3881225585938,
+        736.4633178710938
+      ],
+      "size": [
+        210,
+        46
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 13,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 101
+        },
+        {
+          "name": "vae",
+          "type": "BIZYAIR_VAE",
+          "link": 103
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            95,
+            197
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "☁️BizyAir VAEDecode"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 22,
+      "type": "BizyAir_DualCLIPLoader",
+      "pos": [
+        -150,
+        210
+      ],
+      "size": [
+        315,
+        106
+      ],
+      "flags": {
+        "collapsed": false
+      },
+      "order": 2,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "BIZYAIR_CLIP",
+          "type": "BIZYAIR_CLIP",
+          "links": [
+            140
+          ],
+          "slot_index": 0,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "☁️BizyAir DualCLIPLoader"
+      },
+      "widgets_values": [
+        "clip_l.safetensors",
+        "t5xxl_fp16.safetensors",
+        "flux"
+      ]
+    },
+    {
+      "id": 27,
+      "type": "BizyAir_VAELoader",
+      "pos": [
+        -149,
+        393
+      ],
+      "size": [
+        315,
+        58
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "vae",
+          "type": "BIZYAIR_VAE",
+          "links": [
+            25,
+            103
+          ],
+          "slot_index": 0,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "☁️BizyAir VAELoader"
+      },
+      "widgets_values": [
+        "flux/ae.sft"
+      ]
+    },
+    {
+      "id": 26,
+      "type": "BizyAir_SamplerCustomAdvanced",
+      "pos": [
+        750,
+        280
+      ],
+      "size": [
+        260.3999938964844,
+        106
+      ],
+      "flags": {
+        "collapsed": false
+      },
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "noise",
+          "type": "NOISE",
+          "link": 23
+        },
+        {
+          "name": "guider",
+          "type": "GUIDER",
+          "link": 17
+        },
+        {
+          "name": "sampler",
+          "type": "SAMPLER",
+          "link": 220
+        },
+        {
+          "name": "sigmas",
+          "type": "SIGMAS",
+          "link": 163
+        },
+        {
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 30
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "type": "LATENT",
+          "links": [
+            110
+          ],
+          "slot_index": 0,
+          "shape": 3
+        },
+        {
+          "name": "denoised_output",
+          "type": "LATENT",
+          "links": [],
+          "slot_index": 1,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "☁️BizyAir SamplerCustomAdvanced"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 104,
+      "type": "BizyAir_UNETLoader",
+      "pos": [
+        -146.43075561523438,
+        50.51093292236328
+      ],
+      "size": [
+        315,
+        82
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "BIZYAIR_MODEL",
+          "type": "BIZYAIR_MODEL",
+          "links": [
+            208,
+            209
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "☁️BizyAir UNETLoader"
+      },
+      "widgets_values": [
+        "flux/flux1-dev.sft",
+        "fp8_e4m3fn"
+      ]
+    },
+    {
+      "id": 30,
+      "type": "BizyAir_RandomNoise",
+      "pos": [
+        230,
+        330
+      ],
+      "size": [
+        315.3865661621094,
+        82
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "NOISE",
+          "type": "NOISE",
+          "links": [
+            23,
+            97
+          ],
+          "slot_index": 0,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "☁️BizyAir RandomNoise"
+      },
+      "widgets_values": [
+        55268804028075,
+        "fixed"
+      ]
+    },
+    {
+      "id": 66,
+      "type": "BizyAir_SamplerCustomAdvanced",
+      "pos": [
+        815.3881225585938,
+        597.4635620117188
+      ],
+      "size": [
+        355.20001220703125,
+        106
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "noise",
+          "type": "NOISE",
+          "link": 97
+        },
+        {
+          "name": "guider",
+          "type": "GUIDER",
+          "link": 98
+        },
+        {
+          "name": "sampler",
+          "type": "SAMPLER",
+          "link": 99
+        },
+        {
+          "name": "sigmas",
+          "type": "SIGMAS",
+          "link": 96
+        },
+        {
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 100
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "type": "LATENT",
+          "links": [
+            101
+          ],
+          "slot_index": 0,
+          "shape": 3
+        },
+        {
+          "name": "denoised_output",
+          "type": "LATENT",
+          "links": [],
+          "slot_index": 1,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "☁️BizyAir SamplerCustomAdvanced"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 106,
+      "type": "BizyAir_DetailDaemonSamplerNode",
+      "pos": [
+        738.7815551757812,
+        -71.39924621582031
+      ],
+      "size": [
+        390.5999755859375,
+        274
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "sampler",
+          "type": "SAMPLER",
+          "link": 219
+        }
+      ],
+      "outputs": [
+        {
+          "name": "SAMPLER",
+          "type": "SAMPLER",
+          "links": [
+            220
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_DetailDaemonSamplerNode"
+      },
+      "widgets_values": [
+        0.5,
+        0.1,
+        0.9,
+        0.5,
+        0,
+        0,
+        0,
+        0,
+        false,
+        0
+      ]
+    },
+    {
+      "id": 37,
+      "type": "PreviewImage",
+      "pos": [
+        1196.657470703125,
+        -79.58975219726562
+      ],
+      "size": [
+        444.4699401855469,
+        458.221435546875
+      ],
+      "flags": {},
+      "order": 14,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 49
+        }
+      ],
+      "outputs": [],
+      "title": "Detail Daemon preview image",
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 97,
+      "type": "Image Comparer (rgthree)",
+      "pos": [
+        1674.254150390625,
+        -79
+      ],
+      "size": [
+        438.29681396484375,
+        458.221435546875
+      ],
+      "flags": {},
+      "order": 16,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image_a",
+          "type": "IMAGE",
+          "link": 196,
+          "dir": 3
+        },
+        {
+          "name": "image_b",
+          "type": "IMAGE",
+          "link": 197,
+          "dir": 3
+        }
+      ],
+      "outputs": [],
+      "title": "Compare with default",
+      "properties": {
+        "comparer_mode": "Slide"
+      },
+      "widgets_values": [
+        [
+          {
+            "name": "A",
+            "selected": true,
+            "url": "/api/view?filename=rgthree.compare._temp_ubgze_00009_.png&type=temp&subfolder=&rand=0.894475432841835"
+          },
+          {
+            "name": "B",
+            "selected": true,
+            "url": "/api/view?filename=rgthree.compare._temp_ubgze_00010_.png&type=temp&subfolder=&rand=0.8683585741049846"
+          }
+        ]
+      ]
+    },
+    {
+      "id": 67,
+      "type": "PreviewImage",
+      "pos": [
+        1113.4393310546875,
+        530.0723876953125
+      ],
+      "size": [
+        447.607177734375,
+        461.6881103515625
+      ],
+      "flags": {},
+      "order": 15,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 95
+        }
+      ],
+      "outputs": [],
+      "title": "Default preview image (no detailer)",
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": []
+    }
+  ],
+  "links": [
+    [
+      17,
+      25,
+      0,
+      26,
+      1,
+      "GUIDER"
+    ],
+    [
+      23,
+      30,
+      0,
+      26,
+      0,
+      "NOISE"
+    ],
+    [
+      25,
+      27,
+      0,
+      8,
+      1,
+      "VAE"
+    ],
+    [
+      30,
+      5,
+      0,
+      26,
+      4,
+      "LATENT"
+    ],
+    [
+      49,
+      8,
+      0,
+      37,
+      0,
+      "IMAGE"
+    ],
+    [
+      51,
+      38,
+      0,
+      25,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      95,
+      65,
+      0,
+      67,
+      0,
+      "IMAGE"
+    ],
+    [
+      96,
+      29,
+      0,
+      66,
+      3,
+      "SIGMAS"
+    ],
+    [
+      97,
+      30,
+      0,
+      66,
+      0,
+      "NOISE"
+    ],
+    [
+      98,
+      25,
+      0,
+      66,
+      1,
+      "GUIDER"
+    ],
+    [
+      99,
+      28,
+      0,
+      66,
+      2,
+      "SAMPLER"
+    ],
+    [
+      100,
+      5,
+      0,
+      66,
+      4,
+      "LATENT"
+    ],
+    [
+      101,
+      66,
+      0,
+      65,
+      0,
+      "LATENT"
+    ],
+    [
+      103,
+      27,
+      0,
+      65,
+      1,
+      "VAE"
+    ],
+    [
+      110,
+      26,
+      0,
+      8,
+      0,
+      "LATENT"
+    ],
+    [
+      140,
+      22,
+      0,
+      38,
+      0,
+      "CLIP"
+    ],
+    [
+      163,
+      29,
+      0,
+      26,
+      3,
+      "SIGMAS"
+    ],
+    [
+      196,
+      8,
+      0,
+      97,
+      0,
+      "IMAGE"
+    ],
+    [
+      197,
+      65,
+      0,
+      97,
+      1,
+      "IMAGE"
+    ],
+    [
+      208,
+      104,
+      0,
+      25,
+      0,
+      "MODEL"
+    ],
+    [
+      209,
+      104,
+      0,
+      29,
+      0,
+      "MODEL"
+    ],
+    [
+      219,
+      28,
+      0,
+      106,
+      0,
+      "SAMPLER"
+    ],
+    [
+      220,
+      106,
+      0,
+      26,
+      2,
+      "SAMPLER"
+    ]
+  ],
+  "groups": [
+    {
+      "id": 3,
+      "title": "Detail Daemon",
+      "bounding": [
+        722,
+        -150,
+        1450,
+        539
+      ],
+      "color": "#3f789e",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "id": 4,
+      "title": "Default (no detailer)",
+      "bounding": [
+        731.38818359375,
+        457.4639587402344,
+        857,
+        555
+      ],
+      "color": "#a1309b",
+      "font_size": 24,
+      "flags": {}
+    }
+  ],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.513158118230708,
+      "offset": [
+        -274.10376749471607,
+        96.85496843502256
+      ]
+    }
+  },
+  "version": 0.4
+}
