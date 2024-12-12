@@ -1,6 +1,6 @@
 {
-  "last_node_id": 109,
-  "last_link_id": 222,
+  "last_node_id": 112,
+  "last_link_id": 225,
   "nodes": [
     {
       "id": 5,
@@ -155,8 +155,7 @@
           "name": "IMAGE",
           "type": "IMAGE",
           "links": [
-            49,
-            196
+            49
           ],
           "slot_index": 0
         }
@@ -165,102 +164,6 @@
         "Node name for S&R": "☁️BizyAir VAEDecode"
       },
       "widgets_values": []
-    },
-    {
-      "id": 98,
-      "type": "Image Comparer (rgthree)",
-      "pos": [
-        1724.0548095703125,
-        479.48919677734375
-      ],
-      "size": [
-        427.1917419433594,
-        458.9107666015625
-      ],
-      "flags": {},
-      "order": 25,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "image_a",
-          "type": "IMAGE",
-          "link": 198,
-          "dir": 3
-        },
-        {
-          "name": "image_b",
-          "type": "IMAGE",
-          "link": 199,
-          "dir": 3
-        }
-      ],
-      "outputs": [],
-      "title": "Compare with default",
-      "properties": {
-        "comparer_mode": "Slide"
-      },
-      "widgets_values": [
-        [
-          {
-            "name": "A",
-            "selected": true,
-            "url": "/api/view?filename=rgthree.compare._temp_vthgs_00003_.png&type=temp&subfolder=&rand=0.5267630243386807"
-          },
-          {
-            "name": "B",
-            "selected": true,
-            "url": "/api/view?filename=rgthree.compare._temp_vthgs_00004_.png&type=temp&subfolder=&rand=0.40674812463326226"
-          }
-        ]
-      ]
-    },
-    {
-      "id": 99,
-      "type": "Image Comparer (rgthree)",
-      "pos": [
-        1740.3529052734375,
-        1039.474853515625
-      ],
-      "size": [
-        430.4796142578125,
-        457.0982971191406
-      ],
-      "flags": {},
-      "order": 27,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "image_a",
-          "type": "IMAGE",
-          "link": 200,
-          "dir": 3
-        },
-        {
-          "name": "image_b",
-          "type": "IMAGE",
-          "link": 201,
-          "dir": 3
-        }
-      ],
-      "outputs": [],
-      "title": "Compare with default",
-      "properties": {
-        "comparer_mode": "Slide"
-      },
-      "widgets_values": [
-        [
-          {
-            "name": "A",
-            "selected": true,
-            "url": "/api/view?filename=rgthree.compare._temp_kbvnt_00003_.png&type=temp&subfolder=&rand=0.7263013530023406"
-          },
-          {
-            "name": "B",
-            "selected": true,
-            "url": "/api/view?filename=rgthree.compare._temp_kbvnt_00004_.png&type=temp&subfolder=&rand=0.2597588988458055"
-          }
-        ]
-      ]
     },
     {
       "id": 38,
@@ -306,15 +209,15 @@
       "id": 79,
       "type": "PreviewImage",
       "pos": [
-        1268.0548095703125,
-        474.48919677734375
+        963.3413696289062,
+        504.88983154296875
       ],
       "size": [
         441.1180114746094,
         464.446533203125
       ],
       "flags": {},
-      "order": 24,
+      "order": 26,
       "mode": 0,
       "inputs": [
         {
@@ -342,7 +245,7 @@
         467.3197021484375
       ],
       "flags": {},
-      "order": 26,
+      "order": 27,
       "mode": 0,
       "inputs": [
         {
@@ -391,8 +294,7 @@
           "name": "IMAGE",
           "type": "IMAGE",
           "links": [
-            155,
-            200
+            155
           ],
           "slot_index": 0
         }
@@ -433,54 +335,6 @@
       ]
     },
     {
-      "id": 97,
-      "type": "Image Comparer (rgthree)",
-      "pos": [
-        1747,
-        -79
-      ],
-      "size": [
-        438.29681396484375,
-        458.221435546875
-      ],
-      "flags": {},
-      "order": 23,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "image_a",
-          "type": "IMAGE",
-          "link": 196,
-          "dir": 3
-        },
-        {
-          "name": "image_b",
-          "type": "IMAGE",
-          "link": 197,
-          "dir": 3
-        }
-      ],
-      "outputs": [],
-      "title": "Compare with default",
-      "properties": {
-        "comparer_mode": "Slide"
-      },
-      "widgets_values": [
-        [
-          {
-            "name": "A",
-            "selected": true,
-            "url": "/api/view?filename=rgthree.compare._temp_lvszu_00003_.png&type=temp&subfolder=&rand=0.6486221825183796"
-          },
-          {
-            "name": "B",
-            "selected": true,
-            "url": "/api/view?filename=rgthree.compare._temp_lvszu_00004_.png&type=temp&subfolder=&rand=0.08567498815928909"
-          }
-        ]
-      ]
-    },
-    {
       "id": 37,
       "type": "PreviewImage",
       "pos": [
@@ -505,52 +359,6 @@
       "title": "Detail Daemon preview image",
       "properties": {
         "Node name for S&R": "PreviewImage"
-      },
-      "widgets_values": []
-    },
-    {
-      "id": 65,
-      "type": "BizyAir_VAEDecode",
-      "pos": [
-        5,
-        1204
-      ],
-      "size": [
-        210,
-        46
-      ],
-      "flags": {
-        "collapsed": true
-      },
-      "order": 18,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "samples",
-          "type": "LATENT",
-          "link": 101
-        },
-        {
-          "name": "vae",
-          "type": "BIZYAIR_VAE",
-          "link": 103
-        }
-      ],
-      "outputs": [
-        {
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
-            95,
-            197,
-            199,
-            201
-          ],
-          "slot_index": 0
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "☁️BizyAir VAEDecode"
       },
       "widgets_values": []
     },
@@ -660,34 +468,6 @@
       "widgets_values": [
         "flux/ae.sft"
       ]
-    },
-    {
-      "id": 67,
-      "type": "PreviewImage",
-      "pos": [
-        226.1640167236328,
-        1024.362060546875
-      ],
-      "size": [
-        447.607177734375,
-        461.6881103515625
-      ],
-      "flags": {},
-      "order": 22,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "images",
-          "type": "IMAGE",
-          "link": 95
-        }
-      ],
-      "outputs": [],
-      "title": "Default preview image (no detailer)",
-      "properties": {
-        "Node name for S&R": "PreviewImage"
-      },
-      "widgets_values": []
     },
     {
       "id": 66,
@@ -861,8 +641,8 @@
       "id": 78,
       "type": "BizyAir_VAEDecode",
       "pos": [
-        873.6319580078125,
-        788.88720703125
+        568.9183349609375,
+        819.2879028320312
       ],
       "size": [
         210,
@@ -890,8 +670,7 @@
           "name": "IMAGE",
           "type": "IMAGE",
           "links": [
-            149,
-            198
+            149
           ],
           "slot_index": 0
         }
@@ -1016,8 +795,8 @@
       "id": 109,
       "type": "BizyAir_LyingSigmaSampler",
       "pos": [
-        838.8573608398438,
-        501.6441650390625
+        534.1437377929688,
+        532.044921875
       ],
       "size": [
         365.4000244140625,
@@ -1056,8 +835,8 @@
       "id": 77,
       "type": "BizyAir_SamplerCustomAdvanced",
       "pos": [
-        822.94873046875,
-        688.6613159179688
+        518.2349243164062,
+        719.06201171875
       ],
       "size": [
         355.20001220703125,
@@ -1204,6 +983,158 @@
         false,
         0
       ]
+    },
+    {
+      "id": 67,
+      "type": "PreviewImage",
+      "pos": [
+        238.18289184570312,
+        1025.0689697265625
+      ],
+      "size": [
+        447.607177734375,
+        461.6881103515625
+      ],
+      "flags": {},
+      "order": 22,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 95
+        }
+      ],
+      "outputs": [],
+      "title": "Default preview image (no detailer)",
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 65,
+      "type": "BizyAir_VAEDecode",
+      "pos": [
+        -58.36270523071289,
+        1190.3865966796875
+      ],
+      "size": [
+        210,
+        46
+      ],
+      "flags": {
+        "collapsed": false
+      },
+      "order": 18,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 101
+        },
+        {
+          "name": "vae",
+          "type": "BIZYAIR_VAE",
+          "link": 103
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            95,
+            223,
+            224,
+            225
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "☁️BizyAir VAEDecode"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 110,
+      "type": "PreviewImage",
+      "pos": [
+        1767.10009765625,
+        -44.370643615722656
+      ],
+      "size": [
+        369.8744812011719,
+        412.896240234375
+      ],
+      "flags": {},
+      "order": 23,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 223
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      }
+    },
+    {
+      "id": 112,
+      "type": "PreviewImage",
+      "pos": [
+        1429.3408203125,
+        520.49462890625
+      ],
+      "size": [
+        409.8431091308594,
+        436.0780944824219
+      ],
+      "flags": {},
+      "order": 24,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 224
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      }
+    },
+    {
+      "id": 111,
+      "type": "PreviewImage",
+      "pos": [
+        1761.306396484375,
+        1041.71826171875
+      ],
+      "size": [
+        412.8641052246094,
+        450.149169921875
+      ],
+      "flags": {},
+      "order": 25,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 225
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      }
     }
   ],
   "links": [
@@ -1456,54 +1387,6 @@
       "SAMPLER"
     ],
     [
-      196,
-      8,
-      0,
-      97,
-      0,
-      "IMAGE"
-    ],
-    [
-      197,
-      65,
-      0,
-      97,
-      1,
-      "IMAGE"
-    ],
-    [
-      198,
-      78,
-      0,
-      98,
-      0,
-      "IMAGE"
-    ],
-    [
-      199,
-      65,
-      0,
-      98,
-      1,
-      "IMAGE"
-    ],
-    [
-      200,
-      81,
-      0,
-      99,
-      0,
-      "IMAGE"
-    ],
-    [
-      201,
-      65,
-      0,
-      99,
-      1,
-      "IMAGE"
-    ],
-    [
       208,
       104,
       0,
@@ -1566,6 +1449,30 @@
       77,
       2,
       "SAMPLER"
+    ],
+    [
+      223,
+      65,
+      0,
+      110,
+      0,
+      "IMAGE"
+    ],
+    [
+      224,
+      65,
+      0,
+      112,
+      0,
+      "IMAGE"
+    ],
+    [
+      225,
+      65,
+      0,
+      111,
+      0,
+      "IMAGE"
     ]
   ],
   "groups": [
@@ -1586,8 +1493,8 @@
       "id": 2,
       "title": "Lying Sigmas",
       "bounding": [
-        721.7677612304688,
-        419.2020263671875,
+        417.0537414550781,
+        449.6026611328125,
         1445,
         530
       ],
@@ -1625,10 +1532,10 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 0.3548513207457764,
+      "scale": 0.23579476910000047,
       "offset": [
-        -549.7148161193775,
-        -139.26704932894233
+        412.09833845321054,
+        606.1627454821062
       ]
     }
   },
