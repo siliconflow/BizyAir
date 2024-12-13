@@ -1,8 +1,9 @@
-
-from bizyair.common.task_manager.task_base import TaskStateStorageBase, TaskContextBase
-import os
 import json
+import os
 from threading import Lock
+
+from bizyair.common.task_manager.task_base import TaskContextBase, TaskStateStorageBase
+
 
 class TaskStateStorage(TaskStateStorageBase):
 
@@ -21,13 +22,21 @@ class TaskStateStorage(TaskStateStorageBase):
     def save_task_context(self, task_id, context: TaskContextBase):
         file_path = self._get_file_path(task_id)
         with self._lock:
-            with open(file_path, 'w') as file:
+            with open(file_path, "w") as file:
                 json.dump(context.__dict__, file, default=str, indent=4)
 
     def load_task_context(self, task_id):
         file_path = self._get_file_path(task_id)
         try:
-            with open(file_path, 'r') as file:
+            with open(file_path, "r") as file:
                 return json.load(file)
         except FileNotFoundError:
             return None
+
+    def list_tasks(self):
+        return os.listdir(self.storage_directory)
+
+    def delete_task(self, task_id):
+        file_path = self._get_file_path(task_id)
+        if os.path.exists(file_path):
+            os.remove(file_path)

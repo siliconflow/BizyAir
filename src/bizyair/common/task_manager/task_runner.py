@@ -1,4 +1,5 @@
-from .task_base import TaskRunnerBase, TaskContextBase
+from .task_base import TaskContextBase, TaskRunnerBase
+
 
 class BizyAirTaskRunner(TaskRunnerBase):
     def __init__(self, task_context: TaskContextBase):
