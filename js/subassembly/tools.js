@@ -3,16 +3,17 @@ export const hideWidget = (node, widget_name) => {
   if (!widget) {
     return
   }
-  widget.computeSize = () => [0, 0]
-  widget.height = 0
-  widget.type = "hidden"
 
-  widget.options = widget.options || {}
-  setTimeout(() => {
-    if (node.setSize) {
-        node.computeSize();
-        node.setSize(node.computeSize());
-        node.graph?.setDirtyCanvas(true, true);
-    }
-    }, 0);
+  const originalComputeSize = widget.computeSize;
+  const originalType = widget.type;
+
+  widget.computeSize = () => [0, -4];
+  widget.height = 0;
+  widget.type = "hidden";
+  widget.options = widget.options || {};
+  widget.show = () => {
+    widget.computeSize = originalComputeSize;
+    widget.type = originalType;
+    widget.height = undefined;
+  };
 }
