@@ -37,17 +37,7 @@ update_mappings(nodes_controlnet_union_sdxl)
 update_mappings(mzkolors)
 update_mappings(segment_anything)
 
-# bizy_server
-bizyair_adv_is_not_installed = False
 try:
-    import crcmod
-    import oss2
-except ImportError:
-    bizyair_adv_is_not_installed = True
-    print(
-        "\n\n\033[91m[BizyAir]\033[0m Please run"
-        " 'pip install -r requirements.txt' to install depencies for model host feature.\n\n"
-    )
-
-if not bizyair_adv_is_not_installed:
     import bizy_server
+except Exception as e:
+    print("\n\n\033[91m[BizyAir]\033[0m Fail to import 'bizy_server':" f" {e}\n\n")
