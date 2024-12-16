@@ -108,7 +108,6 @@ jobs:
       with:
         script: |
           const { pull_request } = context.payload;
-          # 从 time_taken.txt 文件中读取 comment
           const fs = require('fs');
           const timeTaken = fs.readFileSync('ComfyUI/custom_nodes/BizyAir/time_taken.txt', 'utf8');
           const comment = `The time taken by running the examples on Linux: \n${timeTaken}`;
