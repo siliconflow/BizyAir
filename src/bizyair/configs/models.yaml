@@ -22,6 +22,11 @@ model_types:
   # checkpoints: bizyair/checkpoint
   # vae: bizyair/vae
 
+task_api:
+  # Base URL for task-related API calls
+  task_result_endpoint: bizy_task
+
+
 model_rules:
   - mode_type: unet
     base_model: FLUX
@@ -246,3 +251,19 @@ model_rules:
         inputs:
           vae_name:
             - ^flux.1-canny-vae.safetensors$
+
+  - mode_type: upscale_models
+    base_model: UPSCALE_MODEL
+    describe: Upscale Model
+    score: 1
+    route: /bizy_task/bizyair-flux1-dev-fp8-async
+    nodes:
+      - class_type: UpscaleModelLoader
+
+  - mode_type: upscale_model
+    base_model: FLUX
+    describe: Flux Upscale Model
+    score: 6
+    route: /bizy_task/bizyair-flux1-dev-fp8-async
+    nodes:
+      - class_type: UltimateSDUpscale

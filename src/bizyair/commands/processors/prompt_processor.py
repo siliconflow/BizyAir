@@ -63,7 +63,8 @@ class SearchServiceRouter(Processor):
 
         base_model, out_route, out_score = None, None, None
         for rule in results[::-1]:
-            if rule.mode_type in {"unet", "vae", "checkpoint"}:
+            # TODO add to config models.yaml
+            if rule.mode_type in {"unet", "vae", "checkpoint", "upscale_models"}:
                 base_model = rule.base_model
                 out_route = rule.route
                 out_score = rule.score

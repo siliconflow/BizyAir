@@ -10,7 +10,7 @@ import comfy
 
 from bizyair.common.caching import BizyAirTaskCache, CacheConfig
 from bizyair.common.client import send_request
-from bizyair.common.env_var import BIZYAIR_DEBUG
+from bizyair.common.env_var import BIZYAIR_DEBUG, BIZYAIR_SERVER_ADDRESS
 from bizyair.common.utils import truncate_long_strings
 from bizyair.configs.conf import config_manager
 from bizyair.image_utils import decode_data, encode_data
@@ -24,7 +24,8 @@ def get_task_result(task_id: str, offset: int = 0) -> dict:
     """
     import requests
 
-    url = f"https://uat-bizyair-api.siliconflow.cn/x/v1/bizy_task/{task_id}"
+    task_api = config_manager.get_task_api()
+    url = f"{BIZYAIR_SERVER_ADDRESS}/{task_api.task_result_endpoint}/{task_id}"
     response_json = send_request(
         method="GET", url=url, data=json.dumps({"offset": offset}).encode("utf-8")
     )
@@ -101,7 +102,6 @@ class BizyAirTask:
         pbar = None
         while not self.is_finished():
             try:
-                print(f"do_task_until_completed: {offset}")
                 data = self.send_request(offset)
                 data_lst = self._extract_data_list(data)
                 self.data_pool.extend(data_lst)
