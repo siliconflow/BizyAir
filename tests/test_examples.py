@@ -245,6 +245,5 @@ if __name__ == "__main__":
             os.path.join(base_path, "..", "examples", file),
             timeout=100,
         )
-        break
 
     driver.quit()
