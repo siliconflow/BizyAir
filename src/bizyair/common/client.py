@@ -56,7 +56,6 @@ def validate_api_key(api_key: str = None) -> bool:
     api_key_state.current_api_key = api_key
     url = f"{BIZYAIR_SERVER_ADDRESS}/user/info"
     headers = {"accept": "application/json", "authorization": f"Bearer {api_key}"}
-
     try:
         response_data = send_request(
             method="GET", url=url, headers=headers, callback=None
@@ -66,9 +65,15 @@ def validate_api_key(api_key: str = None) -> bool:
             print(f"\033[91mAPI key validation failed. API Key: {api_key}\033[0m")
         else:
             api_key_state.is_valid = True
+    except ConnectionError as ce:
+        api_key_state.is_valid = False
+        print(f"\033[91mConnection error: {ce}\033[0m")
+    except PermissionError as pe:
+        api_key_state.is_valid = False
+        print(f"\033[91mError validating API key: {api_key}, error: {pe}\033[0m")
     except Exception as e:
         api_key_state.is_valid = False
-        print(f"\033[91mError validating API key: {api_key}, error: {e}\033[0m")
+        print(f"\033[91mOther error: {e}\033[0m")
     return api_key_state.is_valid
 
 
