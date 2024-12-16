@@ -232,10 +232,9 @@ if __name__ == "__main__":
     print("\n".join(f"{key} -- {value}" for key, value in all_examples_json.items()))
     print("====================================")
     with open(os.path.join(base_path, "..", "time_taken.txt"), "a") as f:
-        f.write(f"| json文件 | 耗时 |\n|:--:|:--:|\n")
+        f.write(f"| title and file | timetaken |\n|:--:|:--:|\n")
     for title, file in all_examples_json.items():
         print(f"Running example: {title} - {file}")
-        # 将 title-file 续写入到 base_path/../time_taken.txt
         with open(os.path.join(base_path, "..", "time_taken.txt"), "a") as f:
             f.write(f"| {title} - {file} |")
         launch_prompt(
