@@ -207,6 +207,7 @@ class PromptServer(Command):
 
         if BIZYAIR_DEBUG:
             pprint.pprint({"out": truncate_long_strings(out, 50)}, indent=4)
+
         try:
             real_out = decode_data(out)
             return real_out[0]
