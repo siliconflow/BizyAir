@@ -3,6 +3,7 @@ from collections import deque
 from typing import Any, Dict, List
 
 from bizyair.common import client
+from bizyair.common.caching import BizyAirTaskCache, CacheConfig
 from bizyair.common.env_var import (
     BIZYAIR_DEBUG,
     BIZYAIR_DEV_REQUEST_URL,
@@ -83,6 +84,10 @@ class SearchServiceRouter(Processor):
 
 
 class PromptProcessor(Processor):
+    bizyair_task_cache = BizyAirTaskCache(
+        config=CacheConfig.from_config(config_manager.get_cache_config())
+    )
+
     def _exec_info(self, prompt: Dict[str, Dict[str, Any]]):
         exec_info = {
             "model_version_ids": [],

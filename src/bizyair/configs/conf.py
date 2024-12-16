@@ -93,6 +93,9 @@ class ConfigManager:
     def get_model_version_id_prefix(self):
         return self.model_rule_config["model_version_config"]["model_version_id_prefix"]
 
+    def get_cache_config(self):
+        return self.model_rule_config.get("cache_config", {})
+
 
 model_path_config = os.path.join(os.path.dirname(__file__), "models.json")
 model_rule_config = os.path.join(os.path.dirname(__file__), "models.yaml")

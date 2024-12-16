@@ -2,6 +2,14 @@
 model_version_config:
   model_version_id_prefix: "BIZYAIR_MODEL_VERSION_ID:"
 
+cache_config:
+  max_size: 100 # 100 items
+  expiration: 604800 # 7 days
+  cache_dir: ".bizyair_cache"
+  file_prefix: "bizyair_task_"
+  file_suffix: ".json"
+  use_cache: true
+
 
 model_hub:
   find_model:

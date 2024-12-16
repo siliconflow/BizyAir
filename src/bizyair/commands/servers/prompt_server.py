@@ -1,17 +1,144 @@
+import hashlib
 import json
 import pprint
+import time
 import traceback
+from dataclasses import dataclass, field
 from typing import Any, Dict, List
 
-from bizyair.common import BizyAirTask
+import comfy
+
+from bizyair.common.caching import BizyAirTaskCache, CacheConfig
+from bizyair.common.client import send_request
 from bizyair.common.env_var import BIZYAIR_DEBUG
 from bizyair.common.utils import truncate_long_strings
+from bizyair.configs.conf import config_manager
 from bizyair.image_utils import decode_data, encode_data
 
 from ..base import Command, Processor  # type: ignore
 
 
+def get_task_result(task_id: str, offset: int = 0) -> dict:
+    """
+    Get the result of a task.
+    """
+    import requests
+
+    url = f"https://uat-bizyair-api.siliconflow.cn/x/v1/bizy_task/{task_id}"
+    response_json = send_request(
+        method="GET", url=url, data=json.dumps({"offset": offset}).encode("utf-8")
+    )
+    out = response_json
+    events = out.get("data", {}).get("events", [])
+    new_events = []
+    for event in events:
+        if (
+            "data" in event
+            and isinstance(event["data"], str)
+            and event["data"].startswith("https://")
+        ):
+            event["data"] = requests.get(event["data"]).json()
+        new_events.append(event)
+    out["data"]["events"] = new_events
+    return out
+
+
+@dataclass
+class BizyAirTask:
+    TASK_DATA_STATUS = ["PENDING", "PROCESSING", "COMPLETED"]
+    task_id: str
+    data_pool: list[dict] = field(default_factory=list)
+    data_status: str = None
+
+    @staticmethod
+    def check_inputs(inputs: dict) -> bool:
+        return (
+            inputs.get("code") == 20000
+            and inputs.get("status", False)
+            and "task_id" in inputs.get("data", {})
+        )
+
+    @classmethod
+    def from_data(cls, inputs: dict, check_inputs: bool = True) -> "BizyAirTask":
+        if check_inputs and not cls.check_inputs(inputs):
+            raise ValueError(f"Invalid inputs: {inputs}")
+        data = inputs.get("data", {})
+        task_id = data.get("task_id", "")
+        return cls(task_id=task_id, data_pool=[], data_status="started")
+
+    def is_finished(self) -> bool:
+        if not self.data_pool:
+            return False
+        if self.data_pool[-1].get("data_status") == self.TASK_DATA_STATUS[-1]:
+            return True
+        return False
+
+    def send_request(self, offset: int = 0) -> dict:
+        if offset >= len(self.data_pool):
+            return get_task_result(self.task_id, offset)
+        else:
+            return self.data_pool[offset]
+
+    def get_data(self, offset: int = 0) -> dict:
+        if offset >= len(self.data_pool):
+            return {}
+        return self.data_pool[offset]
+
+    @staticmethod
+    def _fetch_remote_data(url: str) -> dict:
+        import requests
+
+        return requests.get(url).json()
+
+    def get_last_data(self) -> dict:
+        return self.get_data(len(self.data_pool) - 1)
+
+    def do_task_until_completed(
+        self, *, timeout: int = 480, poll_interval: float = 1
+    ) -> list[dict]:
+        offset = 0
+        start_time = time.time()
+        pbar = None
+        while not self.is_finished():
+            try:
+                print(f"do_task_until_completed: {offset}")
+                data = self.send_request(offset)
+                data_lst = self._extract_data_list(data)
+                self.data_pool.extend(data_lst)
+                offset += len(data_lst)
+                for data in data_lst:
+                    message = data.get("data", {}).get("message", {})
+                    if (
+                        isinstance(message, dict)
+                        and message.get("event", None) == "progress"
+                    ):
+                        value = message["data"]["value"]
+                        total = message["data"]["max"]
+                        if pbar is None:
+                            pbar = comfy.utils.ProgressBar(total)
+                        pbar.update_absolute(value + 1, total, None)
+            except Exception as e:
+                print(f"Exception: {e}")
+
+            if time.time() - start_time > timeout:
+                raise TimeoutError(f"Timeout waiting for task {self.task_id} to finish")
+
+            time.sleep(poll_interval)
+
+        return self.data_pool
+
+    def _extract_data_list(self, data):
+        data_lst = data.get("data", {}).get("events", [])
+        if not data_lst:
+            raise ValueError(f"No data found in task {self.task_id}")
+        return data_lst
+
+
 class PromptServer(Command):
+    cache_manager: BizyAirTaskCache = BizyAirTaskCache(
+        config=CacheConfig.from_config(config_manager.get_cache_config())
+    )
+
     def __init__(self, router: Processor, processor: Processor):
         self.router = router
         self.processor = processor
@@ -27,20 +154,24 @@ class PromptServer(Command):
             and "task_id" in result.get("data", {})
         )
 
-    def _get_result(self, result: Dict[str, Any]):
+    def _get_result(self, result: Dict[str, Any], *, cache_key: str = None):
         try:
             response_data = result["data"]
             if BizyAirTask.check_inputs(result):
+                self.cache_manager.set(cache_key, result)
                 bz_task = BizyAirTask.from_data(result, check_inputs=False)
                 bz_task.do_task_until_completed()
                 last_data = bz_task.get_last_data()
                 response_data = last_data.get("data")
             out = response_data["payload"]
+            assert out is not None
+            print(f"Setting cache for {cache_key} with out")
+            self.cache_manager.set(cache_key, out, overwrite=True)
             return out
         except Exception as e:
-            raise RuntimeError(
-                f'Unexpected error accessing result["data"]["payload"]. Result: {result}'
-            ) from e
+            print(f"Exception: {e}")
+            self.cache_manager.delete(cache_key)
+            raise e
 
     def execute(
         self,
@@ -61,20 +192,26 @@ class PromptServer(Command):
         if BIZYAIR_DEBUG:
             print(f"Generated URL: {url}")
 
-        result = self.processor(url, prompt=prompt, last_node_ids=last_node_ids)
+        start_time = time.time()
+        sh256 = hashlib.sha256(
+            json.dumps({"url": url, "prompt": prompt}).encode("utf-8")
+        ).hexdigest()
+        end_time = time.time()
+        print(f"Time taken to generate sh256-{sh256} : {end_time - start_time} seconds")
+        if self.cache_manager.get(sh256):
+            print(f"Cache hit for sh256-{sh256}")
+            out = self.cache_manager.get(sh256)
+        else:
+            result = self.processor(url, prompt=prompt, last_node_ids=last_node_ids)
+            out = self._get_result(result, cache_key=sh256)
+
         if BIZYAIR_DEBUG:
-            pprint.pprint({"result": truncate_long_strings(result, 50)}, indent=4)
-
-        if result is None:
-            raise RuntimeError("result is None")
-
-        out = self._get_result(result)
+            pprint.pprint({"out": truncate_long_strings(out, 50)}, indent=4)
         try:
-            if "error" in out:
-                raise RuntimeError(out["error"])
             real_out = decode_data(out)
             return real_out[0]
         except Exception as e:
             print("Exception occurred while decoding data")
+            self.cache_manager.delete(sh256)
             traceback.print_exc()
             raise RuntimeError(f"Exception: {e=}") from e
