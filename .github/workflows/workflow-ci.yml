@@ -102,21 +102,24 @@ jobs:
         BIZYAIR_API_KEY: ${{ secrets.BIZYAIR_KEY }}
         PYTHONPATH: ${{ github.workspace }}/ComfyUI
 
-    - name: Add PR review comment about the time taken to run the examples on Windows
-      if: matrix.os == 'windows-latest'
+    - name: Add PR review comment about the time taken to run the examples on Linux
+      if: matrix.os == 'ubuntu-latest'
       uses: actions/github-script@v4
       with:
         script: |
           const { pull_request } = context.payload;
+          # 从 time_taken.txt 文件中读取 comment
           const fs = require('fs');
           const timeTaken = fs.readFileSync('ComfyUI/custom_nodes/BizyAir/time_taken.txt', 'utf8');
-          const comment = `The time taken by running the examples on Windows: \n${timeTaken}`;
+          const comment = `The time taken by running the examples on Linux: \n${timeTaken}`;
           await github.issues.createComment({
             issue_number: pull_request.number,
             owner: context.repo.owner,
             repo: context.repo.repo,
             body: comment
           })
+
+
 
     - name: remove the time_taken.txt file
       run: |
@@ -136,16 +139,15 @@ jobs:
         BIZYAIR_API_KEY: ${{ secrets.BIZYAIR_KEY }}
         PYTHONPATH: ${{ github.workspace }}/ComfyUI
 
-    - name: Add PR review comment about the time taken to run the examples on Linux
-      if: matrix.os == 'ubuntu-latest'
+    - name: Add PR review comment about the time taken to run the examples on Windows
+      if: matrix.os == 'windows-latest'
       uses: actions/github-script@v4
       with:
         script: |
           const { pull_request } = context.payload;
-          # 从 time_taken.txt 文件中读取 comment
           const fs = require('fs');
           const timeTaken = fs.readFileSync('ComfyUI/custom_nodes/BizyAir/time_taken.txt', 'utf8');
-          const comment = `The time taken by running the examples on Linux: \n${timeTaken}`;
+          const comment = `The time taken by running the examples on Windows: \n${timeTaken}`;
           await github.issues.createComment({
             issue_number: pull_request.number,
             owner: context.repo.owner,
