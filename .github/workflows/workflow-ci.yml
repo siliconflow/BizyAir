@@ -117,7 +117,9 @@ jobs:
             repo: context.repo.repo,
             body: comment
           })
-      run:
+
+    - name: remove the time_taken.txt file
+      run: |
         rm ComfyUI/custom_nodes/BizyAir/time_taken.txt
 
     - name: Run ComfyUI on Windows
@@ -150,5 +152,7 @@ jobs:
             repo: context.repo.repo,
             body: comment
           })
-      run:
+
+    - name: remove the time_taken.txt file
+      run: |
         rm ComfyUI/custom_nodes/BizyAir/time_taken.txt
