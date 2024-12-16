@@ -61,7 +61,9 @@ class BizyAirTaskCache(CacheManager):
 
     def load_cache(self):
         cache_v_files = glob.glob(
-            os.path.join(self.cache_dir, f"{self.config.file_prefix}*.json")
+            os.path.join(
+                self.cache_dir, f"{self.config.file_prefix}*{self.config.file_suffix}"
+            )
         )
         output = OrderedDict()
         cache_datas = []

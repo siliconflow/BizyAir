@@ -164,14 +164,13 @@ class PromptServer(Command):
                 last_data = bz_task.get_last_data()
                 response_data = last_data.get("data")
             out = response_data["payload"]
-            assert out is not None
-            print(f"Setting cache for {cache_key} with out")
+            assert out is not None, "Output payload should not be None"
             self.cache_manager.set(cache_key, out, overwrite=True)
             return out
         except Exception as e:
-            print(f"Exception: {e}")
+            print(f"Exception occurred: {e}")
             self.cache_manager.delete(cache_key)
-            raise e
+            raise
 
     def execute(
         self,
@@ -182,13 +181,16 @@ class PromptServer(Command):
     ):
 
         prompt = encode_data(prompt)
+
         if BIZYAIR_DEBUG:
             debug_info = {
                 "prompt": truncate_long_strings(prompt, 50),
                 "last_node_ids": last_node_ids,
             }
             pprint.pprint(debug_info, indent=4)
+
         url = self.router(prompt=prompt, last_node_ids=last_node_ids)
+
         if BIZYAIR_DEBUG:
             print(f"Generated URL: {url}")
 
@@ -197,16 +199,23 @@ class PromptServer(Command):
             json.dumps({"url": url, "prompt": prompt}).encode("utf-8")
         ).hexdigest()
         end_time = time.time()
-        print(f"Time taken to generate sh256-{sh256} : {end_time - start_time} seconds")
-        if self.cache_manager.get(sh256):
-            print(f"Cache hit for sh256-{sh256}")
-            out = self.cache_manager.get(sh256)
+        if BIZYAIR_DEBUG:
+            print(
+                f"Time taken to generate sh256-{sh256}: {end_time - start_time} seconds"
+            )
+
+        cached_output = self.cache_manager.get(sh256)
+        if cached_output:
+            if BIZYAIR_DEBUG:
+                print(f"Cache hit for sh256-{sh256}")
+            out = cached_output
         else:
             result = self.processor(url, prompt=prompt, last_node_ids=last_node_ids)
             out = self._get_result(result, cache_key=sh256)
 
         if BIZYAIR_DEBUG:
             pprint.pprint({"out": truncate_long_strings(out, 50)}, indent=4)
+
         try:
             real_out = decode_data(out)
             return real_out[0]
