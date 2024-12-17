@@ -122,6 +122,7 @@ class BizyAirBaseNode:
 
     def default_function(self, **kwargs):
         class_type = self._determine_class_type()
+
         node_ios = self._process_non_send_request_types(class_type, kwargs)
         # TODO: add processing for send_request_types
         send_request_datatype_list = self._get_send_request_datatypes()

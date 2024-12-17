@@ -168,9 +168,8 @@ class PromptServer(Command):
             self.cache_manager.set(cache_key, out, overwrite=True)
             return out
         except Exception as e:
-            print(f"Exception occurred: {e}")
             self.cache_manager.delete(cache_key)
-            raise
+            raise RuntimeError(f"Exception: {e}, response_data: {response_data}") from e
 
     def execute(
         self,

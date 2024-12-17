@@ -10,15 +10,13 @@
         "FLUX ControlNet Depth": "bizyair-flux1-tools-depth.json",
         "FLUX Redux": "bizyair-flux1-tools-redux.json",
         "FLUX Fill": "bizyair-flux-fill1-inpaint.json",
-        "FLUX Detail Daemon Sampler": "bizyair_flux_detail_daemon_sampler.json"
+        "FLUX Detail Daemon Sampler": "bizyair_flux_detail_daemon_sampler.json",
+        "FLUX Upscale": "bizyair-flux1-upscale.json"
     },
     "ControlNet Union": {
         "Generate an image from a line drawing": "bizyair_showcase_interior_design.json",
         "Design a submarine like a great white shark": "bizyair_showcase_shark_submarine.json",
         "All types of ControlNet preprocessors": "bizyair_controlnet_preprocessor_workflow.json"
-    },
-    "SD15": {
-        "UltimateSDUpscale": "bizyair_ultimate_sd_upscale.json"
     },
     "SDXL": {
         "Text to Image by BizyAir KSampler": "bizyair_showcase_ksampler_txt2img.json",

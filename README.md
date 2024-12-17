@@ -1,4 +1,6 @@
 # BizyAir
+
+- [2024/12/17] 🌩️ BizyAir supports Flux Upscale Model. [FLUX Upscale](./examples/bizyair-flux1-upscale.json)
 - [2024/11/27] 🌩️ BizyAir supports Stable Diffusion 3.5 Large ControlNet Canny, Depth, and Blur. [ControlNet Canny](./examples/bizyair_sd3_5_canny.json) [ControlNet Depth](./examples/bizyair_sd3_5_depth.json) [ControlNet Blur](./examples/bizyair_sd3_5_blur.json)
 - [2024/11/22] 🌩️ BizyAir supports FLUX Fill, ControlNet and Redux modes. [canny](./examples/bizyair-flux1-tools-canny.json) [depth](./examples/bizyair-flux1-tools-depth.json) [fill](./examples/bizyair-flux-fill1-inpaint.json) [redux](./examples/bizyair-flux1-tools-redux.json)
 - [2024/11/06] 🌩️ BizyAir PixelWave Flux.1-dev Text to Image node is released. [PixelWave Flux.1-dev Text to Image](./examples/bizyair_flux_pixelwave_txt2img.json)
