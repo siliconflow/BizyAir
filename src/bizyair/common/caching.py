@@ -74,6 +74,9 @@ class BizyAirTaskCache(CacheManager):
                 ]
                 cache_key = file_name.split("-")[0]
                 cache_timestamp = file_name.split("-")[1]
+                if int(time.time()) - int(cache_timestamp) > self.config.expiration:
+                    self.delete_file(cache_file)
+                    continue
                 cache_datas.append(
                     {
                         "key": cache_key,

@@ -85,10 +85,6 @@ class SearchServiceRouter(Processor):
 
 
 class PromptProcessor(Processor):
-    bizyair_task_cache = BizyAirTaskCache(
-        config=CacheConfig.from_config(config_manager.get_cache_config())
-    )
-
     def _exec_info(self, prompt: Dict[str, Dict[str, Any]]):
         exec_info = {
             "model_version_ids": [],
