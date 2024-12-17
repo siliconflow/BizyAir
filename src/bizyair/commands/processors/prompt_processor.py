@@ -3,6 +3,7 @@ from collections import deque
 from typing import Any, Dict, List
 
 from bizyair.common import client
+from bizyair.common.caching import BizyAirTaskCache, CacheConfig
 from bizyair.common.env_var import (
     BIZYAIR_DEBUG,
     BIZYAIR_DEV_REQUEST_URL,
@@ -62,7 +63,8 @@ class SearchServiceRouter(Processor):
 
         base_model, out_route, out_score = None, None, None
         for rule in results[::-1]:
-            if rule.mode_type in {"unet", "vae", "checkpoint"}:
+            # TODO add to config models.yaml
+            if rule.mode_type in {"unet", "vae", "checkpoint", "upscale_models"}:
                 base_model = rule.base_model
                 out_route = rule.route
                 out_score = rule.score
