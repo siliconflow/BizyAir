@@ -24,7 +24,7 @@ model_types:
 
 task_api:
   # Base URL for task-related API calls
-  task_result_endpoint: bizy_task
+  task_result_endpoint: /bizy_task
 
 
 model_rules:

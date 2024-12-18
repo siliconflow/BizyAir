@@ -10,7 +10,11 @@ import comfy
 
 from bizyair.common.caching import BizyAirTaskCache, CacheConfig
 from bizyair.common.client import send_request
-from bizyair.common.env_var import BIZYAIR_DEBUG, BIZYAIR_SERVER_ADDRESS
+from bizyair.common.env_var import (
+    BIZYAIR_DEBUG,
+    BIZYAIR_DEV_GET_TASK_RESULT_SERVER,
+    BIZYAIR_SERVER_ADDRESS,
+)
 from bizyair.common.utils import truncate_long_strings
 from bizyair.configs.conf import config_manager
 from bizyair.image_utils import decode_data, encode_data
@@ -25,7 +29,13 @@ def get_task_result(task_id: str, offset: int = 0) -> dict:
     import requests
 
     task_api = config_manager.get_task_api()
-    url = f"{BIZYAIR_SERVER_ADDRESS}/{task_api.task_result_endpoint}/{task_id}"
+    if BIZYAIR_DEV_GET_TASK_RESULT_SERVER:
+        url = f"{BIZYAIR_DEV_GET_TASK_RESULT_SERVER}{task_api.task_result_endpoint}/{task_id}"
+    else:
+        url = f"{BIZYAIR_SERVER_ADDRESS}{task_api.task_result_endpoint}/{task_id}"
+
+    if BIZYAIR_DEBUG:
+        print(f"Debug: get task result url: {url}")
     response_json = send_request(
         method="GET", url=url, data=json.dumps({"offset": offset}).encode("utf-8")
     )
