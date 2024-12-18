@@ -2,7 +2,7 @@ import json
 from collections import deque
 from typing import Any, Dict, List
 
-from bizyair.common import client
+from bizyair.common import client, get_api_key
 from bizyair.common.caching import BizyAirTaskCache, CacheConfig
 from bizyair.common.env_var import (
     BIZYAIR_DEBUG,
@@ -88,7 +88,9 @@ class PromptProcessor(Processor):
     def _exec_info(self, prompt: Dict[str, Dict[str, Any]]):
         exec_info = {
             "model_version_ids": [],
+            "api_key": get_api_key(),
         }
+
         model_version_id_prefix = config_manager.get_model_version_id_prefix()
         for node_id, node_data in prompt.items():
             for k, v in node_data.get("inputs", {}).items():
