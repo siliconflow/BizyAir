@@ -1,17 +1,46 @@
 {
-  "last_node_id": 13,
-  "last_link_id": 12,
+  "last_node_id": 17,
+  "last_link_id": 16,
   "nodes": [
+    {
+      "id": 13,
+      "type": "PreviewImage",
+      "pos": [
+        857,
+        397
+      ],
+      "size": [
+        224.4704132080078,
+        246
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 12,
+          "label": "images"
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": [],
+      "shape": 1
+    },
     {
       "id": 7,
       "type": "BizyAir_LoadImageURL",
-      "pos": {
-        "0": 430,
-        "1": 397
-      },
+      "pos": [
+        430,
+        397
+      ],
       "size": [
-        413.22141513120516,
-        233.04265353118785
+        413.2214050292969,
+        233.0426483154297
       ],
       "flags": {},
       "order": 0,
@@ -23,7 +52,8 @@
           "type": "IMAGE",
           "links": [
             5,
-            12
+            12,
+            13
           ],
           "slot_index": 0,
           "shape": 3,
@@ -46,43 +76,15 @@
       "shape": 1
     },
     {
-      "id": 13,
-      "type": "PreviewImage",
-      "pos": {
-        "0": 857,
-        "1": 397
-      },
-      "size": [
-        224.47041513120507,
-        235.70465353118777
-      ],
-      "flags": {},
-      "order": 2,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "images",
-          "type": "IMAGE",
-          "link": 12,
-          "label": "images"
-        }
-      ],
-      "outputs": [],
-      "properties": {
-        "Node name for S&R": "PreviewImage"
-      },
-      "shape": 1
-    },
-    {
       "id": 1,
       "type": "BizyAirSegmentAnythingText",
-      "pos": {
-        "0": 1127,
-        "1": 402
-      },
+      "pos": [
+        1127,
+        402
+      ],
       "size": [
-        320.49541513120494,
-        240.02165353118778
+        320.49542236328125,
+        240.0216522216797
       ],
       "flags": {},
       "order": 1,
@@ -130,16 +132,16 @@
     {
       "id": 3,
       "type": "PreviewImage",
-      "pos": {
-        "0": 1488,
-        "1": 386
-      },
+      "pos": [
+        1488,
+        386
+      ],
       "size": [
-        219.040415131205,
-        256.0216535311878
+        219.04042053222656,
+        256.02166748046875
       ],
       "flags": {},
-      "order": 3,
+      "order": 4,
       "mode": 0,
       "inputs": [
         {
@@ -153,49 +155,24 @@
       "properties": {
         "Node name for S&R": "PreviewImage"
       },
-      "shape": 1
-    },
-    {
-      "id": 12,
-      "type": "PreviewImage",
-      "pos": {
-        "0": 1766,
-        "1": 389
-      },
-      "size": [
-        225.06541513120465,
-        252.69765353118783
-      ],
-      "flags": {},
-      "order": 5,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "images",
-          "type": "IMAGE",
-          "link": 10,
-          "label": "images"
-        }
-      ],
-      "outputs": [],
-      "properties": {
-        "Node name for S&R": "PreviewImage"
-      },
+      "widgets_values": [],
       "shape": 1
     },
     {
       "id": 11,
       "type": "MaskToImage",
-      "pos": {
-        "0": 1611,
-        "1": 593
+      "pos": [
+        1801.63818359375,
+        406.56793212890625
+      ],
+      "size": [
+        264.5999755859375,
+        26
+      ],
+      "flags": {
+        "collapsed": true
       },
-      "size": {
-        "0": 264.5999755859375,
-        "1": 26
-      },
-      "flags": {},
-      "order": 4,
+      "order": 5,
       "mode": 0,
       "inputs": [
         {
@@ -219,6 +196,187 @@
       ],
       "properties": {
         "Node name for S&R": "MaskToImage"
+      },
+      "widgets_values": [],
+      "shape": 1
+    },
+    {
+      "id": 12,
+      "type": "PreviewImage",
+      "pos": [
+        1766,
+        389
+      ],
+      "size": [
+        225.06541442871094,
+        252.69764709472656
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 10,
+          "label": "images"
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": [],
+      "shape": 1
+    },
+    {
+      "id": 17,
+      "type": "MaskToImage",
+      "pos": [
+        1810.074462890625,
+        743.1146240234375
+      ],
+      "size": [
+        165.14813232421875,
+        26
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "mask",
+          "type": "MASK",
+          "link": 15
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            16
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "MaskToImage"
+      }
+    },
+    {
+      "id": 16,
+      "type": "PreviewImage",
+      "pos": [
+        1768.5404052734375,
+        769.456787109375
+      ],
+      "size": [
+        219.04042053222656,
+        256.02166748046875
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 16,
+          "label": "images"
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "shape": 1
+    },
+    {
+      "id": 14,
+      "type": "BizyAir_SegmentAnythingUltraV2",
+      "pos": [
+        987.3150024414062,
+        756.0431518554688
+      ],
+      "size": [
+        445.20001220703125,
+        366
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 13
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            14
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "mask",
+          "type": "MASK",
+          "links": [
+            15
+          ],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_SegmentAnythingUltraV2"
+      },
+      "widgets_values": [
+        "sam_vit_h (2.56GB)",
+        "GroundingDINO_SwinT_OGC (694MB)",
+        0.3,
+        "VITMatte",
+        6,
+        6,
+        0.15,
+        0.99,
+        true,
+        "hat",
+        "cuda",
+        2,
+        true
+      ]
+    },
+    {
+      "id": 15,
+      "type": "PreviewImage",
+      "pos": [
+        1485.429443359375,
+        758.4035034179688
+      ],
+      "size": [
+        219.04042053222656,
+        256.02166748046875
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 14,
+          "label": "images"
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
       },
       "shape": 1
     }
@@ -263,10 +421,43 @@
       13,
       0,
       "IMAGE"
+    ],
+    [
+      13,
+      7,
+      0,
+      14,
+      0,
+      "IMAGE"
+    ],
+    [
+      14,
+      14,
+      0,
+      15,
+      0,
+      "IMAGE"
+    ],
+    [
+      15,
+      14,
+      1,
+      17,
+      0,
+      "MASK"
+    ],
+    [
+      16,
+      17,
+      0,
+      16,
+      0,
+      "IMAGE"
     ]
   ],
   "groups": [
     {
+      "id": 1,
       "title": "抠图结果",
       "bounding": [
         1466,
@@ -279,6 +470,7 @@
       "flags": {}
     },
     {
+      "id": 2,
       "title": "输入图片",
       "bounding": [
         421,
@@ -291,6 +483,7 @@
       "flags": {}
     },
     {
+      "id": 3,
       "title": "根据文本抠图",
       "bounding": [
         1108,
@@ -301,15 +494,41 @@
       "color": "#A88",
       "font_size": 24,
       "flags": {}
+    },
+    {
+      "id": 4,
+      "title": "sam2",
+      "bounding": [
+        959.9746704101562,
+        662.5064697265625,
+        503.2841796875,
+        485.7703552246094
+      ],
+      "color": "#3f789e",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "id": 5,
+      "title": "sam2_结果",
+      "bounding": [
+        1468.6373291015625,
+        663.3507690429688,
+        550.0598754882812,
+        481.46160888671875
+      ],
+      "color": "#3f789e",
+      "font_size": 24,
+      "flags": {}
     }
   ],
   "config": {},
   "extra": {
     "ds": {
-      "scale": 0.751314800901578,
+      "scale": 0.6934334949441332,
       "offset": [
-        -396.00541513120527,
-        -96.31165353118799
+        118.22252930109107,
+        7.568472086861107
       ]
     }
   },

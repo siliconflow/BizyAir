@@ -1,6 +1,7 @@
 from .nodes_advanced_refluxcontrol import *
 from .nodes_comfyui_detail_daemon import *
 from .nodes_comfyui_instantid import *
+from .nodes_comfyui_layerstyle_advance import *
 from .nodes_comfyui_pulid_flux import *
 from .nodes_controlnet import *
 from .nodes_custom_sampler import *
