@@ -154,4 +154,6 @@ class BizyAirBaseNode:
         return tuple(outs)
 
     def _process_all_send_request_types(self, node_ios: List[BizyAirNodeIO]):
-        return node_ios[0].send_request()
+        out = node_ios[0].send_request()
+        assert len(out) == len(self.RETURN_TYPES)
+        return out

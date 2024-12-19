@@ -267,3 +267,10 @@ model_rules:
     route: /bizy_task/bizyair-flux1-dev-fp8-async
     nodes:
       - class_type: UltimateSDUpscale
+  - mode_type: sams 
+    base_model: SAM
+    describe: SAM
+    score: 1
+    route: /bizy_task/bizyair-sam
+    nodes:
+      - class_type: 'LayerMask: SegmentAnythingUltra V2'

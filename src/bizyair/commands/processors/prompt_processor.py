@@ -61,7 +61,7 @@ class SearchServiceRouter(Processor):
                         visited[neighbor] = True
                         queue.append(neighbor)
 
-        base_model, out_route, out_score = None, None, None
+        base_model, out_route, out_score = None, None, 0
         for rule in results[::-1]:
             # TODO add to config models.yaml
             if rule.mode_type in {"unet", "vae", "checkpoint", "upscale_models"}:
@@ -71,10 +71,13 @@ class SearchServiceRouter(Processor):
                 break
 
         for rule in results:
-            if rule.base_model == base_model:
+            if base_model is None: 
                 if rule.score > out_score:
                     out_route, out_score = rule.route, rule.score
-
+            if  rule.base_model == base_model:
+                if rule.score > out_score:
+                    out_route, out_score = rule.route, rule.score
+        
         return f"{BIZYAIR_SERVER_ADDRESS}{out_route}"
 
     def validate_input(

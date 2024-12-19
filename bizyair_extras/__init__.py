@@ -15,3 +15,4 @@ from .nodes_sd3 import *
 from .nodes_testing_utils import *
 from .nodes_ultimatesdupscale import *
 from .nodes_upscale_model import *
+from .nodes_comfyui_layerstyle_advance import *
