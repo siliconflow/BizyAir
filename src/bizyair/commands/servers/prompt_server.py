@@ -228,7 +228,7 @@ class PromptServer(Command):
 
         try:
             real_out = decode_data(out)
-            return real_out[0]
+            return [x[0] for x in real_out]
         except Exception as e:
             print("Exception occurred while decoding data")
             self.cache_manager.delete(sh256)
