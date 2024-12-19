@@ -1,6 +1,7 @@
 from bizyair import BizyAirBaseNode
+
 # layerstyle advance
-NODE_NAME = 'SegmentAnythingUltra V2'
+NODE_NAME = "SegmentAnythingUltra V2"
 sam_model_dir_name = "sams"
 sam_model_list = {
     "sam_vit_h (2.56GB)": {
@@ -39,7 +40,6 @@ groundingdino_model_list = {
 }
 
 
-
 def list_sam_model():
     return list(sam_model_list.keys())
 
@@ -48,11 +48,11 @@ def list_groundingdino_model():
     return list(groundingdino_model_list.keys())
 
 
-
 class SegmentAnythingUltraV2(BizyAirBaseNode):
 
     CLASS_TYPE_NAME = "LayerMask: SegmentAnythingUltra V2"
     NODE_DISPLAY_NAME = "LayerMask: SegmentAnythingUltra V2(Advance)"
+
     def __init__(self):
         self.SAM_MODEL = None
         self.DINO_MODEL = None
@@ -63,33 +63,74 @@ class SegmentAnythingUltraV2(BizyAirBaseNode):
     @classmethod
     def INPUT_TYPES(cls):
 
-        method_list = ['VITMatte', 'VITMatte(local)', 'PyMatting', 'GuidedFilter', ]
-        device_list = ['cuda']
+        method_list = [
+            "VITMatte",
+            "VITMatte(local)",
+            "PyMatting",
+            "GuidedFilter",
+        ]
+        device_list = ["cuda"]
         return {
             "required": {
                 "image": ("IMAGE",),
-                "sam_model": (list_sam_model(), ),
+                "sam_model": (list_sam_model(),),
                 "grounding_dino_model": (list_groundingdino_model(),),
-                "threshold": ("FLOAT", {"default": 0.3, "min": 0, "max": 1.0, "step": 0.01}),
+                "threshold": (
+                    "FLOAT",
+                    {"default": 0.3, "min": 0, "max": 1.0, "step": 0.01},
+                ),
                 "detail_method": (method_list,),
-                "detail_erode": ("INT", {"default": 6, "min": 1, "max": 255, "step": 1}),
-                "detail_dilate": ("INT", {"default": 6, "min": 1, "max": 255, "step": 1}),
-                "black_point": ("FLOAT", {"default": 0.15, "min": 0.01, "max": 0.98, "step": 0.01, "display": "slider"}),
-                "white_point": ("FLOAT", {"default": 0.99, "min": 0.02, "max": 0.99, "step": 0.01, "display": "slider"}),
+                "detail_erode": (
+                    "INT",
+                    {"default": 6, "min": 1, "max": 255, "step": 1},
+                ),
+                "detail_dilate": (
+                    "INT",
+                    {"default": 6, "min": 1, "max": 255, "step": 1},
+                ),
+                "black_point": (
+                    "FLOAT",
+                    {
+                        "default": 0.15,
+                        "min": 0.01,
+                        "max": 0.98,
+                        "step": 0.01,
+                        "display": "slider",
+                    },
+                ),
+                "white_point": (
+                    "FLOAT",
+                    {
+                        "default": 0.99,
+                        "min": 0.02,
+                        "max": 0.99,
+                        "step": 0.01,
+                        "display": "slider",
+                    },
+                ),
                 "process_detail": ("BOOLEAN", {"default": True}),
                 "prompt": ("STRING", {"default": "subject"}),
                 "device": (device_list,),
-                "max_megapixels": ("FLOAT", {"default": 2.0, "min": 1, "max": 999, "step": 0.1}),
+                "max_megapixels": (
+                    "FLOAT",
+                    {"default": 2.0, "min": 1, "max": 999, "step": 0.1},
+                ),
                 "cache_model": ("BOOLEAN", {"default": True}),
             },
-            "optional": {
-            }
+            "optional": {},
         }
 
-    RETURN_TYPES = ("IMAGE", "MASK", )
-    RETURN_NAMES = ("image", "mask", )
+    RETURN_TYPES = (
+        "IMAGE",
+        "MASK",
+    )
+    RETURN_NAMES = (
+        "image",
+        "mask",
+    )
     # FUNCTION = "segment_anything_ultra_v2"
-    CATEGORY = '😺dzNodes/LayerMask'
+    CATEGORY = "😺dzNodes/LayerMask"
+
 
 NODE_CLASS_MAPPINGS = {
     "LayerMask: SegmentAnythingUltra V2": SegmentAnythingUltraV2,

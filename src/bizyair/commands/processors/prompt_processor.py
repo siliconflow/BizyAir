@@ -71,13 +71,13 @@ class SearchServiceRouter(Processor):
                 break
 
         for rule in results:
-            if base_model is None: 
+            if base_model is None:
                 if rule.score > out_score:
                     out_route, out_score = rule.route, rule.score
-            if  rule.base_model == base_model:
+            if rule.base_model == base_model:
                 if rule.score > out_score:
                     out_route, out_score = rule.route, rule.score
-        
+
         return f"{BIZYAIR_SERVER_ADDRESS}{out_route}"
 
     def validate_input(
