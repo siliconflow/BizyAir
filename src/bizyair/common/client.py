@@ -1,11 +1,18 @@
-import asyncio
+import hashlib
 import json
 import pprint
+import time
 import urllib.error
 import urllib.request
 import warnings
+from abc import ABC, abstractmethod
+from collections import defaultdict
+from typing import Any, Union
 
 import aiohttp
+import comfy
+
+from bizyair.common.caching import CacheManager
 
 __all__ = ["send_request"]
 
@@ -111,8 +118,10 @@ def send_request(
     data: bytes = None,
     verbose=False,
     callback: callable = process_response_data,
+    response_handler: callable = json.loads,
+    cache_manager: CacheManager = None,
     **kwargs,
-) -> dict:
+) -> Union[dict, Any]:
     try:
         headers = kwargs.pop("headers") if "headers" in kwargs else _headers()
         headers["User-Agent"] = "BizyAir Client"
@@ -138,9 +147,11 @@ def send_request(
                 + "Also, verify your network settings and disable any proxies if necessary.\n"
                 + "After checking, please restart the ComfyUI service."
             )
+    if response_handler:
+        response_data = response_handler(response_data)
     if callback:
-        return callback(json.loads(response_data))
-    return json.loads(response_data)
+        return callback(response_data)
+    return response_data
 
 
 async def async_send_request(

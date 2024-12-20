@@ -2,7 +2,8 @@ import json
 from collections import deque
 from typing import Any, Dict, List
 
-from bizyair.common import client
+from bizyair.common import client, get_api_key
+from bizyair.common.caching import BizyAirTaskCache, CacheConfig
 from bizyair.common.env_var import (
     BIZYAIR_DEBUG,
     BIZYAIR_DEV_REQUEST_URL,
@@ -60,15 +61,19 @@ class SearchServiceRouter(Processor):
                         visited[neighbor] = True
                         queue.append(neighbor)
 
-        base_model, out_route, out_score = None, None, None
+        base_model, out_route, out_score = None, None, 0
         for rule in results[::-1]:
-            if rule.mode_type in {"unet", "vae", "checkpoint"}:
+            # TODO add to config models.yaml
+            if rule.mode_type in {"unet", "vae", "checkpoint", "upscale_models"}:
                 base_model = rule.base_model
                 out_route = rule.route
                 out_score = rule.score
                 break
 
         for rule in results:
+            if base_model is None:
+                if rule.score > out_score:
+                    out_route, out_score = rule.route, rule.score
             if rule.base_model == base_model:
                 if rule.score > out_score:
                     out_route, out_score = rule.route, rule.score
@@ -86,7 +91,9 @@ class PromptProcessor(Processor):
     def _exec_info(self, prompt: Dict[str, Dict[str, Any]]):
         exec_info = {
             "model_version_ids": [],
+            "api_key": get_api_key(),
         }
+
         model_version_id_prefix = config_manager.get_model_version_id_prefix()
         for node_id, node_data in prompt.items():
             for k, v in node_data.get("inputs", {}).items():

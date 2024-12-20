@@ -77,7 +77,8 @@ def guess_url_from_node(
     out = [
         rule
         for rule in rules
-        if all(
+        if len(rule.inputs) == 0
+        or all(
             any(re.search(p, node["inputs"][key]) is not None for p in patterns)
             for key, patterns in rule.inputs.items()
         )

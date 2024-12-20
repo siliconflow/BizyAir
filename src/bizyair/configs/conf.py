@@ -17,6 +17,11 @@ class ModelRule:
     inputs: dict
 
 
+@dataclass
+class TaskApi:
+    task_result_endpoint: str
+
+
 class ModelRuleManager:
     def __init__(self, model_rules: list[dict]):
         self.model_rules = model_rules
@@ -57,7 +62,7 @@ class ModelRuleManager:
                 score=self.model_rules[idx_1]["score"],
                 route=self.model_rules[idx_1]["route"],
                 class_type=class_type,
-                inputs=self.model_rules[idx_1]["nodes"][idx_2]["inputs"],
+                inputs=self.model_rules[idx_1]["nodes"][idx_2].get("inputs", {}),
             )
             for idx_1, idx_2 in rule_indexes
         ]
@@ -92,6 +97,12 @@ class ConfigManager:
 
     def get_model_version_id_prefix(self):
         return self.model_rule_config["model_version_config"]["model_version_id_prefix"]
+
+    def get_cache_config(self):
+        return self.model_rule_config.get("cache_config", {})
+
+    def get_task_api(self):
+        return TaskApi(**self.model_rule_config["task_api"])
 
 
 model_path_config = os.path.join(os.path.dirname(__file__), "models.json")

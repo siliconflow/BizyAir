@@ -11,7 +11,6 @@ from server import PromptServer
 from .api_client import APIClient
 from .errno import ErrorNo, errnos
 from .error_handler import ErrorHandler
-from .oss import AliOssStorageClient
 from .resp import ErrResponse, OKResponse
 from .utils import base_model_types, check_str_param, check_type, is_string_valid, types
 
@@ -127,7 +126,7 @@ class BizyAirServer:
             commit_data, err = await self.api_client.commit_file(
                 signature=sha256sum, object_key=object_key, md5_hash=md5_hash
             )
-            print("commit_data", commit_data)
+            # print("commit_data", commit_data)
             if err is not None:
                 return ErrResponse(err)
 
@@ -187,7 +186,7 @@ class BizyAirServer:
             if err:
                 return ErrResponse(err)
 
-            print("resp------------------------------->", json_data, resp)
+            # print("resp------------------------------->", json_data, resp)
             # 开启线程检查同步状态
             threading.Thread(
                 target=self.check_sync_status,
@@ -392,60 +391,6 @@ class BizyAirServer:
                     f"\033[31m[BizyAir]\033[0m Fail to toggle like model version: {str(e)}"
                 )
                 return ErrResponse(errnos.TOGGLE_USER_LIKE)
-
-        @self.prompt_server.routes.post(f"/{COMMUNITY_API}/files/upload")
-        async def upload_file(request):
-            try:
-                # 获取上传的文件
-                reader = await request.multipart()
-                field = await reader.next()
-                if not field or field.name != "file":
-                    return ErrResponse(errnos.NO_FILE_UPLOAD)
-
-                filename = field.filename
-                if not filename:
-                    return ErrResponse(errnos.NO_FILE_UPLOAD)
-
-                # 读取文件内容
-                file_content = await field.read(decode=False)
-
-                filename = urllib.parse.quote(filename)
-                # 获取上传凭证
-                ret, err = await self.api_client.get_upload_token(filename=filename)
-                if err:
-                    return ErrResponse(err)
-
-                # 解析返回的凭证信息
-                file_info = ret["file"]
-                storage_info = ret["storage"]
-
-                def updateProgress(consume_bytes, total_bytes):
-                    # do nothing
-                    pass
-
-                oss_client = AliOssStorageClient(
-                    endpoint=storage_info.get("endpoint"),
-                    bucket_name=storage_info.get("bucket"),
-                    access_key=file_info.get("access_key_id"),
-                    secret_key=file_info.get("access_key_secret"),
-                    security_token=file_info.get("security_token"),
-                    onUploading=updateProgress,
-                    onInterrupted=None,
-                )
-                await oss_client.upload_file_content(
-                    file_content=file_content,
-                    file_name=filename,
-                    object_name=file_info.get("object_key"),
-                )
-                return OKResponse(
-                    {
-                        "url": f'https://{storage_info.get("bucket")}.{storage_info.get("endpoint")}/{file_info.get("object_key")}'
-                    }
-                )
-
-            except Exception as e:
-                print(f"\033[31m[BizyAir]\033[0m Fail to upload file: {str(e)}")
-                return ErrResponse(errnos.UPLOAD)
 
         @self.prompt_server.routes.get(
             f"/{COMMUNITY_API}/models/versions/{{model_version_id}}/workflow_json/{{sign}}"

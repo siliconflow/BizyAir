@@ -92,3 +92,6 @@ BIZYAIR_API_KEY = env("BIZYAIR_API_KEY", str, load_api_key()[1])
 # Development Settings
 BIZYAIR_DEV_REQUEST_URL = env("BIZYAIR_DEV_REQUEST_URL", str, None)
 BIZYAIR_DEBUG = env("BIZYAIR_DEBUG", bool, False)
+BIZYAIR_DEV_GET_TASK_RESULT_SERVER = env(
+    "BIZYAIR_DEV_GET_TASK_RESULT_SERVER", str, None
+)

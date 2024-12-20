@@ -1,6 +1,1 @@
-oss2
-crcmod
 requests
-aiofiles
-aliyun-python-sdk-core
-aliyun-python-sdk-kms
