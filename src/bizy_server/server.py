@@ -94,6 +94,19 @@ class BizyAirServer:
 
             return OKResponse(sign_data)
 
+        @self.prompt_server.routes.get(f"/{COMMUNITY_API}/upload_token")
+        async def upload_token(request):
+            filename = request.rel_url.query.get("filename", "")
+            # 校验filename
+            if not is_string_valid(filename):
+                return ErrResponse(errnos.INVALID_FILENAME)
+
+            filename = urllib.parse.quote(filename)
+            token, err = await self.api_client.get_upload_token(filename=filename)
+            if err is not None:
+                return ErrResponse(err)
+            return OKResponse(token)
+
         @self.prompt_server.routes.post(f"/{COMMUNITY_API}/commit_file")
         async def commit_file(request):
             json_data = await request.json()
@@ -399,23 +412,7 @@ class BizyAirServer:
             if err:
                 return ErrResponse(err)
 
-            try:
-                async with aiohttp.ClientSession() as session:
-                    async with session.get(url) as response:
-                        if response.status != 200:
-                            return ErrResponse(
-                                ErrorNo(
-                                    response.status,
-                                    response.status,
-                                    None,
-                                    "Failed to download JSON",
-                                )
-                            )
-                        json_content = await response.json()
-                return OKResponse(json_content)
-            except Exception as e:
-                print(f"\033[31m[BizyAir]\033[0m Fail to download JSON: {str(e)}")
-                return ErrResponse(errnos.DOWNLOAD_JSON)
+            return OKResponse(url)
 
         @self.prompt_server.routes.get(f"/{MODEL_HOST_API}" + "/{shareId}/models/files")
         async def list_share_model_files(request):
