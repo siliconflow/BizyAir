@@ -95,18 +95,14 @@ class BizyAirServer:
 
             return OKResponse(sign_data)
 
-        @self.prompt_server.routes.post(f"/{COMMUNITY_API}/upload_token")
+        @self.prompt_server.routes.get(f"/{COMMUNITY_API}/upload_token")
         async def upload_token(request):
-            json_data = await request.json()
-
+            filename = request.rel_url.query.get("filename", "")
             # 校验filename
-            err = check_str_param(json_data, "filename", errnos.INVALID_FILENAME)
-            if err is not None:
-                return err
+            if not is_string_valid(filename):
+                return ErrResponse(errnos.INVALID_FILENAME)
 
-            filename = json_data.get("filename")
             filename = urllib.parse.quote(filename)
-
             token, err = await self.api_client.get_upload_token(filename=filename)
             if err is not None:
                 return ErrResponse(err)
