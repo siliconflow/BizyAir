@@ -126,7 +126,7 @@ class APIClient:
             return None, errnos.SIGN_FILE
 
     async def commit_file(
-        self, signature: str, object_key: str, md5_hash: str
+        self, signature: str, object_key: str, md5_hash: str, type: str
     ) -> tuple[dict | None, ErrorNo | None]:
         server_url = f"{BIZYAIR_SERVER_ADDRESS}/files"
 
@@ -134,6 +134,7 @@ class APIClient:
             "sign": signature,
             "object_key": object_key,
             "md5_hash": md5_hash,
+            "type": type
         }
         headers, err = self.auth_header()
         if err is not None:

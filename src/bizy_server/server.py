@@ -106,12 +106,16 @@ class BizyAirServer:
                 return ErrResponse(errnos.INVALID_OBJECT_KEY)
             object_key = json_data.get("object_key")
 
+            if "type" not in json_data:
+                return ErrResponse(errnos.INVALID_TYPE)
+            type = json_data.get("type")
+
             md5_hash = ""
             if "md5_hash" in json_data:
                 md5_hash = json_data.get("md5_hash")
 
             commit_data, err = await self.api_client.commit_file(
-                signature=sha256sum, object_key=object_key, md5_hash=md5_hash
+                signature=sha256sum, object_key=object_key, md5_hash=md5_hash, type=type
             )
             # print("commit_data", commit_data)
             if err is not None:
