@@ -134,7 +134,7 @@ class APIClient:
             "sign": signature,
             "object_key": object_key,
             "md5_hash": md5_hash,
-            "type": type
+            "type": type,
         }
         headers, err = self.auth_header()
         if err is not None:
