@@ -84,11 +84,14 @@ class BizyAirServer:
         @self.prompt_server.routes.get(f"/{COMMUNITY_API}/sign")
         async def sign(request):
             sha256sum = request.rel_url.query.get("sha256sum")
-
             if not is_string_valid(sha256sum):
                 return ErrResponse(errnos.EMPTY_SHA256SUM)
 
-            sign_data, err = await self.api_client.sign(sha256sum)
+            type = request.rel_url.query.get("type")
+            if not is_string_valid(type):
+                return ErrResponse(errnos.INVALID_TYPE)
+
+            sign_data, err = await self.api_client.sign(sha256sum, type)
             if err is not None:
                 return ErrResponse(err)
 
