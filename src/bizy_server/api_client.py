@@ -108,7 +108,9 @@ class APIClient:
             print(f"\033[31m[BizyAir]\033[0m Fail to get user info: {str(e)}")
             return None, errnos.GET_USER_INFO
 
-    async def sign(self, signature: str, type: str) -> tuple[dict | None, ErrorNo | None]:
+    async def sign(
+        self, signature: str, type: str
+    ) -> tuple[dict | None, ErrorNo | None]:
         server_url = f"{BIZYAIR_SERVER_ADDRESS}/files/{signature}/{type}"
         headers, err = self.auth_header()
         if err is not None:
