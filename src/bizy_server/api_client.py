@@ -9,6 +9,7 @@ from bizyair.common.env_var import BIZYAIR_SERVER_ADDRESS
 
 from .errno import ErrorNo, errnos
 from .error_handler import ErrorHandler
+from .utils import is_string_valid
 
 CLIENT_VERSION = "v20241029"
 
@@ -111,13 +112,17 @@ class APIClient:
     async def sign(
         self, signature: str, type: str
     ) -> tuple[dict | None, ErrorNo | None]:
-        server_url = f"{BIZYAIR_SERVER_ADDRESS}/files/{signature}/{type}"
+        server_url = f"{BIZYAIR_SERVER_ADDRESS}/files/{signature}"
+        params = None
+        if is_string_valid(type):
+            params = {"type": type}
+
         headers, err = self.auth_header()
         if err is not None:
             return None, err
 
         try:
-            ret, err = await self.do_get(server_url, params=None, headers=headers)
+            ret, err = await self.do_get(server_url, params=params, headers=headers)
             if err is not None:
                 return None, err
 

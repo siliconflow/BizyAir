@@ -88,8 +88,6 @@ class BizyAirServer:
                 return ErrResponse(errnos.EMPTY_SHA256SUM)
 
             type = request.rel_url.query.get("type")
-            if not is_string_valid(type):
-                return ErrResponse(errnos.INVALID_TYPE)
 
             sign_data, err = await self.api_client.sign(sha256sum, type)
             if err is not None:
