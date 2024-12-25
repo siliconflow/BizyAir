@@ -252,7 +252,7 @@ class BizyAirServer:
                     model_types=model_types,
                     base_models=base_models,
                     sort=sort,
-                    is_official=True
+                    is_official=True,
                 )
             if err:
                 return ErrResponse(err)
