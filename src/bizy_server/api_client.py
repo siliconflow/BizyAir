@@ -196,6 +196,7 @@ class APIClient:
         model_types: list[str] = None,
         base_models: list[str] = None,
         sort: str = None,
+        is_official: bool = False,
     ) -> tuple[dict | None, ErrorNo | None]:
         server_url = f"{BIZYAIR_SERVER_ADDRESS}/bizy_models/community"
         params = {"current": current, "page_size": page_size}
@@ -207,6 +208,8 @@ class APIClient:
             params["base_models"] = base_models
         if sort:
             params["sort"] = sort
+        if is_official:
+            params["is_official"] = is_official
 
         headers, err = self.auth_header()
         if err is not None:

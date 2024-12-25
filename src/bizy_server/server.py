@@ -211,7 +211,7 @@ class BizyAirServer:
         async def query_my_models(request):
             # 获取查询参数
             mode = request.rel_url.query.get("mode", "")
-            if not mode or mode not in ["my", "my_fork", "publicity"]:
+            if not mode or mode not in ["my", "my_fork", "publicity", "official"]:
                 return ErrResponse(errnos.INVALID_QUERY_MODE)
 
             current = int(request.rel_url.query.get("current", "1"))
@@ -243,6 +243,16 @@ class BizyAirServer:
                     model_types=model_types,
                     base_models=base_models,
                     sort=sort,
+                )
+            elif mode == "official":
+                resp, err = await self.api_client.query_community_models(
+                    current,
+                    page_size,
+                    keyword=keyword,
+                    model_types=model_types,
+                    base_models=base_models,
+                    sort=sort,
+                    is_official=True
                 )
             if err:
                 return ErrResponse(err)
