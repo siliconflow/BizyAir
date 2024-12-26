@@ -201,7 +201,6 @@ class APIClient:
         model_types: list[str] = None,
         base_models: list[str] = None,
         sort: str = None,
-        is_official: bool = False,
     ) -> tuple[dict | None, ErrorNo | None]:
         server_url = f"{BIZYAIR_SERVER_ADDRESS}/bizy_models/community"
         params = {"current": current, "page_size": page_size}
@@ -213,8 +212,6 @@ class APIClient:
             params["base_models"] = base_models
         if sort:
             params["sort"] = sort
-        if is_official:
-            params["is_official"] = is_official
 
         headers, err = self.auth_header()
         if err is not None:
@@ -229,6 +226,40 @@ class APIClient:
         except Exception as e:
             print(f"\033[31m[BizyAir]\033[0m Fail to query community models: {str(e)}")
             return None, errnos.QUERY_COMMUNITY_MODELS
+
+    async def query_official_models(
+        self,
+        current: int,
+        page_size: int,
+        keyword: str = None,
+        model_types: list[str] = None,
+        base_models: list[str] = None,
+        sort: str = None,
+    ) -> tuple[dict | None, ErrorNo | None]:
+        server_url = f"{BIZYAIR_SERVER_ADDRESS}/bizy_models/official"
+        params = {"current": current, "page_size": page_size}
+        if keyword:
+            params["keyword"] = keyword
+        if model_types:
+            params["model_types"] = model_types
+        if base_models:
+            params["base_models"] = base_models
+        if sort:
+            params["sort"] = sort
+
+        headers, err = self.auth_header()
+        if err is not None:
+            return None, err
+
+        try:
+            ret, err = await self.do_get(server_url, params=params, headers=headers)
+            if err is not None:
+                return None, err
+
+            return ret["data"], None
+        except Exception as e:
+            print(f"\033[31m[BizyAir]\033[0m Fail to query official models: {str(e)}")
+            return None, errnos.QUERY_OFFICIAL_MODELS
 
     async def query_models(
         self,

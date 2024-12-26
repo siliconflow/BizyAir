@@ -81,3 +81,6 @@ class errnos:
     LIST_SHARE_MODEL_FILE_ERR = ErrorNo(
         500, 500128, None, "Failed to list share model file"
     )
+    QUERY_OFFICIAL_MODELS = ErrorNo(
+        500, 500129, None, "Failed to query official models"
+    )

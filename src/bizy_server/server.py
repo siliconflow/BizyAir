@@ -243,14 +243,13 @@ class BizyAirServer:
                     sort=sort,
                 )
             elif mode == "official":
-                resp, err = await self.api_client.query_community_models(
+                resp, err = await self.api_client.query_official_models(
                     current,
                     page_size,
                     keyword=keyword,
                     model_types=model_types,
                     base_models=base_models,
                     sort=sort,
-                    is_official=True,
                 )
             if err:
                 return ErrResponse(err)
