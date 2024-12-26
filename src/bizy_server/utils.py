@@ -68,7 +68,7 @@ def check_type(json_data):
     if (
         not is_string_valid(json_data["type"])
         or json_data["type"] not in ALLOW_TYPES
-        or json_data["type"] == "Workflow"
+        or json_data["type"] != "Workflow"
     ):
         return ErrResponse(errnos.INVALID_TYPE)
     return None
