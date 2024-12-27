@@ -42,7 +42,7 @@ class errnos:
     INVALID_SIGN = ErrorNo(400, 400131, None, "Invalid file sign")
     EMPTY_SHA256SUM = ErrorNo(400, 400132, None, "Empty sha256sum")
     INVALID_OBJECT_KEY = ErrorNo(400, 400133, None, "Invalid object key")
-
+    FAILED_TO_FETCH_WORKFLOW_JSON = ErrorNo(400, 400134, None, "Failed to fetch workflow json")
     INVALID_API_KEY = ErrorNo(401, 401000, None, "Invalid API key")
     INVALID_USER = ErrorNo(401, 401001, None, "Invalid user")
 

@@ -426,7 +426,14 @@ class BizyAirServer:
             if err:
                 return ErrResponse(err)
 
-            return OKResponse(url)
+            # 请求该url，获取文件内容
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url) as response:
+                    if response.status != 200:
+                        return ErrResponse(errnos.FAILED_TO_FETCH_WORKFLOW_JSON)
+                    json_content = await response.json()
+
+            return OKResponse(json_content)
 
         @self.prompt_server.routes.get(f"/{MODEL_HOST_API}" + "/{shareId}/models/files")
         async def list_share_model_files(request):
