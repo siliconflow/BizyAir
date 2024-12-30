@@ -1,5 +1,5 @@
 """
-Reference: https://github.com/Jonseed/ComfyUI-Detail-Daemon
+Reference: https://github.com/logtd/ComfyUI-Fluxtapoz
 """
 
 import nodes
