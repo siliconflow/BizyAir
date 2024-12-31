@@ -18,7 +18,6 @@ from . import (
     nodes,
     nodes_controlnet_aux,
     nodes_controlnet_union_sdxl,
-    sam,
     segment_anything,
     showcase,
     supernode,
@@ -37,7 +36,6 @@ update_mappings(nodes_controlnet_aux)
 update_mappings(nodes_controlnet_union_sdxl)
 update_mappings(mzkolors)
 update_mappings(segment_anything)
-update_mappings(sam)
 
 try:
     import bizy_server
