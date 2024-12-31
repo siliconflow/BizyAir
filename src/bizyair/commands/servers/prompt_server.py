@@ -15,6 +15,7 @@ from bizyair.common.env_var import (
     BIZYAIR_DEV_GET_TASK_RESULT_SERVER,
     BIZYAIR_SERVER_ADDRESS,
 )
+from bizyair.common.task_base import is_bizyair_async_response
 from bizyair.common.utils import truncate_long_strings
 from bizyair.configs.conf import config_manager
 from bizyair.image_utils import decode_data, encode_data
@@ -157,14 +158,6 @@ class PromptServer(Command):
     def get_task_id(self, result: Dict[str, Any]) -> str:
         return result.get("data", {}).get("task_id", "")
 
-    def is_async_task(self, result: Dict[str, Any]) -> str:
-        """Determine if the result indicates an asynchronous task."""
-        return (
-            result.get("code") == 20000
-            and result.get("status", False)
-            and "task_id" in result.get("data", {})
-        )
-
     def _get_result(self, result: Dict[str, Any], *, cache_key: str = None):
         try:
             response_data = result["data"]
@@ -234,3 +227,20 @@ class PromptServer(Command):
             self.cache_manager.delete(sh256)
             traceback.print_exc()
             raise RuntimeError(f"Exception: {e=}") from e
+
+
+class PromptAsyncServer(Command):
+    def __init__(
+        self,
+        router: Processor,
+        pre_run_processor: Processor,
+        request_processor: Processor,
+    ):
+        self.router = router
+        self.pre_run_processor = pre_run_processor
+        self.request_processor = request_processor
+
+    def execute(self, prompt: Dict[str, Dict[str, Any]], **kwargs):
+        real_prompt = self.pre_run_processor(pre_prompt=prompt, **kwargs)
+        url = self.router(prompt=real_prompt, **kwargs)
+        return self.request_processor(url, **kwargs)

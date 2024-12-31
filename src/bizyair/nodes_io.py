@@ -82,12 +82,15 @@ class BizyAirNodeIO:
             if isinstance(other, BizyAirNodeIO):
                 self.nodes.update(other.nodes)
 
-    def send_request(
-        self, url=None, headers=None, *, progress_callback=None, stream=False
-    ) -> any:
-        out = invoker.prompt_server.execute(
-            prompt=self.nodes, last_node_ids=[self.node_id]
-        )
+    def send_request(self, use_async=False) -> any:
+        if not use_async:
+            out = invoker.prompt_server.execute(
+                prompt=self.nodes, last_node_ids=[self.node_id]
+            )
+        else:
+            out = invoker.prompt_async_server.execute(
+                prompt=self.nodes, last_node_ids=[self.node_id]
+            )
         return out
 
 

@@ -157,3 +157,7 @@ class BizyAirBaseNode:
         out = node_ios[0].send_request()
         assert len(out) == len(self.RETURN_TYPES)
         return out
+
+    def _process_send_request_types(self, node_ios: List[BizyAirNodeIO]):
+        out = node_ios[0].send_request()
+        return out
