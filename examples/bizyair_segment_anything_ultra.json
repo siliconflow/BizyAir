@@ -1,17 +1,120 @@
 {
-  "last_node_id": 23,
-  "last_link_id": 49,
+  "last_node_id": 40,
+  "last_link_id": 76,
   "nodes": [
     {
-      "id": 22,
-      "type": "BizyAir_TrimapGenerate",
+      "id": 20,
+      "type": "BizyAir_GroundingDinoModelLoader",
       "pos": [
-        691.5542602539062,
-        25.333850860595703
+        -119.09739685058594,
+        -87.74108123779297
+      ],
+      "size": [
+        415.8000183105469,
+        58
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "GROUNDING_DINO_MODEL",
+          "type": "GROUNDING_DINO_MODEL",
+          "links": [
+            35
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_GroundingDinoModelLoader"
+      },
+      "widgets_values": [
+        "GroundingDINO_SwinT_OGC (694MB)"
+      ]
+    },
+    {
+      "id": 18,
+      "type": "BizyAir_SAMModelLoader",
+      "pos": [
+        -24.793033599853516,
+        40.01811218261719
       ],
       "size": [
         315,
-        82
+        58
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "SAM_PREDICTOR",
+          "type": "SAM_PREDICTOR",
+          "links": [
+            32,
+            36
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_SAMModelLoader"
+      },
+      "widgets_values": [
+        "sam_vit_h (2.56GB)"
+      ]
+    },
+    {
+      "id": 6,
+      "type": "LoadImage",
+      "pos": [
+        -29.21724510192871,
+        167.51760864257812
+      ],
+      "size": [
+        315,
+        314
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            38
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "0855.png",
+        "image"
+      ]
+    },
+    {
+      "id": 24,
+      "type": "MaskToImage",
+      "pos": [
+        330.49664306640625,
+        165.41400146484375
+      ],
+      "size": [
+        264.5999755859375,
+        26
       ],
       "flags": {},
       "order": 7,
@@ -20,81 +123,64 @@
         {
           "name": "mask",
           "type": "MASK",
-          "link": 42
+          "link": 51
         }
       ],
       "outputs": [
         {
-          "name": "trimap",
-          "type": "MASK",
+          "name": "IMAGE",
+          "type": "IMAGE",
           "links": [
-            46,
-            49
+            50
           ],
           "slot_index": 0
         }
       ],
       "properties": {
-        "Node name for S&R": "BizyAir_TrimapGenerate"
+        "Node name for S&R": "MaskToImage"
       },
-      "widgets_values": [
-        6,
-        6
-      ]
+      "widgets_values": []
     },
     {
-      "id": 19,
-      "type": "BizyAir_VITMatteModelLoader",
+      "id": 25,
+      "type": "PreviewImage",
       "pos": [
-        668.5579833984375,
-        -124.51361846923828
+        343.9561767578125,
+        253.86276245117188
       ],
       "size": [
-        365.4000244140625,
-        78
+        210,
+        246
       ],
       "flags": {},
-      "order": 0,
+      "order": 12,
       "mode": 0,
-      "inputs": [],
-      "outputs": [
+      "inputs": [
         {
-          "name": "VitMatte_MODEL",
-          "type": "VitMatte_MODEL",
-          "links": [
-            44
-          ],
-          "slot_index": 0
-        },
-        {
-          "name": "VitMatte_predictor",
-          "type": "VitMatte_predictor",
-          "links": [
-            45
-          ],
-          "slot_index": 1
+          "name": "images",
+          "type": "IMAGE",
+          "link": 50
         }
       ],
+      "outputs": [],
       "properties": {
-        "Node name for S&R": "BizyAir_VITMatteModelLoader"
+        "Node name for S&R": "PreviewImage"
       },
-      "widgets_values": [
-        "VITMatte"
-      ]
+      "widgets_values": []
     },
     {
       "id": 23,
       "type": "BizyAir_VITMattePredict",
       "pos": [
-        1073.8350830078125,
-        -53.61327362060547
+        1220.4493408203125,
+        608.5986328125
       ],
       "size": [
         327.5999755859375,
         166
       ],
       "flags": {},
-      "order": 8,
+      "order": 10,
       "mode": 0,
       "inputs": [
         {
@@ -131,7 +217,7 @@
           "name": "mask",
           "type": "MASK",
           "links": [
-            47
+            55
           ],
           "slot_index": 1
         }
@@ -146,130 +232,11 @@
       ]
     },
     {
-      "id": 9,
-      "type": "PreviewImage",
-      "pos": [
-        1457.2244873046875,
-        -111.08157348632812
-      ],
-      "size": [
-        210,
-        246
-      ],
-      "flags": {},
-      "order": 10,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "images",
-          "type": "IMAGE",
-          "link": 48
-        }
-      ],
-      "outputs": [],
-      "properties": {
-        "Node name for S&R": "PreviewImage"
-      },
-      "widgets_values": []
-    },
-    {
-      "id": 20,
-      "type": "BizyAir_GroundingDinoModelLoader",
-      "pos": [
-        -119.09739685058594,
-        -87.74108123779297
-      ],
-      "size": [
-        415.8000183105469,
-        58
-      ],
-      "flags": {},
-      "order": 1,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [
-        {
-          "name": "GROUNDING_DINO_MODEL",
-          "type": "GROUNDING_DINO_MODEL",
-          "links": [
-            35
-          ],
-          "slot_index": 0
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "BizyAir_GroundingDinoModelLoader"
-      },
-      "widgets_values": [
-        "GroundingDINO_SwinT_OGC (694MB)"
-      ]
-    },
-    {
-      "id": 18,
-      "type": "BizyAir_SAMModelLoader",
-      "pos": [
-        -24.793033599853516,
-        40.01811218261719
-      ],
-      "size": [
-        315,
-        58
-      ],
-      "flags": {},
-      "order": 2,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [
-        {
-          "name": "SAM_PREDICTOR",
-          "type": "SAM_PREDICTOR",
-          "links": [
-            32,
-            36
-          ],
-          "slot_index": 0
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "BizyAir_SAMModelLoader"
-      },
-      "widgets_values": [
-        "sam_vit_h (2.56GB)"
-      ]
-    },
-    {
-      "id": 5,
-      "type": "MaskPreview+",
-      "pos": [
-        338.49713134765625,
-        236.64303588867188
-      ],
-      "size": [
-        210,
-        246
-      ],
-      "flags": {},
-      "order": 6,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "mask",
-          "type": "MASK",
-          "link": 41
-        }
-      ],
-      "outputs": [],
-      "properties": {
-        "Node name for S&R": "MaskPreview+"
-      },
-      "widgets_values": []
-    },
-    {
       "id": 4,
       "type": "PreviewImage",
       "pos": [
-        585.2964477539062,
-        235.61814880371094
+        352.6379699707031,
+        547.1114501953125
       ],
       "size": [
         210,
@@ -292,42 +259,15 @@
       "widgets_values": []
     },
     {
-      "id": 8,
-      "type": "MaskPreview+",
+      "id": 19,
+      "type": "BizyAir_VITMatteModelLoader",
       "pos": [
-        852.276611328125,
-        234.75250244140625
+        785.3675537109375,
+        531.9297485351562
       ],
       "size": [
-        210,
-        246
-      ],
-      "flags": {},
-      "order": 9,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "mask",
-          "type": "MASK",
-          "link": 49
-        }
-      ],
-      "outputs": [],
-      "properties": {
-        "Node name for S&R": "MaskPreview+"
-      },
-      "widgets_values": []
-    },
-    {
-      "id": 6,
-      "type": "LoadImage",
-      "pos": [
-        -29.21724510192871,
-        167.51760864257812
-      ],
-      "size": [
-        315,
-        314
+        365.4000244140625,
+        78
       ],
       "flags": {},
       "order": 3,
@@ -335,26 +275,181 @@
       "inputs": [],
       "outputs": [
         {
-          "name": "IMAGE",
-          "type": "IMAGE",
+          "name": "VitMatte_MODEL",
+          "type": "VitMatte_MODEL",
           "links": [
-            38
+            44
           ],
           "slot_index": 0
         },
         {
-          "name": "MASK",
-          "type": "MASK",
-          "links": null
+          "name": "VitMatte_predictor",
+          "type": "VitMatte_predictor",
+          "links": [
+            45
+          ],
+          "slot_index": 1
         }
       ],
       "properties": {
-        "Node name for S&R": "LoadImage"
+        "Node name for S&R": "BizyAir_VITMatteModelLoader"
       },
       "widgets_values": [
-        "0809.png",
-        "image"
+        "VITMatte"
       ]
+    },
+    {
+      "id": 28,
+      "type": "MaskToImage",
+      "pos": [
+        1612.9088134765625,
+        588.6235961914062
+      ],
+      "size": [
+        214.6072540283203,
+        26
+      ],
+      "flags": {},
+      "order": 18,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "mask",
+          "type": "MASK",
+          "link": 55
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            54
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "MaskToImage"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 29,
+      "type": "PreviewImage",
+      "pos": [
+        1620.6007080078125,
+        678.995361328125
+      ],
+      "size": [
+        210,
+        246
+      ],
+      "flags": {},
+      "order": 22,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 54
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 9,
+      "type": "PreviewImage",
+      "pos": [
+        1872.0692138671875,
+        677.0736083984375
+      ],
+      "size": [
+        210,
+        246
+      ],
+      "flags": {},
+      "order": 17,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 48
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 26,
+      "type": "MaskToImage",
+      "pos": [
+        810.7152709960938,
+        827.2421875
+      ],
+      "size": [
+        264.5999755859375,
+        26
+      ],
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "mask",
+          "type": "MASK",
+          "link": 53
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            52
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "MaskToImage"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 27,
+      "type": "PreviewImage",
+      "pos": [
+        811.5810546875,
+        920.4977416992188
+      ],
+      "size": [
+        210,
+        246
+      ],
+      "flags": {},
+      "order": 19,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 52
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": []
     },
     {
       "id": 21,
@@ -393,7 +488,9 @@
           "type": "IMAGE",
           "links": [
             40,
-            43
+            43,
+            56,
+            72
           ],
           "slot_index": 0
         },
@@ -401,8 +498,10 @@
           "name": "MASK",
           "type": "MASK",
           "links": [
-            41,
-            42
+            42,
+            51,
+            57,
+            71
           ],
           "slot_index": 1
         }
@@ -411,35 +510,336 @@
         "Node name for S&R": "BizyAir_GroundingDinoSAMSegment"
       },
       "widgets_values": [
-        "lion",
+        "girl",
         0.3,
         0.3
       ]
     },
     {
-      "id": 15,
-      "type": "MaskPreview+",
+      "id": 38,
+      "type": "PreviewImage",
       "pos": [
-        1448.48388671875,
-        234.31948852539062
+        1439.570556640625,
+        -430.55450439453125
       ],
       "size": [
         210,
         246
       ],
       "flags": {},
-      "order": 11,
+      "order": 15,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 74
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 22,
+      "type": "BizyAir_TrimapGenerate",
+      "pos": [
+        803.268310546875,
+        675.9127807617188
+      ],
+      "size": [
+        315,
+        82
+      ],
+      "flags": {},
+      "order": 6,
       "mode": 0,
       "inputs": [
         {
           "name": "mask",
           "type": "MASK",
-          "link": 47
+          "link": 42
+        }
+      ],
+      "outputs": [
+        {
+          "name": "trimap",
+          "type": "MASK",
+          "links": [
+            46,
+            53
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_TrimapGenerate"
+      },
+      "widgets_values": [
+        4,
+        6
+      ]
+    },
+    {
+      "id": 30,
+      "type": "BizyAir_PyMattingPredict",
+      "pos": [
+        746.6868286132812,
+        -9.079998016357422
+      ],
+      "size": [
+        340.20001220703125,
+        150
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 56
+        },
+        {
+          "name": "mask",
+          "type": "MASK",
+          "link": 57
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            60
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "mask",
+          "type": "MASK",
+          "links": [
+            61
+          ],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_PyMattingPredict"
+      },
+      "widgets_values": [
+        3,
+        6,
+        0.15,
+        0.99
+      ]
+    },
+    {
+      "id": 33,
+      "type": "MaskToImage",
+      "pos": [
+        1125.576171875,
+        -39.265621185302734
+      ],
+      "size": [
+        214.6072540283203,
+        26
+      ],
+      "flags": {},
+      "order": 14,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "mask",
+          "type": "MASK",
+          "link": 61
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            59
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "MaskToImage"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 31,
+      "type": "PreviewImage",
+      "pos": [
+        1133.45654296875,
+        48.70017623901367
+      ],
+      "size": [
+        210,
+        246
+      ],
+      "flags": {},
+      "order": 20,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 59
         }
       ],
       "outputs": [],
       "properties": {
-        "Node name for S&R": "MaskPreview+"
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 34,
+      "type": "PreviewImage",
+      "pos": [
+        1377.463623046875,
+        44.568546295166016
+      ],
+      "size": [
+        210,
+        246
+      ],
+      "flags": {},
+      "order": 13,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 60
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 37,
+      "type": "PreviewImage",
+      "pos": [
+        1194.40283203125,
+        -424.7430114746094
+      ],
+      "size": [
+        210,
+        246
+      ],
+      "flags": {},
+      "order": 21,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 76
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 40,
+      "type": "BizyAir_GuidedFilterPredict",
+      "pos": [
+        753.5757446289062,
+        -427.8138427734375
+      ],
+      "size": [
+        378,
+        150
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 72
+        },
+        {
+          "name": "mask",
+          "type": "MASK",
+          "link": 71
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            74
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "mask",
+          "type": "MASK",
+          "links": [
+            75
+          ],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_GuidedFilterPredict"
+      },
+      "widgets_values": [
+        6,
+        6,
+        0.15,
+        0.99
+      ]
+    },
+    {
+      "id": 36,
+      "type": "MaskToImage",
+      "pos": [
+        1170.7628173828125,
+        -506.9857482910156
+      ],
+      "size": [
+        214.6072540283203,
+        26
+      ],
+      "flags": {},
+      "order": 16,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "mask",
+          "type": "MASK",
+          "link": 75
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            76
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "MaskToImage"
       },
       "widgets_values": []
     }
@@ -486,14 +886,6 @@
       "IMAGE"
     ],
     [
-      41,
-      21,
-      1,
-      5,
-      0,
-      "MASK"
-    ],
-    [
       42,
       21,
       1,
@@ -534,14 +926,6 @@
       "MASK"
     ],
     [
-      47,
-      23,
-      1,
-      15,
-      0,
-      "MASK"
-    ],
-    [
       48,
       23,
       0,
@@ -550,22 +934,182 @@
       "IMAGE"
     ],
     [
-      49,
-      22,
+      50,
+      24,
       0,
-      8,
+      25,
+      0,
+      "IMAGE"
+    ],
+    [
+      51,
+      21,
+      1,
+      24,
       0,
       "MASK"
+    ],
+    [
+      52,
+      26,
+      0,
+      27,
+      0,
+      "IMAGE"
+    ],
+    [
+      53,
+      22,
+      0,
+      26,
+      0,
+      "MASK"
+    ],
+    [
+      54,
+      28,
+      0,
+      29,
+      0,
+      "IMAGE"
+    ],
+    [
+      55,
+      23,
+      1,
+      28,
+      0,
+      "MASK"
+    ],
+    [
+      56,
+      21,
+      0,
+      30,
+      0,
+      "IMAGE"
+    ],
+    [
+      57,
+      21,
+      1,
+      30,
+      1,
+      "MASK"
+    ],
+    [
+      59,
+      33,
+      0,
+      31,
+      0,
+      "IMAGE"
+    ],
+    [
+      60,
+      30,
+      0,
+      34,
+      0,
+      "IMAGE"
+    ],
+    [
+      61,
+      30,
+      1,
+      33,
+      0,
+      "MASK"
+    ],
+    [
+      71,
+      21,
+      1,
+      40,
+      1,
+      "MASK"
+    ],
+    [
+      72,
+      21,
+      0,
+      40,
+      0,
+      "IMAGE"
+    ],
+    [
+      74,
+      40,
+      0,
+      38,
+      0,
+      "IMAGE"
+    ],
+    [
+      75,
+      40,
+      1,
+      36,
+      0,
+      "MASK"
+    ],
+    [
+      76,
+      36,
+      0,
+      37,
+      0,
+      "IMAGE"
     ]
   ],
-  "groups": [],
+  "groups": [
+    {
+      "id": 1,
+      "title": "VitMatte",
+      "bounding": [
+        696.8377685546875,
+        384.8053894042969,
+        1436.54345703125,
+        805.4721069335938
+      ],
+      "color": "#3f789e",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "id": 2,
+      "title": "Group",
+      "bounding": [
+        697.36669921875,
+        -120.6985092163086,
+        914.1190185546875,
+        431.1031494140625
+      ],
+      "color": "#3f789e",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "id": 3,
+      "title": "Group",
+      "bounding": [
+        696.3088989257812,
+        -561.6924438476562,
+        1012.4700927734375,
+        393.0317077636719
+      ],
+      "color": "#3f789e",
+      "font_size": 24,
+      "flags": {}
+    }
+  ],
   "config": {},
   "extra": {
     "ds": {
-      "scale": 0.42409761837248516,
+      "scale": 0.5209868481924371,
       "offset": [
-        259.23479036354416,
-        425.1317591221424
+        -45.97107468187877,
+        655.7454599034186
       ]
     }
   },
