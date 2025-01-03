@@ -84,15 +84,29 @@ class BizyAirServer:
         @self.prompt_server.routes.get(f"/{COMMUNITY_API}/sign")
         async def sign(request):
             sha256sum = request.rel_url.query.get("sha256sum")
-
             if not is_string_valid(sha256sum):
                 return ErrResponse(errnos.EMPTY_SHA256SUM)
 
-            sign_data, err = await self.api_client.sign(sha256sum)
+            type = request.rel_url.query.get("type")
+
+            sign_data, err = await self.api_client.sign(sha256sum, type)
             if err is not None:
                 return ErrResponse(err)
 
             return OKResponse(sign_data)
+
+        @self.prompt_server.routes.get(f"/{COMMUNITY_API}/upload_token")
+        async def upload_token(request):
+            filename = request.rel_url.query.get("filename", "")
+            # 校验filename
+            if not is_string_valid(filename):
+                return ErrResponse(errnos.INVALID_FILENAME)
+
+            filename = urllib.parse.quote(filename)
+            token, err = await self.api_client.get_upload_token(filename=filename)
+            if err is not None:
+                return ErrResponse(err)
+            return OKResponse(token)
 
         @self.prompt_server.routes.post(f"/{COMMUNITY_API}/commit_file")
         async def commit_file(request):
@@ -106,12 +120,16 @@ class BizyAirServer:
                 return ErrResponse(errnos.INVALID_OBJECT_KEY)
             object_key = json_data.get("object_key")
 
+            if "type" not in json_data:
+                return ErrResponse(errnos.INVALID_TYPE)
+            type = json_data.get("type")
+
             md5_hash = ""
             if "md5_hash" in json_data:
                 md5_hash = json_data.get("md5_hash")
 
             commit_data, err = await self.api_client.commit_file(
-                signature=sha256sum, object_key=object_key, md5_hash=md5_hash
+                signature=sha256sum, object_key=object_key, md5_hash=md5_hash, type=type
             )
             # print("commit_data", commit_data)
             if err is not None:
@@ -191,7 +209,7 @@ class BizyAirServer:
         async def query_my_models(request):
             # 获取查询参数
             mode = request.rel_url.query.get("mode", "")
-            if not mode or mode not in ["my", "my_fork", "publicity"]:
+            if not mode or mode not in ["my", "my_fork", "publicity", "official"]:
                 return ErrResponse(errnos.INVALID_QUERY_MODE)
 
             current = int(request.rel_url.query.get("current", "1"))
@@ -217,6 +235,15 @@ class BizyAirServer:
             elif mode == "publicity":
                 # 调用API查询社区模型
                 resp, err = await self.api_client.query_community_models(
+                    current,
+                    page_size,
+                    keyword=keyword,
+                    model_types=model_types,
+                    base_models=base_models,
+                    sort=sort,
+                )
+            elif mode == "official":
+                resp, err = await self.api_client.query_official_models(
                     current,
                     page_size,
                     keyword=keyword,
@@ -399,23 +426,14 @@ class BizyAirServer:
             if err:
                 return ErrResponse(err)
 
-            try:
-                async with aiohttp.ClientSession() as session:
-                    async with session.get(url) as response:
-                        if response.status != 200:
-                            return ErrResponse(
-                                ErrorNo(
-                                    response.status,
-                                    response.status,
-                                    None,
-                                    "Failed to download JSON",
-                                )
-                            )
-                        json_content = await response.json()
-                return OKResponse(json_content)
-            except Exception as e:
-                print(f"\033[31m[BizyAir]\033[0m Fail to download JSON: {str(e)}")
-                return ErrResponse(errnos.DOWNLOAD_JSON)
+            # 请求该url，获取文件内容
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url) as response:
+                    if response.status != 200:
+                        return ErrResponse(errnos.FAILED_TO_FETCH_WORKFLOW_JSON)
+                    json_content = await response.json()
+
+            return OKResponse(json_content)
 
         @self.prompt_server.routes.get(f"/{MODEL_HOST_API}" + "/{shareId}/models/files")
         async def list_share_model_files(request):
