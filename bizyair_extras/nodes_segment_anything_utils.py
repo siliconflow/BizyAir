@@ -2,32 +2,11 @@ import copy
 from typing import List
 from urllib.parse import urlparse
 
-import cv2
 import groundingdino.datasets.transforms as T
 import numpy as np
 import torch
 from PIL import Image
-
-try:
-    from cv2.ximgproc import guidedFilter
-except ImportError:
-    # print(e)
-    print(
-        f"Cannot import name 'guidedFilter' from 'cv2.ximgproc'"
-        f"\nA few nodes cannot works properly, while most nodes are not affected. Please REINSTALL package 'opencv-contrib-python'."
-        f"\nFor detail refer to \033[4mhttps://github.com/chflame163/ComfyUI_LayerStyle/issues/5\033[0m"
-    )
-
-try:
-    from cv2.ximgproc import guidedFilter
-except ImportError:
-    # print(e)
-    print(
-        f"Cannot import name 'guidedFilter' from 'cv2.ximgproc'"
-        f"\nA few nodes cannot works properly, while most nodes are not affected. Please REINSTALL package 'opencv-contrib-python'."
-        f"\nFor detail refer to \033[4mhttps://github.com/chflame163/ComfyUI_LayerStyle/issues/5\033[0m"
-    )
-
+from scipy.ndimage import convolve, gaussian_filter
 
 sam_model_dir_name = "sams"
 sam_model_list = {
@@ -75,23 +54,6 @@ def list_groundingdino_model():
     return list(groundingdino_model_list.keys())
 
 
-def guided_filter_alpha(
-    image: torch.Tensor, mask: torch.Tensor, filter_radius: int
-) -> torch.Tensor:
-    sigma = 0.15
-    d = filter_radius + 1
-    mask = pil2tensor(tensor2pil(mask).convert("RGB"))
-    if not bool(d % 2):
-        d += 1
-    s = sigma / 10
-    i_dup = copy.deepcopy(image.cpu().numpy())
-    a_dup = copy.deepcopy(mask.cpu().numpy())
-    for index, image in enumerate(i_dup):
-        alpha_work = a_dup[index]
-        i_dup[index] = guidedFilter(image, alpha_work, d, s)
-    return torch.from_numpy(i_dup)
-
-
 def histogram_remap(
     image: torch.Tensor, blackpoint: float, whitepoint: float
 ) -> torch.Tensor:
@@ -120,7 +82,8 @@ def mask_edge_detail(
     for index, img in enumerate(i_dup):
         trimap = a_dup[index][:, :, 0]  # convert to single channel
         if detail_range > 0:
-            trimap = cv2.GaussianBlur(trimap, (d, d), 0)
+            # trimap = cv2.GaussianBlur(trimap, (d, d), 0)
+            trimap = gaussian_filter(trimap, sigma=d / 2)
         trimap = fix_trimap(trimap, black_point, white_point)
         alpha = estimate_alpha_cf(
             img, trimap, laplacian_kwargs={"epsilon": 1e-6}, cg_kwargs={"maxiter": 500}

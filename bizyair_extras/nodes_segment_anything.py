@@ -4,50 +4,6 @@ from bizyair import BizyAirBaseNode
 
 from .nodes_segment_anything_utils import *
 
-# sam_model_list = {
-#     "sam_vit_h (2.56GB)": {
-#         "model_url": "https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth"
-#     },
-#     # "sam_vit_l (1.25GB)": {
-#     #     "model_url": "https://dl.fbaipublicfiles.com/segment_anything/sam_vit_l_0b3195.pth"
-#     # },
-#     # "sam_vit_b (375MB)": {
-#     #     "model_url": "https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_01ec64.pth"
-#     # },
-#     # "sam_hq_vit_h (2.57GB)": {
-#     #     "model_url": "https://huggingface.co/lkeab/hq-sam/resolve/main/sam_hq_vit_h.pth"
-#     # },
-#     # "sam_hq_vit_l (1.25GB)": {
-#     #     "model_url": "https://huggingface.co/lkeab/hq-sam/resolve/main/sam_hq_vit_l.pth"
-#     # },
-#     # "sam_hq_vit_b (379MB)": {
-#     #     "model_url": "https://huggingface.co/lkeab/hq-sam/resolve/main/sam_hq_vit_b.pth"
-#     # },
-#     # "mobile_sam(39MB)": {
-#     #     "model_url": "https://github.com/ChaoningZhang/MobileSAM/blob/master/weights/mobile_sam.pt"
-#     # },
-# }
-
-# groundingdino_model_dir_name = "grounding-dino"
-# groundingdino_model_list = {
-#     "GroundingDINO_SwinT_OGC (694MB)": {
-#         "config_url": "https://huggingface.co/ShilongLiu/GroundingDINO/resolve/main/GroundingDINO_SwinT_OGC.cfg.py",
-#         "model_url": "https://huggingface.co/ShilongLiu/GroundingDINO/resolve/main/groundingdino_swint_ogc.pth",
-#     },
-#     # "GroundingDINO_SwinB (938MB)": {
-#     #     "config_url": "https://huggingface.co/ShilongLiu/GroundingDINO/resolve/main/GroundingDINO_SwinB.cfg.py",
-#     #     "model_url": "https://huggingface.co/ShilongLiu/GroundingDINO/resolve/main/groundingdino_swinb_cogcoor.pth",
-#     # },
-# }
-
-
-# def list_sam_model():
-#     return list(sam_model_list.keys())
-
-
-# def list_groundingdino_model():
-#     return list(groundingdino_model_list.keys())
-
 
 class BizyAir_SAMModelLoader(BizyAirBaseNode):
     @classmethod
@@ -206,7 +162,6 @@ class BizyAir_DetailMethodPredict:
 
         method_list = [
             "PyMatting",
-            "GuidedFilter",
         ]
         return {
             "required": {
@@ -276,9 +231,6 @@ class BizyAir_DetailMethodPredict:
             _image = tensor2pil(img).convert("RGBA")
 
             detail_range = detail_erode + detail_dilate
-            if detail_method == "GuidedFilter":
-                _mask = guided_filter_alpha(img, mask[i], detail_range // 6 + 1)
-                _mask = tensor2pil(histogram_remap(_mask, black_point, white_point))
 
             if detail_method == "PyMatting":
                 _mask = tensor2pil(
