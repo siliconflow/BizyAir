@@ -1,6 +1,6 @@
 {
-  "last_node_id": 40,
-  "last_link_id": 76,
+  "last_node_id": 42,
+  "last_link_id": 82,
   "nodes": [
     {
       "id": 20,
@@ -68,44 +68,6 @@
       ]
     },
     {
-      "id": 6,
-      "type": "LoadImage",
-      "pos": [
-        -29.21724510192871,
-        167.51760864257812
-      ],
-      "size": [
-        315,
-        314
-      ],
-      "flags": {},
-      "order": 2,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [
-        {
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
-            38
-          ],
-          "slot_index": 0
-        },
-        {
-          "name": "MASK",
-          "type": "MASK",
-          "links": null
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "LoadImage"
-      },
-      "widgets_values": [
-        "0855.png",
-        "image"
-      ]
-    },
-    {
       "id": 24,
       "type": "MaskToImage",
       "pos": [
@@ -153,7 +115,7 @@
         246
       ],
       "flags": {},
-      "order": 12,
+      "order": 11,
       "mode": 0,
       "inputs": [
         {
@@ -180,7 +142,7 @@
         166
       ],
       "flags": {},
-      "order": 10,
+      "order": 9,
       "mode": 0,
       "inputs": [
         {
@@ -270,7 +232,7 @@
         78
       ],
       "flags": {},
-      "order": 3,
+      "order": 2,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -310,7 +272,7 @@
         26
       ],
       "flags": {},
-      "order": 18,
+      "order": 15,
       "mode": 0,
       "inputs": [
         {
@@ -346,7 +308,7 @@
         246
       ],
       "flags": {},
-      "order": 22,
+      "order": 18,
       "mode": 0,
       "inputs": [
         {
@@ -373,7 +335,7 @@
         246
       ],
       "flags": {},
-      "order": 17,
+      "order": 14,
       "mode": 0,
       "inputs": [
         {
@@ -400,7 +362,7 @@
         26
       ],
       "flags": {},
-      "order": 11,
+      "order": 10,
       "mode": 0,
       "inputs": [
         {
@@ -436,104 +398,13 @@
         246
       ],
       "flags": {},
-      "order": 19,
+      "order": 16,
       "mode": 0,
       "inputs": [
         {
           "name": "images",
           "type": "IMAGE",
           "link": 52
-        }
-      ],
-      "outputs": [],
-      "properties": {
-        "Node name for S&R": "PreviewImage"
-      },
-      "widgets_values": []
-    },
-    {
-      "id": 21,
-      "type": "BizyAir_GroundingDinoSAMSegment",
-      "pos": [
-        334.36334228515625,
-        -26.426876068115234
-      ],
-      "size": [
-        286.7333068847656,
-        146
-      ],
-      "flags": {},
-      "order": 4,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "grounding_dino_model",
-          "type": "GROUNDING_DINO_MODEL",
-          "link": 35
-        },
-        {
-          "name": "sam_predictor",
-          "type": "SAM_PREDICTOR",
-          "link": 36
-        },
-        {
-          "name": "image",
-          "type": "IMAGE",
-          "link": 38
-        }
-      ],
-      "outputs": [
-        {
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
-            40,
-            43,
-            56,
-            72
-          ],
-          "slot_index": 0
-        },
-        {
-          "name": "MASK",
-          "type": "MASK",
-          "links": [
-            42,
-            51,
-            57,
-            71
-          ],
-          "slot_index": 1
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "BizyAir_GroundingDinoSAMSegment"
-      },
-      "widgets_values": [
-        "girl",
-        0.3,
-        0.3
-      ]
-    },
-    {
-      "id": 38,
-      "type": "PreviewImage",
-      "pos": [
-        1439.570556640625,
-        -430.55450439453125
-      ],
-      "size": [
-        210,
-        246
-      ],
-      "flags": {},
-      "order": 15,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "images",
-          "type": "IMAGE",
-          "link": 74
         }
       ],
       "outputs": [],
@@ -583,60 +454,6 @@
       ]
     },
     {
-      "id": 30,
-      "type": "BizyAir_PyMattingPredict",
-      "pos": [
-        746.6868286132812,
-        -9.079998016357422
-      ],
-      "size": [
-        340.20001220703125,
-        150
-      ],
-      "flags": {},
-      "order": 8,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "image",
-          "type": "IMAGE",
-          "link": 56
-        },
-        {
-          "name": "mask",
-          "type": "MASK",
-          "link": 57
-        }
-      ],
-      "outputs": [
-        {
-          "name": "image",
-          "type": "IMAGE",
-          "links": [
-            60
-          ],
-          "slot_index": 0
-        },
-        {
-          "name": "mask",
-          "type": "MASK",
-          "links": [
-            61
-          ],
-          "slot_index": 1
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "BizyAir_PyMattingPredict"
-      },
-      "widgets_values": [
-        3,
-        6,
-        0.15,
-        0.99
-      ]
-    },
-    {
       "id": 33,
       "type": "MaskToImage",
       "pos": [
@@ -648,13 +465,13 @@
         26
       ],
       "flags": {},
-      "order": 14,
+      "order": 13,
       "mode": 0,
       "inputs": [
         {
           "name": "mask",
           "type": "MASK",
-          "link": 61
+          "link": 80
         }
       ],
       "outputs": [
@@ -684,7 +501,7 @@
         246
       ],
       "flags": {},
-      "order": 20,
+      "order": 17,
       "mode": 0,
       "inputs": [
         {
@@ -711,13 +528,13 @@
         246
       ],
       "flags": {},
-      "order": 13,
+      "order": 12,
       "mode": 0,
       "inputs": [
         {
           "name": "images",
           "type": "IMAGE",
-          "link": 60
+          "link": 79
         }
       ],
       "outputs": [],
@@ -727,105 +544,72 @@
       "widgets_values": []
     },
     {
-      "id": 37,
-      "type": "PreviewImage",
+      "id": 6,
+      "type": "LoadImage",
       "pos": [
-        1194.40283203125,
-        -424.7430114746094
+        -29.21724510192871,
+        167.51760864257812
       ],
       "size": [
-        210,
-        246
+        315,
+        314
       ],
       "flags": {},
-      "order": 21,
+      "order": 3,
       "mode": 0,
-      "inputs": [
-        {
-          "name": "images",
-          "type": "IMAGE",
-          "link": 76
-        }
-      ],
-      "outputs": [],
-      "properties": {
-        "Node name for S&R": "PreviewImage"
-      },
-      "widgets_values": []
-    },
-    {
-      "id": 40,
-      "type": "BizyAir_GuidedFilterPredict",
-      "pos": [
-        753.5757446289062,
-        -427.8138427734375
-      ],
-      "size": [
-        378,
-        150
-      ],
-      "flags": {},
-      "order": 9,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "image",
-          "type": "IMAGE",
-          "link": 72
-        },
-        {
-          "name": "mask",
-          "type": "MASK",
-          "link": 71
-        }
-      ],
+      "inputs": [],
       "outputs": [
         {
-          "name": "image",
+          "name": "IMAGE",
           "type": "IMAGE",
           "links": [
-            74
+            38
           ],
           "slot_index": 0
         },
         {
-          "name": "mask",
+          "name": "MASK",
           "type": "MASK",
-          "links": [
-            75
-          ],
-          "slot_index": 1
+          "links": null
         }
       ],
       "properties": {
-        "Node name for S&R": "BizyAir_GuidedFilterPredict"
+        "Node name for S&R": "LoadImage"
       },
       "widgets_values": [
-        6,
-        6,
-        0.15,
-        0.99
+        "0854.png",
+        "image"
       ]
     },
     {
-      "id": 36,
-      "type": "MaskToImage",
+      "id": 21,
+      "type": "BizyAir_GroundingDinoSAMSegment",
       "pos": [
-        1170.7628173828125,
-        -506.9857482910156
+        334.36334228515625,
+        -26.426876068115234
       ],
       "size": [
-        214.6072540283203,
-        26
+        286.7333068847656,
+        146
       ],
       "flags": {},
-      "order": 16,
+      "order": 4,
       "mode": 0,
       "inputs": [
         {
-          "name": "mask",
-          "type": "MASK",
-          "link": 75
+          "name": "grounding_dino_model",
+          "type": "GROUNDING_DINO_MODEL",
+          "link": 35
+        },
+        {
+          "name": "sam_predictor",
+          "type": "SAM_PREDICTOR",
+          "link": 36
+        },
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 38
         }
       ],
       "outputs": [
@@ -833,15 +617,84 @@
           "name": "IMAGE",
           "type": "IMAGE",
           "links": [
-            76
+            40,
+            43,
+            77
           ],
           "slot_index": 0
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": [
+            42,
+            51,
+            78
+          ],
+          "slot_index": 1
         }
       ],
       "properties": {
-        "Node name for S&R": "MaskToImage"
+        "Node name for S&R": "BizyAir_GroundingDinoSAMSegment"
       },
-      "widgets_values": []
+      "widgets_values": [
+        "house",
+        0.3,
+        0.3
+      ]
+    },
+    {
+      "id": 42,
+      "type": "BizyAir_DetailMethodPredict",
+      "pos": [
+        743.06396484375,
+        10.351668357849121
+      ],
+      "size": [
+        340.20001220703125,
+        174
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 77
+        },
+        {
+          "name": "mask",
+          "type": "MASK",
+          "link": 78
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            79
+          ]
+        },
+        {
+          "name": "mask",
+          "type": "MASK",
+          "links": [
+            80
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_DetailMethodPredict"
+      },
+      "widgets_values": [
+        "GuidedFilter",
+        6,
+        6,
+        0.15,
+        0.99
+      ]
     }
   ],
   "links": [
@@ -982,22 +835,6 @@
       "MASK"
     ],
     [
-      56,
-      21,
-      0,
-      30,
-      0,
-      "IMAGE"
-    ],
-    [
-      57,
-      21,
-      1,
-      30,
-      1,
-      "MASK"
-    ],
-    [
       59,
       33,
       0,
@@ -1006,60 +843,36 @@
       "IMAGE"
     ],
     [
-      60,
-      30,
+      77,
+      21,
+      0,
+      42,
+      0,
+      "IMAGE"
+    ],
+    [
+      78,
+      21,
+      1,
+      42,
+      1,
+      "MASK"
+    ],
+    [
+      79,
+      42,
       0,
       34,
       0,
       "IMAGE"
     ],
     [
-      61,
-      30,
+      80,
+      42,
       1,
       33,
       0,
       "MASK"
-    ],
-    [
-      71,
-      21,
-      1,
-      40,
-      1,
-      "MASK"
-    ],
-    [
-      72,
-      21,
-      0,
-      40,
-      0,
-      "IMAGE"
-    ],
-    [
-      74,
-      40,
-      0,
-      38,
-      0,
-      "IMAGE"
-    ],
-    [
-      75,
-      40,
-      1,
-      36,
-      0,
-      "MASK"
-    ],
-    [
-      76,
-      36,
-      0,
-      37,
-      0,
-      "IMAGE"
     ]
   ],
   "groups": [
@@ -1078,7 +891,7 @@
     },
     {
       "id": 2,
-      "title": "Group",
+      "title": "DetailMethod",
       "bounding": [
         697.36669921875,
         -120.6985092163086,
@@ -1088,28 +901,15 @@
       "color": "#3f789e",
       "font_size": 24,
       "flags": {}
-    },
-    {
-      "id": 3,
-      "title": "Group",
-      "bounding": [
-        696.3088989257812,
-        -561.6924438476562,
-        1012.4700927734375,
-        393.0317077636719
-      ],
-      "color": "#3f789e",
-      "font_size": 24,
-      "flags": {}
     }
   ],
   "config": {},
   "extra": {
     "ds": {
-      "scale": 0.5209868481924371,
+      "scale": 0.6934334949441341,
       "offset": [
-        -45.97107468187877,
-        655.7454599034186
+        303.8549245275885,
+        224.88420271042048
       ]
     }
   },
