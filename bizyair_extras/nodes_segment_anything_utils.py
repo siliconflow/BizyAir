@@ -1,12 +1,10 @@
 import copy
 from typing import List
-from urllib.parse import urlparse
 
-import groundingdino.datasets.transforms as T
 import numpy as np
 import torch
 from PIL import Image
-from scipy.ndimage import convolve, gaussian_filter
+from scipy.ndimage import gaussian_filter
 
 sam_model_dir_name = "sams"
 sam_model_list = {
