@@ -156,7 +156,7 @@ class BizyAir_VITMattePredict(BizyAirBaseNode):
     NODE_DISPLAY_NAME = "☁️BizyAir VITMatte Predict"
 
 
-class BizyAir_DetailMethodPredict:
+class BizyAirDetailMethodPredict:
     @classmethod
     def INPUT_TYPES(cls):
 
@@ -257,8 +257,8 @@ class BizyAir_DetailMethodPredict:
 
 
 NODE_CLASS_MAPPINGS = {
-    "BizyAir_DetailMethodPredict": BizyAir_DetailMethodPredict,
+    "BizyAirDetailMethodPredict": BizyAirDetailMethodPredict,
 }
 NODE_DISPLAY_NAME_MAPPINGS = {
-    "BizyAir_DetailMethodPredict": "☁️BizyAir DetailMethod Predict",
+    "BizyAirDetailMethodPredict": "☁️BizyAir DetailMethod Predict",
 }
