@@ -689,7 +689,7 @@
         "Node name for S&R": "BizyAir_DetailMethodPredict"
       },
       "widgets_values": [
-        "GuidedFilter",
+        "PyMatting",
         6,
         6,
         0.15,
@@ -906,11 +906,11 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 0.6934334949441341,
-      "offset": [
-        303.8549245275885,
-        224.88420271042048
-      ]
+      "scale": 0.6209213230591553,
+      "offset": {
+        "0": -12.436553955078125,
+        "1": 273.1443786621094
+      }
     }
   },
   "version": 0.4
