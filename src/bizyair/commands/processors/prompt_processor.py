@@ -35,7 +35,7 @@ from dataclasses import dataclass
 
 
 class SearchServiceRouter(Processor):
-    def process(self, prompt: Dict[str, Dict[str, Any]], last_node_ids: List[str]):
+    def process(self, prompt: Dict[str, Dict[str, Any]], last_node_ids: List[str], **kwargs):
         if BIZYAIR_DEV_REQUEST_URL:
             return BIZYAIR_DEV_REQUEST_URL
 
@@ -82,7 +82,7 @@ class SearchServiceRouter(Processor):
         return f"{BIZYAIR_SERVER_ADDRESS}{out_route}"
 
     def validate_input(
-        self, prompt: Dict[str, Dict[str, Any]], last_node_ids: List[str]
+        self, prompt: Dict[str, Dict[str, Any]], last_node_ids: List[str] = [], **kwargs
     ):
         assert len(last_node_ids) == 1
         return True
@@ -104,7 +104,7 @@ class PromptProcessor(Processor):
         return exec_info
 
     def process(
-        self, url: str, prompt: Dict[str, Dict[str, Any]], last_node_ids: List[str]
+        self, url: str, prompt: Dict[str, Dict[str, Any]], last_node_ids: List[str], **kwargs
     ):
         return client.send_request(
             url=url,
@@ -123,12 +123,11 @@ class PromptProcessor(Processor):
         return True
 
 
-class PromptPreRunProcessor(PromptProcessor):
+class PromptPreRunProcessor(Processor):
     def process(
         self,
         pre_prompt: Dict[str, Dict[str, Any]],
         hidden: Dict[str, Dict[str, Any]] = {},
-        *args,
         **kwargs,
     ):
         unique_id = hidden["unique_id"]
@@ -159,6 +158,8 @@ class PromptPreRunProcessor(PromptProcessor):
                     link[5],
                 )
                 if is_send_request_datatype(data_type):
+                    if downstream_node_id == node_id:
+                        import ipdb; ipdb.set_trace()
                     continue
 
                 if upstream_node_id == node_id and downstream_node_id not in visited:
@@ -178,7 +179,7 @@ class PromptPreRunProcessor(PromptProcessor):
         return pre_prompt
 
     def validate_input(
-        self, pre_prompt: Dict[str, Dict[str, Any]], hidden: Dict[str, Dict[str, Any]]
+        self, pre_prompt: Dict[str, Dict[str, Any]], hidden: Dict[str, Dict[str, Any]], **kwargs
     ):
         assert all(key in hidden for key in ["unique_id", "prompt", "extra_pnginfo"])
         assert "workflow" in hidden["extra_pnginfo"]
@@ -191,8 +192,9 @@ class PromptAsyncProcessor(PromptProcessor):
     ) -> DynamicLazyTaskExecutor:
         result = super().process(url, prompt, **kwargs)
         if is_bizyair_async_response(result):
-            output = DynamicLazyTaskExecutor.from_data(result)
-            return output
+            worker = DynamicLazyTaskExecutor.from_data(result)
+            worker.execute_in_thread()
+            return worker
         raise ValueError("Invalid response, not a bizyair async response")
 
     def validate_input(self, url: str, prompt: Dict[str, Dict[str, Any]], **kwargs):

@@ -1,12 +1,12 @@
 import json
-import queue
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
 import comfy
+
 import requests
 
 from bizyair.configs.conf import config_manager
@@ -60,9 +60,20 @@ def get_bizyair_task_result(task_id: str, offset: int = 0) -> dict:
 
 @dataclass
 class BizyAirTask:
+    """
+    Represents a task in the BizyAir system.
+
+    Attributes:
+        task_id (str): The unique identifier of the task.
+        data_pool (List[Dict]): A list of data items associated with the task.
+        node_output_cache (Dict[str, Dict]): A cache to store output results by node ID.
+        data_status (TaskDataStatus): The current status of the task data.
+        _lock (threading.Lock): A lock to ensure thread-safe operations.
+    """
     TASK_DATA_STATUS = ["PENDING", "PROCESSING", "COMPLETED"]
     task_id: str
     data_pool: list[dict] = field(default_factory=list)
+    node_output_cache: Dict[str, Dict] = field(default_factory=dict)
     data_status: str = None
     _lock: threading.Lock = field(default_factory=threading.Lock, init=False)
 
@@ -126,6 +137,8 @@ class BizyAirTask:
                 with self._lock:
                     self.data_pool.extend(data_lst)
                     offset += len(data_lst)
+                    import ipdb; ipdb.set_trace()
+
                 for data in data_lst:
                     message = data.get("data", {}).get("message", {})
                     if (
@@ -159,6 +172,7 @@ class DynamicLazyTaskExecutor(BizyAirTask):
         super().__init__(task_id, data_pool, data_status)
         self._data_offset = 0  # current data cursor
         self.executor = ThreadPoolExecutor(max_workers=1)
+
 
     def get_current_result(self) -> dict:
         with self._lock:

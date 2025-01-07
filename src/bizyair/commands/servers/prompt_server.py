@@ -241,6 +241,6 @@ class PromptAsyncServer(Command):
         self.request_processor = request_processor
 
     def execute(self, prompt: Dict[str, Dict[str, Any]], **kwargs):
-        real_prompt = self.pre_run_processor(pre_prompt=prompt, **kwargs)
+        real_prompt = self.pre_run_processor(pre_prompt=encode_data(prompt), **kwargs)
         url = self.router(prompt=real_prompt, **kwargs)
-        return self.request_processor(url, **kwargs)
+        return self.request_processor(url=url, prompt=real_prompt, **kwargs)
