@@ -5,13 +5,14 @@ import aiohttp
 
 import bizyair
 import bizyair.common
-from bizyair.common.env_var import BIZYAIR_SERVER_ADDRESS
+from bizyair.common.env_var import BIZYAIR_PRODUCTION_TEST, BIZYAIR_SERVER_ADDRESS
 
 from .errno import ErrorNo, errnos
 from .error_handler import ErrorHandler
 from .utils import is_string_valid
 
-CLIENT_VERSION = "v20241029"
+with open(f"{os.path.dirname(__file__)}/../../version.txt", "r") as file:
+    CLIENT_VERSION = file.read()
 
 
 class APIClient:
@@ -32,6 +33,8 @@ class APIClient:
                 "authorization": auth,
                 "x-bizyair-client-version": CLIENT_VERSION,
             }
+            if BIZYAIR_PRODUCTION_TEST != None:
+                headers["x-bizyair-production-test"] = BIZYAIR_PRODUCTION_TEST
             return headers, None
         except ValueError as e:
             error_message = e.args[0] if e.args else "Invalid API key"
