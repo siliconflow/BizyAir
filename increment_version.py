@@ -20,4 +20,3 @@ with open("version.txt", "r+") as file:
     file.seek(0)
     file.write(str(ver))
     file.truncate()
-
