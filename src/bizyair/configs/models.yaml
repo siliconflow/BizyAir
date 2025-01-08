@@ -274,3 +274,8 @@ model_rules:
     route: /supernode/bizyair-sam
     nodes:
       - class_type: 'LayerMask: SegmentAnythingUltra V2'
+      - class_type: SAMModelLoader
+      - class_type: TrimapGenerate
+      - class_type: VITMatteModelLoader
+      - class_type: DetailMethodPredict
+      - class_type: VitMattePredict
