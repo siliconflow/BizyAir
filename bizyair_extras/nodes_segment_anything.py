@@ -1,5 +1,3 @@
-from urllib.parse import urlparse
-
 from bizyair import BizyAirBaseNode
 
 from .nodes_segment_anything_utils import *
@@ -156,7 +154,9 @@ class BizyAir_VITMattePredict(BizyAirBaseNode):
     NODE_DISPLAY_NAME = "☁️BizyAir VITMatte Predict"
 
 
-class BizyAirDetailMethodPredict:
+class BizyAirDetailMethodPredict(BizyAirBaseNode):
+    NODE_DISPLAY_NAME = "☁️BizyAir DetailMethod Predict"
+
     @classmethod
     def INPUT_TYPES(cls):
 
@@ -254,11 +254,3 @@ class BizyAirDetailMethodPredict:
             torch.cat(ret_images, dim=0),
             torch.cat(ret_masks, dim=0),
         )
-
-
-NODE_CLASS_MAPPINGS = {
-    "BizyAirDetailMethodPredict": BizyAirDetailMethodPredict,
-}
-NODE_DISPLAY_NAME_MAPPINGS = {
-    "BizyAirDetailMethodPredict": "☁️BizyAir DetailMethod Predict",
-}

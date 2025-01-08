@@ -17,11 +17,3 @@ from .nodes_segment_anything import *
 from .nodes_testing_utils import *
 from .nodes_ultimatesdupscale import *
 from .nodes_upscale_model import *
-
-
-def update_mappings(module):
-    NODE_CLASS_MAPPINGS.update(**module.NODE_CLASS_MAPPINGS)
-    NODE_DISPLAY_NAME_MAPPINGS.update(**module.NODE_DISPLAY_NAME_MAPPINGS)
-
-
-update_mappings(nodes_segment_anything)
