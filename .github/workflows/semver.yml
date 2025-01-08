@@ -2,18 +2,14 @@ name: Semantic Versioning
 
 on:
   pull_request:
-    branches-ignore:
-      - 'master'
-    tags:
-      - 'major'
-      - 'minor'
-      - 'patch'
+    types: [ labeled ]
 
 permissions:
   contents: write
 
 jobs:
   update-semver:
+    if: ${{ github.event.label.name == 'patch' }} || ${{ github.event.label.name == 'minor' }} || ${{ github.event.label.name == 'major' }}
     runs-on: ubuntu-latest
 
     steps:
