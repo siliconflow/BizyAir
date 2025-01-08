@@ -2,14 +2,14 @@ name: Semantic Versioning
 
 on:
   pull_request:
-    types: [ labeled ]
+    types: [ labeled, opened ]
 
 permissions:
   contents: write
 
 jobs:
   update-semver:
-    if: ${{ github.event.label.name == 'patch' }} || ${{ github.event.label.name == 'minor' }} || ${{ github.event.label.name == 'major' }}
+    if: (${{ github.event.action == "labeled" }} && contains(fromJSON('["major", "minor", "patch"]'), github.event.label.name)) || (${{ github.event.action == "opened" }} && (contains(github.event.pull_request.labels.*.name, "major") || contains(github.event.pull_request.labels.*.name, "minor") || contains(github.event.pull_request.labels.*.name, "patch")))
     runs-on: ubuntu-latest
 
     steps:
