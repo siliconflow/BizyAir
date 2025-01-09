@@ -54,7 +54,7 @@
       "meijia_flux_lora_rank16_bf16.safetensors"
     ]
   },
-  "unet": {
+  "unet": ["shuttle-3.1-aesthetic.safetensors",{
     "kolors": [
       "Kolors-Inpainting.safetensors",
       "Kolors.safetensors"
@@ -67,7 +67,7 @@
       "flux1-depth-dev.safetensors",
       "flux1-fill-dev.safetensors"
     ]
-  },
+  }],
   "vae": [{
     "sdxl": [
       "sdxl_vae.safetensors"
