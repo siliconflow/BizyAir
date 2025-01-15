@@ -50,6 +50,17 @@ model_rules:
           unet_name:
             - ^flux/flux1-schnell.sft$
 
+  - mode_type: unet
+    base_model: Shuttle
+    describe: shuttle-3.1-aesthetic
+    score: 3
+    route: /supernode/bizyair-shuttle-3-1-aesthetic
+    nodes:
+      - class_type: UNETLoader
+        inputs:
+          unet_name:
+            - ^shuttle-3.1-aesthetic.safetensors$
+
   - mode_type: vae
     base_model: FLUX
     describe: flux-vae
@@ -274,3 +285,8 @@ model_rules:
     route: /supernode/bizyair-sam
     nodes:
       - class_type: 'LayerMask: SegmentAnythingUltra V2'
+      - class_type: SAMModelLoader
+      - class_type: TrimapGenerate
+      - class_type: VITMatteModelLoader
+      - class_type: DetailMethodPredict
+      - class_type: VitMattePredict
