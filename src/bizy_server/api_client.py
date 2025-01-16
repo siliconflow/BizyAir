@@ -595,3 +595,42 @@ class APIClient:
         except Exception as e:
             print(f"\033[31m[BizyAir]\033[0m Fail to get dataset detail: {str(e)}")
             return None, errnos.GET_DATASET_DETAIL
+        
+    async def create_share(self, payload) -> tuple[dict | None, ErrorNo | None]:
+        server_url = (
+            f"{BIZYAIR_SERVER_ADDRESS}/share"
+        )
+        
+        headers, err = self.auth_header()
+        if err is not None:
+            return None, err
+        
+        try:
+            ret, err = await self.do_post(server_url, data=payload, headers=headers)
+            if err is not None:
+                return None, err
+            return ret["data"], None
+        except Exception as e:
+            print(f"\033[31m[BizyAir]\033[0m Fail to create share: {str(e)}")
+            return None, errnos.CREATE_SHARE
+        
+    async def get_share_detail(
+        self, code: str
+    ) -> tuple[dict | None, ErrorNo | None]:
+        server_url = (
+            f"{BIZYAIR_SERVER_ADDRESS}/share/{code}"
+        )
+
+        headers, err = self.auth_header()
+        if err is not None:
+            return None, err
+
+        try:
+            ret, err = await self.do_get(server_url, headers=headers)
+            if err is not None:
+                return None, err
+
+            return ret["data"], None
+        except Exception as e:
+            print(f"\033[31m[BizyAir]\033[0m Fail to get share detail: {str(e)}")
+            return None, errnos.GET_SHARE_DETAIL

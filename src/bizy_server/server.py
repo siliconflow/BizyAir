@@ -620,6 +620,46 @@ class BizyAirServer:
                 return ErrResponse(err)
 
             return OKResponse(resp)
+        
+        @self.prompt_server.routes.post(f"/{COMMUNITY_API}/share")
+        async def create_share(request):
+            json_data = await request.json()
+            if "biz_id" not in json_data:
+                return ErrResponse(errnos.INVALID_SHARE_BIZ_ID)
+            
+            biz_id = int(json_data["biz_id"])
+            if not biz_id or biz_id <= 0:
+                return ErrResponse(errnos.INVALID_SHARE_BIZ_ID)
+            
+            if "type" not in json_data:
+                return ErrResponse(errnos.INVALID_SHARE_TYPE)
+            if not is_string_valid(json_data["type"]) or (
+                json_data["type"] != "bizy_model_version"
+            ):
+                return ErrResponse(errnos.INVALID_SHARE_TYPE)
+            
+            # 调用API提交数据集
+            resp, err = await self.api_client.create_share(payload=json_data)
+            if err:
+                return ErrResponse(err)
+            
+            return OKResponse(resp)
+        
+        @self.prompt_server.routes.get(f"/{COMMUNITY_API}/share/{{code}}")
+        async def get_share_detail(request):
+            # 获取路径参数中的数据集ID
+            code = str(request.match_info["code"])
+
+            # 检查dataset_id是否合法
+            if not is_string_valid(code):
+                return ErrResponse(errnos.INVALID_SHARE_CODE)
+
+            # 调用API获取数据集详情
+            resp, err = await self.api_client.get_share_detail(code)
+            if err:
+                return ErrResponse(err)
+
+            return OKResponse(resp)
 
     async def send_json(self, event, data, sid=None):
         message = {"type": event, "data": data}

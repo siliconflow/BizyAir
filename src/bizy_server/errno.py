@@ -49,6 +49,9 @@ class errnos:
     INVALID_DATASET_VERSION = ErrorNo(400, 400136, None, "Invalid dataset version")
     INVALID_DATASET_ID = ErrorNo(400, 400137, None, "Invalid dataset id")
     INVALID_DATASET_VERSION_ID = ErrorNo(400, 400138, None, "Invalid dataset version id")
+    INVALID_SHARE_BIZ_ID = ErrorNo(400, 400139, None, "Invalid share biz id")
+    INVALID_SHARE_TYPE = ErrorNo(400, 400140, None, "Invalid share type")
+    INVALID_SHARE_CODE = ErrorNo(400, 400141, None, "Invalid share code")
     
     INVALID_API_KEY = ErrorNo(401, 401000, None, "Invalid API key")
     INVALID_USER = ErrorNo(401, 401001, None, "Invalid user")
@@ -99,3 +102,5 @@ class errnos:
     DELETE_DATASET = ErrorNo(500, 500133, None, "Failed to delete dataset")
     QUERY_DATASETS = ErrorNo(500, 500134, None, "Failed to query datasets")
     GET_DATASET_DETAIL = ErrorNo(500, 500135, None, "Failed to get dataset detail")
+    CREATE_SHARE = ErrorNo(500, 500136, None, "Failed to create share")
+    GET_SHARE_DETAIL = ErrorNo(500, 500137, None, "Failed to get share detail")
