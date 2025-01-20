@@ -3,9 +3,12 @@ import os
 
 import folder_paths
 import torch
+from PIL import Image
 
 from bizyair import BizyAirBaseNode, BizyAirNodeIO, create_node_data
 from bizyair.data_types import CLIP, CONDITIONING, MODEL
+
+from .utils import T, contrast_adaptive_sharpening
 
 # set the models directory
 if "ipadapter" not in folder_paths.folder_names_and_paths:
@@ -1207,76 +1210,76 @@ class IPAdapterStyleComposition(IPAdapterAdvanced):
 #         return (noise,)
 
 
-# class PrepImageForClipVision:
-#     @classmethod
-#     def INPUT_TYPES(s):
-#         return {
-#             "required": {
-#                 "image": ("IMAGE",),
-#                 "interpolation": (
-#                     ["LANCZOS", "BICUBIC", "HAMMING", "BILINEAR", "BOX", "NEAREST"],
-#                 ),
-#                 "crop_position": (["top", "bottom", "left", "right", "center", "pad"],),
-#                 "sharpening": (
-#                     "FLOAT",
-#                     {"default": 0.0, "min": 0, "max": 1, "step": 0.05},
-#                 ),
-#             },
-#         }
+class PrepImageForClipVision(BizyAirBaseNode):
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "image": ("IMAGE",),
+                "interpolation": (
+                    ["LANCZOS", "BICUBIC", "HAMMING", "BILINEAR", "BOX", "NEAREST"],
+                ),
+                "crop_position": (["top", "bottom", "left", "right", "center", "pad"],),
+                "sharpening": (
+                    "FLOAT",
+                    {"default": 0.0, "min": 0, "max": 1, "step": 0.05},
+                ),
+            },
+        }
 
-#     RETURN_TYPES = ("IMAGE",)
-#     FUNCTION = "prep_image"
+    RETURN_TYPES = ("IMAGE",)
+    FUNCTION = "prep_image"
+    NODE_DISPLAY_NAME = "Prep Image For ClipVision"
+    CATEGORY = "ipadapter/utils"
 
-#     CATEGORY = "ipadapter/utils"
+    def prep_image(
+        self, image, interpolation="LANCZOS", crop_position="center", sharpening=0.0
+    ):
+        size = (224, 224)
+        _, oh, ow, _ = image.shape
+        output = image.permute([0, 3, 1, 2])
 
-#     def prep_image(
-#         self, image, interpolation="LANCZOS", crop_position="center", sharpening=0.0
-#     ):
-#         size = (224, 224)
-#         _, oh, ow, _ = image.shape
-#         output = image.permute([0, 3, 1, 2])
+        if crop_position == "pad":
+            if oh != ow:
+                if oh > ow:
+                    pad = (oh - ow) // 2
+                    pad = (pad, 0, pad, 0)
+                elif ow > oh:
+                    pad = (ow - oh) // 2
+                    pad = (0, pad, 0, pad)
+                output = T.functional.pad(output, pad, fill=0)
+        else:
+            crop_size = min(oh, ow)
+            x = (ow - crop_size) // 2
+            y = (oh - crop_size) // 2
+            if "top" in crop_position:
+                y = 0
+            elif "bottom" in crop_position:
+                y = oh - crop_size
+            elif "left" in crop_position:
+                x = 0
+            elif "right" in crop_position:
+                x = ow - crop_size
 
-#         if crop_position == "pad":
-#             if oh != ow:
-#                 if oh > ow:
-#                     pad = (oh - ow) // 2
-#                     pad = (pad, 0, pad, 0)
-#                 elif ow > oh:
-#                     pad = (ow - oh) // 2
-#                     pad = (0, pad, 0, pad)
-#                 output = T.functional.pad(output, pad, fill=0)
-#         else:
-#             crop_size = min(oh, ow)
-#             x = (ow - crop_size) // 2
-#             y = (oh - crop_size) // 2
-#             if "top" in crop_position:
-#                 y = 0
-#             elif "bottom" in crop_position:
-#                 y = oh - crop_size
-#             elif "left" in crop_position:
-#                 x = 0
-#             elif "right" in crop_position:
-#                 x = ow - crop_size
+            x2 = x + crop_size
+            y2 = y + crop_size
 
-#             x2 = x + crop_size
-#             y2 = y + crop_size
+            output = output[:, :, y:y2, x:x2]
 
-#             output = output[:, :, y:y2, x:x2]
+        imgs = []
+        for img in output:
+            img = T.ToPILImage()(img)  # using PIL for better results
+            img = img.resize(size, resample=Image.Resampling[interpolation])
+            imgs.append(T.ToTensor()(img))
+        output = torch.stack(imgs, dim=0)
+        del imgs, img
 
-#         imgs = []
-#         for img in output:
-#             img = T.ToPILImage()(img)  # using PIL for better results
-#             img = img.resize(size, resample=Image.Resampling[interpolation])
-#             imgs.append(T.ToTensor()(img))
-#         output = torch.stack(imgs, dim=0)
-#         del imgs, img
+        if sharpening > 0:
+            output = contrast_adaptive_sharpening(output, sharpening)
 
-#         if sharpening > 0:
-#             output = contrast_adaptive_sharpening(output, sharpening)
+        output = output.permute([0, 2, 3, 1])
 
-#         output = output.permute([0, 2, 3, 1])
-
-#         return (output,)
+        return (output,)
 
 
 # class IPAdapterSaveEmbeds:
