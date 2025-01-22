@@ -586,8 +586,8 @@ class BizyAirServer:
 
             return OKResponse(resp)
     
-        @self.prompt_server.routes.post(f"/{COMMUNITY_API}/models/query")
-        async def query_my_models(request):
+        @self.prompt_server.routes.post(f"/{COMMUNITY_API}/datasets/query")
+        async def query_my_datasets(request):
             current = int(request.rel_url.query.get("current", "1"))
             page_size = int(request.rel_url.query.get("page_size", "10"))
             json_data = await request.json()
