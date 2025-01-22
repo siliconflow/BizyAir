@@ -360,6 +360,7 @@ class APIClient:
             print(f"\033[31m[BizyAir]\033[0m Fail to fork model version: {str(e)}")
             return None, errnos.FORK_MODEL_VERSION
 
+    
     async def update_model(
         self, model_id: int, name: str, type_: str, versions: list[dict]
     ) -> tuple[dict | None, ErrorNo | None]:
