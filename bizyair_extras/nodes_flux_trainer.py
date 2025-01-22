@@ -36,71 +36,21 @@ class FluxTrainModelSelect(BizyAirBaseNode):
 
 
 class TrainDatasetGeneralConfig(BizyAirBaseNode):
-    queue_counter = 0
-
-    @classmethod
-    def IS_CHANGED(s, reset_on_queue=False, **kwargs):
-        if reset_on_queue:
-            s.queue_counter += 1
-        print(f"queue_counter: {s.queue_counter}")
-        return s.queue_counter
-
     @classmethod
     def INPUT_TYPES(s):
-        return {
-            "required": {
-                "color_aug": (
-                    "BOOLEAN",
-                    {"default": False, "tooltip": "enable weak color augmentation"},
-                ),
-                "flip_aug": (
-                    "BOOLEAN",
-                    {
-                        "default": False,
-                        "tooltip": "enable horizontal flip augmentation",
-                    },
-                ),
-                "shuffle_caption": (
-                    "BOOLEAN",
-                    {"default": False, "tooltip": "shuffle caption"},
-                ),
-                "caption_dropout_rate": (
-                    "FLOAT",
-                    {
-                        "default": 0.0,
-                        "min": 0.0,
-                        "max": 1.0,
-                        "step": 0.01,
-                        "tooltip": "tag dropout rate",
-                    },
-                ),
-                "alpha_mask": (
-                    "BOOLEAN",
-                    {
-                        "default": False,
-                        "tooltip": "use alpha channel as mask for training",
-                    },
-                ),
+        return {"required": {
+            "color_aug": ("BOOLEAN",{"default": False, "tooltip": "enable weak color augmentation"}),
+            "flip_aug": ("BOOLEAN",{"default": False, "tooltip": "enable horizontal flip augmentation"}),
+            "shuffle_caption": ("BOOLEAN",{"default": False, "tooltip": "shuffle caption"}),
+            "caption_dropout_rate": ("FLOAT",{"default": 0.0, "min": 0.0, "max": 1.0, "step": 0.01,"tooltip": "tag dropout rate"}),
+            "alpha_mask": ("BOOLEAN",{"default": False, "tooltip": "use alpha channel as mask for training"}),
             },
             "optional": {
-                "reset_on_queue": (
-                    "BOOLEAN",
-                    {
-                        "default": False,
-                        "tooltip": "Force refresh of everything for cleaner queueing",
-                    },
-                ),
-                "reg_data_dir": (
-                    "STRING",
-                    {
-                        "multiline": True,
-                        "forceInput": True,
-                        "default": "",
-                        "tooltip": "reg data dir",
-                    },
-                ),
-            },
+                "reset_on_queue": ("BOOLEAN",{"default": False, "tooltip": "Force refresh of everything for cleaner queueing"}),
+                "caption_extension": ("STRING",{"default": ".txt", "tooltip": "extension for caption files"}),
+            }
         }
+
 
     RETURN_TYPES = ("JSON",)
     RETURN_NAMES = ("dataset_general",)
@@ -380,221 +330,48 @@ class TrainDatasetAdd(BizyAirBaseNode):
 class InitFluxLoRATraining(BizyAirBaseNode):
     @classmethod
     def INPUT_TYPES(s):
-        return {
-            "required": {
-                "flux_models": ("TRAIN_FLUX_MODELS",),
-                "dataset": ("JSON",),
-                "optimizer_settings": ("ARGS",),
-                "output_name": ("STRING", {"default": "flux_lora", "multiline": False}),
-                "output_dir": (
-                    "STRING",
-                    {
-                        "default": "flux_trainer_output",
-                        "multiline": False,
-                        "tooltip": "path to dataset, root is the 'ComfyUI' folder, with windows portable 'ComfyUI_windows_portable'",
-                    },
-                ),
-                "network_dim": (
-                    "INT",
-                    {
-                        "default": 4,
-                        "min": 1,
-                        "max": 2048,
-                        "step": 1,
-                        "tooltip": "network dim",
-                    },
-                ),
-                "network_alpha": (
-                    "FLOAT",
-                    {
-                        "default": 1.0,
-                        "min": 0.0,
-                        "max": 2048.0,
-                        "step": 0.01,
-                        "tooltip": "network alpha",
-                    },
-                ),
-                "learning_rate": (
-                    "FLOAT",
-                    {
-                        "default": 4e-4,
-                        "min": 0.0,
-                        "max": 10.0,
-                        "step": 0.000001,
-                        "tooltip": "learning rate",
-                    },
-                ),
-                "max_train_steps": (
-                    "INT",
-                    {
-                        "default": 1500,
-                        "min": 1,
-                        "max": 100000,
-                        "step": 1,
-                        "tooltip": "max number of training steps",
-                    },
-                ),
-                "apply_t5_attn_mask": (
-                    "BOOLEAN",
-                    {"default": True, "tooltip": "apply t5 attention mask"},
-                ),
-                "cache_latents": (
-                    ["disk", "memory", "disabled"],
-                    {"tooltip": "caches text encoder outputs"},
-                ),
-                "cache_text_encoder_outputs": (
-                    ["disk", "memory", "disabled"],
-                    {"tooltip": "caches text encoder outputs"},
-                ),
-                "split_mode": (
-                    "BOOLEAN",
-                    {
-                        "default": False,
-                        "tooltip": "[EXPERIMENTAL] use split mode for Flux model, network arg `train_blocks=single` is required",
-                    },
-                ),
-                "weighting_scheme": (
-                    ["logit_normal", "sigma_sqrt", "mode", "cosmap", "none"],
-                ),
-                "logit_mean": (
-                    "FLOAT",
-                    {
-                        "default": 0.0,
-                        "min": 0.0,
-                        "max": 1.0,
-                        "step": 0.01,
-                        "tooltip": "mean to use when using the logit_normal weighting scheme",
-                    },
-                ),
-                "logit_std": (
-                    "FLOAT",
-                    {
-                        "default": 1.0,
-                        "min": 0.0,
-                        "max": 1.0,
-                        "step": 0.01,
-                        "tooltip": "std to use when using the logit_normal weighting scheme",
-                    },
-                ),
-                "mode_scale": (
-                    "FLOAT",
-                    {
-                        "default": 1.29,
-                        "min": 0.0,
-                        "max": 10.0,
-                        "step": 0.01,
-                        "tooltip": "Scale of mode weighting scheme. Only effective when using the mode as the weighting_scheme",
-                    },
-                ),
-                "timestep_sampling": (
-                    ["sigmoid", "uniform", "sigma", "shift", "flux_shift"],
-                    {
-                        "tooltip": "Method to sample timesteps: sigma-based, uniform random, sigmoid of random normal and shift of sigmoid (recommend value of 3.1582 for discrete_flow_shift)"
-                    },
-                ),
-                "sigmoid_scale": (
-                    "FLOAT",
-                    {
-                        "default": 1.0,
-                        "min": 0.0,
-                        "max": 10.0,
-                        "step": 0.1,
-                        "tooltip": "Scale factor for sigmoid timestep sampling (only used when timestep-sampling is sigmoid",
-                    },
-                ),
-                "model_prediction_type": (
-                    ["raw", "additive", "sigma_scaled"],
-                    {
-                        "tooltip": "How to interpret and process the model prediction: raw (use as is), additive (add to noisy input), sigma_scaled (apply sigma scaling)."
-                    },
-                ),
-                "guidance_scale": (
-                    "FLOAT",
-                    {
-                        "default": 1.0,
-                        "min": 1.0,
-                        "max": 32.0,
-                        "step": 0.01,
-                        "tooltip": "guidance scale, for Flux training should be 1.0",
-                    },
-                ),
-                "discrete_flow_shift": (
-                    "FLOAT",
-                    {
-                        "default": 1.0,
-                        "min": 0.0,
-                        "max": 10.0,
-                        "step": 0.0001,
-                        "tooltip": "for the Euler Discrete Scheduler, default is 3.0",
-                    },
-                ),
-                "highvram": ("BOOLEAN", {"default": False, "tooltip": "memory mode"}),
-                "fp8_base": (
-                    "BOOLEAN",
-                    {"default": True, "tooltip": "use fp8 for base model"},
-                ),
-                "gradient_dtype": (
-                    ["fp32", "fp16", "bf16"],
-                    {"default": "fp32", "tooltip": "the actual dtype training uses"},
-                ),
-                "save_dtype": (
-                    ["fp32", "fp16", "bf16", "fp8_e4m3fn", "fp8_e5m2"],
-                    {"default": "bf16", "tooltip": "the dtype to save checkpoints as"},
-                ),
-                "attention_mode": (
-                    ["sdpa", "xformers", "disabled"],
-                    {"default": "sdpa", "tooltip": "memory efficient attention mode"},
-                ),
-                "sample_prompts": (
-                    "STRING",
-                    {
-                        "multiline": True,
-                        "default": "illustration of a kitten | photograph of a turtle",
-                        "tooltip": "validation sample prompts, for multiple prompts, separate by `|`",
-                    },
-                ),
+        return {"required": {
+            "flux_models": ("TRAIN_FLUX_MODELS",),
+            "dataset": ("JSON",),
+            "optimizer_settings": ("ARGS",),
+            "output_name": ("STRING", {"default": "flux_lora", "multiline": False}),
+            "output_dir": ("STRING", {"default": "flux_trainer_output", "multiline": False, "tooltip": "path to dataset, root is the 'ComfyUI' folder, with windows portable 'ComfyUI_windows_portable'"}),
+            "network_dim": ("INT", {"default": 4, "min": 1, "max": 2048, "step": 1, "tooltip": "network dim"}),
+            "network_alpha": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 2048.0, "step": 0.01, "tooltip": "network alpha"}),
+            "learning_rate": ("FLOAT", {"default": 4e-4, "min": 0.0, "max": 10.0, "step": 0.000001, "tooltip": "learning rate"}),
+            "max_train_steps": ("INT", {"default": 1500, "min": 1, "max": 100000, "step": 1, "tooltip": "max number of training steps"}),
+            "apply_t5_attn_mask": ("BOOLEAN", {"default": True, "tooltip": "apply t5 attention mask"}),
+            "cache_latents": (["disk", "memory", "disabled"], {"tooltip": "caches text encoder outputs"}),
+            "cache_text_encoder_outputs": (["disk", "memory", "disabled"], {"tooltip": "caches text encoder outputs"}),
+            "blocks_to_swap": ("INT", {"default": 0, "tooltip": "Previously known as split_mode, number of blocks to swap to save memory, default to enable is 18"}),
+            "weighting_scheme": (["logit_normal", "sigma_sqrt", "mode", "cosmap", "none"],),
+            "logit_mean": ("FLOAT", {"default": 0.0, "min": 0.0, "max": 1.0, "step": 0.01, "tooltip": "mean to use when using the logit_normal weighting scheme"}),
+            "logit_std": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 1.0, "step": 0.01,"tooltip": "std to use when using the logit_normal weighting scheme"}),
+            "mode_scale": ("FLOAT", {"default": 1.29, "min": 0.0, "max": 10.0, "step": 0.01, "tooltip": "Scale of mode weighting scheme. Only effective when using the mode as the weighting_scheme"}),
+            "timestep_sampling": (["sigmoid", "uniform", "sigma", "shift", "flux_shift"], {"tooltip": "Method to sample timesteps: sigma-based, uniform random, sigmoid of random normal and shift of sigmoid (recommend value of 3.1582 for discrete_flow_shift)"}),
+            "sigmoid_scale": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 10.0, "step": 0.1, "tooltip": "Scale factor for sigmoid timestep sampling (only used when timestep-sampling is sigmoid"}),
+            "model_prediction_type": (["raw", "additive", "sigma_scaled"], {"tooltip": "How to interpret and process the model prediction: raw (use as is), additive (add to noisy input), sigma_scaled (apply sigma scaling)."}),
+            "guidance_scale": ("FLOAT", {"default": 1.0, "min": 1.0, "max": 32.0, "step": 0.01, "tooltip": "guidance scale, for Flux training should be 1.0"}),
+            "discrete_flow_shift": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 10.0, "step": 0.0001, "tooltip": "for the Euler Discrete Scheduler, default is 3.0"}),
+            "highvram": ("BOOLEAN", {"default": False, "tooltip": "memory mode"}),
+            "fp8_base": ("BOOLEAN", {"default": True, "tooltip": "use fp8 for base model"}),
+            "gradient_dtype": (["fp32", "fp16", "bf16"], {"default": "fp32", "tooltip": "the actual dtype training uses"}),
+            "save_dtype": (["fp32", "fp16", "bf16", "fp8_e4m3fn", "fp8_e5m2"], {"default": "bf16", "tooltip": "the dtype to save checkpoints as"}),
+            "attention_mode": (["sdpa", "xformers", "disabled"], {"default": "sdpa", "tooltip": "memory efficient attention mode"}),
+            "sample_prompts": ("STRING", {"multiline": True, "default": "illustration of a kitten | photograph of a turtle", "tooltip": "validation sample prompts, for multiple prompts, separate by `|`"}),
             },
             "optional": {
-                "additional_args": (
-                    "STRING",
-                    {
-                        "multiline": True,
-                        "default": "",
-                        "tooltip": "additional args to pass to the training command",
-                    },
-                ),
-                "resume_args": (
-                    "ARGS",
-                    {
-                        "default": "",
-                        "tooltip": "resume args to pass to the training command",
-                    },
-                ),
-                "train_text_encoder": (
-                    ["disabled", "clip_l", "clip_l_fp8", "clip_l+T5", "clip_l+T5_fp8"],
-                    {
-                        "default": "disabled",
-                        "tooltip": "also train the selected text encoders using specified dtype, T5 can not be trained without clip_l",
-                    },
-                ),
-                "text_encoder_lr": (
-                    "FLOAT",
-                    {
-                        "default": 0,
-                        "min": 0.0,
-                        "max": 10.0,
-                        "step": 0.000001,
-                        "tooltip": "text encoder learning rate",
-                    },
-                ),
-                "block_args": (
-                    "ARGS",
-                    {"default": "", "tooltip": "limit the blocks used in the LoRA"},
-                ),
-                "gradient_checkpointing": (
-                    ["enabled", "enabled_with_cpu_offloading", "disabled"],
-                    {"default": "enabled", "tooltip": "use gradient checkpointing"},
-                ),
+                "additional_args": ("STRING", {"multiline": True, "default": "", "tooltip": "additional args to pass to the training command"}),
+                "resume_args": ("ARGS", {"default": "", "tooltip": "resume args to pass to the training command"}),
+                "train_text_encoder": (['disabled', 'clip_l', 'clip_l_fp8', 'clip_l+T5', 'clip_l+T5_fp8'], {"default": 'disabled', "tooltip": "also train the selected text encoders using specified dtype, T5 can not be trained without clip_l"}),
+                "clip_l_lr": ("FLOAT", {"default": 0, "min": 0.0, "max": 10.0, "step": 0.000001, "tooltip": "text encoder learning rate"}),
+                "T5_lr": ("FLOAT", {"default": 0, "min": 0.0, "max": 10.0, "step": 0.000001, "tooltip": "text encoder learning rate"}),
+                "block_args": ("ARGS", {"default": "", "tooltip": "limit the blocks used in the LoRA"}),
+                "gradient_checkpointing": (["enabled", "enabled_with_cpu_offloading", "disabled"], {"default": "enabled", "tooltip": "use gradient checkpointing"}),
+                "loss_args": ("ARGS", {"default": "", "tooltip": "loss args"}),
+            },
+            "hidden": {
+                "prompt": "PROMPT", "extra_pnginfo": "EXTRA_PNGINFO"
             },
         }
 
@@ -768,7 +545,7 @@ class FluxTrainEnd(BizyAirBaseNode):
     NODE_DISPLAY_NAME = "Flux LoRA Train End"
 
 
-class FluxTrainValidate(BizyAirBaseNode):
+class BizyAir_FluxTrainValidate(BizyAirBaseNode):
     @classmethod
     def INPUT_TYPES(s):
         return {
