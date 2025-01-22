@@ -5,6 +5,7 @@ from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from typing import Any, Dict
 
+from bizyair.image_utils import decode_data
 import comfy
 
 import requests
@@ -17,7 +18,6 @@ from .env_var import (
     BIZYAIR_DEV_GET_TASK_RESULT_SERVER,
     BIZYAIR_SERVER_ADDRESS,
 )
-
 
 def is_bizyair_async_response(result: Dict[str, Any]) -> bool:
     """Determine if the result indicates an asynchronous task."""
@@ -125,7 +125,7 @@ class BizyAirTask:
             return self.data_pool[-1]
 
     def do_task_until_completed(
-        self, *, timeout: int = 600, poll_interval: float = 1
+        self, *, timeout: int = 6000, poll_interval: float = 1
     ) -> None:
         offset = 0
         start_time = time.time()
@@ -137,7 +137,6 @@ class BizyAirTask:
                 with self._lock:
                     self.data_pool.extend(data_lst)
                     offset += len(data_lst)
-                    import ipdb; ipdb.set_trace()
 
                 for data in data_lst:
                     message = data.get("data", {}).get("message", {})
@@ -172,6 +171,7 @@ class DynamicLazyTaskExecutor(BizyAirTask):
         super().__init__(task_id, data_pool, data_status)
         self._data_offset = 0  # current data cursor
         self.executor = ThreadPoolExecutor(max_workers=1)
+        self.cache_result = {}
 
 
     def get_current_result(self) -> dict:
@@ -183,27 +183,33 @@ class DynamicLazyTaskExecutor(BizyAirTask):
 
     def _process_result(self, node_id: str, result: dict) -> dict:
         try:
+            message = result.get('data', {}).get("message", {})
             if (
-                "message" in result
-                and isinstance(result["message"], dict)
-                and result["message"]["event"] == "result"
+                isinstance(message, dict) and message.get("event", None) == "result"
             ):
-                event_node_id = result["message"]["data"]["node"]
+                event_node_id = message["data"]["node"]
                 if event_node_id == node_id:
-                    return result["data"]["payload"]
+                    return decode_data(result["data"]["payload"])
+                    # return result["data"]["payload"]
                 else:
-                    self.tmp_result[event_node_id] = result["data"]["payload"]
+                    self.cache_result[event_node_id] = decode_data(result["data"]["payload"])
         except Exception as e:
-            print(f"Error processing message for {self.name}: {e}")
+            print(f"Error processing message for : {e}")
             return None
 
     def get_result(self, node_id):
-        while not self.is_finished() or self._data_offset < len(self.data_pool):
+        def check():
+            return not self.is_finished() or self._data_offset < len(self.data_pool)
+        while check():
             ret = self.get_current_result()
+            if node_id in self.cache_result:
+                return self.cache_result[node_id]
             if ret:
                 with self._lock:
                     self._data_offset += 1
-                return self._process_result(node_id, ret)
+                out =  self._process_result(node_id, ret)
+                if out:
+                    return out 
             time.sleep(1)  # TODO: avoid busy waiting
         return {}
 
@@ -211,7 +217,7 @@ class DynamicLazyTaskExecutor(BizyAirTask):
         with self._lock:
             self._data_offset = 0
 
-    def execute_in_thread(self, timeout: int = 600, poll_interval: float = 1) -> None:
+    def execute_in_thread(self, timeout: int = 6000, poll_interval: float = 1) -> None:
         self.executor.submit(
             self.do_task_until_completed, timeout=timeout, poll_interval=poll_interval
         )

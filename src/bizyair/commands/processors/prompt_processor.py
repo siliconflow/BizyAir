@@ -160,8 +160,8 @@ class PromptPreRunProcessor(Processor):
                     link[5],
                 )
                 if is_send_request_datatype(data_type):
-                    if downstream_node_id == node_id:
-                        import ipdb; ipdb.set_trace()
+                    # if downstream_node_id == node_id: 
+                    #  TODO refine
                     continue
 
                 if upstream_node_id == node_id and downstream_node_id not in visited:
@@ -173,7 +173,7 @@ class PromptPreRunProcessor(Processor):
         if BIZYAIR_DEBUG:
             pprint.pprint(
                 {
-                    "pre_prompt": truncate_long_strings(pre_prompt),
+                    "pre_prompt": truncate_long_strings({k: v['class_type'] for k,v in pre_prompt.items()}),
                     "last_node_id": last_node_id,
                 }
             )
@@ -193,6 +193,7 @@ class PromptAsyncProcessor(PromptProcessor):
         self, url: str, prompt: Dict[str, Dict[str, Any]], **kwargs
     ) -> DynamicLazyTaskExecutor:
         result = super().process(url, prompt, **kwargs)
+        # result = {'code': 20000, 'status': True, 'data': {'task_id': 496}}
         if is_bizyair_async_response(result):
             worker = DynamicLazyTaskExecutor.from_data(result)
             worker.execute_in_thread()

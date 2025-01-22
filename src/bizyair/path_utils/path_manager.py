@@ -198,13 +198,13 @@ def get_filename_list(folder_name, *, verbose=BIZYAIR_DEBUG):
     #     )
     # if folder_name in folder_names_and_paths:
     #     results.extend(folder_names_and_paths[folder_name])
-    # if BIZYAIR_DEBUG:
-    #     try:
-    #         import folder_paths
-    #
-    #         results.extend(folder_paths.get_filename_list(folder_name))
-    #     except:
-    #         pass
+    if BIZYAIR_DEBUG:
+        try:
+            import folder_paths
+    
+            results.extend(folder_paths.get_filename_list(folder_name))
+        except:
+            pass
     return results
 
 

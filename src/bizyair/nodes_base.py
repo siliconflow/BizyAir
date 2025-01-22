@@ -1,11 +1,12 @@
 import importlib
 import logging
+from tkinter import NO
 import warnings
 from functools import wraps
 from typing import Any, Dict, List
 from .data_types import is_send_request_datatype
 from .nodes_io import BizyAirNodeIO, create_node_data
-from .common.task_base import BizyAirTask
+from .common.task_base import BizyAirTask, DynamicLazyTaskExecutor
 
 try:
     comfy_nodes = importlib.import_module("nodes")
@@ -124,6 +125,13 @@ class BizyAirBaseNode:
         class_type = self._determine_class_type()
 
         node_ios = self._process_non_send_request_types(class_type, kwargs)
+
+
+        if getattr(BizyAirBaseNode, "subscriber", None):
+            result = BizyAirBaseNode.subscriber.get_result(self.assigned_id)
+            if result:
+                return self._merge_results(result, node_ios)
+        
         # TODO: add processing for send_request_types
         send_request_datatype_list = self._get_send_request_datatypes()
         if len(send_request_datatype_list) == len(self.RETURN_TYPES):
@@ -167,16 +175,20 @@ class BizyAirBaseNode:
     def _process_partial_send_request_types(self, node_ios: List[BizyAirNodeIO]):
         # TODO: Implement handling for partial send request datatypes
         # https://docs.comfy.org/essentials/javascript_objects_and_hijacking#properties-2
-        subscriber: BizyAirTask = node_ios[0].send_request(use_async=True, hidden=self._hidden)
-        subscriber.get_result(self.assigned_id)
+        subscriber: DynamicLazyTaskExecutor = node_ios[0].send_request(use_async=True, hidden=self._hidden)
+        result = subscriber.get_result(self.assigned_id)
         # subscriber = invoker.prompt_sse_server.execute(
         #     pre_prompt=pre_prompt, hidden=self._hidden
         # )
         # result = subscriber.get_result(self.assigned_id, timeout=240 * 60)
         # result = decode_data(result)
-        # BizyAirBaseNode.subscriber = subscriber
+        BizyAirBaseNode.subscriber = subscriber
         return self._merge_results(result, node_ios)
 
-    def _merge_results(self, result: List[List[Any]], node_ios: List[BizyAirNodeIO]):
+    def _merge_results(self, result: List[List[Any]] = None, node_ios: List[BizyAirNodeIO] = None):
+        if not result:
+            print(f'Waring: get_result(node_id = {self.assigned_id}) is None')
+            return node_ios
+        
         assert len(result) == len(node_ios)
         return [x[0] if x is not None else y for x, y in zip(result, node_ios)]
