@@ -4,6 +4,7 @@ import threading
 import time
 import urllib.parse
 import uuid
+import json
 
 import aiohttp
 from server import PromptServer
@@ -590,8 +591,10 @@ class BizyAirServer:
         async def query_my_datasets(request):
             current = int(request.rel_url.query.get("current", "1"))
             page_size = int(request.rel_url.query.get("page_size", "10"))
-            json_data = await request.json()
-            keyword = json_data["keyword"]
+            keyword = None
+            if request.body_exists:
+                json_data = await request.json()
+                keyword = json_data["keyword"]
             resp, err = None, None
 
             # 调用API查询数据集
