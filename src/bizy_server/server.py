@@ -399,7 +399,7 @@ class BizyAirServer:
                 return OKResponse(None)
 
             except Exception as e:
-                print(f"\033[31m[BizyAir]\033[0m Fail to fork model version: {str(e)}")
+                print(f"\033[31m[BizyAir]\033[0m Fail to unfork model version: {str(e)}")
                 return ErrResponse(errnos.FORK_MODEL_VERSION)
 
         @self.prompt_server.routes.post(
