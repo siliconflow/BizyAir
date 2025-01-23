@@ -1,4 +1,5 @@
 import os
+import uuid
 
 import folder_paths
 import requests
@@ -109,35 +110,6 @@ class BizyAir_IF_TrellisImageTo3D(BizyAirBaseNode):
     OUTPUT_NODE = True
 
 
-class BizyAir_Trans3D2Video(BizyAirBaseNode):
-    @classmethod
-    def INPUT_TYPES(cls):
-        return {
-            "required": {
-                "trellis_gaussian": ("trellis_gaussian", {"forceInput": True}),
-                "trellis_mesh": ("trellis_mesh", {"forceInput": True}),
-                "fps": (
-                    "INT",
-                    {
-                        "default": 15,
-                        "min": 1,
-                        "max": 60,
-                        "tooltip": "FPS. the higher the value the smoother the video will be",
-                    },
-                ),
-                "render_video": (
-                    "BOOLEAN",
-                    {"default": True, "tooltip": "Render a video"},
-                ),
-            }
-        }
-
-    CATEGORY = "☁️BizyAir/Trellis"
-    NODE_DISPLAY_NAME = "☁️BizyAir Render Video With Trellis"
-    RETURN_TYPES = ("STRING",)
-    RETURN_NAMES = ("url",)
-
-
 class BizyAir_Trans3D2GlbFile(BizyAirBaseNode):
     @classmethod
     def INPUT_TYPES(cls):
@@ -192,28 +164,6 @@ class BizyAir_Trans3D2GlbFile(BizyAirBaseNode):
     RETURN_NAMES = ("url", "texture_image")
 
 
-class BizyAir_Trans3D2Gaussian(BizyAirBaseNode):
-    @classmethod
-    def INPUT_TYPES(cls):
-        return {
-            "required": {
-                "trellis_gaussian": ("trellis_gaussian", {"forceInput": True}),
-                "save_gaussian": (
-                    "BOOLEAN",
-                    {
-                        "default": True,
-                        "tooltip": "Save the Gaussian file this is a ply file of the 3D model",
-                    },
-                ),
-            }
-        }
-
-    CATEGORY = "☁️BizyAir/Trellis"
-    NODE_DISPLAY_NAME = "☁️BizyAir Generate Gaussian With Trellis"
-    RETURN_TYPES = ("STRING",)
-    RETURN_NAMES = ("url",)
-
-
 class BizyAirDownloadFile(BizyAirBaseNode):
     NODE_DISPLAY_NAME = "☁️BizyAir Download File"
 
@@ -222,7 +172,7 @@ class BizyAirDownloadFile(BizyAirBaseNode):
         return {
             "required": {
                 "url": ("STRING", {"default": ""}),
-                "project_name": ("STRING", {"default": "trellis_output"}),
+                "file_name": ("STRING", {"default": "default"}),
             }
         }
 
@@ -233,23 +183,23 @@ class BizyAirDownloadFile(BizyAirBaseNode):
     RETURN_NAMES = ("path",)
     OUTPUT_NODE = True
     OUTPUT_IS_LIST = (False,)
-    # RETURN_NAMES = ("gaussian_path",)
 
-    def main(self, url, project_name):
+    def main(self, url, file_name):
         assert url is not None
-        print(f"why (chuan) url: {url}")
-        file_name = os.path.basename(url)
-        out_dir = os.path.join(folder_paths.get_output_directory(), project_name)
+        file_name = file_name + ".glb"
+        out_dir = os.path.join(folder_paths.get_output_directory(), "trellis_output")
         os.makedirs(out_dir, exist_ok=True)
         local_path = os.path.join(out_dir, file_name)
-        output = os.path.join(project_name, file_name)
-        print("why download: ", local_path)
+        output = os.path.join("trellis_output", file_name)
         response = requests.get(url)
         if response.status_code == 200:
             with open(local_path, "wb") as file:
                 file.write(response.content)
-            print("download finished!")
+            print("download finished in {}".format(local_path))
         else:
             print(f"download error: {response.status_code}")
-        print("output: ", output)
         return (output,)
+
+    @classmethod
+    def IS_CHANGED(self, url, file_name):
+        return uuid.uuid4().hex
