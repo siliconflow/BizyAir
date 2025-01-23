@@ -381,6 +381,27 @@ class BizyAirServer:
                 print(f"\033[31m[BizyAir]\033[0m Fail to fork model version: {str(e)}")
                 return ErrResponse(errnos.FORK_MODEL_VERSION)
 
+        @self.prompt_server.routes.delete(
+            f"/{COMMUNITY_API}/models/fork/{{model_version_id}}"
+        )
+        async def unfork_model_version(request):
+            try:
+                # 获取version_id参数
+                version_id = request.match_info["model_version_id"]
+                if not version_id:
+                    return ErrResponse(errnos.INVALID_MODEL_VERSION_ID)
+
+                # 调用API fork模型版本
+                _, err = await self.api_client.unfork_model_version(version_id)
+                if err:
+                    return ErrResponse(err)
+
+                return OKResponse(None)
+
+            except Exception as e:
+                print(f"\033[31m[BizyAir]\033[0m Fail to fork model version: {str(e)}")
+                return ErrResponse(errnos.FORK_MODEL_VERSION)
+
         @self.prompt_server.routes.post(
             f"/{COMMUNITY_API}/models/like/{{model_version_id}}"
         )
