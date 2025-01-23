@@ -299,4 +299,6 @@ model_rules:
       - class_type: 'IF_TrellisCheckpointLoader'
       - class_type: IF_TrellisImageTo3D
       - class_type: Trans3D2GlbFile
+      - class_type: Trans3D2Gaussian
+      - class_type: Trans3D2Video
 model_name: bizyair-trellis
