@@ -294,11 +294,9 @@ model_rules:
     base_model: trellis
     describe: trellis
     score: 1
-    route: /supernode/bizyair-trellis
+    route: /bizy_task/bizyair-3d-trellis
     nodes:
       - class_type: 'IF_TrellisCheckpointLoader'
       - class_type: IF_TrellisImageTo3D
       - class_type: Trans3D2GlbFile
-      - class_type: Trans3D2Gaussian
-      - class_type: Trans3D2Video
-model_name: bizyair-trellis
+model_name: bizyair-3d-trellis

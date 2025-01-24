@@ -85,12 +85,12 @@ class BizyAir_IF_TrellisImageTo3D(BizyAirBaseNode):
                     "FLOAT",
                     {"default": 7.5, "min": 0.0, "max": 12.0, "step": 0.1},
                 ),
-                "ss_sampling_steps": ("INT", {"default": 12, "min": 1, "max": 100}),
+                "ss_sampling_steps": ("INT", {"default": 12, "min": 1, "max": 50}),
                 "slat_guidance_strength": (
                     "FLOAT",
                     {"default": 3.0, "min": 0.0, "max": 12.0, "step": 0.1},
                 ),
-                "slat_sampling_steps": ("INT", {"default": 12, "min": 1, "max": 100}),
+                "slat_sampling_steps": ("INT", {"default": 12, "min": 1, "max": 50}),
                 "multimode": (
                     ["stochastic", "multidiffusion"],
                     {"default": "stochastic"},
