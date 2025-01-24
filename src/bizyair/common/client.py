@@ -133,7 +133,7 @@ def send_request(
             response_data = response.read().decode("utf-8")
     except urllib.error.URLError as e:
         error_message = str(e)
-        response_body = e.read().decode("utf-8") if hasattr(e, 'read') else "N/A"
+        response_body = e.read().decode("utf-8") if hasattr(e, "read") else "N/A"
         if verbose:
             print(f"URLError encountered: {error_message}")
             print(f"Response Body: {response_data}")

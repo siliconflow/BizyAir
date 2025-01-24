@@ -201,5 +201,5 @@ class BizyAirDownloadFile(BizyAirBaseNode):
         return (output,)
 
     @classmethod
-    def IS_CHANGED(self, url, file_name):
+    def IS_CHANGED(self, url, file_name, *args, **kwargs):
         return uuid.uuid4().hex
