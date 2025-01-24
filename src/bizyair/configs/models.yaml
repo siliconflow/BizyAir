@@ -290,3 +290,12 @@ model_rules:
       - class_type: VITMatteModelLoader
       - class_type: DetailMethodPredict
       - class_type: VitMattePredict
+  - mode_type: trellis
+    base_model: trellis
+    describe: trellis
+    score: 1
+    route: /bizy_task/bizyair-3d-trellis
+    nodes:
+      - class_type: 'IF_TrellisCheckpointLoader'
+      - class_type: IF_TrellisImageTo3D
+      - class_type: Trans3D2GlbFile
