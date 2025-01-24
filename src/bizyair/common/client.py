@@ -113,30 +113,37 @@ def process_response_data(response_data: dict) -> dict:
 
 
 def send_request(
-        method: str = "POST",
-        url: str = None,
-        data: bytes = None,
-        verbose=False,
-        callback: callable = process_response_data,
-        response_handler: callable = json.loads,
-        cache_manager: CacheManager = None,
-        **kwargs,
+    method: str = "POST",
+    url: str = None,
+    data: bytes = None,
+    verbose=False,
+    callback: callable = process_response_data,
+    response_handler: callable = json.loads,
+    cache_manager: CacheManager = None,
+    **kwargs,
 ) -> Union[dict, Any]:
-    def _handle_urlerror(e: urllib.error.URLError) -> None:
-        """Handle URLError and raise appropriate exceptions."""
+    try:
+        headers = kwargs.pop("headers") if "headers" in kwargs else _headers()
+        headers["User-Agent"] = "BizyAir Client"
+
+        req = urllib.request.Request(
+            url, data=data, headers=headers, method=method, **kwargs
+        )
+        with urllib.request.urlopen(req) as response:
+            response_data = response.read().decode("utf-8")
+    except urllib.error.URLError as e:
         error_message = str(e)
         response_body = e.read().decode("utf-8") if hasattr(e, 'read') else "N/A"
-
         if verbose:
             print(f"URLError encountered: {error_message}")
-            print(f"Response Body: {response_body}")
-
+            print(f"Response Body: {response_data}")
         code, message = "N/A", "N/A"
         try:
             response_dict = json.loads(response_body)
             if isinstance(response_dict, dict):
                 code = response_dict.get("code", "N/A")
                 message = response_dict.get("message", "N/A")
+
         except json.JSONDecodeError:
             if verbose:
                 print("Failed to decode response body as JSON.")
@@ -144,12 +151,16 @@ def send_request(
         if "Unauthorized" in error_message:
             raise PermissionError(
                 "Key is invalid, please refer to https://cloud.siliconflow.cn to get the API key.\n"
-                "If you have the key, please click the 'BizyAir Key' button at the bottom right to set the key."
+                "If you have the key, please click the 'API Key' button at the bottom right to set the key."
             )
         elif code != "N/A" and message != "N/A":
             raise ConnectionError(
                 f"Failed to handle your request: {error_message}.\n"
-                + f"Error code: {code}, message: {message}\n."
+                + f"    Error code: {code}.\n"
+                + f"    Error message: {message}\n."
+                + "The cause of this issue may be incorrect parameter status or ongoing background tasks. \n"
+                + "If retrying after waiting for a while still does not resolve the issue, please report it to "
+                + "Bizyair's official support."
             )
         else:
             raise ConnectionError(
@@ -158,29 +169,11 @@ def send_request(
                 + "Also, verify your network settings and disable any proxies if necessary.\n"
                 + "After checking, please restart the ComfyUI service."
             )
-
-    if not url:
-        raise ValueError("URL must be provided.")
-
-    headers = kwargs.pop("headers", _headers())
-    headers["User-Agent"] = "BizyAir Client"
-
-    req = urllib.request.Request(url, data=data, headers=headers, method=method, **kwargs)
-
-    try:
-        with urllib.request.urlopen(req) as response:
-            response_data = response.read().decode("utf-8")
-            if verbose:
-                print(response_data)
-
-            if response_handler:
-                response_data = response_handler(response_data)
-            if callback:
-                return callback(response_data)
-            return response_data
-
-    except urllib.error.URLError as e:
-        _handle_urlerror(e)
+    if response_handler:
+        response_data = response_handler(response_data)
+    if callback:
+        return callback(response_data)
+    return response_data
 
 
 async def async_send_request(
