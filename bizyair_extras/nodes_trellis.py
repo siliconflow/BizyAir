@@ -17,12 +17,7 @@ class BizyAir_IF_TrellisCheckpointLoader(BizyAirBaseNode):
     @classmethod
     def INPUT_TYPES(cls):
         """Define input types with device-specific options."""
-        device_options = []
-        if torch.cuda.is_available():
-            device_options.append("cuda")
-        if hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
-            device_options.append("mps")
-        device_options.append("cpu")
+        device_options = ["cuda"]
 
         return {
             "required": {
