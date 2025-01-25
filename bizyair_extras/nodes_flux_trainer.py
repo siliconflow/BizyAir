@@ -370,9 +370,9 @@ class InitFluxLoRATraining(BizyAirBaseNode):
                 "gradient_checkpointing": (["enabled", "enabled_with_cpu_offloading", "disabled"], {"default": "enabled", "tooltip": "use gradient checkpointing"}),
                 "loss_args": ("ARGS", {"default": "", "tooltip": "loss args"}),
             },
-            "hidden": {
-                "prompt": "PROMPT", "extra_pnginfo": "EXTRA_PNGINFO"
-            },
+            # "hidden": {
+            #     "prompt": "PROMPT", "extra_pnginfo": "EXTRA_PNGINFO"
+            # },
         }
 
     RETURN_TYPES = (
@@ -568,3 +568,19 @@ class BizyAir_FluxTrainValidate(BizyAirBaseNode):
     # FUNCTION = "validate"
     CATEGORY = "FluxTrainer"
     NODE_DISPLAY_NAME = "Flux Train Validate"
+
+
+
+class FluxLoraUploadToBizyair(BizyAirBaseNode):
+    @classmethod
+    def INPUT_TYPES(s):
+        return {"required": {
+                "network_trainer": ("NETWORKTRAINER",),},
+                "optional": {
+                    "token": ("STRING", {"default": "","tooltip":""}),
+                }
+            }
+    RETURN_TYPES = ("NETWORKTRAINER", "STRING",)
+    RETURN_NAMES = ("network_trainer","status",)
+    # FUNCTION = "upload"
+    CATEGORY = "FluxTrainer"

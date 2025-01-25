@@ -22,7 +22,6 @@ from bizyair.image_utils import decode_data, encode_data
 
 from ..base import Command, Processor  # type: ignore
 
-
 def get_task_result(task_id: str, offset: int = 0) -> dict:
     """
     Get the result of a task.
@@ -146,11 +145,9 @@ class BizyAirTask:
         return data_lst
 
 
+from bizyair.common.caching import bizyair_task_cache
 class PromptServer(Command):
-    cache_manager: BizyAirTaskCache = BizyAirTaskCache(
-        config=CacheConfig.from_config(config_manager.get_cache_config())
-    )
-
+    cache_manager: BizyAirTaskCache = bizyair_task_cache
     def __init__(self, router: Processor, processor: Processor):
         self.router = router
         self.processor = processor
@@ -187,7 +184,7 @@ class PromptServer(Command):
 
         if BIZYAIR_DEBUG:
             debug_info = {
-                "prompt": truncate_long_strings(prompt, 50),
+                "prompt": truncate_long_strings({k: v['class_type'] for k,v in prompt.items()}),
                 "last_node_ids": last_node_ids,
             }
             pprint.pprint(debug_info, indent=4)
@@ -240,7 +237,9 @@ class PromptAsyncServer(Command):
         self.pre_run_processor = pre_run_processor
         self.request_processor = request_processor
 
-    def execute(self, prompt: Dict[str, Dict[str, Any]], **kwargs):
+    def execute(self, prompt: Dict[str, Dict[str, Any]], **kwargs):         
         real_prompt = self.pre_run_processor(pre_prompt=encode_data(prompt), **kwargs)
         url = self.router(prompt=real_prompt, **kwargs)
         return self.request_processor(url=url, prompt=real_prompt, **kwargs)
+
+

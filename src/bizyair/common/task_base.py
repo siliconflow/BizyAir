@@ -3,7 +3,7 @@ import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
-from typing import Any, Dict
+from typing import Any, Dict, Set
 
 from bizyair.image_utils import decode_data
 import comfy
@@ -28,6 +28,37 @@ def is_bizyair_async_response(result: Dict[str, Any]) -> bool:
     )
 
 
+from tqdm import tqdm
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
+def _process_event(event):
+    if (
+        "data" in event
+        and isinstance(event["data"], str)
+        and event["data"].startswith("https://")
+    ):
+        event["data"] = send_request(method="GET", url=event["data"])
+        
+    return decode_data(event)
+
+def process_events_with_threadpool(events):
+    new_events = [None] * len(events)  # 预分配一个与 events 大小相同的列表
+    with ThreadPoolExecutor() as executor:
+        # 提交任务到线程池，并记录每个任务的索引
+        future_to_index = {executor.submit(_process_event, event): idx for idx, event in enumerate(events)}
+        
+        # 使用 tqdm 显示进度
+        for future in tqdm(as_completed(future_to_index), total=len(events), desc="Processing events", unit="it"):
+            idx = future_to_index[future]  # 获取当前任务对应的索引
+            try:
+                new_event = future.result()
+                new_events[idx] = new_event  # 将结果放到正确的位置
+            except Exception as e:
+                print(f"Error processing event at index {idx}: {e}")
+                new_events[idx] = events[idx]  # 如果出错，保留原始事件
+    
+    return new_events
+
 def get_bizyair_task_result(task_id: str, offset: int = 0) -> dict:
     """
     Get the result of a task.
@@ -45,15 +76,7 @@ def get_bizyair_task_result(task_id: str, offset: int = 0) -> dict:
     )
     out = response_json
     events = out.get("data", {}).get("events", [])
-    new_events = []
-    for event in events:
-        if (
-            "data" in event
-            and isinstance(event["data"], str)
-            and event["data"].startswith("https://")
-        ):
-            event["data"] = send_request(method="GET", url=event["data"])
-        new_events.append(event)
+    new_events = process_events_with_threadpool(events)
     out["data"]["events"] = new_events
     return out
 
@@ -72,6 +95,7 @@ class BizyAirTask:
     """
     TASK_DATA_STATUS = ["PENDING", "PROCESSING", "COMPLETED"]
     task_id: str
+    prompt: Dict[str, Any] = field(default_factory=dict)
     data_pool: list[dict] = field(default_factory=list)
     node_output_cache: Dict[str, Dict] = field(default_factory=dict)
     data_status: str = None
@@ -86,27 +110,26 @@ class BizyAirTask:
         )
 
     @classmethod
-    def from_data(cls, inputs: dict, check_inputs: bool = True) -> "BizyAirTask":
+    def from_data(cls, inputs: dict, prompt: Dict[str, Any], check_inputs: bool = True) -> "BizyAirTask":
         if check_inputs and not cls.check_inputs(inputs):
             raise ValueError(f"Invalid inputs: {inputs}")
         data = inputs.get("data", {})
         task_id = data.get("task_id", "")
-        return cls(task_id=task_id, data_pool=[], data_status="started")
+        return cls(task_id=task_id, data_pool=[], data_status="started", prompt=prompt)
 
     def is_finished(self) -> bool:
         with self._lock:
             if not self.data_pool:
                 return False
-            if self.data_pool[-1].get("data_status") == self.TASK_DATA_STATUS[-1]:
+            if self.data_pool[-1].get("data_status") == self.TASK_DATA_STATUS[-1]:                
                 return True
         return False
 
     def send_request(self, offset: int = 0) -> dict:
-        with self._lock:
-            if offset >= len(self.data_pool):
-                return get_bizyair_task_result(self.task_id, offset)
-            else:
-                return self.data_pool[offset]
+        if offset >= len(self.data_pool):
+            return get_bizyair_task_result(self.task_id, offset)
+        else:
+            return self.data_pool[offset]
 
     def get_data(self, offset: int = 0) -> dict:
         with self._lock:
@@ -166,13 +189,14 @@ class BizyAirTask:
 
 class DynamicLazyTaskExecutor(BizyAirTask):
     def __init__(
-        self, task_id: str, data_pool: list[dict] = [], data_status: str = "started"
+        self, **kwargs
     ):
-        super().__init__(task_id, data_pool, data_status)
+        super().__init__(**kwargs)
         self._data_offset = 0  # current data cursor
         self.executor = ThreadPoolExecutor(max_workers=1)
         self.cache_result = {}
-
+        self.queried_nodes: Set[str] = set()
+        
 
     def get_current_result(self) -> dict:
         with self._lock:
@@ -189,18 +213,27 @@ class DynamicLazyTaskExecutor(BizyAirTask):
             ):
                 event_node_id = message["data"]["node"]
                 if event_node_id == node_id:
-                    return decode_data(result["data"]["payload"])
-                    # return result["data"]["payload"]
+                    return result["data"]["payload"]
                 else:
-                    self.cache_result[event_node_id] = decode_data(result["data"]["payload"])
+                    self.cache_result[event_node_id] = result["data"]["payload"]
         except Exception as e:
             print(f"Error processing message for : {e}")
-            return None
-
+            return None        
+    
     def get_result(self, node_id):
+        if node_id not in self.prompt:
+            print(f'Error {node_id} not in self.prompt')
+            return None
+        
+        self.queried_nodes.add(node_id)
+        with self._lock:
+            if node_id in self.cache_result:
+                return self.cache_result[node_id]
+        
         def check():
             return not self.is_finished() or self._data_offset < len(self.data_pool)
-        while check():
+    
+        while check(): # Poll for the result
             ret = self.get_current_result()
             if node_id in self.cache_result:
                 return self.cache_result[node_id]
@@ -210,8 +243,8 @@ class DynamicLazyTaskExecutor(BizyAirTask):
                 out =  self._process_result(node_id, ret)
                 if out:
                     return out 
-            time.sleep(1)  # TODO: avoid busy waiting
-        return {}
+            time.sleep(0.5)  # TODO: avoid busy waiting
+        return None
 
     def reset(self) -> None:
         with self._lock:

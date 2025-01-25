@@ -1,3 +1,4 @@
+import hashlib
 import json
 import pprint
 from collections import deque
@@ -108,12 +109,24 @@ class PromptProcessor(Processor):
     def process(
         self, url: str, prompt: Dict[str, Dict[str, Any]], last_node_ids: List[str], **kwargs
     ):
+        # import requests
+        
+        # out = requests.request(method='POST', url = url, json={
+        #             "prompt": prompt,
+        #             "exec_info": self._exec_info(prompt),
+        #         }, headers=client._headers())
+        
+        # out =  requests.request(method='POST', url = url, json={'prompt':prompt, 'exec_info': self._exec_info(prompt)}, headers=client._headers())
+        # # out =  requests.request(method='POST', url = 'https://bizyair-api.siliconflow.cn/x/v1/bizy_task/dev-flux-lora-train', json={'prompt':prompt, 'exec_info': self._exec_info(prompt)}, headers=client._headers())
+        # # out =  requests.request(method='POST', url = 'https://bizyair-api.siliconflow.cn/x/v1/bizy_task/dev-flux-lora-train', json={'prompt':{'1': 'in'}, 'exec_info': self._exec_info(prompt)}, headers=client._headers())
+
+        # import ipdb; ipdb.set_trace()
         return client.send_request(
             url=url,
             data=json.dumps(
                 {
                     "prompt": prompt,
-                    "last_node_id": last_node_ids[0],
+                    # "last_node_id": last_node_ids[0],
                     "exec_info": self._exec_info(prompt),
                 }
             ).encode("utf-8"),
@@ -140,6 +153,7 @@ class PromptPreRunProcessor(Processor):
         queue = deque([int(unique_id)])
         visited = set()
         last_node_id = int(unique_id)
+        
         while queue:
             node_id = queue.popleft()
             if str(node_id) not in pre_prompt and str(node_id) in hidden["prompt"]:
@@ -163,11 +177,22 @@ class PromptPreRunProcessor(Processor):
                     # if downstream_node_id == node_id: 
                     #  TODO refine
                     continue
-
+                elif data_type == '*':
+                    import nodes
+                    class_type = hidden["prompt"][str(upstream_node_id)]['class_type']
+                    class_def = nodes.NODE_CLASS_MAPPINGS[class_type]
+                    data_type = class_def.RETURN_TYPES[link[2]]
+                    if data_type == 'KOHYA_ARGS': # TODO fix
+                        continue
+                    if is_send_request_datatype(data_type):
+                        continue
+                
                 if upstream_node_id == node_id and downstream_node_id not in visited:
+                    print(f'add {downstream_node_id=}')
                     queue.append(downstream_node_id)
 
                 elif downstream_node_id == node_id and upstream_node_id not in visited:
+                    print(f'add {upstream_node_id=}')
                     queue.append(upstream_node_id)
 
         if BIZYAIR_DEBUG:
@@ -178,6 +203,8 @@ class PromptPreRunProcessor(Processor):
                 }
             )
             # dict_keys(['139', '141', '142', '138', '143', '150'])
+
+        # TODO remove hidden keys
         return pre_prompt
 
     def validate_input(
@@ -188,14 +215,24 @@ class PromptPreRunProcessor(Processor):
         return True
 
 
+from bizyair.common.caching import bizyair_task_cache
 class PromptAsyncProcessor(PromptProcessor):
     def process(
         self, url: str, prompt: Dict[str, Dict[str, Any]], **kwargs
     ) -> DynamicLazyTaskExecutor:
-        result = super().process(url, prompt, **kwargs)
-        # result = {'code': 20000, 'status': True, 'data': {'task_id': 496}}
+        cache_key = hashlib.sha256(
+            json.dumps({"url": url, "prompt": prompt}).encode("utf-8")
+        ).hexdigest()
+        cached_output = bizyair_task_cache.get(cache_key)
+        if cached_output:
+            print(f'find cached_output {cache_key=}')
+            result = cached_output
+        else:
+            result = super().process(url, prompt, **kwargs)
+            bizyair_task_cache.set(cache_key, result, overwrite=True)
+
         if is_bizyair_async_response(result):
-            worker = DynamicLazyTaskExecutor.from_data(result)
+            worker = DynamicLazyTaskExecutor.from_data(inputs=result, prompt=prompt)
             worker.execute_in_thread()
             return worker
         raise ValueError("Invalid response, not a bizyair async response")

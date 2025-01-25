@@ -125,7 +125,6 @@ def send_request(
     try:
         headers = kwargs.pop("headers") if "headers" in kwargs else _headers()
         headers["User-Agent"] = "BizyAir Client"
-
         req = urllib.request.Request(
             url, data=data, headers=headers, method=method, **kwargs
         )
@@ -142,7 +141,7 @@ def send_request(
             )
         else:
             raise ConnectionError(
-                f"Failed to connect to the server: {error_message}.\n"
+                f"Failed to connect {url} to the server: {error_message}.\n"
                 + "Please check your API key and ensure the server is reachable.\n"
                 + "Also, verify your network settings and disable any proxies if necessary.\n"
                 + "After checking, please restart the ComfyUI service."

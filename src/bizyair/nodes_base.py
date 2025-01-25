@@ -128,9 +128,13 @@ class BizyAirBaseNode:
 
 
         if getattr(BizyAirBaseNode, "subscriber", None):
-            result = BizyAirBaseNode.subscriber.get_result(self.assigned_id)
-            if result:
-                return self._merge_results(result, node_ios)
+            if self.assigned_id in BizyAirBaseNode.subscriber.queried_nodes:
+                print(f'Delete used ones subscriber')
+                BizyAirBaseNode.subscriber = None 
+            else:    
+                result = BizyAirBaseNode.subscriber.get_result(self.assigned_id)
+                if result:
+                    return self._merge_results(result, node_ios)
         
         # TODO: add processing for send_request_types
         send_request_datatype_list = self._get_send_request_datatypes()
@@ -177,11 +181,6 @@ class BizyAirBaseNode:
         # https://docs.comfy.org/essentials/javascript_objects_and_hijacking#properties-2
         subscriber: DynamicLazyTaskExecutor = node_ios[0].send_request(use_async=True, hidden=self._hidden)
         result = subscriber.get_result(self.assigned_id)
-        # subscriber = invoker.prompt_sse_server.execute(
-        #     pre_prompt=pre_prompt, hidden=self._hidden
-        # )
-        # result = subscriber.get_result(self.assigned_id, timeout=240 * 60)
-        # result = decode_data(result)
         BizyAirBaseNode.subscriber = subscriber
         return self._merge_results(result, node_ios)
 
