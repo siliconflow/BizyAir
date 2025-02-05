@@ -4,6 +4,7 @@ import uuid
 import folder_paths
 import requests
 import torch
+import trimesh
 
 from bizyair import BizyAirBaseNode
 
@@ -186,18 +187,27 @@ class BizyAirDownloadFile(BizyAirBaseNode):
 
     def main(self, url, file_name):
         assert url is not None
-        file_name = file_name + ".glb"
+        file_glb = file_name + ".glb"
+        file_obj = file_name + ".obj"
         out_dir = os.path.join(folder_paths.get_output_directory(), "trellis_output")
         os.makedirs(out_dir, exist_ok=True)
-        local_path = os.path.join(out_dir, file_name)
-        output = os.path.join("trellis_output", file_name)
+        local_path = os.path.join(out_dir, file_glb)
+        local_obj = os.path.join(out_dir, file_obj)
+        output = os.path.join("trellis_output", file_glb)
         response = requests.get(url)
         if response.status_code == 200:
             with open(local_path, "wb") as file:
                 file.write(response.content)
             print("download finished in {}".format(local_path))
+            # load GLB 文件
+            mesh = trimesh.load(local_path)
+            # export OBJ（include .obj 和 .mtl file）
+            mesh.export(local_obj, include_texture=True, file_type="obj")
+
+            print(f"Transform success！obj file is stored in {local_obj}")
         else:
             print(f"download error: {response.status_code}")
+
         return (output,)
 
     @classmethod
