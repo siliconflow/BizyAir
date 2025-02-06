@@ -592,9 +592,11 @@ class BizyAirServer:
             current = int(request.rel_url.query.get("current", "1"))
             page_size = int(request.rel_url.query.get("page_size", "10"))
             keyword = None
+            annotated = None
             if request.body_exists:
                 json_data = await request.json()
                 keyword = json_data["keyword"]
+                annotated = json_data["annotated"]
             resp, err = None, None
 
             # 调用API查询数据集
@@ -602,6 +604,7 @@ class BizyAirServer:
                 current,
                 page_size,
                 keyword=keyword,
+                annotated=annotated,
             )
             if err:
                 return ErrResponse(err)

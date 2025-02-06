@@ -555,11 +555,14 @@ class APIClient:
         current: int,
         page_size: int,
         keyword: str = None,
+        annotated: str = None,
     ) -> tuple[dict | None, ErrorNo | None]:
         server_url = f"{BIZYAIR_SERVER_ADDRESS}/datasets"
         params = {"current": current, "page_size": page_size}
         if keyword:
             params["keyword"] = keyword
+        if annotated:
+            params["annotated"] = annotated
 
         headers, err = self.auth_header()
         if err is not None:
