@@ -7,9 +7,9 @@ export const styleMenus = `
     width: auto;
     height: 32px;
     border-radius: 4px;
-    background: #7C3AED;
+    // background: #7C3AED;
     display: flex;
-    padding: 0px 0 0 4px;
+    // padding: 0px 0 0 4px;
 }
 .bizyair-logo{
     width: 28px;
