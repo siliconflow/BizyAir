@@ -186,6 +186,8 @@ class PromptPreRunProcessor(Processor):
                         continue
                     if is_send_request_datatype(data_type):
                         continue
+                  
+                    
                 
                 if upstream_node_id == node_id and downstream_node_id not in visited:
                     print(f'add {downstream_node_id=}')
@@ -220,6 +222,7 @@ class PromptAsyncProcessor(PromptProcessor):
     def process(
         self, url: str, prompt: Dict[str, Dict[str, Any]], **kwargs
     ) -> DynamicLazyTaskExecutor:
+        # TODO disable prompt _meta info
         cache_key = hashlib.sha256(
             json.dumps({"url": url, "prompt": prompt}).encode("utf-8")
         ).hexdigest()
@@ -233,7 +236,6 @@ class PromptAsyncProcessor(PromptProcessor):
 
         if is_bizyair_async_response(result):
             worker = DynamicLazyTaskExecutor.from_data(inputs=result, prompt=prompt)
-            worker.execute_in_thread()
             return worker
         raise ValueError("Invalid response, not a bizyair async response")
 

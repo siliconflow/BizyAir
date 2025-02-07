@@ -6,7 +6,7 @@ from functools import wraps
 from typing import Any, Dict, List
 from .data_types import is_send_request_datatype
 from .nodes_io import BizyAirNodeIO, create_node_data
-from .common.task_base import BizyAirTask, DynamicLazyTaskExecutor
+from .common.task_base import BizyAirTask, DynamicLazyTaskExecutor, is_training_mode, get_training_subscriber, set_training_subscriber
 
 try:
     comfy_nodes = importlib.import_module("nodes")
@@ -126,18 +126,22 @@ class BizyAirBaseNode:
 
         node_ios = self._process_non_send_request_types(class_type, kwargs)
 
-
-        if getattr(BizyAirBaseNode, "subscriber", None):
-            if self.assigned_id in BizyAirBaseNode.subscriber.queried_nodes:
-                print(f'Delete used ones subscriber')
-                BizyAirBaseNode.subscriber = None 
-            else:    
-                result = BizyAirBaseNode.subscriber.get_result(self.assigned_id)
-                if result:
-                    return self._merge_results(result, node_ios)
-        
         # TODO: add processing for send_request_types
         send_request_datatype_list = self._get_send_request_datatypes()
+        if len(send_request_datatype_list) == 0:
+            return node_ios
+        
+        if is_training_mode():
+            subscriber: DynamicLazyTaskExecutor = get_training_subscriber()
+            if self.assigned_id in subscriber.queried_nodes:
+                print(f'Delete used ones subscriber')
+                set_training_subscriber(subscriber=None)
+            else:
+                result = subscriber.get_result(self.assigned_id)
+                if result:
+                    return self._merge_results(result, node_ios)
+            set_training_subscriber(None)
+            raise RuntimeError("Unknown")
         if len(send_request_datatype_list) == len(self.RETURN_TYPES):
             return self._process_all_send_request_types(node_ios)
         elif len(send_request_datatype_list) > 0:
@@ -181,7 +185,7 @@ class BizyAirBaseNode:
         # https://docs.comfy.org/essentials/javascript_objects_and_hijacking#properties-2
         subscriber: DynamicLazyTaskExecutor = node_ios[0].send_request(use_async=True, hidden=self._hidden)
         result = subscriber.get_result(self.assigned_id)
-        BizyAirBaseNode.subscriber = subscriber
+        set_training_subscriber(subscriber)
         return self._merge_results(result, node_ios)
 
     def _merge_results(self, result: List[List[Any]] = None, node_ios: List[BizyAirNodeIO] = None):

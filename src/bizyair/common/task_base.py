@@ -28,6 +28,20 @@ def is_bizyair_async_response(result: Dict[str, Any]) -> bool:
     )
 
 
+
+_TRAINING_SUBSCRIBER = None
+def set_training_subscriber(subscriber=None):
+    global _TRAINING_SUBSCRIBER
+    _TRAINING_SUBSCRIBER = subscriber
+
+def get_training_subscriber():
+    global _TRAINING_SUBSCRIBER
+    return _TRAINING_SUBSCRIBER
+
+def is_training_mode()->bool:
+    return _TRAINING_SUBSCRIBER is not None
+
+
 from tqdm import tqdm
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
@@ -35,10 +49,10 @@ def _process_event(event):
     if (
         "data" in event
         and isinstance(event["data"], str)
-        and event["data"].startswith("https://")
-    ):
-        event["data"] = send_request(method="GET", url=event["data"])
-        
+        and event["data"].strip('"').startswith("https://") # TODO fix need .strip('"') bug
+    ):  
+        # event["data"] = send_request(method="GET", url=event["data"].strip('"'))
+        event['data'] = requests.get(url=event["data"].strip('"')).json()
     return decode_data(event)
 
 def process_events_with_threadpool(events):
@@ -91,7 +105,6 @@ class BizyAirTask:
         data_pool (List[Dict]): A list of data items associated with the task.
         node_output_cache (Dict[str, Dict]): A cache to store output results by node ID.
         data_status (TaskDataStatus): The current status of the task data.
-        _lock (threading.Lock): A lock to ensure thread-safe operations.
     """
     TASK_DATA_STATUS = ["PENDING", "PROCESSING", "COMPLETED"]
     task_id: str
@@ -99,7 +112,6 @@ class BizyAirTask:
     data_pool: list[dict] = field(default_factory=list)
     node_output_cache: Dict[str, Dict] = field(default_factory=dict)
     data_status: str = None
-    _lock: threading.Lock = field(default_factory=threading.Lock, init=False)
 
     @staticmethod
     def check_inputs(inputs: dict) -> bool:
@@ -118,11 +130,10 @@ class BizyAirTask:
         return cls(task_id=task_id, data_pool=[], data_status="started", prompt=prompt)
 
     def is_finished(self) -> bool:
-        with self._lock:
-            if not self.data_pool:
-                return False
-            if self.data_pool[-1].get("data_status") == self.TASK_DATA_STATUS[-1]:                
-                return True
+        if not self.data_pool:
+            return False
+        if self.data_pool[-1].get("data_status") == self.TASK_DATA_STATUS[-1]:                
+            return True
         return False
 
     def send_request(self, offset: int = 0) -> dict:
@@ -132,20 +143,18 @@ class BizyAirTask:
             return self.data_pool[offset]
 
     def get_data(self, offset: int = 0) -> dict:
-        with self._lock:
-            if offset >= len(self.data_pool):
-                return {}
-            return self.data_pool[offset]
+        if offset >= len(self.data_pool):
+            return {}
+        return self.data_pool[offset]
 
     @staticmethod
     def _fetch_remote_data(url: str) -> dict:
         return requests.get(url).json()
 
     def get_last_data(self) -> dict:
-        with self._lock:
-            if not self.data_pool:
-                return {}
-            return self.data_pool[-1]
+        if not self.data_pool:
+            return {}
+        return self.data_pool[-1]
 
     def do_task_until_completed(
         self, *, timeout: int = 6000, poll_interval: float = 1
@@ -157,9 +166,8 @@ class BizyAirTask:
             try:
                 data = self.send_request(offset)
                 data_lst = self._extract_data_list(data)
-                with self._lock:
-                    self.data_pool.extend(data_lst)
-                    offset += len(data_lst)
+                self.data_pool.extend(data_lst)
+                offset += len(data_lst)
 
                 for data in data_lst:
                     message = data.get("data", {}).get("message", {})
@@ -199,11 +207,10 @@ class DynamicLazyTaskExecutor(BizyAirTask):
         
 
     def get_current_result(self) -> dict:
-        with self._lock:
-            if self._data_offset >= len(self.data_pool):
-                return {}
-            else:
-                return self.data_pool[self._data_offset]
+        if self._data_offset >= len(self.data_pool):
+            return {}
+        else:
+            return self.data_pool[self._data_offset]
 
     def _process_result(self, node_id: str, result: dict) -> dict:
         try:
@@ -221,36 +228,50 @@ class DynamicLazyTaskExecutor(BizyAirTask):
             return None        
     
     def get_result(self, node_id):
+        print(f'in ='*20, node_id, '-'*10)
         if node_id not in self.prompt:
             print(f'Error {node_id} not in self.prompt')
             return None
         
         self.queried_nodes.add(node_id)
-        with self._lock:
-            if node_id in self.cache_result:
-                return self.cache_result[node_id]
         
         def check():
             return not self.is_finished() or self._data_offset < len(self.data_pool)
-    
+        
+        pbar = None
         while check(): # Poll for the result
-            ret = self.get_current_result()
             if node_id in self.cache_result:
-                return self.cache_result[node_id]
-            if ret:
-                with self._lock:
-                    self._data_offset += 1
-                out =  self._process_result(node_id, ret)
-                if out:
-                    return out 
+                break
+            print(f'{self.cache_result.keys()=}')
+            
+            data = self.send_request(self._data_offset)
+            
+            data_lst = self._extract_data_list(data)
+
+            self.data_pool.extend(data_lst)
+            self._data_offset += len(data_lst)
+
+            for data in data_lst:
+                message = data.get("data", {}).get("message", {})
+                if (
+                    isinstance(message, dict)
+                    and message.get("event", None) == "progress"
+                ):
+                    value = message["data"]["value"]
+                    total = message["data"]["max"]
+                    if pbar is None:
+                        pbar = comfy.utils.ProgressBar(total)
+                    pbar.update_absolute(value + 1, total, None)
+                
+                self._process_result(node_id, data)
+           
             time.sleep(0.5)  # TODO: avoid busy waiting
-        return None
+        
+        if node_id in self.cache_result:
+            print(f'out = '*20, node_id, '-'*10)
+            return self.cache_result[node_id]
+        else:
+            return None
 
     def reset(self) -> None:
-        with self._lock:
-            self._data_offset = 0
-
-    def execute_in_thread(self, timeout: int = 6000, poll_interval: float = 1) -> None:
-        self.executor.submit(
-            self.do_task_until_completed, timeout=timeout, poll_interval=poll_interval
-        )
+        self._data_offset = 0

@@ -119,7 +119,6 @@ def send_request(
     verbose=False,
     callback: callable = process_response_data,
     response_handler: callable = json.loads,
-    cache_manager: CacheManager = None,
     **kwargs,
 ) -> Union[dict, Any]:
     try:
