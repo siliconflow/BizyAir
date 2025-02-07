@@ -1,10 +1,10 @@
 import asyncio
+import json
 import logging
 import threading
 import time
 import urllib.parse
 import uuid
-import json
 
 import aiohttp
 from server import PromptServer
@@ -452,7 +452,7 @@ class BizyAirServer:
             if err is not None:
                 return ErrResponse(err)
             return OKResponse(model_files)
-        
+
         @self.prompt_server.routes.post(f"/{COMMUNITY_API}/datasets")
         async def commit_dataset(request):
             sid = request.rel_url.query.get("clientId", "")
@@ -509,7 +509,7 @@ class BizyAirServer:
             # bizyair.path_utils.path_manager.enable_refresh_options("loras")
 
             return OKResponse(resp)
-        
+
         @self.prompt_server.routes.put(f"/{COMMUNITY_API}/datasets/{{dataset_id}}")
         async def update_dataset(request):
             sid = request.rel_url.query.get("clientId", "")
@@ -570,7 +570,7 @@ class BizyAirServer:
             ).start()
 
             return OKResponse(None)
-        
+
         @self.prompt_server.routes.delete(f"/{COMMUNITY_API}/datasets/{{dataset_id}}")
         async def delete_dataset(request):
             # 获取路径参数中的数据集ID
@@ -586,7 +586,7 @@ class BizyAirServer:
                 return ErrResponse(err)
 
             return OKResponse(resp)
-    
+
         @self.prompt_server.routes.post(f"/{COMMUNITY_API}/datasets/query")
         async def query_my_datasets(request):
             current = int(request.rel_url.query.get("current", "1"))
@@ -611,7 +611,9 @@ class BizyAirServer:
 
             return OKResponse(resp)
 
-        @self.prompt_server.routes.get(f"/{COMMUNITY_API}/datasets/{{dataset_id}}/detail")
+        @self.prompt_server.routes.get(
+            f"/{COMMUNITY_API}/datasets/{{dataset_id}}/detail"
+        )
         async def get_dataset_detail(request):
             # 获取路径参数中的数据集ID
             dataset_id = int(request.match_info["dataset_id"])
@@ -626,31 +628,31 @@ class BizyAirServer:
                 return ErrResponse(err)
 
             return OKResponse(resp)
-        
+
         @self.prompt_server.routes.post(f"/{COMMUNITY_API}/share")
         async def create_share(request):
             json_data = await request.json()
             if "biz_id" not in json_data:
                 return ErrResponse(errnos.INVALID_SHARE_BIZ_ID)
-            
+
             biz_id = int(json_data["biz_id"])
             if not biz_id or biz_id <= 0:
                 return ErrResponse(errnos.INVALID_SHARE_BIZ_ID)
-            
+
             if "type" not in json_data:
                 return ErrResponse(errnos.INVALID_SHARE_TYPE)
             if not is_string_valid(json_data["type"]) or (
                 json_data["type"] != "bizy_model_version"
             ):
                 return ErrResponse(errnos.INVALID_SHARE_TYPE)
-            
+
             # 调用API提交数据集
             resp, err = await self.api_client.create_share(payload=json_data)
             if err:
                 return ErrResponse(err)
-            
+
             return OKResponse(resp)
-        
+
         @self.prompt_server.routes.get(f"/{COMMUNITY_API}/share/{{code}}")
         async def get_share_detail(request):
             # 获取路径参数中的数据集ID

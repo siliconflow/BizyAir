@@ -48,11 +48,13 @@ class errnos:
     INVALID_DATASET_NAME = ErrorNo(400, 400135, None, "Invalid dataset name")
     INVALID_DATASET_VERSION = ErrorNo(400, 400136, None, "Invalid dataset version")
     INVALID_DATASET_ID = ErrorNo(400, 400137, None, "Invalid dataset id")
-    INVALID_DATASET_VERSION_ID = ErrorNo(400, 400138, None, "Invalid dataset version id")
+    INVALID_DATASET_VERSION_ID = ErrorNo(
+        400, 400138, None, "Invalid dataset version id"
+    )
     INVALID_SHARE_BIZ_ID = ErrorNo(400, 400139, None, "Invalid share biz id")
     INVALID_SHARE_TYPE = ErrorNo(400, 400140, None, "Invalid share type")
     INVALID_SHARE_CODE = ErrorNo(400, 400141, None, "Invalid share code")
-    
+
     INVALID_API_KEY = ErrorNo(401, 401000, None, "Invalid API key")
     INVALID_USER = ErrorNo(401, 401001, None, "Invalid user")
 

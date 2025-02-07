@@ -1,5 +1,6 @@
 from bizyair import BizyAirBaseNode
 
+
 class TrainDatasetAdd(BizyAirBaseNode):
     @classmethod
     def INPUT_TYPES(s):
