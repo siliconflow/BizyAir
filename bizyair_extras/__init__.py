@@ -17,3 +17,4 @@ from .nodes_segment_anything import *
 from .nodes_testing_utils import *
 from .nodes_ultimatesdupscale import *
 from .nodes_upscale_model import *
+from .nodes_dataset import *
