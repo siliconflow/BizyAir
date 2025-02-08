@@ -10,6 +10,7 @@ export const styleMenus = `
     // background: #7C3AED;
     display: flex;
     // padding: 0px 0 0 4px;
+    z-index: 999;
 }
 .bizyair-logo{
     width: 28px;
