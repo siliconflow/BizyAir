@@ -658,12 +658,28 @@ class BizyAirServer:
             # 获取路径参数中的数据集ID
             code = str(request.match_info["code"])
 
-            # 检查dataset_id是否合法
+            # 检查code是否合法
             if not is_string_valid(code):
                 return ErrResponse(errnos.INVALID_SHARE_CODE)
 
             # 调用API获取数据集详情
             resp, err = await self.api_client.get_share_detail(code)
+            if err:
+                return ErrResponse(err)
+
+            return OKResponse(resp)
+
+        @self.prompt_server.routes.get(f"/{COMMUNITY_API}/model_version/{{version_id}}")
+        async def get_model_version_detail(request):
+            # 获取路径参数中的数据集ID
+            version_id = int(request.match_info["version_id"])
+
+            # 检查version_id是否合法
+            if not version_id or version_id <= 0:
+                return ErrResponse(errnos.INVALID_MODEL_VERSION_ID)
+
+            # 调用API获取数据集详情
+            resp, err = await self.api_client.get_model_version_detail(version_id)
             if err:
                 return ErrResponse(err)
 
