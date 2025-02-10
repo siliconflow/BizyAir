@@ -86,3 +86,4 @@ class errnos:
     QUERY_OFFICIAL_MODELS = ErrorNo(
         500, 500129, None, "Failed to query official models"
     )
+    UNFORK_MODEL_VERSION = ErrorNo(500, 500130, None, "Failed to unfork model version")
