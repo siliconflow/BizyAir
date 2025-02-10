@@ -201,7 +201,7 @@ def get_filename_list(folder_name, *, verbose=BIZYAIR_DEBUG):
     if BIZYAIR_DEBUG:
         try:
             import folder_paths
-    
+
             results.extend(folder_paths.get_filename_list(folder_name))
         except:
             pass

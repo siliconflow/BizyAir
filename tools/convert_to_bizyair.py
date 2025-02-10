@@ -110,7 +110,7 @@ def main():
         args.output = args.input.replace(".json", ".bizyair.json")
     with open(args.output, "w") as f:
         json.dump(out, f)
-    
+
     # pprint.pprint({"status": "success"})
 
 

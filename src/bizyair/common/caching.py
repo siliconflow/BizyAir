@@ -1,11 +1,11 @@
 import glob
 import json
 import os
-from re import T
 import time
 from abc import ABC, abstractmethod
 from collections import OrderedDict
 from dataclasses import dataclass
+from re import T
 from typing import Any, Dict
 
 
@@ -148,10 +148,9 @@ class BizyAirTaskCache(CacheManager):
         )
         self.write_file(key, value, file_path, timestamp)
 
-
     def tmp_add(self, key, value):
         self._tmp_cache[key] = value
-    
+
     def commit(self, key):
         self.set(key=key, value=self._tmp_cache[key], overwrite=True)
 
@@ -185,11 +184,11 @@ class BizyAirTaskCache(CacheManager):
         self.clear()
 
 
-
 from bizyair.configs.conf import config_manager
+
 bizyair_task_cache: BizyAirTaskCache = BizyAirTaskCache(
-        config=CacheConfig.from_config(config_manager.get_cache_config())
-    )
+    config=CacheConfig.from_config(config_manager.get_cache_config())
+)
 
 
 # Example usage

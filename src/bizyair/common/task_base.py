@@ -5,12 +5,11 @@ from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from typing import Any, Dict, Set
 
-from bizyair.image_utils import decode_data
 import comfy
-
 import requests
 
 from bizyair.configs.conf import config_manager
+from bizyair.image_utils import decode_data
 
 from .client import send_request
 from .env_var import (
@@ -18,6 +17,7 @@ from .env_var import (
     BIZYAIR_DEV_GET_TASK_RESULT_SERVER,
     BIZYAIR_SERVER_ADDRESS,
 )
+
 
 def is_bizyair_async_response(result: Dict[str, Any]) -> bool:
     """Determine if the result indicates an asynchronous task."""
@@ -28,41 +28,57 @@ def is_bizyair_async_response(result: Dict[str, Any]) -> bool:
     )
 
 
-
 _TRAINING_SUBSCRIBER = None
+
+
 def set_training_subscriber(subscriber=None):
     global _TRAINING_SUBSCRIBER
     _TRAINING_SUBSCRIBER = subscriber
+
 
 def get_training_subscriber():
     global _TRAINING_SUBSCRIBER
     return _TRAINING_SUBSCRIBER
 
-def is_training_mode()->bool:
+
+def is_training_mode() -> bool:
     return _TRAINING_SUBSCRIBER is not None
 
 
-from tqdm import tqdm
 from concurrent.futures import ThreadPoolExecutor, as_completed
+
+from tqdm import tqdm
+
 
 def _process_event(event):
     if (
         "data" in event
         and isinstance(event["data"], str)
-        and event["data"].strip('"').startswith("https://") # TODO fix need .strip('"') bug
-    ):  
+        and event["data"]
+        .strip('"')
+        .startswith("https://")  # TODO fix need .strip('"') bug
+    ):
         # event["data"] = send_request(method="GET", url=event["data"].strip('"'))
-        event['data'] = requests.get(url=event["data"].strip('"')).json()
+        event["data"] = requests.get(url=event["data"].strip('"')).json()
     return decode_data(event)
+
 
 def process_events_with_threadpool(events):
     new_events = [None] * len(events)  # 预分配一个与 events 大小相同的列表
     with ThreadPoolExecutor() as executor:
         # 提交任务到线程池，并记录每个任务的索引
-        future_to_index = {executor.submit(_process_event, event): idx for idx, event in enumerate(events)}
-        
+        future_to_index = {
+            executor.submit(_process_event, event): idx
+            for idx, event in enumerate(events)
+        }
+
         # 使用 tqdm 显示进度
-        for future in tqdm(as_completed(future_to_index), total=len(events), desc="Processing events", unit="it"):
+        for future in tqdm(
+            as_completed(future_to_index),
+            total=len(events),
+            desc="Processing events",
+            unit="it",
+        ):
             idx = future_to_index[future]  # 获取当前任务对应的索引
             try:
                 new_event = future.result()
@@ -70,8 +86,9 @@ def process_events_with_threadpool(events):
             except Exception as e:
                 print(f"Error processing event at index {idx}: {e}")
                 new_events[idx] = events[idx]  # 如果出错，保留原始事件
-    
+
     return new_events
+
 
 def get_bizyair_task_result(task_id: str, offset: int = 0) -> dict:
     """
@@ -106,6 +123,7 @@ class BizyAirTask:
         node_output_cache (Dict[str, Dict]): A cache to store output results by node ID.
         data_status (TaskDataStatus): The current status of the task data.
     """
+
     TASK_DATA_STATUS = ["PENDING", "PROCESSING", "COMPLETED"]
     task_id: str
     prompt: Dict[str, Any] = field(default_factory=dict)
@@ -122,7 +140,9 @@ class BizyAirTask:
         )
 
     @classmethod
-    def from_data(cls, inputs: dict, prompt: Dict[str, Any], check_inputs: bool = True) -> "BizyAirTask":
+    def from_data(
+        cls, inputs: dict, prompt: Dict[str, Any], check_inputs: bool = True
+    ) -> "BizyAirTask":
         if check_inputs and not cls.check_inputs(inputs):
             raise ValueError(f"Invalid inputs: {inputs}")
         data = inputs.get("data", {})
@@ -132,7 +152,7 @@ class BizyAirTask:
     def is_finished(self) -> bool:
         if not self.data_pool:
             return False
-        if self.data_pool[-1].get("data_status") == self.TASK_DATA_STATUS[-1]:                
+        if self.data_pool[-1].get("data_status") == self.TASK_DATA_STATUS[-1]:
             return True
         return False
 
@@ -196,15 +216,12 @@ class BizyAirTask:
 
 
 class DynamicLazyTaskExecutor(BizyAirTask):
-    def __init__(
-        self, **kwargs
-    ):
+    def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self._data_offset = 0  # current data cursor
         self.executor = ThreadPoolExecutor(max_workers=1)
         self.cache_result = {}
         self.queried_nodes: Set[str] = set()
-        
 
     def get_current_result(self) -> dict:
         if self._data_offset >= len(self.data_pool):
@@ -212,40 +229,35 @@ class DynamicLazyTaskExecutor(BizyAirTask):
         else:
             return self.data_pool[self._data_offset]
 
-    def _process_result(self, node_id: str, result: dict) -> dict:
+    def _process_result(self, result: dict, **kwargs) -> dict:
         try:
-            message = result.get('data', {}).get("message", {})
-            if (
-                isinstance(message, dict) and message.get("event", None) == "result"
-            ):
+            message = result.get("data", {}).get("message", {})
+            if isinstance(message, dict) and message.get("event", None) == "result":
                 event_node_id = message["data"]["node"]
-                if event_node_id == node_id:
-                    return result["data"]["payload"]
-                else:
-                    self.cache_result[event_node_id] = result["data"]["payload"]
+                self.cache_result[event_node_id] = result["data"]["payload"]
         except Exception as e:
             print(f"Error processing message for : {e}")
-            return None        
-    
-    def get_result(self, node_id):
-        print(f'in ='*20, node_id, '-'*10)
-        if node_id not in self.prompt:
-            print(f'Error {node_id} not in self.prompt')
             return None
-        
+
+    def get_result(self, node_id):
+        print(f"in =" * 20, node_id, "-" * 10)
+        if node_id not in self.prompt:
+            print(f"Error {node_id} not in self.prompt")
+            return None
+
         self.queried_nodes.add(node_id)
-        
+
         def check():
             return not self.is_finished() or self._data_offset < len(self.data_pool)
-        
+
         pbar = None
-        while check(): # Poll for the result
+        while check():  # Poll for the result
             if node_id in self.cache_result:
                 break
-            print(f'{self.cache_result.keys()=}')
-            
+            print(f"{self.cache_result.keys()=}")
+
             data = self.send_request(self._data_offset)
-            
+
             data_lst = self._extract_data_list(data)
 
             self.data_pool.extend(data_lst)
@@ -262,16 +274,14 @@ class DynamicLazyTaskExecutor(BizyAirTask):
                     if pbar is None:
                         pbar = comfy.utils.ProgressBar(total)
                     pbar.update_absolute(value + 1, total, None)
-                
-                self._process_result(node_id, data)
-           
+
+                self._process_result(data)
+
             time.sleep(0.5)  # TODO: avoid busy waiting
-        
-        if node_id in self.cache_result:
-            print(f'out = '*20, node_id, '-'*10)
-            return self.cache_result[node_id]
-        else:
-            return None
+
+        if node_id == "107":
+            print(f"out:::: {self.cache_result[node_id]}")
+        return self.cache_result.get(node_id, None)
 
     def reset(self) -> None:
         self._data_offset = 0

@@ -1,12 +1,19 @@
 import importlib
 import logging
-from tkinter import NO
 import warnings
 from functools import wraps
+from tkinter import NO
 from typing import Any, Dict, List
+
+from .common.task_base import (
+    BizyAirTask,
+    DynamicLazyTaskExecutor,
+    get_training_subscriber,
+    is_training_mode,
+    set_training_subscriber,
+)
 from .data_types import is_send_request_datatype
 from .nodes_io import BizyAirNodeIO, create_node_data
-from .common.task_base import BizyAirTask, DynamicLazyTaskExecutor, is_training_mode, get_training_subscriber, set_training_subscriber
 
 try:
     comfy_nodes = importlib.import_module("nodes")
@@ -26,6 +33,7 @@ HIDDEN_FIELDS = {
     "prompt": "PROMPT",
     "extra_pnginfo": "EXTRA_PNGINFO",
 }
+
 
 def to_camel_case(s):
     return "".join(word.capitalize() for word in s.split("_"))
@@ -63,8 +71,6 @@ def register_node(cls, prefix):
 
     NODE_CLASS_MAPPINGS[class_name] = cls
     NODE_DISPLAY_NAME_MAPPINGS[class_name] = display_name
-
-
 
 
 def ensure_unique_id(org_func: callable, original_hidden: Dict = {}):
@@ -106,9 +112,7 @@ class BizyAirBaseNode:
     def setup_input_types(cls):
         # https://docs.comfy.org/essentials/custom_node_more_on_inputs#hidden-inputs
         original_hidden = cls.INPUT_TYPES().get("hidden", {})
-        new_input_types_func = ensure_hidden_unique_id(
-            cls.INPUT_TYPES
-        )
+        new_input_types_func = ensure_hidden_unique_id(cls.INPUT_TYPES)
         cls.INPUT_TYPES = new_input_types_func
         setattr(
             cls,
@@ -130,11 +134,11 @@ class BizyAirBaseNode:
         send_request_datatype_list = self._get_send_request_datatypes()
         if len(send_request_datatype_list) == 0:
             return node_ios
-        
+
         if is_training_mode():
             subscriber: DynamicLazyTaskExecutor = get_training_subscriber()
             if self.assigned_id in subscriber.queried_nodes:
-                print(f'Delete used ones subscriber')
+                print(f"Delete used ones subscriber")
                 set_training_subscriber(subscriber=None)
             else:
                 result = subscriber.get_result(self.assigned_id)
@@ -183,15 +187,19 @@ class BizyAirBaseNode:
     def _process_partial_send_request_types(self, node_ios: List[BizyAirNodeIO]):
         # TODO: Implement handling for partial send request datatypes
         # https://docs.comfy.org/essentials/javascript_objects_and_hijacking#properties-2
-        subscriber: DynamicLazyTaskExecutor = node_ios[0].send_request(use_async=True, hidden=self._hidden)
+        subscriber: DynamicLazyTaskExecutor = node_ios[0].send_request(
+            use_async=True, hidden=self._hidden
+        )
         result = subscriber.get_result(self.assigned_id)
         set_training_subscriber(subscriber)
         return self._merge_results(result, node_ios)
 
-    def _merge_results(self, result: List[List[Any]] = None, node_ios: List[BizyAirNodeIO] = None):
+    def _merge_results(
+        self, result: List[List[Any]] = None, node_ios: List[BizyAirNodeIO] = None
+    ):
         if not result:
-            print(f'Waring: get_result(node_id = {self.assigned_id}) is None')
+            print(f"Waring: get_result(node_id = {self.assigned_id}) is None")
             return node_ios
-        
+
         assert len(result) == len(node_ios)
         return [x[0] if x is not None else y for x, y in zip(result, node_ios)]

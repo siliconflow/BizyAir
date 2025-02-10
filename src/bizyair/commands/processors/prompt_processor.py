@@ -36,7 +36,9 @@ from dataclasses import dataclass
 
 
 class SearchServiceRouter(Processor):
-    def process(self, prompt: Dict[str, Dict[str, Any]], last_node_ids: List[str], **kwargs):
+    def process(
+        self, prompt: Dict[str, Dict[str, Any]], last_node_ids: List[str], **kwargs
+    ):
         if BIZYAIR_DEV_REQUEST_URL:
             return BIZYAIR_DEV_REQUEST_URL
 
@@ -107,15 +109,19 @@ class PromptProcessor(Processor):
         return exec_info
 
     def process(
-        self, url: str, prompt: Dict[str, Dict[str, Any]], last_node_ids: List[str], **kwargs
+        self,
+        url: str,
+        prompt: Dict[str, Dict[str, Any]],
+        last_node_ids: List[str],
+        **kwargs,
     ):
         # import requests
-        
+
         # out = requests.request(method='POST', url = url, json={
         #             "prompt": prompt,
         #             "exec_info": self._exec_info(prompt),
         #         }, headers=client._headers())
-        
+
         # out =  requests.request(method='POST', url = url, json={'prompt':prompt, 'exec_info': self._exec_info(prompt)}, headers=client._headers())
         # # out =  requests.request(method='POST', url = 'https://bizyair-api.siliconflow.cn/x/v1/bizy_task/dev-flux-lora-train', json={'prompt':prompt, 'exec_info': self._exec_info(prompt)}, headers=client._headers())
         # # out =  requests.request(method='POST', url = 'https://bizyair-api.siliconflow.cn/x/v1/bizy_task/dev-flux-lora-train', json={'prompt':{'1': 'in'}, 'exec_info': self._exec_info(prompt)}, headers=client._headers())
@@ -153,7 +159,7 @@ class PromptPreRunProcessor(Processor):
         queue = deque([int(unique_id)])
         visited = set()
         last_node_id = int(unique_id)
-        
+
         while queue:
             node_id = queue.popleft()
             if str(node_id) not in pre_prompt and str(node_id) in hidden["prompt"]:
@@ -174,33 +180,34 @@ class PromptPreRunProcessor(Processor):
                     link[5],
                 )
                 if is_send_request_datatype(data_type):
-                    # if downstream_node_id == node_id: 
+                    # if downstream_node_id == node_id:
                     #  TODO refine
                     continue
-                elif data_type == '*':
+                elif data_type == "*":
                     import nodes
-                    class_type = hidden["prompt"][str(upstream_node_id)]['class_type']
+
+                    class_type = hidden["prompt"][str(upstream_node_id)]["class_type"]
                     class_def = nodes.NODE_CLASS_MAPPINGS[class_type]
                     data_type = class_def.RETURN_TYPES[link[2]]
-                    if data_type == 'KOHYA_ARGS': # TODO fix
+                    if data_type == "KOHYA_ARGS":  # TODO fix
                         continue
                     if is_send_request_datatype(data_type):
                         continue
-                  
-                    
-                
+
                 if upstream_node_id == node_id and downstream_node_id not in visited:
-                    print(f'add {downstream_node_id=}')
+                    print(f"add {downstream_node_id=}")
                     queue.append(downstream_node_id)
 
                 elif downstream_node_id == node_id and upstream_node_id not in visited:
-                    print(f'add {upstream_node_id=}')
+                    print(f"add {upstream_node_id=}")
                     queue.append(upstream_node_id)
 
         if BIZYAIR_DEBUG:
             pprint.pprint(
                 {
-                    "pre_prompt": truncate_long_strings({k: v['class_type'] for k,v in pre_prompt.items()}),
+                    "pre_prompt": truncate_long_strings(
+                        {k: v["class_type"] for k, v in pre_prompt.items()}
+                    ),
                     "last_node_id": last_node_id,
                 }
             )
@@ -210,7 +217,10 @@ class PromptPreRunProcessor(Processor):
         return pre_prompt
 
     def validate_input(
-        self, pre_prompt: Dict[str, Dict[str, Any]], hidden: Dict[str, Dict[str, Any]], **kwargs
+        self,
+        pre_prompt: Dict[str, Dict[str, Any]],
+        hidden: Dict[str, Dict[str, Any]],
+        **kwargs,
     ):
         assert all(key in hidden for key in ["unique_id", "prompt", "extra_pnginfo"])
         assert "workflow" in hidden["extra_pnginfo"]
@@ -218,6 +228,8 @@ class PromptPreRunProcessor(Processor):
 
 
 from bizyair.common.caching import bizyair_task_cache
+
+
 class PromptAsyncProcessor(PromptProcessor):
     def process(
         self, url: str, prompt: Dict[str, Dict[str, Any]], **kwargs
@@ -228,7 +240,7 @@ class PromptAsyncProcessor(PromptProcessor):
         ).hexdigest()
         cached_output = bizyair_task_cache.get(cache_key)
         if cached_output:
-            print(f'find cached_output {cache_key=}')
+            print(f"find cached_output {cache_key=}")
             result = cached_output
         else:
             result = super().process(url, prompt, **kwargs)
