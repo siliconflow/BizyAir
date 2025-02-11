@@ -1,6 +1,6 @@
 import json
-import pprint
 import os
+import pprint
 import urllib.error
 import urllib.request
 import warnings
@@ -164,8 +164,8 @@ def send_request(
         else:
             # 检查代理配置
             proxy_info = ""
-            http_proxy = os.environ.get('http_proxy')
-            https_proxy = os.environ.get('https_proxy')
+            http_proxy = os.environ.get("http_proxy")
+            https_proxy = os.environ.get("https_proxy")
             if http_proxy or https_proxy:
                 proxy_info = "\nDetected proxy settings:\n"
                 if http_proxy:
