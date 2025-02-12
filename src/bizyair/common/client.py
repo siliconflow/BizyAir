@@ -162,6 +162,7 @@ def send_request(
                 + "Bizyair's official support."
             )
         else:
+            # 检查网络连接（通过ping多个常见网站）
             # 检查代理配置
             proxy_info = ""
             http_proxy = os.environ.get("http_proxy")
