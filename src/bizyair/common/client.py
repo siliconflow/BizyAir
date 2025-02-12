@@ -1,7 +1,6 @@
-import hashlib
 import json
+import os
 import pprint
-import time
 import urllib.error
 import urllib.request
 import warnings
@@ -163,10 +162,22 @@ def send_request(
                 + "Bizyair's official support."
             )
         else:
+            # 检查代理配置
+            proxy_info = ""
+            http_proxy = os.environ.get("http_proxy")
+            https_proxy = os.environ.get("https_proxy")
+            if http_proxy or https_proxy:
+                proxy_info = "\nDetected proxy settings:\n"
+                if http_proxy:
+                    proxy_info += f"    HTTP Proxy: {http_proxy}\n"
+                if https_proxy:
+                    proxy_info += f"    HTTPS Proxy: {https_proxy}\n"
+                proxy_info += "Please verify if these proxy settings are causing connection issues.\n"
+
             raise ConnectionError(
                 f"Failed to connect to the server: {error_message}.\n"
                 + "Please check your API key and ensure the server is reachable.\n"
-                + "Also, verify your network settings and disable any proxies if necessary.\n"
+                + proxy_info
                 + "After checking, please restart the ComfyUI service."
             )
     if response_handler:
