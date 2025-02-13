@@ -198,6 +198,8 @@ def send_request(
 
                 raise ConnectionError(
                     f"Failed to connect to the server: {error_message}.\n"
+                    + "The internet connection is working. The results of the ping test are as follows:\n"
+                    + ping_info
                     + "Please check your API key and ensure the server is reachable.\n"
                     + proxy_info
                     + "After checking, please restart the ComfyUI service."
