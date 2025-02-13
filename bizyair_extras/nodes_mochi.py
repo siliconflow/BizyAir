@@ -11,7 +11,7 @@ class BizyAir_mochi(BizyAirBaseNode):
                 "height": ("INT", {"default": 64, "min": 64, "max": 1560, "step": 8}),
                 "frames": ("INT", {"default": 96, "min": 1, "max": 4096}),
                 "fps": ("INT", {"default": 22, "min": 8, "max": 64}),
-                              
+                "filename": ("STRING", {"default": "mochi"}),                    
             }
         }
 
