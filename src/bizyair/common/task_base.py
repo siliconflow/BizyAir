@@ -255,7 +255,6 @@ class DynamicLazyTaskExecutor(BizyAirTask):
             if node_id in self.cache_result:
                 break
             print(f"{self.cache_result.keys()=}")
-
             data = self.send_request(self._data_offset)
 
             data_lst = self._extract_data_list(data)
@@ -265,6 +264,8 @@ class DynamicLazyTaskExecutor(BizyAirTask):
 
             for data in data_lst:
                 message = data.get("data", {}).get("message", {})
+                if BIZYAIR_DEBUG:
+                    print(f"{message=}", f"\n{str(data)[:200]}")
                 if (
                     isinstance(message, dict)
                     and message.get("event", None) == "progress"
@@ -276,11 +277,8 @@ class DynamicLazyTaskExecutor(BizyAirTask):
                     pbar.update_absolute(value + 1, total, None)
 
                 self._process_result(data)
-
             time.sleep(0.5)  # TODO: avoid busy waiting
 
-        if node_id == "107":
-            print(f"out:::: {self.cache_result[node_id]}")
         return self.cache_result.get(node_id, None)
 
     def reset(self) -> None:

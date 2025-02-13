@@ -2,7 +2,6 @@ import importlib
 import logging
 import warnings
 from functools import wraps
-from tkinter import NO
 from typing import Any, Dict, List
 
 from .common.task_base import (
@@ -187,6 +186,9 @@ class BizyAirBaseNode:
     def _process_partial_send_request_types(self, node_ios: List[BizyAirNodeIO]):
         # TODO: Implement handling for partial send request datatypes
         # https://docs.comfy.org/essentials/javascript_objects_and_hijacking#properties-2
+        if type(self).__name__ != "InitFluxLoRATraining":  # TODO fix
+            return node_ios
+
         subscriber: DynamicLazyTaskExecutor = node_ios[0].send_request(
             use_async=True, hidden=self._hidden
         )

@@ -1,9 +1,11 @@
 import io
+import uuid
 
 import matplotlib.pyplot as plt
 
 import bizyair.path_utils as folder_paths
 from bizyair import BizyAirBaseNode, BizyAirNodeIO
+from bizyair.common.task_base import set_training_subscriber
 
 
 class FluxTrainModelSelect(BizyAirBaseNode):
@@ -364,6 +366,12 @@ class TrainDatasetAdd(BizyAirBaseNode):
 
 
 class InitFluxLoRATraining(BizyAirBaseNode):
+
+    # disable caching
+    @classmethod
+    def IS_CHANGED(s, *args, **kwargs):
+        return f"{uuid.uuid4()}"
+
     @classmethod
     def INPUT_TYPES(s):
         return {
@@ -763,9 +771,14 @@ class FluxTrainEnd(BizyAirBaseNode):
         "metadata",
         "lora_path",
     )
-    # FUNCTION = "endtrain"
+    FUNCTION = "endtrain"
     CATEGORY = "FluxTrainer"
     NODE_DISPLAY_NAME = "Flux LoRA Train End"
+
+    def endtrain(self, *args, **kwargs):
+        result = self.default_function(*args, **kwargs)
+        set_training_subscriber(None)
+        return result
 
 
 class BizyAir_FluxTrainValidate(BizyAirBaseNode):
@@ -791,27 +804,3 @@ class BizyAir_FluxTrainValidate(BizyAirBaseNode):
     # FUNCTION = "validate"
     CATEGORY = "FluxTrainer"
     NODE_DISPLAY_NAME = "Flux Train Validate"
-
-
-class FluxLoraUploadToBizyair(BizyAirBaseNode):
-    @classmethod
-    def INPUT_TYPES(s):
-        return {
-            "required": {
-                "network_trainer": ("NETWORKTRAINER",),
-            },
-            "optional": {
-                "token": ("STRING", {"default": "", "tooltip": ""}),
-            },
-        }
-
-    RETURN_TYPES = (
-        "NETWORKTRAINER",
-        "STRING",
-    )
-    RETURN_NAMES = (
-        "network_trainer",
-        "status",
-    )
-    # FUNCTION = "upload"
-    CATEGORY = "FluxTrainer"
