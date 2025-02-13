@@ -163,24 +163,45 @@ def send_request(
             )
         else:
             # 检查网络连接
-            # 检查代理配置
-            proxy_info = ""
-            http_proxy = os.environ.get("http_proxy")
-            https_proxy = os.environ.get("https_proxy")
-            if http_proxy or https_proxy:
-                proxy_info = "\nDetected proxy settings:\n"
-                if http_proxy:
-                    proxy_info += f"    HTTP Proxy: {http_proxy}\n"
-                if https_proxy:
-                    proxy_info += f"    HTTPS Proxy: {https_proxy}\n"
-                proxy_info += "Please verify if these proxy settings are causing connection issues.\n"
+            common_sites = ["www.baidu.com", "www.bing.com", "www.siliconflow.cn"]
+            ping_results = defaultdict(list)
+            flag = False
+            ping_info = ""
+            for site in common_sites:
+                response = os.system(f"ping -c 1 {site}")
+                if response == 0:
+                    ping_results[site].append("Success")
+                else:
+                    ping_results[site].append("Failed")
+                    flag = True
+            for site, result in ping_results.items():
+                ping_info += f"    {site}: {result[0]}\n"
+            if flag:
+                raise ConnectionError(
+                    f"Failed to connect to the server: {error_message}.\n"
+                    + "The results of the ping test are as follows:\n"
+                    + ping_info
+                    + "Please check the network connection."
+                )
+            else:
+                # 检查代理配置
+                proxy_info = ""
+                http_proxy = os.environ.get("http_proxy")
+                https_proxy = os.environ.get("https_proxy")
+                if http_proxy or https_proxy:
+                    proxy_info = "\nDetected proxy settings:\n"
+                    if http_proxy:
+                        proxy_info += f"    HTTP Proxy: {http_proxy}\n"
+                    if https_proxy:
+                        proxy_info += f"    HTTPS Proxy: {https_proxy}\n"
+                    proxy_info += "Please verify if these proxy settings are causing connection issues.\n"
 
-            raise ConnectionError(
-                f"Failed to connect to the server: {error_message}.\n"
-                + "Please check your API key and ensure the server is reachable.\n"
-                + proxy_info
-                + "After checking, please restart the ComfyUI service."
-            )
+                raise ConnectionError(
+                    f"Failed to connect to the server: {error_message}.\n"
+                    + "Please check your API key and ensure the server is reachable.\n"
+                    + proxy_info
+                    + "After checking, please restart the ComfyUI service."
+                )
     if response_handler:
         response_data = response_handler(response_data)
     if callback:
