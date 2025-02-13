@@ -24,18 +24,27 @@ class TrainDatasetAdd(BizyAirBaseNode):
                     },
                 ),
                 "dataset_path": (
+                    [
+                        "to choose",
+                    ],
+                    # "STRING",
+                    # {
+                    #     "multiline": True,
+                    #     "default": "",
+                    #     "tooltip": "path to dataset, root is the 'ComfyUI' folder, with windows portable 'ComfyUI_windows_portable'",
+                    # },
+                ),
+                "dataset_version_id": (
                     "STRING",
                     {
-                        "multiline": True,
                         "default": "",
-                        "tooltip": "path to dataset, root is the 'ComfyUI' folder, with windows portable 'ComfyUI_windows_portable'",
                     },
                 ),
                 "class_tokens": (
                     "STRING",
                     {
-                        "multiline": True,
-                        "default": "",
+                        "multiline": False,
+                        "default": "trigger_word",
                         "tooltip": "aka trigger word, if specified, will be added to the start of each caption, if no captions exist, will be used on it's own",
                     },
                 ),
