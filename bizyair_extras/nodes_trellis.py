@@ -5,6 +5,8 @@ import folder_paths
 import requests
 import torch
 
+import trimesh
+
 from bizyair import BizyAirBaseNode
 
 
@@ -17,7 +19,12 @@ class BizyAir_IF_TrellisCheckpointLoader(BizyAirBaseNode):
     @classmethod
     def INPUT_TYPES(cls):
         """Define input types with device-specific options."""
-        device_options = ["cuda"]
+        device_options = []
+        if torch.cuda.is_available():
+            device_options.append("cuda")
+        if hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
+            device_options.append("mps")
+        device_options.append("cpu")
 
         return {
             "required": {
@@ -167,7 +174,15 @@ class BizyAirDownloadFile(BizyAirBaseNode):
         return {
             "required": {
                 "url": ("STRING", {"default": ""}),
-                "file_name": ("STRING", {"default": "default"}),
+                "filename_prefix": ("STRING", {"default": "default"}),
+                "type": (
+                    ["glb", "obj"],
+                    {
+                        "default": "glb",
+                        "tooltip": "Mode. single is a single image. with multi you can provide multiple reference angles for the 3D model",
+                    },
+                ),
+
             }
         }
 
@@ -179,22 +194,60 @@ class BizyAirDownloadFile(BizyAirBaseNode):
     OUTPUT_NODE = True
     OUTPUT_IS_LIST = (False,)
 
-    def main(self, url, file_name):
+    def main(self, url, filename_prefix):
         assert url is not None
-        file_name = file_name + ".glb"
-        out_dir = os.path.join(folder_paths.get_output_directory(), "trellis_output")
-        os.makedirs(out_dir, exist_ok=True)
-        local_path = os.path.join(out_dir, file_name)
-        output = os.path.join("trellis_output", file_name)
+        # file_glb = file_name + ".glb"
+        # file_obj = file_name + ".obj"
+        out_glb_dir = os.path.join(
+            folder_paths.get_output_directory(), "trellis_output"
+        )
+        out_obj_dir = os.path.join(out_glb_dir, "obj")
+        os.makedirs(out_glb_dir, exist_ok=True)
+        os.makedirs(out_obj_dir, exist_ok=True)
+        glb_output_folder, _, glb_counter, _, _ = folder_paths.get_save_image_path(
+            filename_prefix, out_glb_dir
+        )
+        obj_output_folder, _, obj_counter, _, _ = folder_paths.get_save_image_path(
+            filename_prefix, out_obj_dir
+        )
+        file_glb = f"{filename_prefix}_{glb_counter:05}_.glb"
+        file_obj = f"{filename_prefix}_{obj_counter:05}_.obj"
+        local_glb = os.path.join(glb_output_folder, file_glb)
+        local_obj = os.path.join(obj_output_folder, file_obj)
+        output = os.path.join("trellis_output", file_glb)
         response = requests.get(url)
         if response.status_code == 200:
-            with open(local_path, "wb") as file:
+            with open(local_glb, "wb") as file:
                 file.write(response.content)
-            print("download finished in {}".format(local_path))
+            print("download finished in {}".format(local_glb))
+            # load GLB 文件
+            mesh = trimesh.load(local_glb)
+            # export OBJ（include .obj 和 .mtl file）
+            mesh.export(local_obj, include_texture=True, file_type="obj")
+
+            current_mtl_filename = os.path.join(obj_output_folder, "material.mtl")
+            mtl_filename = os.path.join(
+                obj_output_folder, f"{filename_prefix}_{glb_counter:05}_.mtl"
+            )
+            if os.path.exists(current_mtl_filename):
+                os.rename(current_mtl_filename, mtl_filename)  # 重命名材质文件
+
+            # 获取纹理文件路径，可能需要重命名它
+            current_png_filename = os.path.join(
+                obj_output_folder, "material_0.png"
+            )  # 默认生成的纹理文件名
+            png_filename = os.path.join(
+                obj_output_folder, f"{filename_prefix}_{glb_counter:05}_.png"
+            )
+            if os.path.exists(current_png_filename):
+                os.rename(current_png_filename, png_filename)  # 重命名纹理文件
+
+            print(f"Transform success! obj file is stored in {local_obj}")
         else:
             print(f"download error: {response.status_code}")
+
         return (output,)
 
     @classmethod
-    def IS_CHANGED(self, url, file_name, *args, **kwargs):
+    def IS_CHANGED(self, url, file_name):
         return uuid.uuid4().hex
