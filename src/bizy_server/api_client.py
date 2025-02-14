@@ -491,9 +491,7 @@ class APIClient:
             )
             return [], errnos.LIST_SHARE_MODEL_FILE_ERR
 
-    async def get_all_tags(
-        self
-    ) -> tuple[dict | None, ErrorNo | None]:
+    async def get_all_tags(self) -> tuple[dict | None, ErrorNo | None]:
         server_url = f"{BIZYAIR_SERVER_ADDRESS}/tags/all"
         headers, err = self.auth_header()
         if err is not None:
