@@ -490,3 +490,21 @@ class APIClient:
                 f"\033[31m[BizyAir]\033[0m Fail to list share model files: response {ret} error {str(e)}"
             )
             return [], errnos.LIST_SHARE_MODEL_FILE_ERR
+
+    async def get_all_tags(
+        self
+    ) -> tuple[dict | None, ErrorNo | None]:
+        server_url = f"{BIZYAIR_SERVER_ADDRESS}/tags/all"
+        headers, err = self.auth_header()
+        if err is not None:
+            return None, err
+
+        try:
+            ret, err = await self.do_get(server_url, headers=headers)
+            if err is not None:
+                return None, err
+
+            return ret["data"], None
+        except Exception as e:
+            print(f"\033[31m[BizyAir]\033[0m Fail to query all tags: {str(e)}")
+            return None, errnos.QUERY_ALL_TAGS

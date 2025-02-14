@@ -87,3 +87,4 @@ class errnos:
         500, 500129, None, "Failed to query official models"
     )
     UNFORK_MODEL_VERSION = ErrorNo(500, 500130, None, "Failed to unfork model version")
+    QUERY_ALL_TAGS = ErrorNo(500, 500131, None, "Failed to query all tags")
