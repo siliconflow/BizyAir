@@ -4,6 +4,7 @@ import uuid
 import folder_paths
 import requests
 import torch
+
 import trimesh
 
 from bizyair import BizyAirBaseNode
@@ -181,6 +182,7 @@ class BizyAirDownloadFile(BizyAirBaseNode):
                         "tooltip": "Mode. single is a single image. with multi you can provide multiple reference angles for the 3D model",
                     },
                 ),
+
             }
         }
 

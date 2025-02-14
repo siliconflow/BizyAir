@@ -1,7 +1,6 @@
-import hashlib
 import json
+import os
 import pprint
-import time
 import urllib.error
 import urllib.request
 import warnings
@@ -133,18 +132,52 @@ def send_request(
             response_data = response.read().decode("utf-8")
     except urllib.error.URLError as e:
         error_message = str(e)
+        response_body = e.read().decode("utf-8") if hasattr(e, "read") else "N/A"
         if verbose:
             print(f"URLError encountered: {error_message}")
+            print(f"Response Body: {response_data}")
+        code, message = "N/A", "N/A"
+        try:
+            response_dict = json.loads(response_body)
+            if isinstance(response_dict, dict):
+                code = response_dict.get("code", "N/A")
+                message = response_dict.get("message", "N/A")
+
+        except json.JSONDecodeError:
+            if verbose:
+                print("Failed to decode response body as JSON.")
+
         if "Unauthorized" in error_message:
             raise PermissionError(
                 "Key is invalid, please refer to https://cloud.siliconflow.cn to get the API key.\n"
-                "If you have the key, please click the 'BizyAir Key' button at the bottom right to set the key."
+                "If you have the key, please click the 'API Key' button at the bottom right to set the key."
+            )
+        elif code != "N/A" and message != "N/A":
+            raise ConnectionError(
+                f"Failed to handle your request: {error_message}.\n"
+                + f"    Error code: {code}.\n"
+                + f"    Error message: {message}\n."
+                + "The cause of this issue may be incorrect parameter status or ongoing background tasks. \n"
+                + "If retrying after waiting for a while still does not resolve the issue, please report it to "
+                + "Bizyair's official support."
             )
         else:
+            # 检查代理配置
+            proxy_info = ""
+            http_proxy = os.environ.get("http_proxy")
+            https_proxy = os.environ.get("https_proxy")
+            if http_proxy or https_proxy:
+                proxy_info = "\nDetected proxy settings:\n"
+                if http_proxy:
+                    proxy_info += f"    HTTP Proxy: {http_proxy}\n"
+                if https_proxy:
+                    proxy_info += f"    HTTPS Proxy: {https_proxy}\n"
+                proxy_info += "Please verify if these proxy settings are causing connection issues.\n"
+
             raise ConnectionError(
                 f"Failed to connect to the server: {error_message}.\n"
                 + "Please check your API key and ensure the server is reachable.\n"
-                + "Also, verify your network settings and disable any proxies if necessary.\n"
+                + proxy_info
                 + "After checking, please restart the ComfyUI service."
             )
     if response_handler:
