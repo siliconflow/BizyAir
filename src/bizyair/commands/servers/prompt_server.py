@@ -15,6 +15,7 @@ from bizyair.common.env_var import (
     BIZYAIR_DEV_GET_TASK_RESULT_SERVER,
     BIZYAIR_SERVER_ADDRESS,
 )
+from bizyair.common.task_base import is_bizyair_async_response
 from bizyair.common.utils import truncate_long_strings
 from bizyair.configs.conf import config_manager
 from bizyair.image_utils import decode_data, encode_data
@@ -145,10 +146,11 @@ class BizyAirTask:
         return data_lst
 
 
+from bizyair.common.caching import bizyair_task_cache
+
+
 class PromptServer(Command):
-    cache_manager: BizyAirTaskCache = BizyAirTaskCache(
-        config=CacheConfig.from_config(config_manager.get_cache_config())
-    )
+    cache_manager: BizyAirTaskCache = bizyair_task_cache
 
     def __init__(self, router: Processor, processor: Processor):
         self.router = router
@@ -156,14 +158,6 @@ class PromptServer(Command):
 
     def get_task_id(self, result: Dict[str, Any]) -> str:
         return result.get("data", {}).get("task_id", "")
-
-    def is_async_task(self, result: Dict[str, Any]) -> str:
-        """Determine if the result indicates an asynchronous task."""
-        return (
-            result.get("code") == 20000
-            and result.get("status", False)
-            and "task_id" in result.get("data", {})
-        )
 
     def _get_result(self, result: Dict[str, Any], *, cache_key: str = None):
         try:
@@ -194,7 +188,9 @@ class PromptServer(Command):
 
         if BIZYAIR_DEBUG:
             debug_info = {
-                "prompt": truncate_long_strings(prompt, 50),
+                "prompt": truncate_long_strings(
+                    {k: v["class_type"] for k, v in prompt.items()}
+                ),
                 "last_node_ids": last_node_ids,
             }
             pprint.pprint(debug_info, indent=4)
@@ -234,3 +230,20 @@ class PromptServer(Command):
             self.cache_manager.delete(sh256)
             traceback.print_exc()
             raise RuntimeError(f"Exception: {e=}") from e
+
+
+class PromptAsyncServer(Command):
+    def __init__(
+        self,
+        router: Processor,
+        pre_run_processor: Processor,
+        request_processor: Processor,
+    ):
+        self.router = router
+        self.pre_run_processor = pre_run_processor
+        self.request_processor = request_processor
+
+    def execute(self, prompt: Dict[str, Dict[str, Any]], **kwargs):
+        real_prompt = self.pre_run_processor(pre_prompt=encode_data(prompt), **kwargs)
+        url = self.router(prompt=real_prompt, **kwargs)
+        return self.request_processor(url=url, prompt=real_prompt, **kwargs)

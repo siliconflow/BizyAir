@@ -118,13 +118,11 @@ def send_request(
     verbose=False,
     callback: callable = process_response_data,
     response_handler: callable = json.loads,
-    cache_manager: CacheManager = None,
     **kwargs,
 ) -> Union[dict, Any]:
     try:
         headers = kwargs.pop("headers") if "headers" in kwargs else _headers()
         headers["User-Agent"] = "BizyAir Client"
-
         req = urllib.request.Request(
             url, data=data, headers=headers, method=method, **kwargs
         )
@@ -175,7 +173,7 @@ def send_request(
                 proxy_info += "Please verify if these proxy settings are causing connection issues.\n"
 
             raise ConnectionError(
-                f"Failed to connect to the server: {error_message}.\n"
+                f"Failed to connect {url} to the server: {error_message}.\n"
                 + "Please check your API key and ensure the server is reachable.\n"
                 + proxy_info
                 + "After checking, please restart the ComfyUI service."

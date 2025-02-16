@@ -1,10 +1,49 @@
 import copy
 import json
 import os
-from typing import Any, List
+import time
+from typing import Any, Callable, List
 
 import torch
 import yaml
+
+
+def retry_on_failure(max_retries: int = 3, delay: int = 1) -> Callable:
+    """A decorator that retries a function upon failure with exponential backoff strategy.
+
+    Args:
+        max_retries: Maximum number of retry attempts. Defaults to 3.
+        delay: Initial delay between retries in seconds. Defaults to 1.
+
+    Examples:
+        >>> @retry_on_failure(max_retries=3, delay=1)
+        ... def unreliable_function():
+        ...     pass
+
+    """
+
+    def decorator(func: Callable) -> Callable:
+        def wrapper(*args, **kwargs) -> Callable:
+            current_delay = delay
+            for attempt in range(1, max_retries + 1):
+                try:
+                    return func(*args, **kwargs)
+                except Exception as error:
+                    if attempt == max_retries:
+                        raise RuntimeError(
+                            f"Operation {func.__module__}.{func.__name__} failed after {max_retries} attempts"
+                        ) from error
+
+                    print(
+                        f"[Retry {attempt}/{max_retries}] {func.__module__}.{func.__name__} failed: {error}"
+                    )
+                    print(f"Waiting {current_delay}s before next attempt...")
+                    time.sleep(current_delay)
+            return func(*args, **kwargs)  # This line is theoretically unreachable
+
+        return wrapper
+
+    return decorator
 
 
 def truncate_long_strings(obj, max_length=50):
