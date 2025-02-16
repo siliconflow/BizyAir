@@ -17,6 +17,7 @@ from .env_var import (
     BIZYAIR_DEV_GET_TASK_RESULT_SERVER,
     BIZYAIR_SERVER_ADDRESS,
 )
+from .utils import retry_on_failure
 
 
 def is_bizyair_async_response(result: Dict[str, Any]) -> bool:
@@ -50,6 +51,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from tqdm import tqdm
 
 
+@retry_on_failure(max_retries=2)
 def _process_event(event):
     if (
         "data" in event
@@ -80,12 +82,8 @@ def process_events_with_threadpool(events):
             unit="it",
         ):
             idx = future_to_index[future]  # 获取当前任务对应的索引
-            try:
-                new_event = future.result()
-                new_events[idx] = new_event  # 将结果放到正确的位置
-            except Exception as e:
-                print(f"Error processing event at index {idx}: {e}")
-                new_events[idx] = events[idx]  # 如果出错，保留原始事件
+            new_event = future.result()
+            new_events[idx] = new_event  # 将结果放到正确的位置
 
     return new_events
 
@@ -263,9 +261,12 @@ class DynamicLazyTaskExecutor(BizyAirTask):
             self._data_offset += len(data_lst)
 
             for data in data_lst:
+                if BIZYAIR_DEBUG:
+                    print(f"\n{str(data)[:200]}")
                 message = data.get("data", {}).get("message", {})
                 if BIZYAIR_DEBUG:
-                    print(f"{message=}", f"\n{str(data)[:200]}")
+                    print(f"{message=}")
+
                 if (
                     isinstance(message, dict)
                     and message.get("event", None) == "progress"
