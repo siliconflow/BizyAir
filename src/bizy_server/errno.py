@@ -97,6 +97,7 @@ class errnos:
         500, 500129, None, "Failed to query official models"
     )
     UNFORK_MODEL_VERSION = ErrorNo(500, 500130, None, "Failed to unfork model version")
+
     COMMIT_DATASET = ErrorNo(500, 500130, None, "Failed to commit dataset")
     UPDATE_DATASET = ErrorNo(500, 500131, None, "Failed to update dataset")
     GET_DATASET_VERSION_DETAIL = ErrorNo(
@@ -107,4 +108,6 @@ class errnos:
     GET_DATASET_DETAIL = ErrorNo(500, 500135, None, "Failed to get dataset detail")
     CREATE_SHARE = ErrorNo(500, 500136, None, "Failed to create share")
     GET_SHARE_DETAIL = ErrorNo(500, 500137, None, "Failed to get share detail")
+
+    QUERY_ALL_TAGS = ErrorNo(500, 500131, None, "Failed to query all tags")
 
