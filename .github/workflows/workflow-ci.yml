@@ -53,7 +53,7 @@ jobs:
 
   run-examples-workflows:
     needs: check-modified-files
-    if: ${{ needs.check-modified-files.outputs.only_non_code_files == 'false' }}
+    if: ${{ needs.check-modified-files.outputs.only_non_code_files == 'false' }} || ${{ github.event_name == 'workflow_dispatch' }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
