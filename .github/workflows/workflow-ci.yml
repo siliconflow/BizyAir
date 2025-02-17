@@ -2,6 +2,11 @@ name: workflows-ci
 
 on:
   workflow_dispatch:
+    inputs:
+      environment:
+        description: 'The environment to deploy the workflow to'
+        required: true
+        default: 'uat'
   pull_request:
     branches:
       - master
@@ -48,6 +53,7 @@ jobs:
     strategy:
       matrix:
         os: [windows-latest, ubuntu-latest]
+    environment: ${{ github.event.inputs.environment || 'prod' }}
 
     steps:
     - name: Show Base
