@@ -1,12 +1,22 @@
 name: workflows-ci
 
 on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'The environment to deploy the workflow to'
+        required: true
+        default: 'uat'
+      branch:
+        description: 'The branch to checkout code from'
+        required: true
+        default: 'master'
   pull_request:
     branches:
       - master
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.event.inputs.environment }}
   cancel-in-progress: true
 
 jobs:
@@ -22,12 +32,12 @@ jobs:
 
     - name: Fetch target branch
       run: |
-        git fetch origin ${{ github.base_ref }} --depth=1
+        git fetch origin ${{ github.event.inputs.branch || github.base_ref }} --depth=1
 
     - name: Check modified files
       id: check_files
       run: |
-        modified_files=$(git diff --name-only origin/${{ github.base_ref }}...HEAD)
+        modified_files=$(git diff --name-only origin/${{ github.event.inputs.branch || github.base_ref }}...HEAD)
         only_non_code_files=true
         for file in $modified_files; do
           if [[ "$file" == *.py ]] || [[ "$file" == *.js ]] || [[ "$file" == *.json ]] || [[ "$file" == *.yml ]]; then
@@ -47,6 +57,7 @@ jobs:
     strategy:
       matrix:
         os: [windows-latest, ubuntu-latest]
+    environment: ${{ github.event.inputs.environment || 'prod' }}
 
     steps:
     - name: Show Base
@@ -100,6 +111,7 @@ jobs:
       env:
         BIZYAIR_KEY: ${{ secrets.BIZYAIR_KEY }}
         BIZYAIR_API_KEY: ${{ secrets.BIZYAIR_KEY }}
+        BIZYAIR_SERVER_ADDRESS: ${{ vars.BIZYAIR_SERVER_ADDRESS }}
         PYTHONPATH: ${{ github.workspace }}/ComfyUI
 
     - name: Run ComfyUI on Windows
@@ -114,4 +126,5 @@ jobs:
       env:
         BIZYAIR_KEY: ${{ secrets.BIZYAIR_KEY }}
         BIZYAIR_API_KEY: ${{ secrets.BIZYAIR_KEY }}
+        BIZYAIR_SERVER_ADDRESS: ${{ vars.BIZYAIR_SERVER_ADDRESS }}
         PYTHONPATH: ${{ github.workspace }}/ComfyUI
