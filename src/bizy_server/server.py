@@ -1,4 +1,5 @@
 import asyncio
+import json
 import logging
 import threading
 import time
@@ -475,6 +476,238 @@ class BizyAirServer:
                 return ErrResponse(err)
             return OKResponse(model_files)
 
+        @self.prompt_server.routes.post(f"/{COMMUNITY_API}/datasets")
+        async def commit_dataset(request):
+            sid = request.rel_url.query.get("clientId", "")
+            if not is_string_valid(sid):
+                return ErrResponse(errnos.INVALID_CLIENT_ID)
+
+            json_data = await request.json()
+
+            # 校验name和type
+            err = check_str_param(json_data, "name", errnos.INVALID_DATASET_NAME)
+            if err is not None:
+                return err
+
+            if "/" in json_data["name"]:
+                return ErrResponse(errnos.INVALID_DATASET_NAME)
+
+            # 校验versions
+            if "versions" not in json_data or not isinstance(
+                json_data["versions"], list
+            ):
+                return ErrResponse(errnos.INVALID_VERSIONS)
+
+            versions = json_data["versions"]
+            version_names = set()
+
+            for version in versions:
+                # 检查version是否重复
+                if version.get("version") in version_names:
+                    return ErrResponse(errnos.DUPLICATE_VERSION)
+
+                # 检查version字段是否合法
+                if not is_string_valid(version.get("version")) or "/" in version.get(
+                    "version"
+                ):
+                    return ErrResponse(errnos.INVALID_DATASET_VERSION)
+
+                version_names.add(version.get("version"))
+
+            # 调用API提交数据集
+            resp, err = await self.api_client.commit_dataset(payload=json_data)
+            if err:
+                return ErrResponse(err)
+
+            # print("resp------------------------------->", json_data, resp)
+            # 开启线程检查同步状态
+            threading.Thread(
+                target=self.check_dataset_sync_status,
+                args=(resp["id"], resp["version_ids"], sid),
+                daemon=True,
+            ).start()
+
+            # enable refresh for lora
+            # TODO: enable refresh for other types
+            # bizyair.path_utils.path_manager.enable_refresh_options("loras")
+
+            return OKResponse(resp)
+
+        @self.prompt_server.routes.put(f"/{COMMUNITY_API}/datasets/{{dataset_id}}")
+        async def update_dataset(request):
+            sid = request.rel_url.query.get("clientId", "")
+            if not is_string_valid(sid):
+                return ErrResponse(errnos.INVALID_CLIENT_ID)
+            # 获取路径参数中的数据集ID
+            dataset_id = int(request.match_info["dataset_id"])
+
+            # 检查model_id是否合法
+            if not dataset_id or dataset_id <= 0:
+                return ErrResponse(errnos.INVALID_DATASET_ID)
+
+            # 获取请求体数据
+            json_data = await request.json()
+
+            # 校验name和type
+            err = check_str_param(json_data, "name", errnos.INVALID_DATASET_NAME)
+            if err is not None:
+                return err
+
+            if "/" in json_data["name"]:
+                return ErrResponse(errnos.INVALID_DATASET_NAME)
+
+            # 校验versions
+            if "versions" not in json_data or not isinstance(
+                json_data["versions"], list
+            ):
+                return ErrResponse(errnos.INVALID_VERSIONS)
+
+            versions = json_data["versions"]
+            version_names = set()
+
+            for version in versions:
+                # 检查version是否重复
+                if version.get("version") in version_names:
+                    return ErrResponse(errnos.DUPLICATE_VERSION)
+
+                # 检查version字段是否合法
+                if not is_string_valid(version.get("version")) or "/" in version.get(
+                    "version"
+                ):
+                    return ErrResponse(errnos.INVALID_VERSION_NAME)
+
+                version_names.add(version.get("version"))
+
+            # 调用API更新数据集
+            resp, err = await self.api_client.update_dataset(
+                dataset_id, json_data["name"], versions
+            )
+            if err:
+                return ErrResponse(err)
+
+            # 开启线程检查同步状态
+            threading.Thread(
+                target=self.check_dataset_sync_status,
+                args=(resp["id"], resp["version_ids"]),
+                daemon=True,
+            ).start()
+
+            return OKResponse(None)
+
+        @self.prompt_server.routes.delete(f"/{COMMUNITY_API}/datasets/{{dataset_id}}")
+        async def delete_dataset(request):
+            # 获取路径参数中的数据集ID
+            dataset_id = int(request.match_info["dataset_id"])
+
+            # 检查model_id是否合法
+            if not dataset_id or dataset_id <= 0:
+                return ErrResponse(errnos.INVALID_DATASET_ID)
+
+            # 调用API删除数据集
+            resp, err = await self.api_client.delete_dataset(dataset_id)
+            if err:
+                return ErrResponse(err)
+
+            return OKResponse(resp)
+
+        @self.prompt_server.routes.post(f"/{COMMUNITY_API}/datasets/query")
+        async def query_my_datasets(request):
+            current = int(request.rel_url.query.get("current", "1"))
+            page_size = int(request.rel_url.query.get("page_size", "10"))
+            keyword = None
+            annotated = None
+            if request.body_exists:
+                json_data = await request.json()
+                keyword = json_data["keyword"]
+                annotated = json_data["annotated"]
+            resp, err = None, None
+
+            # 调用API查询数据集
+            resp, err = await self.api_client.query_datasets(
+                current,
+                page_size,
+                keyword=keyword,
+                annotated=annotated,
+            )
+            if err:
+                return ErrResponse(err)
+
+            return OKResponse(resp)
+
+        @self.prompt_server.routes.get(
+            f"/{COMMUNITY_API}/datasets/{{dataset_id}}/detail"
+        )
+        async def get_dataset_detail(request):
+            # 获取路径参数中的数据集ID
+            dataset_id = int(request.match_info["dataset_id"])
+
+            # 检查dataset_id是否合法
+            if not dataset_id or dataset_id <= 0:
+                return ErrResponse(errnos.INVALID_DATASET_ID)
+
+            # 调用API获取数据集详情
+            resp, err = await self.api_client.get_dataset_detail(dataset_id)
+            if err:
+                return ErrResponse(err)
+
+            return OKResponse(resp)
+
+        @self.prompt_server.routes.post(f"/{COMMUNITY_API}/share")
+        async def create_share(request):
+            json_data = await request.json()
+            if "biz_id" not in json_data:
+                return ErrResponse(errnos.INVALID_SHARE_BIZ_ID)
+
+            biz_id = int(json_data["biz_id"])
+            if not biz_id or biz_id <= 0:
+                return ErrResponse(errnos.INVALID_SHARE_BIZ_ID)
+
+            if "type" not in json_data:
+                return ErrResponse(errnos.INVALID_SHARE_TYPE)
+            if not is_string_valid(json_data["type"]) or (
+                json_data["type"] != "bizy_model_version"
+            ):
+                return ErrResponse(errnos.INVALID_SHARE_TYPE)
+
+            # 调用API提交数据集
+            resp, err = await self.api_client.create_share(payload=json_data)
+            if err:
+                return ErrResponse(err)
+
+            return OKResponse(resp)
+
+        @self.prompt_server.routes.get(f"/{COMMUNITY_API}/share/{{code}}")
+        async def get_share_detail(request):
+            # 获取路径参数中的数据集ID
+            code = str(request.match_info["code"])
+
+            # 检查code是否合法
+            if not is_string_valid(code):
+                return ErrResponse(errnos.INVALID_SHARE_CODE)
+
+            # 调用API获取数据集详情
+            resp, err = await self.api_client.get_share_detail(code)
+            if err:
+                return ErrResponse(err)
+
+            return OKResponse(resp)
+
+        @self.prompt_server.routes.get(f"/{COMMUNITY_API}/model_version/{{version_id}}")
+        async def get_model_version_detail(request):
+            # 获取路径参数中的数据集ID
+            version_id = int(request.match_info["version_id"])
+
+            # 检查version_id是否合法
+            if not version_id or version_id <= 0:
+                return ErrResponse(errnos.INVALID_MODEL_VERSION_ID)
+
+            # 调用API获取数据集详情
+            resp, err = await self.api_client.get_model_version_detail(version_id)
+            if err:
+                return ErrResponse(err)
+
+            return OKResponse(resp)
+
     async def send_json(self, event, data, sid=None):
         message = {"type": event, "data": data}
 
@@ -554,6 +787,54 @@ class BizyAirServer:
                             "version": model_version["version"],
                             "model_id": bizy_model_id,
                             "model_name": model_version["bizy_model_name"],
+                        },
+                        sid=sid,
+                    )
+                    removed.append(version_id)
+            time.sleep(5)
+
+    def check_dataset_sync_status(self, dataset_id: str, version_ids: list, sid=None):
+        removed = []
+        while True:
+            # 从version_ids中移除removed中的version_id
+            version_ids = [
+                version_id for version_id in version_ids if version_id not in removed
+            ]
+            if len(version_ids) == 0:
+                return
+
+            for version_id in version_ids:
+                future = asyncio.run_coroutine_threadsafe(
+                    self.api_client.get_dataset_version_detail(version_id=version_id),
+                    self.loop,
+                )
+
+                dataset_version, err = future.result(timeout=2)
+
+                if err is not None:
+                    self.send_sync(
+                        event="error",
+                        data={
+                            "message": err.message,
+                            "code": err.code,
+                            "data": {
+                                "dataset_id": dataset_id,
+                                "version_id": version_id,
+                            },
+                        },
+                        sid=sid,
+                    )
+                    removed.append(version_id)
+                    continue
+
+                if "available" in dataset_version and dataset_version["available"]:
+                    self.send_sync(
+                        event="synced",
+                        data={
+                            "version_id": dataset_version["id"],
+                            "version": dataset_version["version"],
+                            "dataset_id": dataset_id,
+                            "dataset_name": dataset_version["dataset_name"],
                         },
                         sid=sid,
                     )

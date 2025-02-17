@@ -490,3 +490,161 @@ class APIClient:
                 f"\033[31m[BizyAir]\033[0m Fail to list share model files: response {ret} error {str(e)}"
             )
             return [], errnos.LIST_SHARE_MODEL_FILE_ERR
+
+    async def commit_dataset(self, payload) -> tuple[dict | None, ErrorNo | None]:
+        server_url = f"{BIZYAIR_SERVER_ADDRESS}/datasets"
+
+        headers, err = self.auth_header()
+        if err is not None:
+            return None, err
+
+        try:
+            ret, err = await self.do_post(server_url, data=payload, headers=headers)
+            if err is not None:
+                return None, err
+
+            return ret["data"], None
+        except Exception as e:
+            print(f"\033[31m[BizyAir]\033[0m Fail to commit dataset: {str(e)}")
+            return None, errnos.COMMIT_DATASET
+
+    async def update_dataset(
+        self, dataset_id: int, name: str, versions: list[dict]
+    ) -> tuple[dict | None, ErrorNo | None]:
+        server_url = f"{BIZYAIR_SERVER_ADDRESS}/datasets/{dataset_id}"
+
+        headers, err = self.auth_header()
+        if err is not None:
+            return None, err
+
+        data = {"name": name, "versions": versions}
+
+        try:
+            ret, err = await self.do_put(server_url, data=data, headers=headers)
+            if err is not None:
+                return None, err
+
+            return ret["data"], None
+        except Exception as e:
+            print(f"\033[31m[BizyAir]\033[0m Fail to update dataset: {str(e)}")
+            return None, errnos.UPDATE_DATASET
+
+    async def get_dataset_version_detail(
+        self, version_id: int
+    ) -> tuple[dict | None, ErrorNo | None]:
+        server_url = f"{BIZYAIR_SERVER_ADDRESS}/datasets/versions/{version_id}"
+
+        headers, err = self.auth_header()
+        if err is not None:
+            return None, err
+
+        try:
+            ret, err = await self.do_get(server_url, headers=headers)
+            if err is not None:
+                return None, err
+
+            return ret["data"], None
+        except Exception as e:
+            print(
+                f"\033[31m[BizyAir]\033[0m Fail to get dataset version detail: {str(e)}"
+            )
+            return None, errnos.GET_MODEL_VERSION_DETAIL
+
+    async def delete_dataset(
+        self, dataset_id: int
+    ) -> tuple[dict | None, ErrorNo | None]:
+        server_url = f"{BIZYAIR_SERVER_ADDRESS}/datasets/{dataset_id}"
+
+        headers, err = self.auth_header()
+        if err is not None:
+            return None, err
+
+        try:
+            ret, err = await self.do_delete(server_url, headers=headers)
+            if err is not None:
+                return None, err
+
+            return ret["data"], None
+        except Exception as e:
+            print(f"\033[31m[BizyAir]\033[0m Fail to delete dataset: {str(e)}")
+            return None, errnos.DELETE_DATASET
+
+    async def query_datasets(
+        self,
+        current: int,
+        page_size: int,
+        keyword: str = None,
+        annotated: str = None,
+    ) -> tuple[dict | None, ErrorNo | None]:
+        server_url = f"{BIZYAIR_SERVER_ADDRESS}/datasets"
+        params = {"current": current, "page_size": page_size}
+        if keyword:
+            params["keyword"] = keyword
+        if annotated:
+            params["annotated"] = annotated
+
+        headers, err = self.auth_header()
+        if err is not None:
+            return None, err
+
+        try:
+            ret, err = await self.do_get(server_url, params=params, headers=headers)
+            if err is not None:
+                return None, err
+
+            return ret["data"], None
+        except Exception as e:
+            print(f"\033[31m[BizyAir]\033[0m Fail to query datasets: {str(e)}")
+            return None, errnos.QUERY_DATASETS
+
+    async def get_dataset_detail(
+        self, dataset_id: int
+    ) -> tuple[dict | None, ErrorNo | None]:
+        server_url = f"{BIZYAIR_SERVER_ADDRESS}/datasets/{dataset_id}/detail"
+
+        headers, err = self.auth_header()
+        if err is not None:
+            return None, err
+
+        try:
+            ret, err = await self.do_get(server_url, headers=headers)
+            if err is not None:
+                return None, err
+
+            return ret["data"], None
+        except Exception as e:
+            print(f"\033[31m[BizyAir]\033[0m Fail to get dataset detail: {str(e)}")
+            return None, errnos.GET_DATASET_DETAIL
+
+    async def create_share(self, payload) -> tuple[dict | None, ErrorNo | None]:
+        server_url = f"{BIZYAIR_SERVER_ADDRESS}/share"
+
+        headers, err = self.auth_header()
+        if err is not None:
+            return None, err
+
+        try:
+            ret, err = await self.do_post(server_url, data=payload, headers=headers)
+            if err is not None:
+                return None, err
+            return ret["data"], None
+        except Exception as e:
+            print(f"\033[31m[BizyAir]\033[0m Fail to create share: {str(e)}")
+            return None, errnos.CREATE_SHARE
+
+    async def get_share_detail(self, code: str) -> tuple[dict | None, ErrorNo | None]:
+        server_url = f"{BIZYAIR_SERVER_ADDRESS}/share/{code}"
+
+        headers, err = self.auth_header()
+        if err is not None:
+            return None, err
+
+        try:
+            ret, err = await self.do_get(server_url, headers=headers)
+            if err is not None:
+                return None, err
+
+            return ret["data"], None
+        except Exception as e:
+            print(f"\033[31m[BizyAir]\033[0m Fail to get share detail: {str(e)}")
+            return None, errnos.GET_SHARE_DETAIL
