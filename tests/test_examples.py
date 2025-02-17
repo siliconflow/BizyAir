@@ -212,8 +212,9 @@ def flatten_dict(data):
 
 
 def get_all_examples_json(base_path):
+    json_filename = os.getenv("TEST_WORKFLOW_JSON_OVERRIDE", "bizyair_example_menu.json")
     with open(
-        os.path.join(base_path, "..", "bizyair_example_menu.json"),
+        os.path.join(base_path, "..", json_filename),
         "r",
         encoding="utf-8",
     ) as file:
