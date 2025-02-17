@@ -299,3 +299,11 @@ model_rules:
       - class_type: 'IF_TrellisCheckpointLoader'
       - class_type: IF_TrellisImageTo3D
       - class_type: Trans3D2GlbFile
+
+  - mode_type: Janus
+    base_model: Janus
+    describe: Janus Model
+    score: 1
+    route: /supernode/bizyair-janus-pro-7b
+    nodes:
+      - class_type: 'JanusModelLoader'
