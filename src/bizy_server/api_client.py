@@ -106,6 +106,7 @@ class APIClient:
         server_url = f"{BIZYAIR_SERVER_ADDRESS}/user/info"
         try:
             ret, err = await self.do_get(server_url, headers=headers)
+            print(err)
             if err is not None:
                 return None, err
 
