@@ -110,4 +110,3 @@ class errnos:
     GET_SHARE_DETAIL = ErrorNo(500, 500137, None, "Failed to get share detail")
 
     QUERY_ALL_TAGS = ErrorNo(500, 500131, None, "Failed to query all tags")
-
