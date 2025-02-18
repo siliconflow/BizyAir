@@ -177,8 +177,12 @@ def launch_prompt(driver, comfy_host, comfy_port, workflow, timeout):
         print(f" check if error occurs...")
         check_error_occurs(driver)
         print(f" no error occurs when executing workflow")
+        with open(os.path.join(base_path, "..", "time_taken.txt"), "a") as f:
+            f.write(f"{duration:.1f} s |\n")
     except TimeoutException:
         print("Time out")
+        with open(os.path.join(base_path, "..", "time_taken.txt"), "a") as f:
+            f.write(f"timeout |\n")
         driver.quit()
         driver = init_driver()
         driver.get(f"http://{comfy_host}:{comfy_port}")
@@ -187,6 +191,8 @@ def launch_prompt(driver, comfy_host, comfy_port, workflow, timeout):
         print(type(e))
         print(e)
         print(" exit with error: 1")
+        with open(os.path.join(base_path, "..", "time_taken.txt"), "a") as f:
+            f.write(f"error |\n")
         driver.quit()
         exit(1)
 
@@ -253,8 +259,12 @@ if __name__ == "__main__":
     print("========Running all examples========")
     print("\n".join(f"{key} -- {value}" for key, value in all_examples_json.items()))
     print("====================================")
+    with open(os.path.join(base_path, "..", "time_taken.txt"), "a") as f:
+        f.write(f"| title and file | timetaken |\n|:--:|:--:|\n")
     for title, file in all_examples_json.items():
         print(f"Running example: {title} - {file}")
+        with open(os.path.join(base_path, "..", "time_taken.txt"), "a") as f:
+            f.write(f"| {title} - {file} |")
         launch_prompt(
             driver,
             COMFY_HOST,

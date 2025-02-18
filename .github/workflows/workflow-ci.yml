@@ -15,6 +15,10 @@ on:
     branches:
       - master
 
+permissions:
+  contents: read
+  pull-requests: write
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.event.inputs.environment }}
   cancel-in-progress: true
@@ -114,6 +118,29 @@ jobs:
         BIZYAIR_SERVER_ADDRESS: ${{ vars.BIZYAIR_SERVER_ADDRESS }}
         PYTHONPATH: ${{ github.workspace }}/ComfyUI
 
+    - name: Add PR review comment about the time taken to run the examples on Linux
+      if: matrix.os == 'ubuntu-latest'
+      uses: actions/github-script@v4
+      with:
+        script: |
+          const { pull_request } = context.payload;
+          const fs = require('fs');
+          const timeTaken = fs.readFileSync('ComfyUI/custom_nodes/BizyAir/time_taken.txt', 'utf8');
+          const comment = `The time taken by running the examples on Linux: \n${timeTaken}`;
+          await github.issues.createComment({
+            issue_number: pull_request.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: comment
+          })
+
+
+
+    - name: remove the time_taken.txt file
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        rm ComfyUI/custom_nodes/BizyAir/time_taken.txt
+
     - name: Run ComfyUI on Windows
       if: matrix.os == 'windows-latest'
       run: |
@@ -128,3 +155,24 @@ jobs:
         BIZYAIR_API_KEY: ${{ secrets.BIZYAIR_KEY }}
         BIZYAIR_SERVER_ADDRESS: ${{ vars.BIZYAIR_SERVER_ADDRESS }}
         PYTHONPATH: ${{ github.workspace }}/ComfyUI
+
+    - name: Add PR review comment about the time taken to run the examples on Windows
+      if: matrix.os == 'windows-latest'
+      uses: actions/github-script@v4
+      with:
+        script: |
+          const { pull_request } = context.payload;
+          const fs = require('fs');
+          const timeTaken = fs.readFileSync('ComfyUI/custom_nodes/BizyAir/time_taken.txt', 'utf8');
+          const comment = `The time taken by running the examples on Windows: \n${timeTaken}`;
+          await github.issues.createComment({
+            issue_number: pull_request.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: comment
+          })
+
+    - name: remove the time_taken.txt file
+      if: matrix.os == 'windows-latest'
+      run: |
+        rm ComfyUI/custom_nodes/BizyAir/time_taken.txt
