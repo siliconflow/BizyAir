@@ -317,6 +317,7 @@ if __name__ == "__main__":
     if models == None:
         print(f"failed to get official workflows: {official_workflows_json}")
         exit(1)
+    print(models)
 
     wait_for_comfy_ready(host=COMFY_HOST, port=COMFY_PORT, wait_time_secs=120)
 
