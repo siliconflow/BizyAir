@@ -1,3 +1,7 @@
+# DEPRECATED
+# replaced by test_official_workflows.py
+"""
+
 # tests/test_examples.py
 import json
 import os
@@ -264,3 +268,5 @@ if __name__ == "__main__":
         )
 
     driver.quit()
+
+"""

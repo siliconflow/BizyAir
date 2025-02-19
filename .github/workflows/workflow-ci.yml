@@ -11,10 +11,6 @@ on:
         description: 'The branch to checkout code from'
         required: true
         default: 'master'
-      test_script:
-        description: 'Override the test script to execute, script must exist in the tests folder'
-        required: false
-        default: 'test_official_workflows.py'
   pull_request:
     branches:
       - master
@@ -24,7 +20,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  test_script: ${{ github.event.inputs.test_script || 'test_examples.py' }}
+  test_script: test_official_workflows.py
   target_branch: ${{ github.base_ref || 'master' }}
 
 jobs:
