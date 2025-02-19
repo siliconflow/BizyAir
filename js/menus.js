@@ -9,17 +9,18 @@ class FloatingButton {
             parent: document.body,
             style: { top: app.menu.element.style.display === 'none' ? '': '60px' },
             onmousedown: (e) => this.startDrag(e),
+            id: 'bizyair-menu-item',
         }, [
-            $el("h2.bizyair-logo"),
-            $el("div.bizyair-menu", {}, [
-                $el('strong', {}, ['BizyAir']),
-                $el("div.bizyair-menu-item", {
-                    id: 'bizyair-menu-item',
-                }),
-            ]),
-            $el('div.cmfy-floating-button-closer', {
-                onclick: () => this.toggleVisibility(event)
-            })
+            // $el("h2.bizyair-logo"),
+            // $el("div.bizyair-menu", {}, [
+            //     $el('strong', {}, ['BizyAir']),
+            //     $el("div.bizyair-menu-item", {
+            //         id: 'bizyair-menu-item',
+            //     }),
+            // ]),
+            // $el('div.cmfy-floating-button-closer', {
+            //     onclick: () => this.toggleVisibility(event)
+            // })
         ]);
 
         bizyAirLib.mount('#bizyair-menu-item', app)
@@ -38,16 +39,19 @@ class FloatingButton {
     }
 
     startDrag(e) {
+        document.body.style.userSelect = 'none';
         this.dragging = true;
         this.offsetX = e.clientX - this.button.offsetLeft;
         this.offsetY = e.clientY - this.button.offsetTop;
     }
 
     endDrag() {
+        document.body.style.userSelect = '';
         this.dragging = false;
     }
 
     doDrag(e) {
+
         if (this.dragging) {
             this.button.style.left = `${e.clientX - this.offsetX}px`;
             this.button.style.top = `${e.clientY - this.offsetY}px`;

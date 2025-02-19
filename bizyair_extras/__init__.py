@@ -5,6 +5,7 @@ from .nodes_comfyui_layerstyle_advance import *
 from .nodes_comfyui_pulid_flux import *
 from .nodes_controlnet import *
 from .nodes_custom_sampler import *
+from .nodes_dataset import *
 from .nodes_differential_diffusion import *
 from .nodes_flux import *
 from .nodes_image_utils import *
