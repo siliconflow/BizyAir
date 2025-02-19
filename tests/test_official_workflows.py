@@ -1,12 +1,11 @@
-# DEPRECATED
-# replaced by test_official_workflows.py
-"""
-
-# tests/test_examples.py
+# tests/test_official_workflows.py
+import asyncio
 import json
 import os
 import time
+import urllib
 
+import aiohttp
 import requests
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException
@@ -14,6 +13,19 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+
+BIZYAIR_SERVER_ADDRESS = os.getenv(
+    "BIZYAIR_SERVER_ADDRESS", "https://bizyair-api.siliconflow.cn/x/v1"
+)
+BIZYAIR_KEY = os.getenv("BIZYAIR_KEY", "")
+COMFY_HOST = os.getenv("COMFY_HOST", "127.0.0.1")
+COMFY_PORT = os.getenv("COMFY_PORT", "8188")
+BIZYAIR_TEST_SKIP_WORKFLOW_IDS = str.split(
+    os.getenv("BIZYAIR_TEST_SKIP_WORKFLOW_IDS", ""), ","
+)
+BIZYAIR_OFFICIAL_WORKFLOW_MAX_TOTAL = int(
+    os.getenv("BIZYAIR_OFFICIAL_WORKFLOW_MAX_TOTAL", "100")
+)
 
 
 def wait_for_comfy_ready(host="127.0.0.1", port=8188, wait_time_secs=120):
@@ -64,14 +76,22 @@ def modify_steps_decorator(func):
 
 
 @modify_steps_decorator
-def read_workflow_json(filename) -> str:
-    _, extension = os.path.splitext(filename)
-    if extension.endswith("json"):
-        with open(filename, "r", encoding="utf-8") as f:
-            c = f.read()
-            return c
-    else:
-        raise NotImplementedError("Only json or png workflow file supported yet")
+def read_workflow_json(url) -> str:
+    resp = asyncio.run(download_and_read_workflow_json(url))
+    if resp == None:
+        raise RuntimeError(
+            f"Failed to download workflow json from the given url: {url}"
+        )
+    return resp
+
+
+async def download_and_read_workflow_json(url) -> str:
+    # 请求该url，获取文件内容
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as response:
+            if response.status != 200:
+                return None
+            return await response.text()
 
 
 def load_workflow_graph(driver, workflow: str):
@@ -146,7 +166,7 @@ def check_error_occurs(driver):
 app_ready = None
 
 
-def launch_prompt(driver, comfy_host, comfy_port, workflow, timeout):
+def launch_prompt(driver, comfy_host, comfy_port, workflow_url, timeout):
     BIZYAIR_KEY = os.getenv("BIZYAIR_KEY", "")
     try:
         time.sleep(0.2)
@@ -161,7 +181,7 @@ def launch_prompt(driver, comfy_host, comfy_port, workflow, timeout):
         print(" workflow cleard")
 
         print(" load the target workflow...")
-        load_workflow_graph(driver, read_workflow_json(workflow))
+        load_workflow_graph(driver, read_workflow_json(workflow_url))
 
         print(" check the nodes type of workflow...")
         check_graph_node_types(driver)
@@ -190,7 +210,7 @@ def launch_prompt(driver, comfy_host, comfy_port, workflow, timeout):
     except Exception as e:
         print(type(e))
         print(e)
-        print(" exit with error: 1")
+        print("exit with error 1")
         driver.quit()
         exit(1)
 
@@ -230,11 +250,81 @@ def filter_examples_json(all_examples_json: dict, bypass_titles: list):
     return {k: v for k, v in all_examples_json.items() if k not in bypass_titles}
 
 
-if __name__ == "__main__":
+def get_auth_header() -> dict:
+    auth = f"Bearer {BIZYAIR_KEY}"
+    return {
+        "accept": "application/json",
+        "content-type": "application/json",
+        "authorization": auth,
+    }
 
-    COMFY_HOST = os.getenv("COMFY_HOST", "127.0.0.1")
-    COMFY_PORT = os.getenv("COMFY_PORT", "8188")
-    BIZYAIR_KEY = os.getenv("BIZYAIR_KEY", "")
+
+async def query_official_models(api_key) -> tuple[dict | None, bool]:
+    server_url = f"{BIZYAIR_SERVER_ADDRESS}/bizy_models/official"
+    params = {
+        "current": 1,
+        "page_size": BIZYAIR_OFFICIAL_WORKFLOW_MAX_TOTAL,
+        "sort": "Recently",
+    }
+
+    try:
+        ret, success = await do_get(
+            server_url, params=params, headers=get_auth_header()
+        )
+        if not success:
+            return None, False
+
+        return ret["data"], True
+    except Exception as e:
+        print(f"\033[31m[BizyAir]\033[0m Fail to query official models: {str(e)}")
+        return None, False
+
+
+async def do_get(url, params=None, headers=None):
+    if params:
+        query_string = urllib.parse.urlencode(params, doseq=True)
+        url = f"{url}?{query_string}"
+    async with await get_session() as session:
+        async with session.get(url, headers=headers) as response:
+            resp_json = await response.json()
+            if response.status != 200:
+                print(f"Request failed with status {response.status}: {resp_json}")
+                return None, False
+            return resp_json, True
+
+
+async def get_session():
+    timeout = aiohttp.ClientTimeout(total=30)
+    return aiohttp.ClientSession(timeout=timeout)
+
+
+async def get_download_url(sign: str, model_version_id: int) -> tuple[str | None, bool]:
+    server_url = f"{BIZYAIR_SERVER_ADDRESS}/files/temp-download/{sign}?version_id={model_version_id}"
+
+    headers = get_auth_header()
+
+    try:
+        ret, success = await do_get(server_url, headers=headers)
+        if not success:
+            return None, False
+
+        return ret["data"]["url"], True
+    except Exception as e:
+        print(f"\033[31m[BizyAir]\033[0m Fail to get download url: {str(e)}")
+        return None, False
+
+
+if __name__ == "__main__":
+    official_workflows_json, success = asyncio.run(query_official_models(BIZYAIR_KEY))
+    if not success:
+        print(f"failed to get official workflows")
+        exit(1)
+
+    models = official_workflows_json.get("list", None)
+    if models == None:
+        print(f"failed to get official workflows: {official_workflows_json}")
+        exit(1)
+    print(models)
 
     wait_for_comfy_ready(host=COMFY_HOST, port=COMFY_PORT, wait_time_secs=120)
 
@@ -244,29 +334,34 @@ if __name__ == "__main__":
     # Set BizyAir API Key
     driver.add_cookie({"name": "api_key", "value": BIZYAIR_KEY, "path": "/"})
 
-    base_path = os.path.dirname(os.path.abspath(__file__))
-    all_examples_json = get_all_examples_json(base_path)
-    all_examples_json = filter_examples_json(
-        all_examples_json,
-        [
-            "All types of ControlNet preprocessors",
-            "FLUX-dev Simple Lora",
-            "Super Resolution",
-        ],
+    print("========Running all official workflows========")
+    print(
+        "\n".join(
+            f"{model.get('name')}@{model.get('versions')[0].get('version')} --- {model.get('versions')[0].get('file_name')}"
+            for model in models
+        )
     )
-    print("========Running all examples========")
-    print("\n".join(f"{key} -- {value}" for key, value in all_examples_json.items()))
-    print("====================================")
-    for title, file in all_examples_json.items():
-        print(f"Running example: {title} - {file}")
+    print("==============================================")
+    for model in models:
+        id = str(model.get("id"))
+        name = model.get("name")
+        if id in BIZYAIR_TEST_SKIP_WORKFLOW_IDS:
+            print(f"skipping workflow {name}")
+            continue
+        version = model.get("versions")[0]
+        vid = version.get("id")
+        sign = version.get("sign")
+        url, success = asyncio.run(get_download_url(sign, vid))
+        if not success:
+            print(f"failed to get workflow download url for model: {model}")
+            exit(1)
+        print(f"Running official workflow: {name}")
         launch_prompt(
             driver,
             COMFY_HOST,
             COMFY_PORT,
-            os.path.join(base_path, "..", "examples", file),
+            url,
             timeout=100,
         )
 
     driver.quit()
-
-"""
