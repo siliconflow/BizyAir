@@ -18,6 +18,7 @@ BIZYAIR_SERVER_ADDRESS = os.getenv("BIZYAIR_SERVER_ADDRESS", "https://bizyair-ap
 BIZYAIR_KEY = os.getenv("BIZYAIR_KEY", "")
 COMFY_HOST = os.getenv("COMFY_HOST", "127.0.0.1")
 COMFY_PORT = os.getenv("COMFY_PORT", "8188")
+BIZYAIR_TEST_SKIP_WORKFLOW_IDS = str.split(os.getenv("BIZYAIR_TEST_SKIP_WORKFLOW_IDS", ""), ",")
 
 def wait_for_comfy_ready(host="127.0.0.1", port=8188, wait_time_secs=120):
     url = f"http://{host}:{port}/system_stats"
@@ -75,7 +76,6 @@ def read_workflow_json(url) -> str:
     
 async def download_and_read_workflow_json(url) -> str:
     # 请求该url，获取文件内容
-    import pdb;pdb.set_trace()
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
             if response.status != 200:
@@ -199,7 +199,7 @@ def launch_prompt(driver, comfy_host, comfy_port, workflow_url, timeout):
     except Exception as e:
         print(type(e))
         print(e)
-        print(" exit with error: 1")
+        print("exit with error 1")
         driver.quit()
         exit(1)
 
@@ -303,7 +303,7 @@ if __name__ == "__main__":
     models = official_workflows_json.get("list", None)
     if models == None:
         print(f"failed to get official workflows: {official_workflows_json}")
-        exit(1)       
+        exit(1)
 
     wait_for_comfy_ready(host=COMFY_HOST, port=COMFY_PORT, wait_time_secs=120)
 
@@ -317,6 +317,11 @@ if __name__ == "__main__":
     print("\n".join(f"{model.get("name")}@{model.get("versions")[0].get("version")} --- {model.get("versions")[0].get("file_name")}" for model in models))
     print("==============================================")    
     for model in models:
+        id = str(model.get("id"))
+        name = model.get("name")
+        if id in BIZYAIR_TEST_SKIP_WORKFLOW_IDS:
+            print(f"skipping workflow {name}")
+            continue
         version = model.get("versions")[0]
         vid = version.get("id")
         sign = version.get("sign")
@@ -324,13 +329,13 @@ if __name__ == "__main__":
         if not success:
             print(f"failed to get workflow download url for model: {model}")
             exit(1)
-        print(f"Running official workflow: {model.get("name")}")
+        print(f"Running official workflow: {name}")
         launch_prompt(
             driver,
             COMFY_HOST,
             COMFY_PORT,
             url,
             timeout=100,
-        )    
+        )
 
     driver.quit()

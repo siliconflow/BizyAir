@@ -11,10 +11,10 @@ on:
         description: 'The branch to checkout code from'
         required: true
         default: 'master'
-      workflow_json:
-        description: 'Override the workflow json file, optional'
+      test_script:
+        description: 'Override the test script to execute, script must exist in the tests folder'
         required: false
-        default: 'bizyair_uat_workflows.json'
+        default: 'test_official_workflows.py'
   pull_request:
     branches:
       - master
@@ -22,6 +22,10 @@ on:
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.event.inputs.environment }}
   cancel-in-progress: true
+
+env:
+  test_script: ${{ github.event.inputs.test_script || 'test_examples.py' }}
+  target_branch: ${{ github.base_ref || 'master' }}
 
 jobs:
   check-modified-files:
@@ -37,12 +41,12 @@ jobs:
 
     - name: Fetch target branch
       run: |
-        git fetch origin ${{ github.base_ref || 'master' }} --depth=1
+        git fetch origin ${{ env.target_branch }} --depth=1
 
     - name: Check modified files
       id: check_files
       run: |
-        modified_files=$(git diff --name-only origin/${{ github.base_ref || 'master' }}...HEAD)
+        modified_files=$(git diff --name-only origin/${{ env.target_branch }}...HEAD)
         only_non_code_files=true
         for file in $modified_files; do
           if [[ "$file" == *.py ]] || [[ "$file" == *.js ]] || [[ "$file" == *.json ]] || [[ "$file" == *.yml ]]; then
@@ -103,11 +107,6 @@ jobs:
         python3 -m pip install -r ComfyUI/custom_nodes/BizyAir/requirements.txt
         python3 -m pip show torch
 
-    - name: Conditional env vars
-      run: |
-        if [ "${{ github.event.inputs.workflow_json }}" != '' ]; then
-          echo "TEST_WORKFLOW_JSON_OVERRIDE=${{ github.event.inputs.workflow_json }}" >> $GITHUB_ENV
-
     - name: Run ComfyUI on Linux
       if: matrix.os == 'ubuntu-latest'
       run: |
@@ -117,12 +116,13 @@ jobs:
         cd custom_nodes/BizyAir
         echo "Current directory: $(pwd)"
         python3 tests/write_api_ini_file.py
-        python3 tests/test_examples.py
+        python3 tests/${{ env.test_script }}
       env:
         BIZYAIR_KEY: ${{ secrets.BIZYAIR_KEY }}
         BIZYAIR_API_KEY: ${{ secrets.BIZYAIR_KEY }}
         BIZYAIR_SERVER_ADDRESS: ${{ vars.BIZYAIR_SERVER_ADDRESS }}
         PYTHONPATH: ${{ github.workspace }}/ComfyUI
+        BIZYAIR_TEST_SKIP_WORKFLOW_IDS: ${{ vars.BIZYAIR_TEST_SKIP_WORKFLOW_IDS }}
 
     - name: Run ComfyUI on Windows
       if: matrix.os == 'windows-latest'
@@ -132,9 +132,10 @@ jobs:
         cd custom_nodes/BizyAir
         Write-Output "Current directory: $(Get-Location)"
         python3 tests/write_api_ini_file.py
-        python3 tests/test_examples.py
+        python3 tests/${{ env.test_script }}
       env:
         BIZYAIR_KEY: ${{ secrets.BIZYAIR_KEY }}
         BIZYAIR_API_KEY: ${{ secrets.BIZYAIR_KEY }}
         BIZYAIR_SERVER_ADDRESS: ${{ vars.BIZYAIR_SERVER_ADDRESS }}
         PYTHONPATH: ${{ github.workspace }}/ComfyUI
+        BIZYAIR_TEST_SKIP_WORKFLOW_IDS: ${{ vars.BIZYAIR_TEST_SKIP_WORKFLOW_IDS }}
