@@ -329,7 +329,7 @@ if __name__ == "__main__":
     print("========Running all official workflows========")
     print(
         "\n".join(
-            f"{model.get("name")}@{model.get("versions")[0].get("version")} --- {model.get("versions")[0].get("file_name")}"
+            f"{model.get('name')}@{model.get('versions')[0].get('version')} --- {model.get('versions')[0].get('file_name')}"
             for model in models
         )
     )
