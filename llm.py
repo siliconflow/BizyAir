@@ -188,7 +188,7 @@ class SiliconCloudVLMAPI:
 
 class BizyAirJoyCaption:
     # refer to: https://huggingface.co/spaces/fancyfeast/joy-caption-pre-alpha
-    API_URL = f"{BIZYAIR_SERVER_ADDRESS}/supernode/joycaption"
+    API_URL = f"{BIZYAIR_SERVER_ADDRESS}/supernode/joycaption2"
 
     @classmethod
     def INPUT_TYPES(s):
@@ -239,6 +239,11 @@ class BizyAirJoyCaption:
             "do_sample": do_sample == "enable",
             "temperature": temperature,
             "max_new_tokens": max_tokens,
+            "caption_type": "Descriptive",
+            "caption_length": "any",
+            "extra_options": [],
+            "name_input": "",
+            "custom_prompt": "A descriptive caption for this image:\n",
         }
         auth = f"Bearer {API_KEY}"
         headers = {
@@ -255,11 +260,10 @@ class BizyAirJoyCaption:
         try:
             if "result" in ret:
                 ret = json.loads(ret["result"])
+            if ret["type"] == "error":
+                raise Exception(ret["message"])
         except Exception as e:
             raise Exception(f"Unexpected response: {ret} {e=}")
-
-        if ret["status"] == "error":
-            raise Exception(ret["message"])
 
         msg = ret["data"]
         if msg["type"] not in (
@@ -398,11 +402,10 @@ class BizyAirJoyCaption2:
         try:
             if "result" in ret:
                 ret = json.loads(ret["result"])
+            if ret["type"] == "error":
+                raise Exception(ret["message"])
         except Exception as e:
             raise Exception(f"Unexpected response: {ret} {e=}")
-
-        if ret["type"] == "error":
-            raise Exception(ret["message"])
 
         msg = ret["data"]
         if msg["type"] not in (
