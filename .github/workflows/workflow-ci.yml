@@ -119,6 +119,7 @@ jobs:
         BIZYAIR_SERVER_ADDRESS: ${{ vars.BIZYAIR_SERVER_ADDRESS }}
         PYTHONPATH: ${{ github.workspace }}/ComfyUI
         BIZYAIR_TEST_SKIP_WORKFLOW_IDS: ${{ vars.BIZYAIR_TEST_SKIP_WORKFLOW_IDS }}
+        BIZYAIR_OFFICIAL_WORKFLOW_MAX_TOTAL: ${{ vars.BIZYAIR_OFFICIAL_WORKFLOW_MAX_TOTAL }}
 
     - name: Run ComfyUI on Windows
       if: matrix.os == 'windows-latest'
@@ -136,3 +137,4 @@ jobs:
         PYTHONPATH: ${{ github.workspace }}/ComfyUI
         PYTHONIOENCODING: utf-8
         BIZYAIR_TEST_SKIP_WORKFLOW_IDS: ${{ vars.BIZYAIR_TEST_SKIP_WORKFLOW_IDS }}
+        BIZYAIR_OFFICIAL_WORKFLOW_MAX_TOTAL: ${{ vars.BIZYAIR_OFFICIAL_WORKFLOW_MAX_TOTAL }}

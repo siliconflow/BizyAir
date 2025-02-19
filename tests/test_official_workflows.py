@@ -23,6 +23,9 @@ COMFY_PORT = os.getenv("COMFY_PORT", "8188")
 BIZYAIR_TEST_SKIP_WORKFLOW_IDS = str.split(
     os.getenv("BIZYAIR_TEST_SKIP_WORKFLOW_IDS", ""), ","
 )
+BIZYAIR_OFFICIAL_WORKFLOW_MAX_TOTAL = int(
+    os.getenv("BIZYAIR_OFFICIAL_WORKFLOW_MAX_TOTAL", "100")
+)
 
 
 def wait_for_comfy_ready(host="127.0.0.1", port=8188, wait_time_secs=120):
@@ -258,7 +261,11 @@ def get_auth_header() -> dict:
 
 async def query_official_models(api_key) -> tuple[dict | None, bool]:
     server_url = f"{BIZYAIR_SERVER_ADDRESS}/bizy_models/official"
-    params = {"current": 1, "page_size": 100, "sort": "Recently"}
+    params = {
+        "current": 1,
+        "page_size": BIZYAIR_OFFICIAL_WORKFLOW_MAX_TOTAL,
+        "sort": "Recently",
+    }
 
     try:
         ret, success = await do_get(
