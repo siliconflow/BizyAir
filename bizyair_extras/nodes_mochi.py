@@ -15,7 +15,7 @@ class BizyAir_mochi(BizyAirBaseNode):
             }
         }
 
-    RETURN_TYPES = ("IMAGE",)
+    RETURN_TYPES = ("STRING",)
     # RETURN_NAMES = ("path",)
     CATEGORY = "☁️BizyAir/mochi"
     NODE_DISPLAY_NAME = "☁️BizyAir mochi"
