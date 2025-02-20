@@ -12,6 +12,7 @@ from .nodes_ip2p import *
 from .nodes_ipadapter_plus.nodes_ipadapter_plus import *
 from .nodes_janus_pro import *
 from .nodes_kolors_mz import *
+from .nodes_mochi import *
 from .nodes_model_advanced import *
 from .nodes_sd3 import *
 from .nodes_segment_anything import *
@@ -19,4 +20,3 @@ from .nodes_testing_utils import *
 from .nodes_trellis import *
 from .nodes_ultimatesdupscale import *
 from .nodes_upscale_model import *
-from .nodes_mochi import *
