@@ -163,24 +163,37 @@ def send_request(
             )
         else:
             # 检查网络连接
-            common_sites = ["www.baidu.com", "www.bing.com", "www.siliconflow.cn"]
-            ping_results = defaultdict(list)
-            flag = False
-            ping_info = ""
+            common_sites = [
+                "https://www.baidu.com",
+                "https://www.bing.com",
+                "https://www.alibaba.com",
+            ]
+            results = {}
             for site in common_sites:
-                response = os.system(f"ping -c 1 {site}")
-                if response == 0:
-                    ping_results[site].append("Success")
-                else:
-                    ping_results[site].append("Failed")
-                    flag = True
-            for site, result in ping_results.items():
-                ping_info += f"    {site}: {result[0]}\n"
-            if flag:
+                success = False
+                try:
+                    # 禁止重定向
+                    class NoRedirectHandler(urllib.request.HTTPRedirectHandler):
+                        def redirect_request(self, req, fp, code, msg, headers, newurl):
+                            return None
+
+                    opener = urllib.request.build_opener(NoRedirectHandler())
+                    response = opener.open(site, timeout=5)
+                    success = 200 <= response.getcode() < 400
+                except urllib.error.HTTPError as e:
+                    # 如果有重定向的情况 会被禁止code为3xx 但是网络是连通的
+                    success = 200 <= e.code < 400
+                except (urllib.error.URLError, TimeoutError):
+                    pass
+                results[site] = "Success" if success else "Failed"
+            # 如果有一个失败抛出异常
+            if "Failed" in results.values():
                 raise ConnectionError(
                     f"Failed to connect to the server: {error_message}.\n"
-                    + "The results of the ping test are as follows:\n"
-                    + ping_info
+                    + "The results of the test are as follows:"
+                    + "\n".join(
+                        [f"    {site}: {result}" for site, result in results.items()]
+                    )
                     + "Please check the network connection."
                 )
             else:
@@ -198,8 +211,10 @@ def send_request(
 
                 raise ConnectionError(
                     f"Failed to connect to the server: {error_message}.\n"
-                    + "The internet connection is working. The results of the ping test are as follows:\n"
-                    + ping_info
+                    + "The internet connection is working. The results of the test are as follows:"
+                    + "\n".join(
+                        [f"    {site}: {result}" for site, result in results.items()]
+                    )
                     + "Please check your API key and ensure the server is reachable.\n"
                     + proxy_info
                     + "After checking, please restart the ComfyUI service."
