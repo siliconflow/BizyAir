@@ -630,8 +630,8 @@ class APIClient:
             print(f"\033[31m[BizyAir]\033[0m Fail to get share detail: {str(e)}")
             return None, errnos.GET_SHARE_DETAIL
 
-    async def get_all_tags(self) -> tuple[dict | None, ErrorNo | None]:
-        server_url = f"{BIZYAIR_SERVER_ADDRESS}/tags/all"
+    async def get_data_dict(self) -> tuple[dict | None, ErrorNo | None]:
+        server_url = f"{BIZYAIR_SERVER_ADDRESS}/dict"
         headers, err = self.auth_header()
         if err is not None:
             return None, err
@@ -643,5 +643,5 @@ class APIClient:
 
             return ret["data"], None
         except Exception as e:
-            print(f"\033[31m[BizyAir]\033[0m Fail to query all tags: {str(e)}")
-            return None, errnos.QUERY_ALL_TAGS
+            print(f"\033[31m[BizyAir]\033[0m Fail to get data dict: {str(e)}")
+            return None, errnos.GET_DATA_DICT

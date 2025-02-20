@@ -453,13 +453,13 @@ class BizyAirServer:
                 return ErrResponse(err)
             return OKResponse(model_files)
 
-        @self.prompt_server.routes.get(f"/{API_PREFIX}/tags/all")
-        async def get_all_tags(request):
-            tags, err = await self.api_client.get_all_tags()
+        @self.prompt_server.routes.get(f"/{API_PREFIX}/dict")
+        async def get_data_dict(request):
+            data_dict, err = await self.api_client.get_data_dict()
             if err is not None:
                 return ErrResponse(err)
 
-            return OKResponse(tags)
+            return OKResponse(data_dict)
 
         @self.prompt_server.routes.post(f"/{COMMUNITY_API}/datasets")
         async def commit_dataset(request):

@@ -109,4 +109,4 @@ class errnos:
     CREATE_SHARE = ErrorNo(500, 500136, None, "Failed to create share")
     GET_SHARE_DETAIL = ErrorNo(500, 500137, None, "Failed to get share detail")
 
-    QUERY_ALL_TAGS = ErrorNo(500, 500131, None, "Failed to query all tags")
+    GET_DATA_DICT = ErrorNo(500, 500131, None, "Failed to get data dict")
