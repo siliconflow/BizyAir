@@ -32,7 +32,7 @@ BizyAir is a collection of [ComfyUI](https://github.com/comfyanonymous/ComfyUI) 
 
 BizyAir now supports many models and nodes.
 
-![](./docs/docs/getting-started/imgs/Workflows-and-Models.gif)
+![](./docs/docs/getting-started/imgs/models-and-nodes.gif)
 
 
 ## Table of Contents
