@@ -1,8 +1,13 @@
 import asyncio
 import json
+import os
 
 import aiohttp
+import comfy
+import folder_paths
+import numpy as np
 from aiohttp import web
+from PIL import Image
 from server import PromptServer
 
 from bizyair.common.env_var import BIZYAIR_SERVER_ADDRESS
@@ -369,6 +374,7 @@ class BizyAirJoyCaption2:
         name_input,
         custom_prompt,
     ):
+
         API_KEY = get_api_key()
         SIZE_LIMIT = 1536
         _, w, h, c = image.shape
@@ -418,15 +424,101 @@ class BizyAirJoyCaption2:
         return (caption,)
 
 
+class BizyAirMultiJoyCaption2(BizyAirJoyCaption2):
+
+    RETURN_TYPES = ("STRING",)
+    FUNCTION = "multi_joycaption"
+    NODE_DISPLAY_NAME = "☁️BizyAir Multi Joy Caption"
+
+    def multi_joycaption(self, image, **kwargs):
+        captions = []
+        images = image
+        steps = len(images)
+        pbar = comfy.utils.ProgressBar(steps)
+
+        for i, image in enumerate(images):
+            result = super().joycaption2(image=image.unsqueeze(0), **kwargs)
+            captions.append(result[0])
+            pbar.update_absolute(i + 1)
+        combined_caption = " | ".join(captions)
+        return {"ui": {"text": (combined_caption,)}, "result": (combined_caption,)}
+
+
+class SaveCaptionsAndImages:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "captions": ("STRING", {"multiline": True}),
+                "images": ("IMAGE",),
+                "directory_prefix": (
+                    "STRING",
+                    {"default": "lora_dataset", "multiline": False},
+                ),
+            },
+        }
+
+    RETURN_TYPES = ()
+    OUTPUT_NODE = True
+    FUNCTION = "apply"
+
+    def apply(self, captions, images, directory_prefix):
+
+        # Split the captions string into a list using " | " as the delimiter
+        caption_list = captions.split(" | ")
+        full_output_folder = folder_paths.get_output_directory()
+        # Find the next available directory number
+        i = 0
+        while True:
+            dir_path = os.path.join(full_output_folder, f"{directory_prefix}_{i:03d}")
+            if not os.path.exists(dir_path):
+                break
+            i += 1
+        # Validate input
+        if len(caption_list) != len(images):
+            raise ValueError(
+                "The number of captions does not match the number of images."
+            )
+
+        for batch_number, (image, caption) in enumerate(zip(images, caption_list)):
+            # Generate a unique filename for each image
+            filename = f"image_{batch_number:04d}"
+
+            # Generate file paths
+            image_filepath = os.path.join(dir_path, f"{filename}.png")
+            caption_filepath = os.path.join(dir_path, f"{filename}.txt")
+
+            # Ensure directory exists
+            os.makedirs(dir_path, exist_ok=True)
+
+            # Save the image
+            i = 255.0 * image.cpu().numpy()
+            img = Image.fromarray(np.clip(i, 0, 255).astype(np.uint8))
+            img.save(image_filepath)
+
+            # Write caption to file
+            with open(caption_filepath, "w", encoding="utf-8") as caption_file:
+                caption_file.write(caption)
+
+            print(f"Image saved to: {image_filepath}")
+            print(f"Caption saved to: {caption_filepath}")
+
+        return {}
+
+
 NODE_CLASS_MAPPINGS = {
     "BizyAirSiliconCloudLLMAPI": SiliconCloudLLMAPI,
     "BizyAirSiliconCloudVLMAPI": SiliconCloudVLMAPI,
     "BizyAirJoyCaption": BizyAirJoyCaption,
     "BizyAirJoyCaption2": BizyAirJoyCaption2,
+    "BizyAirMultiJoyCaption2": BizyAirMultiJoyCaption2,
+    "SaveCaptionsAndImages": SaveCaptionsAndImages,
 }
 NODE_DISPLAY_NAME_MAPPINGS = {
     "BizyAirSiliconCloudLLMAPI": "☁️BizyAir SiliconCloud LLM API",
     "BizyAirSiliconCloudVLMAPI": "☁️BizyAir SiliconCloud VLM API",
     "BizyAirJoyCaption": "☁️BizyAir Joy Caption",
     "BizyAirJoyCaption2": "☁️BizyAir Joy Caption2",
+    "BizyAirMultiJoyCaption2": "☁️BizyAir Multi Joy Caption2",
+    "SaveCaptionsAndImages": "☁️BizyAir Save Captions And Images",
 }
