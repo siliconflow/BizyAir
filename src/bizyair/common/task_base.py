@@ -189,6 +189,7 @@ class BizyAirTask:
 
                 for data in data_lst:
                     message = data.get("data", {}).get("message", {})
+                    print(f"{message=}")
                     if (
                         isinstance(message, dict)
                         and message.get("event", None) == "progress"
@@ -263,7 +264,11 @@ class DynamicLazyTaskExecutor(BizyAirTask):
             for data in data_lst:
                 if BIZYAIR_DEBUG:
                     print(f"\n{str(data)[:200]}")
-                message = data.get("data", {}).get("message", {})
+                try:
+                    message = data.get("data", {}).get("message", {})
+                except Exception as e:
+                    print(f"Warning get message failed {data=} {e=}")
+                    continue
                 if BIZYAIR_DEBUG:
                     print(f"{message=}")
 

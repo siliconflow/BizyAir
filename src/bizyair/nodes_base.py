@@ -144,7 +144,7 @@ class BizyAirBaseNode:
                 if result:
                     return self._merge_results(result, node_ios)
             set_training_subscriber(None)
-            raise RuntimeError("Unknown")
+            # raise RuntimeError("Unknown")
         if len(send_request_datatype_list) == len(self.RETURN_TYPES):
             return self._process_all_send_request_types(node_ios)
         elif len(send_request_datatype_list) > 0:

@@ -158,7 +158,11 @@ class PromptPreRunProcessor(Processor):
 
         queue = deque([int(unique_id)])
         visited = set()
+
         last_node_id = int(unique_id)
+        # TODO refine
+        if pre_prompt[unique_id]["class_type"] != "InitFluxLoRATraining":
+            raise RuntimeError("Only support invoker InitFluxLoRATraining ")
 
         while queue:
             node_id = queue.popleft()
@@ -245,7 +249,7 @@ class PromptAsyncProcessor(PromptProcessor):
         else:
             result = super().process(url, prompt, **kwargs)
             bizyair_task_cache.set(cache_key, result, overwrite=True)
-
+            # result = {"code": 20000, "message": "Ok", "status": True, "data": {"task_id": 13308}}
         if is_bizyair_async_response(result):
             worker = DynamicLazyTaskExecutor.from_data(inputs=result, prompt=prompt)
             return worker
