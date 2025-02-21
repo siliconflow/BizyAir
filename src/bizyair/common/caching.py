@@ -5,6 +5,7 @@ import time
 from abc import ABC, abstractmethod
 from collections import OrderedDict
 from dataclasses import dataclass
+from re import T
 from typing import Any, Dict
 
 
@@ -54,6 +55,7 @@ class BizyAirTaskCache(CacheManager):
         self.cache_dir = config.cache_dir
         self.ensure_directory_exists()
         self.cache = self.load_cache() if config.use_cache else self.cache
+        self._tmp_cache = {}
 
     def ensure_directory_exists(self):
         if not os.path.exists(self.cache_dir):
@@ -146,6 +148,12 @@ class BizyAirTaskCache(CacheManager):
         )
         self.write_file(key, value, file_path, timestamp)
 
+    def tmp_add(self, key, value):
+        self._tmp_cache[key] = value
+
+    def commit(self, key):
+        self.set(key=key, value=self._tmp_cache[key], overwrite=True)
+
     def _evict_oldest(self):
         oldest_key, (oldest_file_path, _) = self.cache.popitem(last=False)
         self.delete_file(oldest_file_path)
@@ -174,6 +182,13 @@ class BizyAirTaskCache(CacheManager):
 
     def disable(self):
         self.clear()
+
+
+from bizyair.configs.conf import config_manager
+
+bizyair_task_cache: BizyAirTaskCache = BizyAirTaskCache(
+    config=CacheConfig.from_config(config_manager.get_cache_config())
+)
 
 
 # Example usage

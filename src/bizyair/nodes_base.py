@@ -2,8 +2,15 @@ import importlib
 import logging
 import warnings
 from functools import wraps
-from typing import List
+from typing import Any, Dict, List
 
+from .common.task_base import (
+    BizyAirTask,
+    DynamicLazyTaskExecutor,
+    get_training_subscriber,
+    is_training_mode,
+    set_training_subscriber,
+)
 from .data_types import is_send_request_datatype
 from .nodes_io import BizyAirNodeIO, create_node_data
 
@@ -20,6 +27,11 @@ LOGO = "☁️"
 PREFIX = f"BizyAir"
 NODE_CLASS_MAPPINGS = {}
 NODE_DISPLAY_NAME_MAPPINGS = {}
+HIDDEN_FIELDS = {
+    "unique_id": "UNIQUE_ID",
+    "prompt": "PROMPT",
+    "extra_pnginfo": "EXTRA_PNGINFO",
+}
 
 
 def to_camel_case(s):
@@ -60,37 +72,30 @@ def register_node(cls, prefix):
     NODE_DISPLAY_NAME_MAPPINGS[class_name] = display_name
 
 
-def ensure_unique_id(org_func, original_has_unique_id=False):
+def ensure_unique_id(org_func: callable, original_hidden: Dict = {}):
     @wraps(org_func)
-    def new_func(self, **kwargs):
-        if original_has_unique_id:
-            self._assigned_id = kwargs.get("unique_id", "UNIQUE_ID")
-        elif "unique_id" in kwargs:
-            self._assigned_id = kwargs.pop("unique_id")
+    def wrapped_func(self, **kwargs):
+        # Ensure only new hidden fields are added, existing ones are not popped
+        if not hasattr(self, "_hidden"):
+            self._hidden = {}
+        for key in HIDDEN_FIELDS:
+            if key not in original_hidden:
+                self._hidden[key] = kwargs.pop(key, None)
+            else:
+                self._hidden[key] = kwargs[key]
         return org_func(self, **kwargs)
 
-    return new_func
+    return wrapped_func
 
 
-def ensure_hidden_unique_id(org_input_types_func):
-    original_has_unique_id = False
-
+def ensure_hidden_unique_id(org_input_types_func: callable):
     @wraps(org_input_types_func)
-    def new_input_types_func():
-        nonlocal original_has_unique_id
-
+    def wrapped_input_types_func():
         result = org_input_types_func()
-        if "hidden" not in result:
-            result["hidden"] = {"unique_id": "UNIQUE_ID"}
-        elif "unique_id" not in result["hidden"]:
-            result["hidden"]["unique_id"] = "UNIQUE_ID"
-        else:
-            original_has_unique_id = True
+        result.setdefault("hidden", {}).update(HIDDEN_FIELDS)
         return result
 
-    # Ensure original_has_unique_id is correctly set before returning
-    new_input_types_func()
-    return new_input_types_func, original_has_unique_id
+    return wrapped_input_types_func
 
 
 class BizyAirBaseNode:
@@ -105,29 +110,45 @@ class BizyAirBaseNode:
     @classmethod
     def setup_input_types(cls):
         # https://docs.comfy.org/essentials/custom_node_more_on_inputs#hidden-inputs
-        new_input_types_func, original_has_unique_id = ensure_hidden_unique_id(
-            cls.INPUT_TYPES
-        )
+        original_hidden = cls.INPUT_TYPES().get("hidden", {})
+        new_input_types_func = ensure_hidden_unique_id(cls.INPUT_TYPES)
         cls.INPUT_TYPES = new_input_types_func
         setattr(
             cls,
             cls.FUNCTION,
-            ensure_unique_id(getattr(cls, cls.FUNCTION), original_has_unique_id),
+            ensure_unique_id(getattr(cls, cls.FUNCTION), original_hidden),
         )
 
     @property
     def assigned_id(self):
-        assert self._assigned_id is not None and isinstance(self._assigned_id, str)
-        return str(self._assigned_id)
+        assert self._hidden is not None
+        return self._hidden["unique_id"]
 
     def default_function(self, **kwargs):
         class_type = self._determine_class_type()
 
         node_ios = self._process_non_send_request_types(class_type, kwargs)
+
         # TODO: add processing for send_request_types
         send_request_datatype_list = self._get_send_request_datatypes()
+        if len(send_request_datatype_list) == 0:
+            return node_ios
+
+        if is_training_mode():
+            subscriber: DynamicLazyTaskExecutor = get_training_subscriber()
+            if self.assigned_id in subscriber.queried_nodes:
+                print(f"Delete used ones subscriber")
+                set_training_subscriber(subscriber=None)
+            else:
+                result = subscriber.get_result(self.assigned_id)
+                if result:
+                    return self._merge_results(result, node_ios)
+            set_training_subscriber(None)
+            # raise RuntimeError("Unknown")
         if len(send_request_datatype_list) == len(self.RETURN_TYPES):
             return self._process_all_send_request_types(node_ios)
+        elif len(send_request_datatype_list) > 0:
+            return self._process_partial_send_request_types(node_ios)
         return node_ios
 
     def _get_send_request_datatypes(self):
@@ -157,3 +178,30 @@ class BizyAirBaseNode:
         out = node_ios[0].send_request()
         assert len(out) == len(self.RETURN_TYPES)
         return out
+
+    def _process_send_request_types(self, node_ios: List[BizyAirNodeIO]):
+        out = node_ios[0].send_request()
+        return out
+
+    def _process_partial_send_request_types(self, node_ios: List[BizyAirNodeIO]):
+        # TODO: Implement handling for partial send request datatypes
+        # https://docs.comfy.org/essentials/javascript_objects_and_hijacking#properties-2
+        if type(self).__name__ != "InitFluxLoRATraining":  # TODO fix
+            return node_ios
+
+        subscriber: DynamicLazyTaskExecutor = node_ios[0].send_request(
+            use_async=True, hidden=self._hidden
+        )
+        result = subscriber.get_result(self.assigned_id)
+        set_training_subscriber(subscriber)
+        return self._merge_results(result, node_ios)
+
+    def _merge_results(
+        self, result: List[List[Any]] = None, node_ios: List[BizyAirNodeIO] = None
+    ):
+        if not result:
+            print(f"Waring: get_result(node_id = {self.assigned_id}) is None")
+            return node_ios
+
+        assert len(result) == len(node_ios)
+        return [x[0] if x is not None else y for x, y in zip(result, node_ios)]
