@@ -61,30 +61,32 @@ def validate_api_key(api_key: str = None) -> bool:
         )
         if "message" not in response_data or response_data["message"] != "Ok":
             api_key_state.is_valid = False
-            print(f"\033[91mAPI key validation failed. API Key: {api_key}\033[0m")
+            raise ValueError(
+                f"\033[91mAPI key validation failed. API Key: {api_key}\033[0m"
+            )
         else:
             api_key_state.is_valid = True
     except ConnectionError as ce:
         api_key_state.is_valid = False
-        print(f"\033[91mConnection error: {ce}\033[0m")
+        raise ValueError(f"\033[91mConnection error: {ce}\033[0m")
     except PermissionError as pe:
         api_key_state.is_valid = False
-        print(f"\033[91mError validating API key: {api_key}, error: {pe}\033[0m")
+        raise ValueError(
+            f"\033[91mError validating API key: {api_key}, error: {pe}\033[0m"
+        )
     except Exception as e:
         api_key_state.is_valid = False
-        print(f"\033[91mOther error: {e}\033[0m")
+        raise ValueError(f"\033[91mOther error: {e}\033[0m")
     return api_key_state.is_valid
 
 
 def get_api_key() -> str:
     global BIZYAIR_API_KEY
-    if not validate_api_key(BIZYAIR_API_KEY):
-        error_message = (
-            "BIZYAIR_API_KEY is not set or invalid. "
-            "Please refer to cloud.siliconflow.cn to get a valid API key. "
-            f"Current BIZYAIR_API_KEY: {BIZYAIR_API_KEY}"
-        )
-        raise ValueError(error_message)
+    try:
+        validate_api_key(BIZYAIR_API_KEY)
+    except Exception as e:
+        print(str(e))
+        raise ValueError(str(e))
     return BIZYAIR_API_KEY
 
 
@@ -162,7 +164,6 @@ def send_request(
                 + "Bizyair's official support."
             )
         else:
-            # 检查网络连接
             common_sites = [
                 "https://www.baidu.com",
                 "https://www.bing.com",
@@ -172,7 +173,7 @@ def send_request(
             for site in common_sites:
                 success = False
                 try:
-                    # 禁止重定向
+
                     class NoRedirectHandler(urllib.request.HTTPRedirectHandler):
                         def redirect_request(self, req, fp, code, msg, headers, newurl):
                             return None
@@ -181,44 +182,19 @@ def send_request(
                     response = opener.open(site, timeout=5)
                     success = 200 <= response.getcode() < 400
                 except urllib.error.HTTPError as e:
-                    # 如果有重定向的情况 会被禁止code为3xx 但是网络是连通的
                     success = 200 <= e.code < 400
                 except (urllib.error.URLError, TimeoutError):
                     pass
                 results[site] = "Success" if success else "Failed"
-            # 如果有一个失败抛出异常
-            if "Failed" in results.values():
-                raise ConnectionError(
-                    f"Failed to connect to the server: {error_message}.\n"
-                    + "The results of the test are as follows:"
-                    + "\n".join(
-                        [f"    {site}: {result}" for site, result in results.items()]
-                    )
-                    + "Please check the network connection."
+            raise ConnectionError(
+                f"Failed to connect to the server: {url}.\n"
+                + "The connection attempts to the public sites return the following results:\n"
+                + "\n".join(
+                    [f"    {site}: {result}" for site, result in results.items()]
                 )
-            else:
-                # 检查代理配置
-                proxy_info = ""
-                http_proxy = os.environ.get("http_proxy")
-                https_proxy = os.environ.get("https_proxy")
-                if http_proxy or https_proxy:
-                    proxy_info = "\nDetected proxy settings:\n"
-                    if http_proxy:
-                        proxy_info += f"    HTTP Proxy: {http_proxy}\n"
-                    if https_proxy:
-                        proxy_info += f"    HTTPS Proxy: {https_proxy}\n"
-                    proxy_info += "Please verify if these proxy settings are causing connection issues.\n"
+                + "\nPlease check the network connection."
+            )
 
-                raise ConnectionError(
-                    f"Failed to connect to the server: {error_message}.\n"
-                    + "The internet connection is working. The results of the test are as follows:"
-                    + "\n".join(
-                        [f"    {site}: {result}" for site, result in results.items()]
-                    )
-                    + "Please check your API key and ensure the server is reachable.\n"
-                    + proxy_info
-                    + "After checking, please restart the ComfyUI service."
-                )
     if response_handler:
         response_data = response_handler(response_data)
     if callback:
