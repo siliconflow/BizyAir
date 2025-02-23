@@ -93,6 +93,7 @@ def load_input_file(file_path: str):
 setup_comfyui_env()
 initialize_comfyui()
 import bizyair
+from bizyair.data_types import BIZYAIR_TYPE_MAP
 
 
 def get_args():
@@ -110,8 +111,6 @@ def main():
         args.output = args.input.replace(".json", ".bizyair.json")
     with open(args.output, "w") as f:
         json.dump(out, f)
-
-    # pprint.pprint({"status": "success"})
 
 
 def get_bizyair_display_name(class_type: str) -> str:
@@ -145,12 +144,15 @@ def workflow_convert(inputs: dict):
             if node_inputs:
                 for input_node in node_inputs:
                     input_type = input_node["type"]
-                    input_node["type"] = f"{bizyair.nodes_base.PREFIX}_{input_type}"
+                    input_node["type"] = BIZYAIR_TYPE_MAP.get("input_type", input_type)
 
             if node_outputs:
                 for output_node in node_outputs:
                     output_type = output_node["type"]
-                    output_node["type"] = f"{bizyair.nodes_base.PREFIX}_{output_type}"
+                    output_node["type"] = BIZYAIR_TYPE_MAP.get(
+                        "output_type", output_type
+                    )
+
             is_converted = True
         pprint.pprint(
             {
@@ -186,35 +188,6 @@ def workflow_api_convert(inputs: dict):
     return inputs
 
 
-def patch_apply(inputs: dict, yaml_file):
-    replacements = load_yaml_replacements(yaml_file)
-    for replacement in replacements["node_replacements"]:
-
-        original_type = replacement["original_type"]
-        replace_type = replacement["replace_type"]
-
-        for node in inputs["nodes"]:
-            if "type" in node and node["type"] == original_type:
-                node["type"] = replace_type
-
-            display_name = get_bizyair_display_name(replace_type)
-            node["properties"]["Node name for S&R"] = display_name
-
-            node_inputs = node.get("inputs")
-            if node_inputs:
-                for input_node in node_inputs:
-                    input_type = input_node["type"]
-                    input_node["type"] = f"{bizyair.nodes_base.PREFIX}_{input_type}"
-
-            node_outputs = node.get("outputs")
-            if node_outputs:
-                for output_node in node_outputs:
-                    output_type = output_node["type"]
-                    output_node["type"] = f"{bizyair.nodes_base.PREFIX}_{output_type}"
-
-    return inputs
-
-
 def convert_to_bizyair(inputs: dict, yaml_file):
     bizyair.NODE_CLASS_MAPPINGS
 
@@ -224,16 +197,7 @@ def convert_to_bizyair(inputs: dict, yaml_file):
     elif input_format == "workflow":
         inputs = workflow_convert(inputs)
 
-    if yaml_file:
-        inputs = patch_apply(inputs, yaml_file)
-
     return inputs
-
-
-def load_yaml_replacements(yaml_file):
-    with open(yaml_file, "r") as file:
-        replacements = yaml.safe_load(file)
-    return replacements
 
 
 if __name__ == "__main__":
