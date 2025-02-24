@@ -2,8 +2,10 @@ import hashlib
 import json
 import pprint
 from collections import deque
+from dataclasses import dataclass
 from typing import Any, Dict, List
 
+import nodes
 from bizyair.common import client, get_api_key
 from bizyair.common.caching import BizyAirTaskCache, CacheConfig
 from bizyair.common.env_var import (
@@ -32,7 +34,14 @@ def is_link(obj):
     return True
 
 
-from dataclasses import dataclass
+def workflow_api_check(prompt: Dict[str, Dict[str, Any]]):
+    for x in prompt:
+        inputs: Dict[str, Any] = prompt[x].get("inputs", {})
+        for k, v in inputs.items():
+            if is_link(v):
+                assert (
+                    v[0] in prompt
+                ), f"The previous node with ID {v[0]} in {prompt[x]}.{k} is not present in the prompt"
 
 
 class SearchServiceRouter(Processor):
@@ -155,10 +164,8 @@ class PromptPreRunProcessor(Processor):
         extra_pnginfo = hidden["extra_pnginfo"]
         workflow = extra_pnginfo["workflow"]
         links = workflow["links"]
-
         queue = deque([int(unique_id)])
         visited = set()
-
         last_node_id = int(unique_id)
         # TODO refine
         if pre_prompt[unique_id]["class_type"] != "InitFluxLoRATraining":
@@ -174,6 +181,19 @@ class PromptPreRunProcessor(Processor):
             if node_id in visited:
                 continue
 
+            # if str(node_id) in hidden["prompt"]:
+            #     for v in hidden["prompt"][str(node_id)].get('inputs', {}).values():
+            #         if is_link(v):
+            #             # TODO exec
+            #             class_type = hidden["prompt"][str(node_id)]["class_type"]
+            #             class_def = nodes.NODE_CLASS_MAPPINGS[class_type]
+            #             data_type = class_def.RETURN_TYPES[v[1]]
+            #             if is_send_request_datatype(data_type):
+            #                 continue
+            #             upstream_node_id = int(v[0])
+            #             if upstream_node_id not in visited:
+            #                 queue.append(upstream_node_id)
+
             visited.add(node_id)
             # https://docs.comfy.org/essentials/javascript_objects_and_hijacking#workflow
             for link in links:
@@ -188,8 +208,6 @@ class PromptPreRunProcessor(Processor):
                     #  TODO refine
                     continue
                 elif data_type == "*":
-                    import nodes
-
                     class_type = hidden["prompt"][str(upstream_node_id)]["class_type"]
                     class_def = nodes.NODE_CLASS_MAPPINGS[class_type]
                     data_type = class_def.RETURN_TYPES[link[2]]
@@ -199,11 +217,11 @@ class PromptPreRunProcessor(Processor):
                         continue
 
                 if upstream_node_id == node_id and downstream_node_id not in visited:
-                    print(f"add {downstream_node_id=}")
+                    print(f"add {downstream_node_id=} ")
                     queue.append(downstream_node_id)
 
                 elif downstream_node_id == node_id and upstream_node_id not in visited:
-                    print(f"add {upstream_node_id=}")
+                    print(f"add {upstream_node_id=} ")
                     queue.append(upstream_node_id)
 
         if BIZYAIR_DEBUG:
@@ -215,9 +233,9 @@ class PromptPreRunProcessor(Processor):
                     "last_node_id": last_node_id,
                 }
             )
-            # dict_keys(['139', '141', '142', '138', '143', '150'])
 
         # TODO remove hidden keys
+        workflow_api_check(pre_prompt)
         return pre_prompt
 
     def validate_input(
