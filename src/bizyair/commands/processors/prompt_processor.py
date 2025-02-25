@@ -44,10 +44,18 @@ def workflow_api_check(prompt: Dict[str, Dict[str, Any]]):
                 ), f"The previous node with ID {v[0]} in {prompt[x]}.{k} is not present in the prompt"
 
 
+def is_flux_lora_train_workflow(prompt: Dict[str, Dict[str, Any]]) -> bool:
+    for x in prompt:
+        if prompt[x]["class_type"] == "InitFluxLoRATraining":
+            return True
+    return False
+
+
 class SearchServiceRouter(Processor):
     def process(
         self, prompt: Dict[str, Dict[str, Any]], last_node_ids: List[str], **kwargs
     ):
+
         if BIZYAIR_DEV_REQUEST_URL:
             return BIZYAIR_DEV_REQUEST_URL
 
@@ -99,6 +107,13 @@ class SearchServiceRouter(Processor):
         self, prompt: Dict[str, Dict[str, Any]], last_node_ids: List[str] = [], **kwargs
     ):
         assert len(last_node_ids) == 1
+        workflow_api_check(prompt)
+        if (
+            is_flux_lora_train_workflow(prompt=prompt)
+            and prompt[last_node_ids[0]]["class_type"] != "InitFluxLoRATraining"
+        ):
+            raise RuntimeError("Only support invoker InitFluxLoRATraining ")
+
         return True
 
 
@@ -124,18 +139,6 @@ class PromptProcessor(Processor):
         last_node_ids: List[str],
         **kwargs,
     ):
-        # import requests
-
-        # out = requests.request(method='POST', url = url, json={
-        #             "prompt": prompt,
-        #             "exec_info": self._exec_info(prompt),
-        #         }, headers=client._headers())
-
-        # out =  requests.request(method='POST', url = url, json={'prompt':prompt, 'exec_info': self._exec_info(prompt)}, headers=client._headers())
-        # # out =  requests.request(method='POST', url = 'https://bizyair-api.siliconflow.cn/x/v1/bizy_task/dev-flux-lora-train', json={'prompt':prompt, 'exec_info': self._exec_info(prompt)}, headers=client._headers())
-        # # out =  requests.request(method='POST', url = 'https://bizyair-api.siliconflow.cn/x/v1/bizy_task/dev-flux-lora-train', json={'prompt':{'1': 'in'}, 'exec_info': self._exec_info(prompt)}, headers=client._headers())
-
-        # import ipdb; ipdb.set_trace()
         return client.send_request(
             url=url,
             data=json.dumps(
@@ -181,18 +184,19 @@ class PromptPreRunProcessor(Processor):
             if node_id in visited:
                 continue
 
-            # if str(node_id) in hidden["prompt"]:
-            #     for v in hidden["prompt"][str(node_id)].get('inputs', {}).values():
-            #         if is_link(v):
-            #             # TODO exec
-            #             class_type = hidden["prompt"][str(node_id)]["class_type"]
-            #             class_def = nodes.NODE_CLASS_MAPPINGS[class_type]
-            #             data_type = class_def.RETURN_TYPES[v[1]]
-            #             if is_send_request_datatype(data_type):
-            #                 continue
-            #             upstream_node_id = int(v[0])
-            #             if upstream_node_id not in visited:
-            #                 queue.append(upstream_node_id)
+            if str(node_id) in hidden["prompt"]:
+                for v in hidden["prompt"][str(node_id)].get("inputs", {}).values():
+                    if is_link(v):
+                        # TODO exec
+                        upstream_node_id = int(v[0])
+                        class_type = hidden["prompt"][v[0]]["class_type"]
+                        class_def = nodes.NODE_CLASS_MAPPINGS[class_type]
+                        data_type = class_def.RETURN_TYPES[v[1]]
+                        print(f"ID{upstream_node_id} {class_type} {data_type=}")
+                        if is_send_request_datatype(data_type):
+                            continue
+                        if upstream_node_id not in visited:
+                            queue.append(upstream_node_id)
 
             visited.add(node_id)
             # https://docs.comfy.org/essentials/javascript_objects_and_hijacking#workflow
@@ -233,9 +237,6 @@ class PromptPreRunProcessor(Processor):
                     "last_node_id": last_node_id,
                 }
             )
-
-        # TODO remove hidden keys
-        workflow_api_check(pre_prompt)
         return pre_prompt
 
     def validate_input(
