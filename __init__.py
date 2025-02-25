@@ -16,12 +16,12 @@ from . import (
     llm,
     mzkolors,
     nodes,
+    nodes_automatic_marking,
     nodes_controlnet_aux,
     nodes_controlnet_union_sdxl,
     segment_anything,
     showcase,
     supernode,
-    nodes_automatic_marking,
 )
 
 
