@@ -1,0 +1,6 @@
+node_replacements:
+  - original_type: "DualCLIPLoaderGGUF"
+    replace_type: "BizyAir_DualCLIPLoader"
+
+  - original_type: "UnetLoaderGGUF"
+    replace_type: "BizyAir_UNETLoader"
