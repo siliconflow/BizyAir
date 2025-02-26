@@ -693,6 +693,50 @@ class BizyAirServer:
 
             return OKResponse(resp)
 
+        @self.prompt_server.routes.get(f"/{COMMUNITY_API}/notifications/unread_count")
+        async def get_notification_unread_count(request):
+            # 获取当前用户的未读消息数量
+            resp, err = await self.api_client.get_notification_unread_count()
+            if err:
+                return ErrResponse(err)
+            return OKResponse(resp)
+
+        @self.prompt_server.routes.get(f"/{COMMUNITY_API}/notifications")
+        async def fetch_notifications(request):
+            # 获取当前用户的消息列表
+            types = request.rel_url.query.get("types", None)
+            read_status = request.rel_url.query.get("read_status", None)
+            page_size = int(request.rel_url.query.get("page_size", "10"))
+            last_pm_id = int(request.rel_url.query.get("last_pm_id", "0"))
+            last_broadcast_id = int(request.rel_url.query.get("last_broadcast_id", "0"))
+
+            resp, err = await self.api_client.fetch_notifications(
+                page_size, last_pm_id, last_broadcast_id, types, read_status
+            )
+            if err:
+                return ErrResponse(err)
+            return OKResponse(resp)
+
+        @self.prompt_server.routes.post(f"/{COMMUNITY_API}/notifications/read_all")
+        async def read_all_notifications(request):
+            # 将当前用户的所有未读消息标记为已读
+            resp, err = await self.api_client.read_all_notifications()
+            if err:
+                return ErrResponse(err)
+            return OKResponse(resp)
+
+        @self.prompt_server.routes.post(f"/{COMMUNITY_API}/notifications/read")
+        async def read_notifications(request):
+            # 将当前用户的未读消息标记为已读
+            json_data = await request.json()
+            if "ids" not in json_data:
+                return ErrResponse(errnos.INVALID_NOTIF_ID)
+            ids = json_data.get("ids")
+            resp, err = await self.api_client.read_notifications(ids)
+            if err:
+                return ErrResponse(err)
+            return OKResponse(resp)
+
     async def send_json(self, event, data, sid=None):
         message = {"type": event, "data": data}
 

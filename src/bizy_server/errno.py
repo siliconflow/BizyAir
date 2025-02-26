@@ -54,6 +54,7 @@ class errnos:
     INVALID_SHARE_BIZ_ID = ErrorNo(400, 400139, None, "Invalid share biz id")
     INVALID_SHARE_TYPE = ErrorNo(400, 400140, None, "Invalid share type")
     INVALID_SHARE_CODE = ErrorNo(400, 400141, None, "Invalid share code")
+    INVALID_NOTIF_ID = ErrorNo(400, 400142, None, "Invalid notification id")
 
     INVALID_API_KEY = ErrorNo(401, 401000, None, "Invalid API key")
     INVALID_USER = ErrorNo(401, 401001, None, "Invalid user")
@@ -109,4 +110,13 @@ class errnos:
     CREATE_SHARE = ErrorNo(500, 500136, None, "Failed to create share")
     GET_SHARE_DETAIL = ErrorNo(500, 500137, None, "Failed to get share detail")
 
-    GET_DATA_DICT = ErrorNo(500, 500131, None, "Failed to get data dict")
+    GET_DATA_DICT = ErrorNo(500, 500138, None, "Failed to get data dict")
+
+    GET_NOTIF_UNREAD_COUNT = ErrorNo(
+        500, 500139, None, "Failed to get notification unread counts"
+    )
+    QUERY_NOTIF = ErrorNo(500, 500140, None, "Failed to query notifications")
+    READ_NOTIF = ErrorNo(500, 500141, None, "Failed to mark notifications as read")
+    READ_ALL_NOTIF = ErrorNo(
+        500, 500142, None, "Failed to mark all notifications as read"
+    )
