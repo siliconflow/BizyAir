@@ -45,6 +45,16 @@ class errnos:
     FAILED_TO_FETCH_WORKFLOW_JSON = ErrorNo(
         400, 400134, None, "Failed to fetch workflow json"
     )
+    INVALID_DATASET_NAME = ErrorNo(400, 400135, None, "Invalid dataset name")
+    INVALID_DATASET_VERSION = ErrorNo(400, 400136, None, "Invalid dataset version")
+    INVALID_DATASET_ID = ErrorNo(400, 400137, None, "Invalid dataset id")
+    INVALID_DATASET_VERSION_ID = ErrorNo(
+        400, 400138, None, "Invalid dataset version id"
+    )
+    INVALID_SHARE_BIZ_ID = ErrorNo(400, 400139, None, "Invalid share biz id")
+    INVALID_SHARE_TYPE = ErrorNo(400, 400140, None, "Invalid share type")
+    INVALID_SHARE_CODE = ErrorNo(400, 400141, None, "Invalid share code")
+
     INVALID_API_KEY = ErrorNo(401, 401000, None, "Invalid API key")
     INVALID_USER = ErrorNo(401, 401001, None, "Invalid user")
 
@@ -87,3 +97,16 @@ class errnos:
         500, 500129, None, "Failed to query official models"
     )
     UNFORK_MODEL_VERSION = ErrorNo(500, 500130, None, "Failed to unfork model version")
+
+    COMMIT_DATASET = ErrorNo(500, 500130, None, "Failed to commit dataset")
+    UPDATE_DATASET = ErrorNo(500, 500131, None, "Failed to update dataset")
+    GET_DATASET_VERSION_DETAIL = ErrorNo(
+        500, 500132, None, "Failed to get dataset version detail"
+    )
+    DELETE_DATASET = ErrorNo(500, 500133, None, "Failed to delete dataset")
+    QUERY_DATASETS = ErrorNo(500, 500134, None, "Failed to query datasets")
+    GET_DATASET_DETAIL = ErrorNo(500, 500135, None, "Failed to get dataset detail")
+    CREATE_SHARE = ErrorNo(500, 500136, None, "Failed to create share")
+    GET_SHARE_DETAIL = ErrorNo(500, 500137, None, "Failed to get share detail")
+
+    GET_DATA_DICT = ErrorNo(500, 500131, None, "Failed to get data dict")
