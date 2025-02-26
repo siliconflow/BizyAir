@@ -307,3 +307,11 @@ model_rules:
     route: /supernode/bizyair-janus-pro-7b
     nodes:
       - class_type: 'JanusModelLoader'
+
+  - mode_type: mochi
+    base_model: mochi
+    describe: mochi
+    score: 1
+    route: /supernode/mochi
+    nodes:
+      - class_type: 'mochi'
