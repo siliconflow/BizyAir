@@ -723,7 +723,8 @@ class BizyAirServer:
         @self.prompt_server.routes.post(f"/{COMMUNITY_API}/notifications/read_all")
         async def read_all_notifications(request):
             # 将当前用户的所有未读消息标记为已读
-            resp, err = await self.api_client.read_all_notifications()
+            type = int(request.rel_url.query.get("type", "0"))
+            resp, err = await self.api_client.read_all_notifications(type)
             if err:
                 return ErrResponse(err)
             return OKResponse(resp)

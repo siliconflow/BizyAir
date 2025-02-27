@@ -722,14 +722,18 @@ class APIClient:
             )
             return None, errnos.READ_NOTIF
 
-    async def read_all_notifications(self) -> tuple[dict | None, ErrorNo | None]:
+    async def read_all_notifications(self, type: int) -> tuple[dict | None, ErrorNo | None]:
         server_url = f"{BIZYAIR_SERVER_ADDRESS}/notifications/read_all"
         headers, err = self.auth_header()
         if err is not None:
             return None, err
 
+        params = {}
+        if type > 0:
+            params["type"] = type
+
         try:
-            ret, err = await self.do_post(server_url, headers=headers)
+            ret, err = await self.do_post(server_url, headers=headers, params=params)
             if err is not None:
                 return None, err
 
