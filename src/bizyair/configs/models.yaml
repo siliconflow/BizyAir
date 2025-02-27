@@ -307,3 +307,14 @@ model_rules:
     route: /supernode/bizyair-janus-pro-7b
     nodes:
       - class_type: 'JanusModelLoader'
+
+  - mode_type: Wan2.1-T2V
+    base_model: Wan
+    describe: Wan
+    score: 1
+    route: /bizy_task/bizyair-dev-wan-video
+    nodes:
+      - class_type: 'Wan_Model_Loader'
+        inputs:
+          ckpt_name:
+            - ^Wan2.1-T2V-1.3B$
