@@ -16,6 +16,7 @@ from . import (
     llm,
     mzkolors,
     nodes,
+    nodes_automatic_marking,
     nodes_controlnet_aux,
     nodes_controlnet_union_sdxl,
     segment_anything,
@@ -36,6 +37,7 @@ update_mappings(nodes_controlnet_aux)
 update_mappings(nodes_controlnet_union_sdxl)
 update_mappings(mzkolors)
 update_mappings(segment_anything)
+update_mappings(nodes_automatic_marking)
 
 try:
     import bizy_server

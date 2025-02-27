@@ -282,6 +282,7 @@ class BizyAirJoyCaption2:
 
     # refer to: https://huggingface.co/spaces/fancyfeast/joy-caption-pre-alpha
     API_URL = f"{BIZYAIR_SERVER_ADDRESS}/supernode/joycaption2"
+    # API_URL = "https://maas.platform.oneflow.cloud/supernode/crossing-joycaption2/supernode/crossing-joycaption2"
 
     @classmethod
     def INPUT_TYPES(s):
@@ -353,12 +354,28 @@ class BizyAirJoyCaption2:
         }
 
     RETURN_TYPES = ("STRING",)
-    FUNCTION = "joycaption2"
+    FUNCTION = "my_joycaption"
 
     CATEGORY = "☁️BizyAir/AI Assistants"
 
-    def joycaption2(
+    async def send_post_request_async(
+        self, session, url, payload, headers, max_retries=3, retry_delay=2, timeout=100
+    ):
+        try:
+            async with session.post(
+                url, json=payload, headers=headers, timeout=timeout
+            ) as response:
+                response.raise_for_status()
+                ret = await response.json()
+                return ret
+        except Exception as e:
+
+            print(f"Request failed. Error: {e}")
+            return {"data": {"type": "bizyair", "data": ""}}
+
+    async def joycaption2(
         self,
+        session,
         image,
         do_sample,
         temperature,
@@ -371,6 +388,8 @@ class BizyAirJoyCaption2:
     ):
         API_KEY = get_api_key()
         SIZE_LIMIT = 1536
+        max_retries = 3
+        retry_delay = 2
         _, w, h, c = image.shape
         assert (
             w <= SIZE_LIMIT and h <= SIZE_LIMIT
@@ -396,17 +415,15 @@ class BizyAirJoyCaption2:
         input_image = encode_data(image, disable_image_marker=True)
         payload["image"] = input_image
 
-        ret: str = send_post_request(self.API_URL, payload=payload, headers=headers)
-        ret = json.loads(ret)
-
-        try:
-            if "result" in ret:
-                ret = json.loads(ret["result"])
-            if ret["type"] == "error":
-                raise Exception(ret["message"])
-        except Exception as e:
-            raise Exception(f"Unexpected response: {ret} {e=}")
-
+        ret = await self.send_post_request_async(
+            session,
+            self.API_URL,
+            payload=payload,
+            headers=headers,
+            max_retries=max_retries,
+            retry_delay=retry_delay,
+        )
+        ret = json.loads(ret["result"])
         msg = ret["data"]
         if msg["type"] not in (
             "comfyair",
@@ -416,6 +433,25 @@ class BizyAirJoyCaption2:
 
         caption = msg["data"]
         return (caption,)
+
+    async def my_joycaption_async(self, image, **kwargs):
+        captions = []
+        tasks = []
+        async with aiohttp.ClientSession() as session:
+            for i in range(image.size(0)):
+                image_file = image[i].unsqueeze(0)
+                tasks.append(self.joycaption2(session, image_file, **kwargs))
+
+            results = await asyncio.gather(*tasks)
+
+        for result in results:
+            captions.append(result[0])
+
+        combined_caption = " | ".join(captions)
+        return {"ui": {"text": (combined_caption,)}, "result": (combined_caption,)}
+
+    def my_joycaption(self, image, **kwargs):
+        return asyncio.run(self.my_joycaption_async(image, **kwargs))
 
 
 NODE_CLASS_MAPPINGS = {
