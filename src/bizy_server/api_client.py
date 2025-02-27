@@ -728,12 +728,12 @@ class APIClient:
         if err is not None:
             return None, err
 
-        params = {}
+        payload = {}
         if type > 0:
-            params["type"] = type
+            payload["type"] = type
 
         try:
-            ret, err = await self.do_post(server_url, headers=headers, params=params)
+            ret, err = await self.do_post(server_url, headers=headers, data=payload)
             if err is not None:
                 return None, err
 
