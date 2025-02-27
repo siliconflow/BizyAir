@@ -704,7 +704,10 @@ class BizyAirServer:
         @self.prompt_server.routes.get(f"/{COMMUNITY_API}/notifications")
         async def fetch_notifications(request):
             # 获取当前用户的消息列表
-            types = request.rel_url.query.get("types", None)
+            typesStr = request.rel_url.query.get("types", None)
+            types = None
+            if typesStr:
+                types = [int(x) for x in typesStr.split(",")]
             read_status = request.rel_url.query.get("read_status", None)
             page_size = int(request.rel_url.query.get("page_size", "10"))
             last_pm_id = int(request.rel_url.query.get("last_pm_id", "0"))
