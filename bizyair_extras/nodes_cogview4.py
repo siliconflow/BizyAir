@@ -1,10 +1,3 @@
-import os
-import uuid
-
-import folder_paths
-import requests
-import torch
-
 from bizyair import BizyAirBaseNode
 
 
@@ -35,10 +28,4 @@ class CogView4_6B_Pipe(BizyAirBaseNode):
 
     RETURN_TYPES = ("IMAGE",)
     RETURN_NAMES = ("image",)
-    FUNCTION = "cogview4"
     CATEGORY = "CogView4 Wrapper"
-
-    def cogview4(self, **kwargs):
-        import ipdb
-
-        ipdb.set_trace()
