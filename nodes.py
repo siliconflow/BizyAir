@@ -193,7 +193,7 @@ class BizyAir_CheckpointLoaderSimple(BizyAirBaseNode):
                 outputs={"slot_index": slot_index},
             )
             for slot_index in range(3)
-        ]nodes.py
+        ]
         config_file = folder_paths.guess_config(ckpt_name=ckpt_name)
         assigned_id = self.assigned_id
         outs = [
