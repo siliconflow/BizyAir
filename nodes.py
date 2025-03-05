@@ -145,7 +145,19 @@ class BizyAir_CheckpointLoaderSimple(BizyAirBaseNode):
     def INPUT_TYPES(s):
         return {
             "required": {
-                "ckpt_name": (folder_paths.get_filename_list("checkpoints"),),
+                "ckpt_name": (
+                   [
+                        "to choose",
+                    ],
+                    #folder_paths.get_filename_list("checkpoints"),
+                    ),
+                 "model_version_id": (
+                    "STRING",
+                    {
+                        "default": "",
+                    },
+                ),
+
             }
         }
 
@@ -158,7 +170,22 @@ class BizyAir_CheckpointLoaderSimple(BizyAirBaseNode):
         f"vae",
     )
 
-    def load_checkpoint(self, ckpt_name):
+    @classmethod
+    def VALIDATE_INPUTS(cls, ckpt_name):
+        # TODO        
+        import warnings
+        warnings.warn(message=f"TODO fix {cls}VALIDATE_INPUTS")
+        if ckpt_name == "" or ckpt_name is None:
+            return False
+        return True
+
+    def load_checkpoint(self, ckpt_name, model_version_id=""):
+        if model_version_id!="":
+            # use model version id as lora name
+            ckpt_name = (
+                f"{config_manager.get_model_version_id_prefix()}{model_version_id}"
+            )
+
         node_datas = [
             create_node_data(
                 class_type="CheckpointLoaderSimple",
@@ -166,7 +193,7 @@ class BizyAir_CheckpointLoaderSimple(BizyAirBaseNode):
                 outputs={"slot_index": slot_index},
             )
             for slot_index in range(3)
-        ]
+        ]nodes.py
         config_file = folder_paths.guess_config(ckpt_name=ckpt_name)
         assigned_id = self.assigned_id
         outs = [
