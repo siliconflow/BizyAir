@@ -360,6 +360,25 @@ class APIClient:
             print(f"\033[31m[BizyAir]\033[0m Fail to fork model version: {str(e)}")
             return None, errnos.FORK_MODEL_VERSION
 
+    async def unfork_model_version(
+        self, version_id: int
+    ) -> tuple[None, ErrorNo | None]:
+        server_url = f"{BIZYAIR_SERVER_ADDRESS}/bizy_models/versions/{version_id}/fork"
+
+        headers, err = self.auth_header()
+        if err is not None:
+            return None, err
+
+        try:
+            ret, err = await self.do_delete(server_url, headers=headers)
+            if err is not None:
+                return None, err
+
+            return None, None
+        except Exception as e:
+            print(f"\033[31m[BizyAir]\033[0m Fail to unfork model version: {str(e)}")
+            return None, errnos.UNFORK_MODEL_VERSION
+
     async def update_model(
         self, model_id: int, name: str, type_: str, versions: list[dict]
     ) -> tuple[dict | None, ErrorNo | None]:
