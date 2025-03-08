@@ -43,10 +43,9 @@ def initialize_comfyui(cli_args: List = []):
 
     import comfy
     import execution
+    import nodes
     import server
     from comfy.cli_args import args
-
-    import nodes
 
     if args.cuda_device is not None:
         os.environ["CUDA_VISIBLE_DEVICES"] = str(args.cuda_device)
