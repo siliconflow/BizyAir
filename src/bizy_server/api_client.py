@@ -664,3 +664,103 @@ class APIClient:
         except Exception as e:
             print(f"\033[31m[BizyAir]\033[0m Fail to get data dict: {str(e)}")
             return None, errnos.GET_DATA_DICT
+
+    async def get_notification_unread_count(self) -> tuple[dict | None, ErrorNo | None]:
+        server_url = f"{BIZYAIR_SERVER_ADDRESS}/notifications/unread_count"
+        headers, err = self.auth_header()
+        if err is not None:
+            return None, err
+
+        try:
+            ret, err = await self.do_get(server_url, headers=headers)
+            if err is not None:
+                return None, err
+
+            return ret["data"], None
+        except Exception as e:
+            print(
+                f"\033[31m[BizyAir]\033[0m Fail to get notification unread counts: {str(e)}"
+            )
+            return None, errnos.GET_NOTIF_UNREAD_COUNT
+
+    async def fetch_notifications(
+        self,
+        page_size: int,
+        last_pm_id: int,
+        last_broadcast_id: int,
+        types: list | None,
+        read_status: bool | None,
+    ) -> tuple[dict | None, ErrorNo | None]:
+        server_url = f"{BIZYAIR_SERVER_ADDRESS}/notifications"
+        headers, err = self.auth_header()
+        if err is not None:
+            return None, err
+
+        params = {"page_size": page_size}
+        if last_pm_id > 0:
+            params["last_pm_id"] = last_pm_id
+        if last_broadcast_id > 0:
+            params["last_broadcast_id"] = last_broadcast_id
+        if types and len(types) > 0:
+            params["types"] = types
+        if read_status:
+            params["read_status"] = read_status
+
+        try:
+            ret, err = await self.do_get(server_url, headers=headers, params=params)
+            if err is not None:
+                return None, err
+
+            return ret["data"], None
+        except Exception as e:
+            print(f"\033[31m[BizyAir]\033[0m Fail to query notifications: {str(e)}")
+            return None, errnos.QUERY_NOTIF
+
+    async def read_notifications(
+        self, notif_ids: list[int]
+    ) -> tuple[dict | None, ErrorNo | None]:
+        server_url = f"{BIZYAIR_SERVER_ADDRESS}/notifications/read"
+        headers, err = self.auth_header()
+        if err is not None:
+            return None, err
+
+        if notif_ids is None or len(notif_ids) < 1:
+            return None, errnos.INVALID_NOTIF_ID
+
+        payload = {"ids": notif_ids}
+
+        try:
+            ret, err = await self.do_post(server_url, headers=headers, data=payload)
+            if err is not None:
+                return None, err
+
+            return ret["data"], None
+        except Exception as e:
+            print(
+                f"\033[31m[BizyAir]\033[0m Fail to mark notifications as read: {str(e)}"
+            )
+            return None, errnos.READ_NOTIF
+
+    async def read_all_notifications(
+        self, type: int
+    ) -> tuple[dict | None, ErrorNo | None]:
+        server_url = f"{BIZYAIR_SERVER_ADDRESS}/notifications/read_all"
+        headers, err = self.auth_header()
+        if err is not None:
+            return None, err
+
+        payload = {}
+        if type > 0:
+            payload["type"] = type
+
+        try:
+            ret, err = await self.do_post(server_url, headers=headers, data=payload)
+            if err is not None:
+                return None, err
+
+            return ret["data"], None
+        except Exception as e:
+            print(
+                f"\033[31m[BizyAir]\033[0m Fail to mark all notifications as read: {str(e)}"
+            )
+            return None, errnos.READ_ALL_NOTIF
