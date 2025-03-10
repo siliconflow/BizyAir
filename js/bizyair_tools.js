@@ -5,18 +5,26 @@ app.registerExtension({
 	name: "bizyair.tool",
 	setup() {
 
-        function handleFile(json_data) {
+        async function handleFile(json_data) {
             const jsonContent = json_data
+            // const jsonContent = JSON.stringify(json_data, null, 2)
             console.log("why jsonContent")
             console.log(jsonContent)
 
-            app.loadApiJson(jsonContent, "convert_test");
+            // app.loadApiJson(jsonContent, "convert_test");
+            await app.loadGraphData(
+                jsonContent,
+                true,
+                false,
+                "convert_test"
+              );
 
         }
         async function convert(){
             const p2 = await app.graphToPrompt();
-            const json = JSON.stringify(p2["output"], null, 2);
-            // console.log(json)
+            const json = JSON.stringify(p2["workflow"], null, 2);
+            console.log("why origin json")
+            console.log(json)
 
             await api.fetchApi("/bizyair/whyconvert", {
                 method: "POST",
