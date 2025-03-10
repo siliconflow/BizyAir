@@ -23,17 +23,23 @@ def sync_bizyui_files():
 
     if not target_js_dir.exists():
         print(f"\033[92m[BizyAir]\033[0m copy whole folder: {str(bizyui_js_path)}")
-        shutil.copytree(str(source_js_dir), str(target_js_dir))
+        shutil.copytree(
+            str(source_js_dir),
+            str(target_js_dir),
+            ignore=shutil.ignore_patterns("__pycache__"),
+        )
         return
 
     for src_file in source_js_dir.glob("**/*"):
+        if "__pycache__" in src_file.parts:
+            continue
         if src_file.is_file():
             rel_path = src_file.relative_to(source_js_dir)
             dest_file = target_js_dir / rel_path
 
-            if not dest_file.exists():
+            if not dest_file.exists() and not str(dest_file).endswith(".py"):
                 dest_file.parent.mkdir(parents=True, exist_ok=True)
-                print(f"\033[92m[BizyAir]\033[0m copy : {str(src_file)}")
+                print(f"\033[92m[BizyAir]\033[0m copy : {str(dest_file)}")
                 shutil.copy2(str(src_file), str(dest_file))
                 continue
 
