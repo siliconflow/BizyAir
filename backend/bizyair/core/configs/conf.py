@@ -3,7 +3,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 from typing import List, Tuple
 
-from ..common.utils import load_config_file, recursive_extract_models
+from bizyair.core.common.utils import load_config_file, recursive_extract_models
 
 
 @dataclass

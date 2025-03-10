@@ -7,6 +7,7 @@ from dataclasses import dataclass, field
 from typing import Any, Dict, List
 
 import comfy
+from bizyair.core.commands.base import Command, Processor  # type: ignore
 from bizyair.core.common.caching import BizyAirTaskCache, CacheConfig
 from bizyair.core.common.client import send_request
 from bizyair.core.common.env_var import (
@@ -17,8 +18,6 @@ from bizyair.core.common.env_var import (
 from bizyair.core.common.utils import truncate_long_strings
 from bizyair.core.configs.conf import config_manager
 from bizyair.core.image_utils import decode_data, encode_data
-
-from ..base import Command, Processor  # type: ignore
 
 
 def get_task_result(task_id: str, offset: int = 0) -> dict:

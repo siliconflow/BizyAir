@@ -2,6 +2,7 @@ import json
 from collections import deque
 from typing import Any, Dict, List
 
+from bizyair.core.commands.base import Processor  # type: ignore
 from bizyair.core.common import client, get_api_key
 from bizyair.core.common.caching import BizyAirTaskCache, CacheConfig
 from bizyair.core.common.env_var import (
@@ -14,8 +15,6 @@ from bizyair.core.path_utils import (
     convert_prompt_label_path_to_real_path,
     guess_url_from_node,
 )
-
-from ..base import Processor  # type: ignore
 
 
 def is_link(obj):

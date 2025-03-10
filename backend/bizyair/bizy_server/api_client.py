@@ -10,9 +10,7 @@ from .errno import ErrorNo, errnos
 from .error_handler import ErrorHandler
 from .utils import is_string_valid
 
-with open(
-    os.path.join(os.path.dirname(__file__), "..", "..", "version.txt"), "r"
-) as file:
+with open(os.path.join(os.path.dirname(__file__), "..", "version.txt"), "r") as file:
     CLIENT_VERSION = file.read()
 
 

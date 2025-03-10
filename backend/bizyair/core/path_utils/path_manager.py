@@ -9,10 +9,14 @@ from dataclasses import dataclass
 from functools import lru_cache
 from typing import Any, Collection, Dict, List, Union
 
-from ..common import fetch_models_by_type
-from ..common.env_var import BIZYAIR_DEBUG, BIZYAIR_SERVER_ADDRESS
-from ..configs.conf import ModelRule, config_manager
-from .utils import filter_files_extensions, get_service_route, load_yaml_config
+from bizyair.core.common import fetch_models_by_type
+from bizyair.core.common.env_var import BIZYAIR_DEBUG, BIZYAIR_SERVER_ADDRESS
+from bizyair.core.configs.conf import ModelRule, config_manager
+from bizyair.core.path_utils.utils import (
+    filter_files_extensions,
+    get_service_route,
+    load_yaml_config,
+)
 
 supported_pt_extensions: set[str] = {
     ".ckpt",

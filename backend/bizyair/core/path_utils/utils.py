@@ -3,8 +3,7 @@ from collections.abc import Collection
 from typing import Dict, Union
 
 import yaml
-
-from ..common.env_var import BIZYAIR_SERVER_ADDRESS
+from bizyair.core.common.env_var import BIZYAIR_SERVER_ADDRESS
 
 
 def filter_files_extensions(

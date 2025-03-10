@@ -1,0 +1,3 @@
+include bizyair/core/configs/*.json
+include bizyair/core/configs/*.yaml
+include bizyair/version.txt
