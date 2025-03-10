@@ -1,5 +1,5 @@
-from bizyair.bizyair import BizyAirBaseNode, data_types
-from bizyair.bizyair.path_utils import path_manager as folder_paths
+from bizyair.core import BizyAirBaseNode, data_types
+from bizyair.core.path_utils import path_manager as folder_paths
 
 # PuLID Flux datatypes
 PULIDFLUX = "BIZYAIR_PULIDFLUX"

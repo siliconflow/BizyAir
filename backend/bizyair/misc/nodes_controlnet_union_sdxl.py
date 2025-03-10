@@ -8,8 +8,8 @@ import os
 
 import numpy as np
 import requests
-from bizyair.bizyair.common.env_var import BIZYAIR_SERVER_ADDRESS
-from bizyair.bizyair.image_utils import decode_comfy_image, encode_comfy_image
+from bizyair.core.common.env_var import BIZYAIR_SERVER_ADDRESS
+from bizyair.core.image_utils import decode_comfy_image, encode_comfy_image
 
 from .utils import get_api_key
 

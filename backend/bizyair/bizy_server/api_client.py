@@ -2,12 +2,9 @@ import os
 import urllib
 
 import aiohttp
-import bizyair.bizyair as bizyair
-from bizyair.bizyair.common import get_api_key
-from bizyair.bizyair.common.env_var import (
-    BIZYAIR_PRODUCTION_TEST,
-    BIZYAIR_SERVER_ADDRESS,
-)
+import bizyair.core as core
+from bizyair.core.common import get_api_key
+from bizyair.core.common.env_var import BIZYAIR_PRODUCTION_TEST, BIZYAIR_SERVER_ADDRESS
 
 from .errno import ErrorNo, errnos
 from .error_handler import ErrorHandler
@@ -477,13 +474,13 @@ class APIClient:
                 outputs = [
                     x["label_path"] for x in ret["data"]["files"] if x["label_path"]
                 ]
-                outputs = bizyair.path_utils.filter_files_extensions(
+                outputs = core.path_utils.filter_files_extensions(
                     outputs,
-                    extensions=bizyair.path_utils.path_manager.supported_pt_extensions,
+                    extensions=core.path_utils.path_manager.supported_pt_extensions,
                 )
                 return outputs, None
 
-            ret = await bizyair.common.client.async_send_request(
+            ret = await core.common.client.async_send_request(
                 method="GET", url=server_url, params=payload, callback=callback
             )
             return ret[0], ret[1]

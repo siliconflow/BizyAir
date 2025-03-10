@@ -5,8 +5,8 @@ import re
 import urllib.request
 
 import folder_paths
-from bizyair.bizyair import BizyAirBaseNode
-from bizyair.bizyair.image_utils import encode_data
+from bizyair.core import BizyAirBaseNode
+from bizyair.core.image_utils import encode_data
 from nodes import LoadImage
 
 

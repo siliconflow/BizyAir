@@ -90,7 +90,7 @@ def load_input_file(file_path: str):
 
 setup_comfyui_env()
 initialize_comfyui()
-import bizyair
+import bizyair.core
 
 
 def get_args():
@@ -111,19 +111,19 @@ def main():
 
 
 def get_bizyair_display_name(class_type: str) -> str:
-    bizyair_cls_prefix = bizyair.nodes_base.PREFIX
-    bizyair_logo = bizyair.nodes_base.LOGO
-    return f"{bizyair_logo}{bizyair_cls_prefix} {bizyair.NODE_DISPLAY_NAME_MAPPINGS.get(class_type, class_type)}"
+    bizyair_cls_prefix = bizyair.core.nodes_base.PREFIX
+    bizyair_logo = bizyair.core.nodes_base.LOGO
+    return f"{bizyair_logo}{bizyair_cls_prefix} {bizyair.core.NODE_DISPLAY_NAME_MAPPINGS.get(class_type, class_type)}"
 
 
 def convert_to_bizyair(inputs: dict):
-    bizyair.NODE_CLASS_MAPPINGS
+    bizyair.core.NODE_CLASS_MAPPINGS
 
     for x in inputs.copy():
         class_type = inputs[x]["class_type"]
-        bizyair_cls_type = f"{bizyair.nodes_base.PREFIX}_{class_type}"
+        bizyair_cls_type = f"{bizyair.core.nodes_base.PREFIX}_{class_type}"
         is_converted = False
-        if bizyair_cls_type in bizyair.NODE_CLASS_MAPPINGS:
+        if bizyair_cls_type in bizyair.core.NODE_CLASS_MAPPINGS:
             inputs[x]["class_type"] = bizyair_cls_type
             display_name = get_bizyair_display_name(class_type)
             inputs[x]["_meta"]["title"] = display_name

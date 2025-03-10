@@ -1,4 +1,4 @@
-from bizyair.bizyair import BizyAirBaseNode
+from bizyair.core import BizyAirBaseNode
 
 
 class CogView4_6B_Pipe(BizyAirBaseNode):

@@ -1,5 +1,5 @@
-from bizyair.bizyair import BizyAirBaseNode, data_types
-from bizyair.bizyair.nodes_io import BizyAirNodeIO
+from bizyair.core import BizyAirBaseNode, data_types
+from bizyair.core.nodes_io import BizyAirNodeIO
 
 
 class CLIPTextEncodeFlux(BizyAirBaseNode):

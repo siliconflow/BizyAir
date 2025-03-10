@@ -8,8 +8,8 @@ import folder_paths
 import node_helpers
 import numpy as np
 import torch
-from bizyair.bizyair.common.env_var import BIZYAIR_SERVER_ADDRESS
-from bizyair.bizyair.image_utils import (
+from bizyair.core.common.env_var import BIZYAIR_SERVER_ADDRESS
+from bizyair.core.image_utils import (
     decode_base64_to_np,
     decode_data,
     encode_data,

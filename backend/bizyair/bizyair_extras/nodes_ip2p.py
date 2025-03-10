@@ -1,4 +1,4 @@
-from bizyair.bizyair import BizyAirBaseNode, data_types
+from bizyair.core import BizyAirBaseNode, data_types
 
 
 class InstructPixToPixConditioning(BizyAirBaseNode):

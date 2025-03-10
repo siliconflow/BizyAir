@@ -1,8 +1,8 @@
 from enum import Enum
 
 import comfy
-from bizyair.bizyair import BizyAirBaseNode, BizyAirNodeIO
-from bizyair.bizyair.data_types import CONDITIONING, MODEL, UPSCALE_MODEL, VAE
+from bizyair.core import BizyAirBaseNode, BizyAirNodeIO
+from bizyair.core.data_types import CONDITIONING, MODEL, UPSCALE_MODEL, VAE
 
 
 class USDUMode(Enum):

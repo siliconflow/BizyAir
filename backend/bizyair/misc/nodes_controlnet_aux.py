@@ -2,7 +2,7 @@ import os
 
 import numpy as np
 import torch
-from bizyair.bizyair.common.env_var import BIZYAIR_SERVER_ADDRESS
+from bizyair.core.common.env_var import BIZYAIR_SERVER_ADDRESS
 
 from .utils import (
     decode_and_deserialize,

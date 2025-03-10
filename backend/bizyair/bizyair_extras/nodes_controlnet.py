@@ -1,4 +1,4 @@
-from bizyair.bizyair import BizyAirBaseNode, data_types
+from bizyair.core import BizyAirBaseNode, data_types
 from comfy.cldm.control_types import UNION_CONTROLNET_TYPES
 
 

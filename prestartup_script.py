@@ -17,6 +17,7 @@ def sync_bizyui_files():
     print(f"\033[92m[BizyAir]\033[0m UI location: {str(bizyui_js_path)}")
 
     current_path = Path(__file__).parent.resolve()
+    os.environ["BIZYAIR_COMFYUI_PATH"] = str(current_path)
     target_js_dir = current_path / "js"
     source_js_dir = bizyui_js_path
 

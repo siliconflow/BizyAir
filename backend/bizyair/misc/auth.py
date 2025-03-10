@@ -2,10 +2,10 @@ import os
 import uuid
 from pathlib import Path
 
-import bizyair.bizyair as bizyair
+import bizyair.core
 import server
 from aiohttp import web
-from bizyair.bizyair.common import create_api_key_file, load_api_key, validate_api_key
+from bizyair.core.common import create_api_key_file, load_api_key, validate_api_key
 
 API_KEY = None
 # html_file_path = Path(os.path.dirname(os.path.abspath(__file__))) / "set_api_key.html"
@@ -39,7 +39,8 @@ async def set_api_key(request):
                 )
             create_api_key_file(api_key)
             API_KEY = api_key
-            bizyair.set_api_key(API_KEY, override=True)
+            print(f"API key set to: {bizyair.__file__=}")
+            bizyair.core.set_api_key(API_KEY, override=True)
             print("Set the key sucessfully.")
             return web.Response(text="ok")
         else:
@@ -61,7 +62,7 @@ async def get_api_key(request):
         has_key, api_key = load_api_key()
         if has_key:
             API_KEY = api_key
-            bizyair.set_api_key(API_KEY)
+            bizyair.core.set_api_key(API_KEY)
             return web.Response(text="Key has been loaded from the api_key.ini file")
         else:
             api_key = request.cookies.get("api_key")
@@ -72,7 +73,7 @@ async def get_api_key(request):
                     status=404,
                 )
             API_KEY = api_key
-            bizyair.set_api_key(API_KEY)
+            bizyair.core.set_api_key(API_KEY)
             return web.Response(text="Key has been loaded from the cookies")
 
     except Exception as e:

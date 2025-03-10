@@ -3,8 +3,8 @@ import json
 
 import aiohttp
 from aiohttp import web
-from bizyair.bizyair.common.env_var import BIZYAIR_SERVER_ADDRESS
-from bizyair.bizyair.image_utils import decode_data, encode_comfy_image, encode_data
+from bizyair.core.common.env_var import BIZYAIR_SERVER_ADDRESS
+from bizyair.core.image_utils import decode_data, encode_comfy_image, encode_data
 from server import PromptServer
 
 from .utils import (

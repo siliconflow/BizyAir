@@ -2,7 +2,7 @@
 Reference: https://github.com/Jonseed/ComfyUI-Detail-Daemon
 """
 
-from bizyair.bizyair import BizyAirBaseNode
+from bizyair.core import BizyAirBaseNode
 
 
 class DetailDaemonSamplerNode(BizyAirBaseNode):

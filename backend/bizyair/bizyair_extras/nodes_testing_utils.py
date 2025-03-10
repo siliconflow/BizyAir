@@ -8,8 +8,8 @@ import random
 
 import folder_paths
 import numpy as np
-from bizyair.bizyair import NODE_CLASS_MAPPINGS
-from bizyair.bizyair.image_utils import decode_data, encode_data
+from bizyair.core import NODE_CLASS_MAPPINGS
+from bizyair.core.image_utils import decode_data, encode_data
 from PIL import Image
 
 

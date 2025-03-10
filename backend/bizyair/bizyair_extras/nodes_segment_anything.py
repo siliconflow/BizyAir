@@ -1,4 +1,4 @@
-from bizyair.bizyair import BizyAirBaseNode
+from bizyair.core import BizyAirBaseNode
 
 from .nodes_segment_anything_utils import *
 

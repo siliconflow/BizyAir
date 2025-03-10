@@ -1,5 +1,5 @@
 import pytest
-from bizyair.path_utils import guess_config
+from bizyair.core.path_utils import guess_config
 
 test_data = {
     "ckpt_name": [

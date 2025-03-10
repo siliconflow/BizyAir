@@ -2,9 +2,9 @@ import os
 from typing import List
 
 import comfy
-from bizyair.bizyair import BizyAirBaseNode, BizyAirNodeIO, create_node_data, data_types
-from bizyair.bizyair.configs.conf import config_manager
-from bizyair.bizyair.path_utils import path_manager as folder_paths
+from bizyair.core import BizyAirBaseNode, BizyAirNodeIO, create_node_data, data_types
+from bizyair.core.configs.conf import config_manager
+from bizyair.core.path_utils import path_manager as folder_paths
 
 LOGO = "☁️"
 PREFIX = f"{LOGO}BizyAir"

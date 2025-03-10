@@ -2,10 +2,10 @@ import os
 import uuid
 
 import torch
-from bizyair.bizyair import BizyAirBaseNode, BizyAirNodeIO, create_node_data
-from bizyair.bizyair.common.env_var import BIZYAIR_SERVER_ADDRESS
-from bizyair.bizyair.data_types import CONDITIONING
-from bizyair.bizyair.image_utils import encode_data
+from bizyair.core import BizyAirBaseNode, BizyAirNodeIO, create_node_data
+from bizyair.core.common.env_var import BIZYAIR_SERVER_ADDRESS
+from bizyair.core.data_types import CONDITIONING
+from bizyair.core.image_utils import encode_data
 
 from .utils import (
     decode_and_deserialize,

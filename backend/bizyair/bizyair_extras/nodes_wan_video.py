@@ -1,4 +1,4 @@
-from bizyair.bizyair import BizyAirBaseNode
+from bizyair.core import BizyAirBaseNode
 
 
 class Wan_Model_Loader(BizyAirBaseNode):

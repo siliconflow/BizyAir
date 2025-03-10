@@ -1,4 +1,4 @@
-from bizyair.bizyair import BizyAirBaseNode
+from bizyair.core import BizyAirBaseNode
 
 # layerstyle advance
 NODE_NAME = "SegmentAnythingUltra V2"

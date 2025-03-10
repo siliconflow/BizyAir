@@ -1,8 +1,8 @@
 import os
 
-from bizyair.bizyair import BizyAirBaseNode, BizyAirNodeIO, create_node_data
-from bizyair.bizyair import path_utils as folder_paths
-from bizyair.bizyair.data_types import CLIP, CONDITIONING, CONTROL_NET, MODEL
+from bizyair.core import BizyAirBaseNode, BizyAirNodeIO, create_node_data
+from bizyair.core import path_utils as folder_paths
+from bizyair.core.data_types import CLIP, CONDITIONING, CONTROL_NET, MODEL
 
 AUTHOR_NAME = "MinusZone"
 CATEGORY_NAME = f"Kolors"

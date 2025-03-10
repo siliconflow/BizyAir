@@ -7,16 +7,16 @@ from dataclasses import dataclass, field
 from typing import Any, Dict, List
 
 import comfy
-from bizyair.bizyair.common.caching import BizyAirTaskCache, CacheConfig
-from bizyair.bizyair.common.client import send_request
-from bizyair.bizyair.common.env_var import (
+from bizyair.core.common.caching import BizyAirTaskCache, CacheConfig
+from bizyair.core.common.client import send_request
+from bizyair.core.common.env_var import (
     BIZYAIR_DEBUG,
     BIZYAIR_DEV_GET_TASK_RESULT_SERVER,
     BIZYAIR_SERVER_ADDRESS,
 )
-from bizyair.bizyair.common.utils import truncate_long_strings
-from bizyair.bizyair.configs.conf import config_manager
-from bizyair.bizyair.image_utils import decode_data, encode_data
+from bizyair.core.common.utils import truncate_long_strings
+from bizyair.core.configs.conf import config_manager
+from bizyair.core.image_utils import decode_data, encode_data
 
 from ..base import Command, Processor  # type: ignore
 

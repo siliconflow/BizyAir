@@ -1,6 +1,6 @@
-import bizyair.bizyair.path_utils as folder_paths
-from bizyair.bizyair import BizyAirBaseNode, BizyAirNodeIO
-from bizyair.bizyair.data_types import UPSCALE_MODEL
+import bizyair.core.path_utils as folder_paths
+from bizyair.core import BizyAirBaseNode, BizyAirNodeIO
+from bizyair.core.data_types import UPSCALE_MODEL
 
 
 class UpscaleModelLoader(BizyAirBaseNode):

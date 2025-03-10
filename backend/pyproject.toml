@@ -20,7 +20,7 @@ dependencies = [
 ]
 
 [tool.setuptools]
-packages = ["bizyair", "bizyair.bizyair", "bizyair.bizyair_extras", "bizyair.bizy_server", "bizyair.misc"]
+packages = ["bizyair", "bizyair.core", "bizyair.bizyair_extras", "bizyair.bizy_server", "bizyair.misc"]
 
 [tool.setuptools.exclude-package-data]
 "*" = ["__pycache__/*", "*/__pycache__/*"]

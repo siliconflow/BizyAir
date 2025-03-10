@@ -3,8 +3,8 @@ import os
 
 import folder_paths
 import torch
-from bizyair.bizyair import BizyAirBaseNode, BizyAirNodeIO, create_node_data
-from bizyair.bizyair.data_types import CLIP, CONDITIONING, MODEL
+from bizyair.core import BizyAirBaseNode, BizyAirNodeIO, create_node_data
+from bizyair.core.data_types import CLIP, CONDITIONING, MODEL
 
 # set the models directory
 if "ipadapter" not in folder_paths.folder_names_and_paths:

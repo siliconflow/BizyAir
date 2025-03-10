@@ -4,7 +4,7 @@ import uuid
 import folder_paths
 import requests
 import torch
-from bizyair.bizyair import BizyAirBaseNode
+from bizyair.core import BizyAirBaseNode
 
 
 class BizyAir_IF_TrellisCheckpointLoader(BizyAirBaseNode):

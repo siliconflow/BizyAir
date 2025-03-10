@@ -6,8 +6,8 @@ from enum import Enum
 import folder_paths
 import numpy as np
 import torch
-from bizyair.bizyair.common.env_var import BIZYAIR_SERVER_ADDRESS
-from bizyair.bizyair.image_utils import decode_base64_to_np, encode_image_to_base64
+from bizyair.core.common.env_var import BIZYAIR_SERVER_ADDRESS
+from bizyair.core.image_utils import decode_base64_to_np, encode_image_to_base64
 from nodes import LoadImage
 from PIL import Image, ImageOps, ImageSequence
 

@@ -1,6 +1,6 @@
 # ComfyUI/comfy_extras/nodes_model_advanced.py
 import nodes
-from bizyair.bizyair import BizyAirBaseNode, BizyAirNodeIO, data_types
+from bizyair.core import BizyAirBaseNode, BizyAirNodeIO, data_types
 
 
 class ModelSamplingSD3(BizyAirBaseNode):

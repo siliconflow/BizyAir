@@ -2,15 +2,15 @@ import json
 from collections import deque
 from typing import Any, Dict, List
 
-from bizyair.bizyair.common import client, get_api_key
-from bizyair.bizyair.common.caching import BizyAirTaskCache, CacheConfig
-from bizyair.bizyair.common.env_var import (
+from bizyair.core.common import client, get_api_key
+from bizyair.core.common.caching import BizyAirTaskCache, CacheConfig
+from bizyair.core.common.env_var import (
     BIZYAIR_DEBUG,
     BIZYAIR_DEV_REQUEST_URL,
     BIZYAIR_SERVER_ADDRESS,
 )
-from bizyair.bizyair.configs.conf import ModelRule, config_manager
-from bizyair.bizyair.path_utils import (
+from bizyair.core.configs.conf import ModelRule, config_manager
+from bizyair.core.path_utils import (
     convert_prompt_label_path_to_real_path,
     guess_url_from_node,
 )
