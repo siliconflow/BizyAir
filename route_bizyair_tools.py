@@ -1,18 +1,21 @@
 import json
 import os
+import pprint
+
 # import tools.convert_to_bizyair as convert_tool
 from enum import Enum
-import pprint
-import bizyair
+
 from aiohttp import web
-
-
 from server import PromptServer
+
+import bizyair
+
 
 def get_bizyair_display_name(class_type: str) -> str:
     bizyair_cls_prefix = bizyair.nodes_base.PREFIX
     bizyair_logo = bizyair.nodes_base.LOGO
     return f"{bizyair_logo}{bizyair_cls_prefix} {bizyair.NODE_DISPLAY_NAME_MAPPINGS.get(class_type, class_type)}"
+
 
 def convert_to_bizyair(inputs: dict):
     bizyair.NODE_CLASS_MAPPINGS
@@ -43,7 +46,7 @@ async def convert(request):
     print("why route convert")
     try:
         data = await request.json()
-        print("why type: ", type(data))  
+        print("why type: ", type(data))
         print("why data: ", data)
         ret = convert_to_bizyair(data)
         print("why ret: ", ret)
@@ -54,6 +57,3 @@ async def convert(request):
     except Exception as e:
         return web.json_response({"status": "error", "message": str(e)}, status=400)
     # return web.Response(status=200)
-
-
-

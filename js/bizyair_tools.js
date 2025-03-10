@@ -4,20 +4,20 @@ import { api } from "../../../scripts/api.js";
 app.registerExtension({
 	name: "bizyair.tool",
 	setup() {
-        
+
         function handleFile(json_data) {
             const jsonContent = json_data
             console.log("why jsonContent")
             console.log(jsonContent)
 
             app.loadApiJson(jsonContent, "convert_test");
-            
+
         }
         async function convert(){
             const p2 = await app.graphToPrompt();
             const json = JSON.stringify(p2["output"], null, 2);
             // console.log(json)
-            
+
             await api.fetchApi("/bizyair/whyconvert", {
                 method: "POST",
                 headers: {
