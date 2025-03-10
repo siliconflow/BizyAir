@@ -135,7 +135,7 @@ def wait_until_queue_finished(driver, timeout=100):
 
 def wait_until_app_ready(driver):
     WebDriverWait(driver, 30).until(
-        EC.presence_of_element_located((By.CLASS_NAME, "menu-box"))
+        EC.presence_of_element_located((By.CLASS_NAME, "bizyair-menu-box"))
     )
 
 
