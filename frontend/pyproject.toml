@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bizyui"
+description = "Web resources for [a/BizyAir](https://github.com/siliconflow/BizyAir) which contains Comfy Nodes that can run in any environment."
+license = { file = "LICENSE" }
+authors = [{ name = "SiliconFlow", email = "yaochi@siliconflow.cn" }]
+readme = "README.md"
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dynamic = ["version"]
+
+[tool.setuptools.dynamic]
+version = { file = ["version.txt"] }
+
+[project.urls]
+Repository = "https://github.com/siliconflow/BizyAir"
+#  Used by Comfy Registry https://comfyregistry.org
+
+[tool.comfy]
+PublisherId = "siliconflow"
+DisplayName = "☁️BizyAir"
+Icon = "https://framerusercontent.com/images/4li2PjWxZJmoGkzXRMJWU1rJmI.svg"
+
+
+[tool.setuptools]
+packages = ["bizyui"]
+package-dir = { bizyui = "." }
+include-package-data = true
+
+[tool.setuptools.package-data]
+"bizyui" = ["**/*"]
+
+[tool.setuptools.exclude-package-data]
+"*" = ["__pycache__/*", "*/__pycache__/*"]
