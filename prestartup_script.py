@@ -5,9 +5,10 @@ import subprocess
 import sys
 from importlib.metadata import distributions
 from pathlib import Path
+from threading import Thread
 
 from packaging.requirements import Requirement
-from packaging.version import Version
+from packaging.version import Version, parse
 
 
 def sync_bizyui_files():
@@ -85,6 +86,82 @@ def install_dependencies():
             continue
 
 
-install_dependencies()
+def get_latest_stable_version(package_name) -> Version:
+    import requests
 
+    url = f"https://test.pypi.org/pypi/{package_name}/json"
+    response = requests.get(url)
+    response.raise_for_status()
+    data = response.json()
+    versions = [parse(v) for v in data["releases"].keys()]
+    stable_versions = [v for v in versions if not v.is_prerelease]
+    if not stable_versions:
+        return None
+    return max(stable_versions)
+
+
+def yes_or_no(package_name) -> str:
+    import time
+
+    def show_countdown(seconds):
+        for i in range(seconds, 0, -1):
+            print(
+                f"\r\033[92m[BizyAir]\033[0m Update NOW? [y]/n {package_name} in {i} seconds",
+                end="",
+                flush=True,
+            )
+            time.sleep(1)
+
+    from inputimeout import TimeoutOccurred, inputimeout
+
+    try:
+        timeout = 3
+        countdown_thread = Thread(target=show_countdown, args=(timeout,))
+        countdown_thread.start()
+        answer = inputimeout(prompt="", timeout=timeout)
+        countdown_thread.join()
+    except TimeoutOccurred:
+        answer = "y"
+    if answer == "n":
+        return False
+    return True
+
+
+def update_bizyair_bizyui():
+    def _update_pacakge_when_needed(package_name):
+        if package_name not in installed_packages:
+            print(f"\033[92m[BizyAir]\033[0m Try to install {package_name}")
+            subprocess.check_call(
+                [sys.executable, "-m", "pip", "install", package_name]
+            )
+        else:
+            latest_version = get_latest_stable_version(package_name)
+            current_version = installed_packages.get(package_name)
+            print(
+                f"\033[92m[BizyAir]\033[0m {package_name} latest={str(latest_version)} vs current={str(current_version)}"
+            )
+            if latest_version > current_version:
+                answer = yes_or_no(package_name)
+                if not answer:
+                    print(
+                        f"\n\033[92m[BizyAir]\033[0m canceled by user, skip updating {package_name}"
+                    )
+                    return
+                print(f"\033[92m[BizyAir]\033[0m UPDATE {package_name} NOW")
+                subprocess.check_call(
+                    [sys.executable, "-m", "pip", "install", "--upgrade", package_name]
+                )
+
+    try:
+        installed_packages = {
+            dist.metadata["Name"]: Version(dist.version) for dist in distributions()
+        }
+        _update_pacakge_when_needed("bizyair")
+        _update_pacakge_when_needed("bizyui")
+    except Exception as e:
+        print(f"Error happens when update bizyair packages: {str(e)}")
+
+
+install_dependencies()
+update_bizyair_bizyui()
 sync_bizyui_files()
