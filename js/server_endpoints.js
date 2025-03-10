@@ -1,5 +1,20 @@
-import { api } from "../../../scripts/api.js";
-import { app } from "../../scripts/app.js";
+let app, api;
+
+try {
+    const module1 = await import("../../scripts/app.js");
+    app = module1.app;
+    const module2 = await import("../../scripts/api.js");
+    api = module2.api;
+} catch (e) {
+  try {
+    const module1 = await import("/scripts/app.js");
+    app = module1.app;
+    const module2 = await import("/scripts/api.js");
+    api = module2.api;
+  } catch (e) {
+    throw e;
+  }
+}
 import { toast } from './subassembly/toast.js';
 
 app.registerExtension({

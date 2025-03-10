@@ -1,5 +1,20 @@
-import { app } from "../../scripts/app.js";
-import { ComfyWidgets } from "../../scripts/widgets.js";
+let app, ComfyWidgets;
+
+try {
+    const module1 = await import("../../scripts/app.js");
+    app = module1.app;
+    const module2 = await import("../../scripts/widgets.js");
+    widgets = module2.widgets;
+} catch (e) {
+  try {
+    const module1 = await import("/scripts/app.js");
+    app = module1.app;
+    const module2 = await import("/scripts/widgets.js");
+    widgets = module2.widgets;
+  } catch (e) {
+    throw e;
+  }
+}
 
 app.registerExtension({
     name: "bizyair.image.to.caption",

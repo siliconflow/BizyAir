@@ -1,4 +1,16 @@
-import { app } from "../../scripts/app.js";
+let app;
+
+try {
+    const module1 = await import("../../scripts/app.js");
+    app = module1.app;
+} catch (e) {
+  try {
+    const module1 = await import("/scripts/app.js");
+    app = module1.app;
+  } catch (e) {
+    throw e;
+  }
+}
 
 import './bizyair_frontend.js'
 import { hideWidget } from './subassembly/tools.js'

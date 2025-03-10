@@ -1,4 +1,16 @@
-import { $el } from "../../../scripts/ui.js";
+let $el;
+
+try {
+    const module3 = await import("../../../scripts/ui.js");
+    $el = module3.$el;
+} catch (e) {
+  try {
+    const module3 = await import("/scripts/ui.js");
+    $el = module3.$el;
+  } catch (e) {
+    throw e;
+  }
+}
 
 
 function generateUUID() {

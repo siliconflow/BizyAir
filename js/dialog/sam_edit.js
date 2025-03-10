@@ -1,6 +1,28 @@
-import { api } from "../../../scripts/api.js";
-import { ComfyApp } from "../../../scripts/app.js";
-import { $el, ComfyDialog, } from "../../../scripts/ui.js";
+let app, api, ComfyApp, $el, ComfyDialog;
+
+try {
+    const module1 = await import("../../scripts/app.js");
+    app = module1.app;
+    ComfyApp = module1.ComfyApp;
+    const module2 = await import("../../scripts/api.js");
+    api = module2.api;
+    const module3 = await import("../../scripts/ui.js");
+    $el = module3.$el;
+    ComfyDialog = module3.ComfyDialog;
+} catch (e) {
+  try {
+    const module1 = await import("/scripts/app.js");
+    app = module1.app;
+    ComfyApp = module1.ComfyApp;
+    const module2 = await import("/scripts/api.js");
+    api = module2.api;
+    const module3 = await import("/scripts/ui.js");
+    $el = module3.$el;
+    ComfyDialog = module3.ComfyDialog;
+  } catch (e) {
+    throw e;
+  }
+}
 
 function loadImage(imagePath) {
     return new Promise((resolve, reject) => {

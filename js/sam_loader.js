@@ -1,6 +1,23 @@
-import { app, ComfyApp } from "../../scripts/app.js";
 import { sam_edit } from "./dialog/sam_edit.js";
-import { api } from "../../../scripts/api.js";
+let app, ComfyApp, api;
+
+try {
+    const module1 = await import("../../scripts/app.js");
+    app = module1.app;
+    ComfyApp = module1.ComfyApp;
+    const module2 = await import("../../scripts/api.js");
+    api = module2.api;
+} catch (e) {
+  try {
+    const module1 = await import("/scripts/app.js");
+    app = module1.app;
+    ComfyApp = module1.ComfyApp;
+    const module2 = await import("/scripts/api.js");
+    api = module2.api;
+  } catch (e) {
+    throw e;
+  }
+}
 
 app.registerExtension({
     name: "bizyair.sam.nodes",

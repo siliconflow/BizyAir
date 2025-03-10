@@ -1,5 +1,21 @@
-import { app } from "../../scripts/app.js";
-import { $el } from "../../scripts/ui.js";
+let app, $el;
+
+try {
+    const module1 = await import("../../scripts/app.js");
+    app = module1.app;
+    const module2 = await import("../../scripts/ui.js");
+    $el = module2.$el;
+} catch (e) {
+  try {
+    const module1 = await import("/scripts/app.js");
+    app = module1.app;
+    const module2 = await import("/scripts/ui.js");
+    $el = module2.$el;
+  } catch (e) {
+    throw e;
+  }
+}
+
 import { styleMenus } from "./subassembly/styleMenus.js";
 import './bizyair_frontend.js'
 class FloatingButton {
