@@ -89,7 +89,8 @@ def install_dependencies():
 def get_latest_stable_version(package_name) -> Version:
     import requests
 
-    url = f"https://test.pypi.org/pypi/{package_name}/json"
+    url = f"https://www.pypi.org/pypi/{package_name}/json"
+    # url = f"https://test.pypi.org/pypi/{package_name}/json" # debug env
     response = requests.get(url)
     response.raise_for_status()
     data = response.json()
