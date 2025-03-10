@@ -1,14 +1,91 @@
 import importlib.resources
 import os
+import re
 import shutil
 import subprocess
 import sys
+from html.parser import HTMLParser
 from importlib.metadata import distributions
 from pathlib import Path
 from threading import Thread
 
 from packaging.requirements import Requirement
-from packaging.version import Version, parse
+from packaging.version import Version
+from packaging.version import parse as parse_version
+
+
+class PackageLinkParser(HTMLParser):
+    def __init__(self, package_name):
+        super().__init__()
+        self.package_name = package_name
+        self.versions = []
+
+    def handle_starttag(self, tag, attrs):
+        if tag == "a":
+            attrs_dict = dict(attrs)
+            href = attrs_dict.get("href", "")
+            if self.package_name in href:
+                parts = href.split("/")
+                for part in parts:
+                    if part.startswith(self.package_name + "-") and ".whl" in part:
+                        version_part = part[len(self.package_name + "-") :]
+                        version = version_part.split(".whl")[0].split("-py3")[0]
+                        self.versions.append(parse_version(version))
+
+
+def parse_max_version(content, package_name):
+    parser = PackageLinkParser(package_name)
+    parser.feed(content)
+    if parser.versions:
+        return max(parser.versions)
+    return None
+
+
+def get_pip_mirror_url():
+    try:
+        pip_config_path = None
+        if os.name == "nt":  # windows
+            pip_config_path = os.path.join(os.getenv("APPDATA"), "pip", "pip.ini")
+        else:  # macOS/Linux
+            pip_config_path = os.path.expanduser("~/.pip/pip.conf")
+            if not os.path.exists(pip_config_path):
+                pip_config_path = os.path.expanduser("~/.config/pip/pip.conf")
+            if not os.path.exists(pip_config_path):
+                pip_config_path = "/etc/pip.conf"
+
+        mirror_url = None
+        if pip_config_path and os.path.exists(pip_config_path):
+            with open(pip_config_path, "r") as f:
+                for line in f:
+                    match = re.search(
+                        r"index-url\s*=\s*(https?://[^\s]+)", line, re.IGNORECASE
+                    )
+                    if match:
+                        mirror_url = match.group(1)
+                        break
+
+        if mirror_url is None:
+            mirror_url = "https://pypi.org/simple"
+    except Exception as e:
+        print(f"Error happens when get pip mirror url: {str(e)}")
+        mirror_url = "https://pypi.org/simple"
+        print(f"Use default pip url: {mirror_url}")
+
+    return mirror_url
+
+
+def get_latest_stable_version_from_pip(pip_url, package_name) -> Version:
+    import requests
+
+    pkg_url = f"{pip_url}/{package_name}"
+    response = requests.get(pkg_url)
+    response.raise_for_status()
+    html_content = response.text
+    max_version = parse_max_version(html_content, package_name)
+    return max_version
+
+
+mirror_pip_url = get_pip_mirror_url()
 
 
 def sync_bizyui_files():
@@ -86,21 +163,6 @@ def install_dependencies():
             continue
 
 
-def get_latest_stable_version(package_name) -> Version:
-    import requests
-
-    url = f"https://www.pypi.org/pypi/{package_name}/json"
-    # url = f"https://test.pypi.org/pypi/{package_name}/json" # debug env
-    response = requests.get(url)
-    response.raise_for_status()
-    data = response.json()
-    versions = [parse(v) for v in data["releases"].keys()]
-    stable_versions = [v for v in versions if not v.is_prerelease]
-    if not stable_versions:
-        return None
-    return max(stable_versions)
-
-
 def yes_or_no(package_name) -> str:
     import time
 
@@ -136,7 +198,9 @@ def update_bizyair_bizyui():
                 [sys.executable, "-m", "pip", "install", package_name]
             )
         else:
-            latest_version = get_latest_stable_version(package_name)
+            latest_version = get_latest_stable_version_from_pip(
+                mirror_pip_url, package_name
+            )
             current_version = installed_packages.get(package_name)
             print(
                 f"\033[92m[BizyAir]\033[0m {package_name} latest={str(latest_version)} vs current={str(current_version)}"
@@ -157,6 +221,9 @@ def update_bizyair_bizyui():
         installed_packages = {
             dist.metadata["Name"]: Version(dist.version) for dist in distributions()
         }
+        print(
+            f"\033[92m[BizyAir]\033[0m Checkout updating, current pip url {mirror_pip_url}"
+        )
         _update_pacakge_when_needed("bizyair")
         _update_pacakge_when_needed("bizyui")
     except Exception as e:
