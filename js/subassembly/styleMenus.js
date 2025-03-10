@@ -54,26 +54,6 @@ export const styleMenus = `
 .cmfy-floating-button-closer-overturn{
     transform: rotate(180deg);
 }
-.bizyair-menu{
-    width: 450px;
-    padding-left: 4px;
-    overflow: hidden;
-    transition: width 0.4s ease;
-    display: flex;
-}
-.bizyair-menu strong{
-    font-size: 16px;
-    color:#FFF;
-    margin-right: 10px;
-    line-height: 32px;
-}
-.bizyair-menu-item{
-    display: flex;
-}
-.bizyair-menu-hidden{
-    width: 0;
-    padding-left: 0;
-}
 .comfy-floating-button-hidden{
     padding-left: 2px;
     padding-right: 2px;
