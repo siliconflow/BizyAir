@@ -6,3 +6,4 @@ __pycache__/
 venv/
 *.log
 api_key.ini
+.DS_Store
