@@ -21,6 +21,7 @@ from . import (
     segment_anything,
     showcase,
     supernode,
+    route_bizyair_tools,
 )
 
 
