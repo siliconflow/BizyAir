@@ -12,7 +12,6 @@ from bizyair.misc import (
     nodes_controlnet_aux,
     nodes_controlnet_union_sdxl,
     segment_anything,
-    showcase,
     supernode,
 )
 
