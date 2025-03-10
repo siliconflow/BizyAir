@@ -7,11 +7,7 @@ app.registerExtension({
 
         async function handleFile(json_data) {
             const jsonContent = json_data
-            // const jsonContent = JSON.stringify(json_data, null, 2)
-            console.log("why jsonContent")
-            console.log(jsonContent)
 
-            // app.loadApiJson(jsonContent, "convert_test");
             await app.loadGraphData(
                 jsonContent,
                 true,
@@ -23,8 +19,6 @@ app.registerExtension({
         async function convert(){
             const p2 = await app.graphToPrompt();
             const json = JSON.stringify(p2["workflow"], null, 2);
-            console.log("why origin json")
-            console.log(json)
 
             await api.fetchApi("/bizyair/whyconvert", {
                 method: "POST",
@@ -40,7 +34,6 @@ app.registerExtension({
         const orig = LGraphCanvas.prototype.getCanvasMenuOptions;
         LGraphCanvas.prototype.getCanvasMenuOptions = function () {
             const options = orig.apply(this, arguments);
-
             options.push(null, {
                 content: "BizyAir Tools",
                 submenu: {
