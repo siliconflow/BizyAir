@@ -20,7 +20,7 @@ app.registerExtension({
             const p2 = await app.graphToPrompt();
             const json = JSON.stringify(p2["workflow"], null, 2);
 
-            await api.fetchApi("/bizyair/whyconvert", {
+            await api.fetchApi("/bizyair/node_converter", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",  // 重要！明确指定请求体是 JSON

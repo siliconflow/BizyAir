@@ -22,3 +22,4 @@ from .nodes_trellis import *
 from .nodes_ultimatesdupscale import *
 from .nodes_upscale_model import *
 from .nodes_wan_video import *
+from .route_bizyair_tools import *

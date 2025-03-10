@@ -54,7 +54,7 @@ def workflow_convert(inputs: dict):
     return inputs
 
 
-@PromptServer.instance.routes.post("/bizyair/whyconvert")
+@PromptServer.instance.routes.post("/bizyair/node_converter")
 async def convert(request):
     try:
         data = await request.json()
