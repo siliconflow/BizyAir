@@ -22,3 +22,6 @@ with open(os.path.join("backend", "bizyair", "version.txt"), "r+") as file:
     file.seek(0)
     file.write(str(ver))
     file.truncate()
+
+    with open(os.path.join("frontend", "version.txt"), "w") as uifile:
+        uifile.write(str(ver))

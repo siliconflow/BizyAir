@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "bizyair"
 description = "[a/BizyAir](https://github.com/siliconflow/BizyAir) Comfy Nodes that can run in any environment."
-version = "0.4.6"
+dynamic = ["version"]
 license = { file = "LICENSE" }
 authors = [{ name = "SiliconFlow", email = "yaochi@siliconflow.cn" }]
 readme = "README.md"
@@ -18,6 +18,9 @@ classifiers = [
 dependencies = [
     "requests"
 ]
+
+[tool.setuptools.dynamic]
+version = { file = ["bizyair/version.txt"] }
 
 [tool.setuptools]
 packages = { find = { where = ["."], include = ["bizyair", "bizyair.*"] } }
