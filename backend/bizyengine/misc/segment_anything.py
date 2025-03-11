@@ -155,10 +155,9 @@ class BizyAirSegmentAnythingPointBox:
         assert (
             w <= SIZE_LIMIT and h <= SIZE_LIMIT
         ), f"width and height must be less than {SIZE_LIMIT}x{SIZE_LIMIT}, but got {w} and {h}"
-
         if is_point:
             coordinates = [
-                eval(SAM_COORDINATE["point_coords"][key])
+                json.loads(SAM_COORDINATE["point_coords"][key])
                 for key in SAM_COORDINATE["point_coords"]
             ]
 
@@ -179,7 +178,7 @@ class BizyAirSegmentAnythingPointBox:
             }
         else:
             coordinates = [
-                eval(SAM_COORDINATE["box_coords"][key])
+                json.loads(SAM_COORDINATE["box_coords"][key])
                 for key in SAM_COORDINATE["box_coords"]
             ]
             input_box = [
@@ -224,6 +223,9 @@ class BizyAirSegmentAnythingPointBox:
             raise Exception(f"Unexpected response: {ret} {e=}")
 
         if ret["status"] == "error":
+            if "data" in ret:
+                if "error" in ret["data"]:
+                    raise Exception(ret["data"]["error"])
             raise Exception(ret["message"])
 
         msg = ret["data"]
