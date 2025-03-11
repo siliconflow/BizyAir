@@ -190,46 +190,54 @@ def yes_or_no(package_name) -> str:
     return True
 
 
-def update_bizyair_bizyui():
+def update_bizyengine_bizyui():
     def _update_pacakge_when_needed(package_name):
-        if package_name not in installed_packages:
-            print(f"\033[92m[BizyAir]\033[0m Try to install {package_name}")
-            subprocess.check_call(
-                [sys.executable, "-m", "pip", "install", package_name]
-            )
-        else:
-            latest_version = get_latest_stable_version_from_pip(
-                mirror_pip_url, package_name
-            )
-            current_version = installed_packages.get(package_name)
-            print(
-                f"\033[92m[BizyAir]\033[0m {package_name} latest={str(latest_version)} vs current={str(current_version)}"
-            )
-            if latest_version > current_version:
-                answer = yes_or_no(package_name)
-                if not answer:
-                    print(
-                        f"\n\033[92m[BizyAir]\033[0m canceled by user, skip updating {package_name}"
-                    )
-                    return
-                print(f"\033[92m[BizyAir]\033[0m UPDATE {package_name} NOW")
+        try:
+            if package_name not in installed_packages:
+                print(f"\033[92m[BizyAir]\033[0m Try to install {package_name}")
                 subprocess.check_call(
-                    [sys.executable, "-m", "pip", "install", "--upgrade", package_name]
+                    [sys.executable, "-m", "pip", "install", package_name]
                 )
+            else:
+                latest_version = get_latest_stable_version_from_pip(
+                    mirror_pip_url, package_name
+                )
+                current_version = installed_packages.get(package_name)
+                print(
+                    f"\033[92m[BizyAir]\033[0m {package_name} latest={str(latest_version)} vs current={str(current_version)}"
+                )
+                if latest_version > current_version:
+                    answer = yes_or_no(package_name)
+                    if not answer:
+                        print(
+                            f"\n\033[92m[BizyAir]\033[0m canceled by user, skip updating {package_name}"
+                        )
+                        return
+                    print(f"\033[92m[BizyAir]\033[0m UPDATE {package_name} NOW")
+                    subprocess.check_call(
+                        [
+                            sys.executable,
+                            "-m",
+                            "pip",
+                            "install",
+                            "--upgrade",
+                            package_name,
+                        ]
+                    )
+        except Exception as e:
+            print(f"Error happens when update {package_name} packages: {str(e)}")
 
-    try:
-        installed_packages = {
-            dist.metadata["Name"]: Version(dist.version) for dist in distributions()
-        }
-        print(
-            f"\033[92m[BizyAir]\033[0m Checkout updating, current pip url {mirror_pip_url}"
-        )
-        _update_pacakge_when_needed("bizyair")
-        _update_pacakge_when_needed("bizyui")
-    except Exception as e:
-        print(f"Error happens when update bizyair packages: {str(e)}")
+    installed_packages = {
+        dist.metadata["Name"]: Version(dist.version) for dist in distributions()
+    }
+    print(
+        f"\033[92m[BizyAir]\033[0m Checkout updating, current pip url {mirror_pip_url}"
+    )
+
+    _update_pacakge_when_needed("bizyengine")
+    _update_pacakge_when_needed("bizyui")
 
 
 install_dependencies()
-update_bizyair_bizyui()
+update_bizyengine_bizyui()
 sync_bizyui_files()
