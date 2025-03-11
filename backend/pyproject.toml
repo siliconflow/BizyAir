@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bizyengine"
+description = "[a/BizyAir](https://github.com/siliconflow/BizyAir) Comfy Nodes that can run in any environment."
+dynamic = ["version"]
+license = { file = "LICENSE" }
+authors = [{ name = "SiliconFlow", email = "yaochi@siliconflow.cn" }]
+readme = "README.md"
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "requests"
+]
+
+[tool.setuptools.dynamic]
+version = { file = ["bizyengine/version.txt"] }
+
+[tool.setuptools]
+packages = { find = { where = ["."], include = ["bizyengine", "bizyengine.*"] } }
+include-package-data = true
+
+[tool.setuptools.exclude-package-data]
+"*" = ["__pycache__/*", "*/__pycache__/*"]
+
+[project.urls]
+Repository = "https://github.com/siliconflow/BizyAir"
+#  Used by Comfy Registry https://comfyregistry.org
+
+[tool.comfy]
+PublisherId = "siliconflow"
+DisplayName = "☁️BizyAir"
+Icon = "https://framerusercontent.com/images/4li2PjWxZJmoGkzXRMJWU1rJmI.svg"
