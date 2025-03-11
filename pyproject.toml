@@ -2,7 +2,10 @@
 name = "bizyair"
 description = "[a/BizyAir](https://github.com/siliconflow/BizyAir) Comfy Nodes that can run in any environment."
 license = { file = "LICENSE" }
-version = "1.1.0"
+dynamic = ["version"]
+
+[tool.setuptools.dynamic]
+version = { file = ["backend/bizyengine/version.txt"] }
 
 [project.urls]
 Repository = "https://github.com/siliconflow/BizyAir"
