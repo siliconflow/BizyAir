@@ -1,5 +1,5 @@
 [project]
-name = "BizyAir"
+name = "bizyair"
 description = "[a/BizyAir](https://github.com/siliconflow/BizyAir) Comfy Nodes that can run in any environment."
 license = { file = "LICENSE" }
 dynamic = ["version"]
