@@ -764,3 +764,105 @@ class APIClient:
                 f"\033[31m[BizyAir]\033[0m Fail to mark all notifications as read: {str(e)}"
             )
             return None, errnos.READ_ALL_NOTIF
+
+
+    async def get_wallet(self) -> tuple[dict | None, ErrorNo | None]:
+        server_url = f"{BIZYAIR_SERVER_ADDRESS}/wallet"
+        headers, err = self.auth_header()
+        if err is not None:
+            return None, err
+
+        try:
+            ret, err = await self.do_get(server_url, headers=headers)
+            if err is not None:
+                return None, err
+
+            return ret["data"], None
+        except Exception as e:
+            print(f"\033[31m[BizyAir]\033[0m Fail to get wallet info: {str(e)}")
+            return None, errnos.GET_WALLET_INFO
+
+    async def query_coins(
+        self, current: int, page_size: int, coin_type: int = 0, expire_days: int = 0
+    ) -> tuple[dict | None, ErrorNo | None]:
+        server_url = f"{BIZYAIR_SERVER_ADDRESS}/coins"
+        headers, err = self.auth_header()
+        if err is not None:
+            return None, err
+
+        params = {
+            "current": current,
+            "page_size": page_size
+        }
+        if coin_type > 0:
+            params["coin_type"] = coin_type
+        if expire_days > 0:
+            params["expire_days"] = expire_days
+
+        try:
+            ret, err = await self.do_get(server_url, headers=headers, params=params)
+            if err is not None:
+                return None, err
+
+            return ret["data"], None
+        except Exception as e:
+            print(f"\033[31m[BizyAir]\033[0m Fail to query coins: {str(e)}")
+            return None, errnos.QUERY_COINS
+
+    async def get_user_metadata(self) -> tuple[dict | None, ErrorNo | None]:
+        server_url = f"{BIZYAIR_SERVER_ADDRESS}/user/metadata"
+        headers, err = self.auth_header()
+        if err is not None:
+            return None, err
+
+        try:
+            ret, err = await self.do_get(server_url, headers=headers)
+            if err is not None:
+                return None, err
+
+            return ret["data"], None
+        except Exception as e:
+            print(f"\033[31m[BizyAir]\033[0m Fail to get user metadata: {str(e)}")
+            return None, errnos.GET_USER_METADATA
+
+    async def update_user_info(
+        self, user_id: str, name: str = None, avatar: str = None, introduction: str = None
+    ) -> tuple[dict | None, ErrorNo | None]:
+        server_url = f"{BIZYAIR_SERVER_ADDRESS}/user/metadata"
+        headers, err = self.auth_header()
+        if err is not None:
+            return None, err
+
+        payload = {}
+        if name is not None:
+            payload["name"] = name
+        if avatar is not None:
+            payload["avatar"] = avatar
+        if introduction is not None:
+            payload["introduction"] = introduction
+
+        try:
+            ret, err = await self.do_put(server_url, headers=headers, data=payload)
+            if err is not None:
+                return None, err
+
+            return ret["data"], None
+        except Exception as e:
+            print(f"\033[31m[BizyAir]\033[0m Fail to update user info: {str(e)}")
+            return None, errnos.UPDATE_USER_INFO
+
+    async def user_real_name(self) -> tuple[dict | None, ErrorNo | None]:
+        server_url = f"{BIZYAIR_SERVER_ADDRESS}/user/real_name"
+        headers, err = self.auth_header()
+        if err is not None:
+            return None, err
+
+        try:
+            ret, err = await self.do_post(server_url, headers=headers)
+            if err is not None:
+                return None, err
+
+            return ret["data"], None
+        except Exception as e:
+            print(f"\033[31m[BizyAir]\033[0m Fail to verify real name: {str(e)}")
+            return None, errnos.USER_REAL_NAME

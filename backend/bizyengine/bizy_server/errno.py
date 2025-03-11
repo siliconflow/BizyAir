@@ -120,3 +120,8 @@ class errnos:
     READ_ALL_NOTIF = ErrorNo(
         500, 500142, None, "Failed to mark all notifications as read"
     )
+    GET_WALLET_INFO = ErrorNo(500, 500143, None, "Failed to get user wallet info")
+    QUERY_COINS = ErrorNo(500, 500144, None, "Failed to query user coin records")
+    GET_USER_METADATA = ErrorNo(500, 500145, None, "Failed to get user metadata")
+    UPDATE_USER_INFO = ErrorNo(500, 500146, None, "Failed to update user info") 
+    USER_REAL_NAME = ErrorNo(500, 500147, None, "Failed to verify real name")

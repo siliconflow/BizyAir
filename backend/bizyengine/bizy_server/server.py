@@ -763,6 +763,59 @@ class BizyAirServer:
             if err:
                 return ErrResponse(err)
             return OKResponse(resp)
+        
+        @self.prompt_server.routes.get(f"/{USER_API}/wallet")
+        async def get_wallet(request):
+            # 获取用户钱包信息
+            resp, err = await self.api_client.get_wallet()
+            if err:
+                return ErrResponse(err)
+            return OKResponse(resp)
+
+        @self.prompt_server.routes.get(f"/{USER_API}/coins")
+        async def query_coins(request):
+            # 获取用户金币记录
+            current = int(request.rel_url.query.get("current", "1"))
+            page_size = int(request.rel_url.query.get("page_size", "10"))
+            coin_type = int(request.rel_url.query.get("coin_type", "0"))
+            expire_days = int(request.rel_url.query.get("expire_days", "0"))
+
+            resp, err = await self.api_client.query_coins(current, page_size, coin_type, expire_days)
+            if err:
+                return ErrResponse(err)
+            return OKResponse(resp)
+
+        @self.prompt_server.routes.get(f"/{USER_API}/metadata")
+        async def get_user_metadata(request):
+            # 获取用户元数据
+            resp, err = await self.api_client.get_user_metadata()
+            if err:
+                return ErrResponse(err)
+            return OKResponse(resp)
+
+        @self.prompt_server.routes.put(f"/{USER_API}/metadata")
+        async def update_user_info(request):
+            # 更新用户信息
+            json_data = await request.json()
+            user_id = json_data.get("user_id")
+            name = json_data.get("name")
+            avatar = json_data.get("avatar") 
+            introduction = json_data.get("introduction")
+
+            resp, err = await self.api_client.update_user_info(user_id, name, avatar, introduction)
+            if err:
+                return ErrResponse(err)
+            return OKResponse(resp)
+
+        @self.prompt_server.routes.post(f"/{USER_API}/real_name")
+        async def user_real_name(request):
+            # 实名认证
+            resp, err = await self.api_client.user_real_name()
+            if err:
+                return ErrResponse(err)
+            return OKResponse(resp)
+        
+
 
     async def send_json(self, event, data, sid=None):
         message = {"type": event, "data": data}
