@@ -1,0 +1,329 @@
+# Common configuration
+model_version_config:
+  model_version_id_prefix: "BIZYAIR_MODEL_VERSION_ID:"
+
+cache_config:
+  max_size: 100 # 100 items
+  expiration: 604800 # 7 days
+  cache_dir: ".bizyair_cache"
+  file_prefix: "bizyair_task_"
+  file_suffix: ".json"
+  use_cache: true
+
+
+model_hub:
+  find_model:
+    route: /models/files
+
+model_types:
+  loras: bizyair/lora
+  controlnet: bizyair/controlnet
+  # folder_name, server_folder_name
+  # checkpoints: bizyair/checkpoint
+  # vae: bizyair/vae
+
+task_api:
+  # Base URL for task-related API calls
+  task_result_endpoint: /bizy_task
+
+
+model_rules:
+  - mode_type: unet
+    base_model: FLUX
+    describe: flux1-dev
+    score: 3
+    route: /supernode/flux-dev-bizyair-comfy-ksampler-speedup
+    nodes:
+      - class_type: UNETLoader
+        inputs:
+          unet_name:
+            - ^flux/flux1-dev.sft$
+
+  - mode_type: unet
+    base_model: FLUX
+    describe: flux1-schnell
+    score: 3
+    route: /supernode/flux-bizyair-sdxl-comfy-ksampler
+    nodes:
+      - class_type: UNETLoader
+        inputs:
+          unet_name:
+            - ^flux/flux1-schnell.sft$
+
+  - mode_type: unet
+    base_model: Shuttle
+    describe: shuttle-3.1-aesthetic
+    score: 3
+    route: /supernode/bizyair-shuttle-3-1-aesthetic
+    nodes:
+      - class_type: UNETLoader
+        inputs:
+          unet_name:
+            - ^shuttle-3.1-aesthetic.safetensors$
+
+  - mode_type: vae
+    base_model: FLUX
+    describe: flux-vae
+    score: 1
+    route: /supernode/flux-vae-bizyair-comfy-ksampler
+    nodes:
+      - class_type: VAELoader
+        inputs:
+          vae_name:
+            - ^flux/ae.sft$
+
+  - mode_type: unet
+    base_model: FLUX_PIXELWAVE
+    describe: PixelWave Flux.1-dev 03 fine tuned!
+    score: 3
+    route: /supernode/bizyair-flux1-dev-fp8-pixelwave
+    nodes:
+      - class_type: UNETLoader
+        inputs:
+          unet_name:
+            - ^flux/pixelwave-flux1-dev.safetensors$
+
+  - mode_type: checkpoint
+    base_model: SD3
+    describe: SD3.5 Large
+    score: 3
+    route: /supernode/bizyair-comfybridge-sd3-5-large
+    nodes:
+      - class_type: CheckpointLoaderSimple
+        inputs:
+          ckpt_name:
+            - ^sd3.5_large.safetensors$
+
+  - mode_type: checkpoint
+    base_model: SD3
+    describe: SD3.5 Large Turbo
+    score: 3
+    route: /supernode/bizyair-comfybridge-sd3-5-turbo
+    nodes:
+      - class_type: CheckpointLoaderSimple
+        inputs:
+          ckpt_name:
+            - ^sd3.5_large_turbo.safetensors$
+
+  - mode_type: checkpoint
+    base_model: BaseModel
+    describe: SD1.5
+    score: 3
+    route: /supernode/bizyair-ultimate-sd-upscale-ksampler
+    nodes:
+      - class_type: CheckpointLoaderSimple
+        inputs:
+          ckpt_name:
+            - ^sd15/dreamshaper_8.safetensors$
+
+
+  - mode_type: checkpoint
+    base_model: SDXL
+    describe: SDXL
+    score: 3
+    route: /supernode/bizyair-sdxl-comfy-ksampler-v2
+    nodes:
+      - class_type: CheckpointLoaderSimple
+        inputs:
+          ckpt_name:
+            - ^sdxl.*
+
+  - mode_type: checkpoint
+    base_model: SDXL
+    describe: SDXL
+    score: 3
+    route: /supernode/bizyair-sdxl-comfy-ksampler-v2
+    nodes:
+      - class_type: CheckpointLoaderSimple
+        inputs:
+          ckpt_name:
+            - ^sdxl.*
+
+  - mode_type: unet
+    base_model: Kolors
+    describe: Kolors
+    score: 3
+    route: /supernode/kolors-bizyair-sdxl-comfy-ksampler
+    nodes:
+      - class_type: MZ_KolorsUNETLoaderV2
+        inputs:
+          unet_name:
+            - ^kolors.*
+      - class_type: VAELoader
+        inputs:
+          vae_name:
+            - ^sdxl/sdxl_vae.safetensors*
+
+  - mode_type: pulid
+    base_model: FLUX
+    describe: Flux Pulid
+    score: 5
+    route: /supernode/bizyair-flux-dev-comfy-pulid
+    nodes:
+      - class_type: PulidFluxModelLoader
+        inputs:
+          pulid_file:
+            - '.*'
+
+  - mode_type: controlnet
+    base_model: FLUX
+    describe: Flux ControlNet
+    score: 5
+    route: /supernode/flux-dev-bizyair-comfy-ksampler-fp8-v2
+    nodes:
+      - class_type: ControlNetLoader
+        inputs:
+          control_net_name:
+            - '.*'
+
+  - mode_type: lora
+    base_model: FLUX
+    describe: Flux Lora
+    score: 4
+    route: /supernode/flux-dev-bizyair-comfy-ksampler-fp8-v2
+    nodes:
+      - class_type: LoraLoader
+        inputs:
+          lora_name:
+            - '.*'
+
+  - mode_type: style_model
+    base_model: FLUX
+    describe: Flux Style Model
+    score: 4
+    route: /supernode/flux-dev-bizyair-comfy-ksampler-fp8-v2
+    nodes:
+      - class_type: StyleModelLoader
+        inputs:
+          style_model_name:
+            - ^flux1-redux-dev.safetensors$
+
+  - mode_type: unet
+    base_model: FLUX1-Fill
+    describe: flux1-fill
+    score: 3
+    route: /supernode/bizyair-flux1-tools-fill
+    nodes:
+      - class_type: UNETLoader
+        inputs:
+          unet_name:
+            - ^flux/flux1-fill-dev.safetensors$
+
+  - mode_type: vae
+    base_model: FLUX1-Fill
+    describe: flux1-fill-vae
+    score: 1
+    route: /supernode/bizyair-flux1-tools-fill
+    nodes:
+      - class_type: VAELoader
+        inputs:
+          vae_name:
+            - ^flux.1-fill-vae.safetensors$
+  - mode_type: unet
+    base_model: FLUX1-Depth
+    describe: flux1-depth
+    score: 3
+    route: /supernode/bizyair-flux1-tools-depth
+    nodes:
+      - class_type: UNETLoader
+        inputs:
+          unet_name:
+            - ^flux/flux1-depth-dev.safetensors$
+
+  - mode_type: vae
+    base_model: FLUX1-Depth
+    describe: flux1-depth-vae
+    score: 1
+    route: /supernode/bizyair-flux1-tools-depth
+    nodes:
+      - class_type: VAELoader
+        inputs:
+          vae_name:
+            - ^flux.1-depth-vae.safetensors$
+
+  - mode_type: unet
+    base_model: FLUX1-Canny
+    describe: flux1-canny
+    score: 3
+    route: /supernode/bizyair-flux1-tools-canny
+    nodes:
+      - class_type: UNETLoader
+        inputs:
+          unet_name:
+            - ^flux/flux1-canny-dev.safetensors$
+
+  - mode_type: vae
+    base_model: FLUX1-Canny
+    describe: flux1-canny-vae
+    score: 1
+    route: /supernode/bizyair-flux1-tools-canny
+    nodes:
+      - class_type: VAELoader
+        inputs:
+          vae_name:
+            - ^flux.1-canny-vae.safetensors$
+
+  - mode_type: upscale_models
+    base_model: UPSCALE_MODEL
+    describe: Upscale Model
+    score: 1
+    route: /bizy_task/bizyair-flux1-dev-fp8-async
+    nodes:
+      - class_type: UpscaleModelLoader
+
+  - mode_type: upscale_model
+    base_model: FLUX
+    describe: Flux Upscale Model
+    score: 6
+    route: /bizy_task/bizyair-flux1-dev-fp8-async
+    nodes:
+      - class_type: UltimateSDUpscale
+  - mode_type: sams
+    base_model: SAM
+    describe: SAM
+    score: 1
+    route: /supernode/bizyair-sam
+    nodes:
+      - class_type: 'LayerMask: SegmentAnythingUltra V2'
+      - class_type: SAMModelLoader
+      - class_type: TrimapGenerate
+      - class_type: VITMatteModelLoader
+      - class_type: DetailMethodPredict
+      - class_type: VitMattePredict
+  - mode_type: trellis
+    base_model: trellis
+    describe: trellis
+    score: 1
+    route: /bizy_task/bizyair-3d-trellis
+    nodes:
+      - class_type: 'IF_TrellisCheckpointLoader'
+      - class_type: IF_TrellisImageTo3D
+      - class_type: Trans3D2GlbFile
+
+  - mode_type: Janus
+    base_model: Janus
+    describe: Janus Model
+    score: 1
+    route: /supernode/bizyair-janus-pro-7b
+    nodes:
+      - class_type: 'JanusModelLoader'
+
+  - mode_type: CogView4_6B_Pipe
+    base_model: CogView4_6B_Pipe
+    describe: CogView4_6B_Pipe
+    score: 1
+    route: /supernode/bizyair-cogview4-6b-pipe
+    nodes:
+      - class_type: CogView4_6B_Pipe
+
+
+  - mode_type: Wan2.1-T2V
+    base_model: Wan
+    describe: Wan
+    score: 1
+    route: /bizy_task/bizyair-dev-wan-video
+    nodes:
+      - class_type: 'Wan_Model_Loader'
+        inputs:
+          ckpt_name:
+            - ^Wan2.1-T2V-1.3B$

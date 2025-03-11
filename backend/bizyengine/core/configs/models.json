@@ -1,0 +1,101 @@
+{
+  "checkpoints": [{
+    "sdxl": [
+      "counterfeitxl_v25.safetensors",
+      "dreamshaperXL_lightningDPMSDE.safetensors",
+      "dreamshaperXL_v21TurboDPMSDE.safetensors",
+      "HelloWorldXL_v70.safetensors",
+      "juggernautXL_v9Rdphoto2Lightning.safetensors",
+      "Juggernaut-XL_v9_RunDiffusionPhoto_v2.safetensors",
+      "Juggernaut_X_RunDiffusion_Hyper.safetensors",
+      "mannEDreams_v004.safetensors",
+      "realisticStockPhoto_v20.safetensors",
+      "samaritan3dCartoon_v40SDXL.safetensors"
+    ],
+    "sd15": [
+      "dreamshaper_8.safetensors"
+    ]
+  },
+  "sd3.5_large.safetensors", "sd3.5_large_turbo.safetensors"],
+  "clip_vision": [{
+    "models": [
+      "CLIP-ViT-H-14-laion2B-s32B-b79K.safetensors"
+    ],
+    "kolors": [
+      "pytorch_model.bin"
+    ]
+  }, "sigclip_vision_patch14_384.safetensors"],
+  "controlnet": [{
+    "kolors": [
+      "Kolors-ControlNet-Canny.safetensors",
+      "Kolors-ControlNet-Depth.safetensors"
+    ],
+    "sdxl": [
+      "diffusion_pytorch_model_promax.safetensors"
+    ],
+    "sd15": [
+      "control_v11f1e_sd15_tile.pth"
+    ],
+    "instantid": [
+      "diffusion_pytorch_model.safetensors"
+    ]
+  }, "sd3.5_large_controlnet_blur.safetensors", "sd3.5_large_controlnet_canny.safetensors", "sd3.5_large_controlnet_depth.safetensors"],
+  "ipadapter": {
+    "kolors": [
+      "ip_adapter_plus_general.bin"
+    ]
+  },
+  "loras": {
+    "sdxl": [
+      "Cute_Animals.safetensors",
+      "watercolor_v1_sdxl_lora.safetensors"
+    ],
+    "flux": [
+      "meijia_flux_lora_rank16_bf16.safetensors"
+    ]
+  },
+  "unet": ["shuttle-3.1-aesthetic.safetensors",{
+    "kolors": [
+      "Kolors-Inpainting.safetensors",
+      "Kolors.safetensors"
+    ],
+    "flux": [
+      "flux1-schnell.sft",
+      "flux1-dev.sft",
+      "pixelwave-flux1-dev.safetensors",
+      "flux1-canny-dev.safetensors",
+      "flux1-depth-dev.safetensors",
+      "flux1-fill-dev.safetensors"
+    ]
+  }],
+  "vae": [{
+    "sdxl": [
+      "sdxl_vae.safetensors"
+    ],
+    "flux": [
+      "ae.sft"
+    ]
+  }, "flux.1-canny-vae.safetensors", "flux.1-depth-vae.safetensors", "flux.1-fill-vae.safetensors"],
+  "clip": [
+    "clip_l.safetensors",
+    "clip_g.safetensors",
+    "t5xxl_fp16.safetensors",
+    "t5xxl_fp8_e4m3fn.safetensors"
+  ],
+  "upscale_models": [
+    "4x_NMKD-Siax_200k.pth",
+    "RealESRGAN_x4plus.pth",
+    "RealESRGAN_x4plus_anime_6B.pth",
+    "RealESRGAN_x2plus.pth",
+    "RealESRGAN_x4plus.pth"
+  ],
+  "instantid": [
+    "ip-adapter.bin"
+  ],
+  "pulid": [
+    "pulid_flux.safetensors"
+  ],
+  "style_models": [
+    "flux1-redux-dev.safetensors"
+  ]
+}
