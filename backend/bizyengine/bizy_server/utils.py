@@ -7,6 +7,7 @@ from .resp import ErrResponse
 TYPE_OPTIONS = {
     "LoRA": "LoRA",
     "Controlnet": "Controlnet",
+    "Checkpoint": "Checkpoint",
 }
 
 BASE_MODEL_TYPE_OPTIONS = {
