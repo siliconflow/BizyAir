@@ -191,7 +191,7 @@ def yes_or_no(package_name) -> str:
 
 
 def update_bizyengine_bizyui():
-    def _update_pacakge_when_needed(package_name):
+    def _update_package_when_needed(package_name):
         try:
             if package_name not in installed_packages:
                 print(f"\033[92m[BizyAir]\033[0m Try to install {package_name}")
@@ -234,8 +234,8 @@ def update_bizyengine_bizyui():
         f"\033[92m[BizyAir]\033[0m Checkout updating, current pip url {mirror_pip_url}"
     )
 
-    _update_pacakge_when_needed("bizyengine")
-    _update_pacakge_when_needed("bizyui")
+    _update_package_when_needed("bizyengine")
+    _update_package_when_needed("bizyui")
 
 
 install_dependencies()
