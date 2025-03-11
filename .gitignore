@@ -7,3 +7,6 @@ venv/
 *.log
 api_key.ini
 .DS_Store
+*.egg-info
+dist/
+js/
