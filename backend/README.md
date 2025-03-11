@@ -1,6 +1,6 @@
 ## development
 
 ```bash
-cd BizyAir/bakcend/
+cd BizyAir/backend/
 pip install -e .
 ```
