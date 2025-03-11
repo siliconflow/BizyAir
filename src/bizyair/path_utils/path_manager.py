@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from functools import lru_cache
 from typing import Any, Collection, Dict, List, Union
 
-from ..common import fetch_models_by_type
+from ..common import client, fetch_models_by_type
 from ..common.env_var import BIZYAIR_DEBUG, BIZYAIR_SERVER_ADDRESS
 from ..configs.conf import ModelRule, config_manager
 from .utils import filter_files_extensions, get_service_route, load_yaml_config
@@ -70,19 +70,73 @@ models_config: Dict[str, Dict[str, Any]] = load_yaml_config(
 )
 
 
+def detect_model(model_version_id, detection_type, **kwargs):
+    json_data = {
+        "prompt": {
+            "model_version_id": model_version_id,
+            "detection_type": detection_type,
+        },
+    }
+    detect_model_type: dict = models_config["model_version_config"]["detect_model_type"]
+    resq = client.send_request(data=json.dump(json_data), **detect_model_type)
+    # import ipdb; ipdb.set_trace()
+    print(resq)
+
+
+def action_call(action: str, *args, **kwargs) -> any:
+    if action == "detect_model":
+        return detect_model(*args, **kwargs)
+
+
 def guess_url_from_node(
     node: Dict[str, Dict[str, Any]], class_type_table: Dict[str, bool]
 ) -> Union[List[ModelRule], None]:
     rules: List[ModelRule] = config_manager.get_rules(node["class_type"])
-    out = [
-        rule
-        for rule in rules
-        if len(rule.inputs) == 0
-        or all(
-            any(re.search(p, node["inputs"][key]) is not None for p in patterns)
-            for key, patterns in rule.inputs.items()
-        )
+
+    # def is_match(key, pattern, **kwargs):
+    #     if isinstance(pattern, str):
+    #         return re.search(pattern, key)
+    #     elif isinstance(pattern, dict):
+    #         import pdb; pdb.set_trace()
+
+    # out = [
+    #     rule
+    #     for rule in rules
+    #     if len(rule.inputs) == 0
+    #     or all(
+    #         any(is_match(key=node["inputs"][key], pattern=p) is not None for p in patterns)
+    #         for key, patterns in rule.inputs.items()
+    #     )
+    # ]
+    out = []
+    model_version_id_prefix = models_config["model_version_config"][
+        "model_version_id_prefix"
     ]
+    for rule in rules:
+        if len(rule.inputs) == 0:
+            out.append(rule)
+
+        skip = False
+        for key, patterns in rule.inputs.items():
+            if skip:
+                break
+            for pattern in patterns:
+                value = node["inputs"][key]
+                if isinstance(pattern, str) and re.search(pattern, key) is not None:
+                    out.append(rule)
+                    skip = True
+                    break
+                elif isinstance(pattern, dict) and value.startswith(
+                    model_version_id_prefix
+                ):
+                    action = pattern["action"]
+                    detection_type = pattern["detection_type"]
+                    action_call(
+                        action=action,
+                        model_version_id=value[len(model_version_id_prefix) :],
+                        detection_type=detection_type,
+                    )
+
     return out
 
 
