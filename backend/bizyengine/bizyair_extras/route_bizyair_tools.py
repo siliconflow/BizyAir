@@ -1,9 +1,9 @@
 import json
 import pprint
 
-import bizyair
+import bizyengine.core as bizyair
 from aiohttp import web
-from bizyair.data_types import BIZYAIR_TYPE_MAP
+from bizyengine.core.data_types import BIZYAIR_TYPE_MAP
 from server import PromptServer
 
 
