@@ -1,0 +1,779 @@
+{
+  "last_node_id": 71,
+  "last_link_id": 97,
+  "nodes": [
+    {
+      "id": 52,
+      "type": "BizyAir_KSampler",
+      "pos": {
+        "0": 1690.660400390625,
+        "1": 814.3382568359375
+      },
+      "size": {
+        "0": 366.4524841308594,
+        "1": 761.7720947265625
+      },
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "BIZYAIR_MODEL",
+          "link": 77,
+          "label": "model"
+        },
+        {
+          "name": "positive",
+          "type": "BIZYAIR_CONDITIONING",
+          "link": 92,
+          "slot_index": 1,
+          "label": "positive"
+        },
+        {
+          "name": "negative",
+          "type": "BIZYAIR_CONDITIONING",
+          "link": 93,
+          "slot_index": 2,
+          "label": "negative"
+        },
+        {
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 94,
+          "slot_index": 3,
+          "label": "latent_image"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            85
+          ],
+          "slot_index": 0,
+          "shape": 3,
+          "label": "LATENT"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_KSampler"
+      },
+      "widgets_values": [
+        489730244656263,
+        "fixed",
+        20,
+        4.5,
+        "dpmpp_2m_sde_gpu",
+        "karras",
+        1
+      ],
+      "shape": 1
+    },
+    {
+      "id": 71,
+      "type": "Note",
+      "pos": {
+        "0": 286,
+        "1": 648
+      },
+      "size": {
+        "0": 2230.911865234375,
+        "1": 67.56360626220703
+      },
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {
+        "text": ""
+      },
+      "widgets_values": [
+        "IPAdapter 可以将图片作为 Image prompt 影响出图的效果。常用于风格转换、人脸变换、构图控制等。"
+      ],
+      "color": "#432",
+      "bgcolor": "#653"
+    },
+    {
+      "id": 59,
+      "type": "BizyAir_IPAdapterAdvanced",
+      "pos": {
+        "0": 778.6619873046875,
+        "1": 800.6619873046875
+      },
+      "size": {
+        "0": 386.3514709472656,
+        "1": 776.2362060546875
+      },
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "BIZYAIR_MODEL",
+          "link": 76,
+          "label": "model"
+        },
+        {
+          "name": "ipadapter",
+          "type": "IPADAPTER",
+          "link": 83,
+          "label": "ipadapter"
+        },
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 95,
+          "label": "image"
+        },
+        {
+          "name": "image_negative",
+          "type": "IMAGE",
+          "link": null,
+          "label": "image_negative",
+          "shape": 7
+        },
+        {
+          "name": "attn_mask",
+          "type": "MASK",
+          "link": null,
+          "label": "attn_mask",
+          "shape": 7
+        },
+        {
+          "name": "clip_vision",
+          "type": "CLIP_VISION",
+          "link": 81,
+          "label": "clip_vision",
+          "shape": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "model",
+          "type": "BIZYAIR_MODEL",
+          "links": [
+            77
+          ],
+          "slot_index": 0,
+          "shape": 3,
+          "label": "model"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_IPAdapterAdvanced"
+      },
+      "widgets_values": [
+        0.6,
+        "linear",
+        "concat",
+        0,
+        1,
+        "V only"
+      ],
+      "shape": 1
+    },
+    {
+      "id": 53,
+      "type": "BizyAir_MinusZoneChatGLM3TextEncode",
+      "pos": {
+        "0": 1199,
+        "1": 1166
+      },
+      "size": [
+        439.9370000000001,
+        397.394
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "BIZYAIR_CONDITIONING",
+          "type": "BIZYAIR_CONDITIONING",
+          "links": [
+            93
+          ],
+          "slot_index": 0,
+          "shape": 3,
+          "label": "BIZYAIR_CONDITIONING"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_MinusZoneChatGLM3TextEncode"
+      },
+      "widgets_values": [
+        "花"
+      ],
+      "shape": 1
+    },
+    {
+      "id": 68,
+      "type": "BizyAirGenerateLightningImage",
+      "pos": {
+        "0": 323.946044921875,
+        "1": 1197.0601806640625
+      },
+      "size": {
+        "0": 418.3993835449219,
+        "1": 340.8439025878906
+      },
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            95,
+            96
+          ],
+          "slot_index": 0,
+          "shape": 3,
+          "label": "IMAGE"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAirGenerateLightningImage"
+      },
+      "widgets_values": [
+        "a very beautiful flower",
+        1,
+        "fixed",
+        1024,
+        1024,
+        1.5,
+        1
+      ],
+      "shape": 1
+    },
+    {
+      "id": 58,
+      "type": "BizyAir_IPAdapterModelLoader",
+      "pos": {
+        "0": 306,
+        "1": 805
+      },
+      "size": {
+        "0": 441.5470886230469,
+        "1": 58
+      },
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IPADAPTER",
+          "type": "IPADAPTER",
+          "links": [
+            83
+          ],
+          "slot_index": 0,
+          "shape": 3,
+          "label": "IPADAPTER"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_IPAdapterModelLoader"
+      },
+      "widgets_values": [
+        "kolors/ip_adapter_plus_general.bin"
+      ],
+      "shape": 1
+    },
+    {
+      "id": 51,
+      "type": "BizyAir_MZ_KolorsUNETLoaderV2",
+      "pos": {
+        "0": 299,
+        "1": 1029
+      },
+      "size": {
+        "0": 438.4034729003906,
+        "1": 58
+      },
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "model",
+          "type": "BIZYAIR_MODEL",
+          "links": [
+            76
+          ],
+          "slot_index": 0,
+          "shape": 3,
+          "label": "model"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_MZ_KolorsUNETLoaderV2"
+      },
+      "widgets_values": [
+        "kolors/Kolors.safetensors"
+      ],
+      "shape": 1
+    },
+    {
+      "id": 54,
+      "type": "BizyAir_CLIPVisionLoader",
+      "pos": {
+        "0": 306,
+        "1": 917
+      },
+      "size": {
+        "0": 437.93939208984375,
+        "1": 58
+      },
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "CLIP_VISION",
+          "type": "CLIP_VISION",
+          "links": [
+            81
+          ],
+          "slot_index": 0,
+          "shape": 3,
+          "label": "CLIP_VISION"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_CLIPVisionLoader"
+      },
+      "widgets_values": [
+        "kolors/pytorch_model.bin"
+      ],
+      "shape": 1
+    },
+    {
+      "id": 50,
+      "type": "BizyAir_VAELoader",
+      "pos": {
+        "0": 2108.36962890625,
+        "1": 812.6458740234375
+      },
+      "size": [
+        415.4125570000001,
+        118.85323400000004
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "vae",
+          "type": "BIZYAIR_VAE",
+          "links": [
+            84
+          ],
+          "slot_index": 0,
+          "shape": 3,
+          "label": "vae"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_VAELoader"
+      },
+      "widgets_values": [
+        "sdxl/sdxl_vae.safetensors"
+      ],
+      "shape": 1
+    },
+    {
+      "id": 61,
+      "type": "BizyAir_VAEDecode",
+      "pos": {
+        "0": 2112.36962890625,
+        "1": 983.6455078125
+      },
+      "size": [
+        416.6409960000001,
+        104.20748000000003
+      ],
+      "flags": {},
+      "order": 12,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 85,
+          "label": "samples"
+        },
+        {
+          "name": "vae",
+          "type": "BIZYAIR_VAE",
+          "link": 84,
+          "label": "vae"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            97
+          ],
+          "slot_index": 0,
+          "shape": 3,
+          "label": "IMAGE"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_VAEDecode"
+      },
+      "widgets_values": [],
+      "shape": 1
+    },
+    {
+      "id": 70,
+      "type": "PreviewImage",
+      "pos": {
+        "0": 2564.541015625,
+        "1": 814.3218994140625
+      },
+      "size": [
+        408.8036841250005,
+        273.708519945312
+      ],
+      "flags": {},
+      "order": 13,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 97,
+          "label": "images"
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": [],
+      "shape": 1
+    },
+    {
+      "id": 67,
+      "type": "EmptyLatentImage",
+      "pos": {
+        "0": 1201,
+        "1": 1683
+      },
+      "size": [
+        443.9025420000007,
+        132.6850499999996
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            94
+          ],
+          "shape": 3,
+          "label": "LATENT"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "EmptyLatentImage"
+      },
+      "widgets_values": [
+        1024,
+        1024,
+        1
+      ],
+      "shape": 1
+    },
+    {
+      "id": 69,
+      "type": "PreviewImage",
+      "pos": {
+        "0": 669.906494140625,
+        "1": 1817.233154296875
+      },
+      "size": [
+        410.049703,
+        317.82012699999905
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 96,
+          "label": "images"
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": [],
+      "shape": 1
+    },
+    {
+      "id": 48,
+      "type": "BizyAir_MinusZoneChatGLM3TextEncode",
+      "pos": {
+        "0": 1200,
+        "1": 810
+      },
+      "size": [
+        427.6360227135003,
+        298.8694137809987
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "BIZYAIR_CONDITIONING",
+          "type": "BIZYAIR_CONDITIONING",
+          "links": [
+            92
+          ],
+          "slot_index": 0,
+          "shape": 3,
+          "label": "BIZYAIR_CONDITIONING"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAir_MinusZoneChatGLM3TextEncode"
+      },
+      "widgets_values": [
+        "一只开心的狗正在跳跃"
+      ],
+      "shape": 1
+    }
+  ],
+  "links": [
+    [
+      76,
+      51,
+      0,
+      59,
+      0,
+      "BIZYAIR_MODEL"
+    ],
+    [
+      77,
+      59,
+      0,
+      52,
+      0,
+      "BIZYAIR_MODEL"
+    ],
+    [
+      81,
+      54,
+      0,
+      59,
+      5,
+      "CLIP_VISION"
+    ],
+    [
+      83,
+      58,
+      0,
+      59,
+      1,
+      "IPADAPTER"
+    ],
+    [
+      84,
+      50,
+      0,
+      61,
+      1,
+      "BIZYAIR_VAE"
+    ],
+    [
+      85,
+      52,
+      0,
+      61,
+      0,
+      "LATENT"
+    ],
+    [
+      92,
+      48,
+      0,
+      52,
+      1,
+      "BIZYAIR_CONDITIONING"
+    ],
+    [
+      93,
+      53,
+      0,
+      52,
+      2,
+      "BIZYAIR_CONDITIONING"
+    ],
+    [
+      94,
+      67,
+      0,
+      52,
+      3,
+      "LATENT"
+    ],
+    [
+      95,
+      68,
+      0,
+      59,
+      2,
+      "IMAGE"
+    ],
+    [
+      96,
+      68,
+      0,
+      69,
+      0,
+      "IMAGE"
+    ],
+    [
+      97,
+      61,
+      0,
+      70,
+      0,
+      "IMAGE"
+    ]
+  ],
+  "groups": [
+    {
+      "title": "中间预览图",
+      "bounding": [
+        637,
+        1730,
+        461,
+        419
+      ],
+      "color": "#444",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "title": "VAE",
+      "bounding": [
+        2089,
+        730,
+        457,
+        381
+      ],
+      "color": "#3f789e",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "title": "提示词",
+      "bounding": [
+        1182,
+        729,
+        476,
+        871
+      ],
+      "color": "#b58b2a",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "title": "模型与输入图",
+      "bounding": [
+        285,
+        731,
+        896,
+        871
+      ],
+      "color": "#a1309b",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "title": "采样器",
+      "bounding": [
+        1660,
+        728,
+        426,
+        871
+      ],
+      "color": "#8A8",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "title": "预览图",
+      "bounding": [
+        2551,
+        729,
+        435,
+        382
+      ],
+      "color": "#444",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "title": "输入图（提示词版）",
+      "bounding": [
+        302,
+        1110,
+        464,
+        451
+      ],
+      "color": "#3f789e",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "title": "垫图",
+      "bounding": [
+        1182,
+        1605,
+        486,
+        235
+      ],
+      "color": "#3f789e",
+      "font_size": 24,
+      "flags": {}
+    }
+  ],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.5131581182307069,
+      "offset": [
+        -181.68793451350035,
+        -709.3824082809989
+      ]
+    }
+  },
+  "version": 0.4
+}

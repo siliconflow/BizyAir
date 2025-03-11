@@ -1,0 +1,190 @@
+{
+  "last_node_id": 37,
+  "last_link_id": 50,
+  "nodes": [
+    {
+      "id": 33,
+      "type": "LoadImage",
+      "pos": {
+        "0": 1762,
+        "1": 589
+      },
+      "size": [
+        324,
+        223.33331298828125
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            49
+          ],
+          "slot_index": 0,
+          "shape": 3,
+          "label": "IMAGE"
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null,
+          "shape": 3,
+          "label": "MASK"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "ComfyUI_00018_.png",
+        "image"
+      ],
+      "shape": 1
+    },
+    {
+      "id": 37,
+      "type": "PreviewImage",
+      "pos": {
+        "0": 2505,
+        "1": 591
+      },
+      "size": [
+        286,
+        217.33331298828125
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 50,
+          "label": "images"
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "shape": 1
+    },
+    {
+      "id": 36,
+      "type": "BizyAirRemoveBackground",
+      "pos": {
+        "0": 2127,
+        "1": 592
+      },
+      "size": [
+        336,
+        217.33331298828125
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 49,
+          "label": "image"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            50
+          ],
+          "slot_index": 0,
+          "shape": 3,
+          "label": "IMAGE"
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null,
+          "shape": 3,
+          "label": "MASK"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAirRemoveBackground"
+      },
+      "shape": 1
+    }
+  ],
+  "links": [
+    [
+      49,
+      33,
+      0,
+      36,
+      0,
+      "IMAGE"
+    ],
+    [
+      50,
+      36,
+      0,
+      37,
+      0,
+      "IMAGE"
+    ]
+  ],
+  "groups": [
+    {
+      "title": "模型",
+      "bounding": [
+        2107,
+        509,
+        374,
+        318
+      ],
+      "color": "#b58b2a",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "title": "参考图",
+      "bounding": [
+        1745,
+        509,
+        361,
+        318
+      ],
+      "color": "#3f789e",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "title": "预览图",
+      "bounding": [
+        2483,
+        509,
+        327,
+        318
+      ],
+      "color": "#8A8",
+      "font_size": 24,
+      "flags": {}
+    }
+  ],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 1,
+      "offset": [
+        -1568,
+        -276.33331298828125
+      ]
+    }
+  },
+  "version": 0.4
+}

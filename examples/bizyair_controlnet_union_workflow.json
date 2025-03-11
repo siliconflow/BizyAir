@@ -1,0 +1,460 @@
+{
+  "last_node_id": 64,
+  "last_link_id": 70,
+  "nodes": [
+    {
+      "id": 63,
+      "type": "BizyAirGenerateLightningImage",
+      "pos": {
+        "0": -817.8043212890625,
+        "1": 842.0202026367188
+      },
+      "size": [
+        336,
+        464.90530178311997
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            69,
+            70
+          ],
+          "slot_index": 0,
+          "shape": 3,
+          "label": "IMAGE"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAirGenerateLightningImage"
+      },
+      "widgets_values": [
+        "a dog",
+        493871336398282,
+        "fixed",
+        1024,
+        1024,
+        1.5,
+        2
+      ],
+      "shape": 1
+    },
+    {
+      "id": 64,
+      "type": "PreviewImage",
+      "pos": {
+        "0": -446.80413818359375,
+        "1": 847.0202026367188
+      },
+      "size": [
+        489.3362051087445,
+        459.99293657195153
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 70,
+          "label": "images"
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": [],
+      "shape": 1
+    },
+    {
+      "id": 61,
+      "type": "BizyAirDepthAnythingV2Preprocessor",
+      "pos": {
+        "0": 121,
+        "1": 855
+      },
+      "size": [
+        437.5979604419417,
+        461.9773364288287
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 69,
+          "label": "image"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            67,
+            68
+          ],
+          "slot_index": 0,
+          "shape": 3,
+          "label": "IMAGE"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAirDepthAnythingV2Preprocessor"
+      },
+      "widgets_values": [
+        "depth_anything_v2_vitl.pth",
+        1024
+      ],
+      "shape": 1
+    },
+    {
+      "id": 54,
+      "type": "StableDiffusionXLControlNetUnionPipeline",
+      "pos": {
+        "0": 1148,
+        "1": 849
+      },
+      "size": [
+        435.6257136282984,
+        471.8020668511658
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "openpose_image",
+          "type": "IMAGE",
+          "link": null,
+          "slot_index": 0,
+          "label": "openpose_image",
+          "shape": 7
+        },
+        {
+          "name": "depth_image",
+          "type": "IMAGE",
+          "link": 67,
+          "label": "depth_image",
+          "shape": 7
+        },
+        {
+          "name": "hed_pidi_scribble_ted_image",
+          "type": "IMAGE",
+          "link": null,
+          "label": "hed_pidi_scribble_ted_image",
+          "shape": 7
+        },
+        {
+          "name": "canny_lineart_anime_lineart_mlsd_image",
+          "type": "IMAGE",
+          "link": null,
+          "slot_index": 3,
+          "label": "canny_lineart_anime_lineart_mlsd_image",
+          "shape": 7
+        },
+        {
+          "name": "normal_image",
+          "type": "IMAGE",
+          "link": null,
+          "label": "normal_image",
+          "shape": 7
+        },
+        {
+          "name": "segment_image",
+          "type": "IMAGE",
+          "link": null,
+          "label": "segment_image",
+          "shape": 7
+        },
+        {
+          "name": "prompt",
+          "type": "STRING",
+          "link": 57,
+          "widget": {
+            "name": "prompt"
+          },
+          "label": "prompt"
+        },
+        {
+          "name": "negative_prompt",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "negative_prompt"
+          },
+          "label": "negative_prompt"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            59
+          ],
+          "slot_index": 0,
+          "shape": 3,
+          "label": "IMAGE"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "StableDiffusionXLControlNetUnionPipeline"
+      },
+      "widgets_values": [
+        29,
+        "increment",
+        28,
+        1,
+        5,
+        "",
+        "",
+        0,
+        0.5
+      ],
+      "shape": 1
+    },
+    {
+      "id": 62,
+      "type": "PreviewImage",
+      "pos": {
+        "0": 609,
+        "1": 377
+      },
+      "size": [
+        492.7096804138175,
+        377.7419643452673
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 68,
+          "label": "images"
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": [],
+      "shape": 1
+    },
+    {
+      "id": 39,
+      "type": "BizyAirSiliconCloudLLMAPI",
+      "pos": {
+        "0": 615,
+        "1": 855
+      },
+      "size": [
+        469.2354891468058,
+        465.9773364288287
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": [
+            57
+          ],
+          "slot_index": 0,
+          "shape": 3,
+          "label": "STRING"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAirSiliconCloudLLMAPI"
+      },
+      "widgets_values": [
+        "(Free)GLM4 9B Chat",
+        "你是一个 stable diffusion prompt 专家，为我生成适用于 Stable Diffusion 模型的prompt。\n我给你相关的单词，你帮我扩写为适合 Stable Diffusion 文生图的 prompt。要求：\n1. 英文输出\n2. 除了 prompt 外，不要输出任何其它的信息\n",
+        "哈士奇，梵高风格",
+        510,
+        0.8200000000000001,
+        "\nVibrant and playful Siberian Husky, depicted in a Van Gogh-inspired style with swirling brushstrokes and vivid colors, capturing the essence of the artist's signature technique"
+      ],
+      "shape": 1
+    },
+    {
+      "id": 51,
+      "type": "PreviewImage",
+      "pos": {
+        "0": 1640,
+        "1": 848
+      },
+      "size": [
+        483.1756075443309,
+        474.6267972735029
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 59,
+          "label": "images"
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": [],
+      "shape": 1
+    }
+  ],
+  "links": [
+    [
+      57,
+      39,
+      0,
+      54,
+      6,
+      "STRING"
+    ],
+    [
+      59,
+      54,
+      0,
+      51,
+      0,
+      "IMAGE"
+    ],
+    [
+      67,
+      61,
+      0,
+      54,
+      1,
+      "IMAGE"
+    ],
+    [
+      68,
+      61,
+      0,
+      62,
+      0,
+      "IMAGE"
+    ],
+    [
+      69,
+      63,
+      0,
+      61,
+      0,
+      "IMAGE"
+    ],
+    [
+      70,
+      63,
+      0,
+      64,
+      0,
+      "IMAGE"
+    ]
+  ],
+  "groups": [
+    {
+      "title": "预览图",
+      "bounding": [
+        1622,
+        769,
+        518,
+        575
+      ],
+      "color": "#444",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "title": "提示词",
+      "bounding": [
+        586,
+        767,
+        525,
+        575
+      ],
+      "color": "#b58b2a",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "title": "模型",
+      "bounding": [
+        89,
+        765,
+        496,
+        577
+      ],
+      "color": "#a1309b",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "title": "参考图",
+      "bounding": [
+        -855,
+        766,
+        941,
+        575
+      ],
+      "color": "#88A",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "title": "采样器",
+      "bounding": [
+        1113,
+        768,
+        505,
+        574
+      ],
+      "color": "#8A8",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "title": "预览图",
+      "bounding": [
+        586,
+        301,
+        533,
+        469
+      ],
+      "color": "#3f789e",
+      "font_size": 24,
+      "flags": {}
+    }
+  ],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.5229126707387326,
+      "offset": [
+        732.7744575299156,
+        -79.22190188250214
+      ]
+    }
+  },
+  "version": 0.4
+}

@@ -1,0 +1,426 @@
+{
+  "last_node_id": 76,
+  "last_link_id": 86,
+  "nodes": [
+    {
+      "id": 63,
+      "type": "BizyAirGenerateLightningImage",
+      "pos": {
+        "0": 77.18540954589844,
+        "1": 777.7132568359375
+      },
+      "size": {
+        "0": 419.1539306640625,
+        "1": 612.7685546875
+      },
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            74,
+            82,
+            83
+          ],
+          "slot_index": 0,
+          "shape": 3,
+          "label": "IMAGE"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAirGenerateLightningImage"
+      },
+      "widgets_values": [
+        "a great white shark",
+        493871336398282,
+        "fixed",
+        1024,
+        1024,
+        1.5,
+        1
+      ],
+      "shape": 1
+    },
+    {
+      "id": 74,
+      "type": "BizyAirDepthAnythingV2Preprocessor",
+      "pos": {
+        "0": 541,
+        "1": 788
+      },
+      "size": [
+        527.9573103638907,
+        589.1028842157405
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 83,
+          "label": "image"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            84,
+            85
+          ],
+          "slot_index": 0,
+          "shape": 3,
+          "label": "IMAGE"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BizyAirDepthAnythingV2Preprocessor"
+      },
+      "widgets_values": [
+        "depth_anything_v2_vitl.pth",
+        512
+      ],
+      "shape": 1
+    },
+    {
+      "id": 69,
+      "type": "StableDiffusionXLControlNetUnionPipeline",
+      "pos": {
+        "0": 1133,
+        "1": 774
+      },
+      "size": [
+        396.33473136389057,
+        597.6460062157405
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "openpose_image",
+          "type": "IMAGE",
+          "link": null,
+          "label": "openpose_image",
+          "shape": 7
+        },
+        {
+          "name": "depth_image",
+          "type": "IMAGE",
+          "link": 85,
+          "label": "depth_image",
+          "shape": 7
+        },
+        {
+          "name": "hed_pidi_scribble_ted_image",
+          "type": "IMAGE",
+          "link": null,
+          "label": "hed_pidi_scribble_ted_image",
+          "shape": 7
+        },
+        {
+          "name": "canny_lineart_anime_lineart_mlsd_image",
+          "type": "IMAGE",
+          "link": 82,
+          "label": "canny_lineart_anime_lineart_mlsd_image",
+          "shape": 7
+        },
+        {
+          "name": "normal_image",
+          "type": "IMAGE",
+          "link": null,
+          "label": "normal_image",
+          "shape": 7
+        },
+        {
+          "name": "segment_image",
+          "type": "IMAGE",
+          "link": null,
+          "label": "segment_image",
+          "shape": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            81
+          ],
+          "slot_index": 0,
+          "shape": 3,
+          "label": "IMAGE"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "StableDiffusionXLControlNetUnionPipeline"
+      },
+      "widgets_values": [
+        1,
+        "fixed",
+        20,
+        1,
+        4.9,
+        "a submarine in cyberpunk style, with a futuristic and sci-fi aesthetic",
+        "watermark, text",
+        0,
+        0.5
+      ],
+      "shape": 1
+    },
+    {
+      "id": 73,
+      "type": "PreviewImage",
+      "pos": {
+        "0": 1598,
+        "1": 808
+      },
+      "size": [
+        535.6141884638905,
+        554.6110451157404
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 81,
+          "label": "images"
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": [],
+      "shape": 1
+    },
+    {
+      "id": 72,
+      "type": "PreviewImage",
+      "pos": {
+        "0": 1260.8974609375,
+        "1": 352
+      },
+      "size": {
+        "0": 302.92633056640625,
+        "1": 273.948486328125
+      },
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 84,
+          "label": "images"
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": [],
+      "shape": 1
+    },
+    {
+      "id": 66,
+      "type": "PreviewImage",
+      "pos": {
+        "0": 317,
+        "1": 1611
+      },
+      "size": [
+        362.8711987638907,
+        358.9954186157404
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 74,
+          "label": "images"
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": [],
+      "shape": 1
+    },
+    {
+      "id": 75,
+      "type": "Note",
+      "pos": {
+        "0": 41,
+        "1": 518
+      },
+      "size": [
+        999.3838953638904,
+        113.84213261574075
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {
+        "text": ""
+      },
+      "widgets_values": [
+        "这个工作流中：\n\n1. 使用 BizyAir 的 Generate Photorealistic Images 节点，生成一张大白鲨的图片。\n\n2. 使用 BizyAir Controlnet 预处理节点，将大白鲨的图片转为深度图。\n\n3. 使用深度图做 image prompt，结合 text prompt，用 BizyAir Controlnet Union 节点，将深度图重绘为潜水艇。"
+      ],
+      "color": "#432",
+      "bgcolor": "#653"
+    }
+  ],
+  "links": [
+    [
+      74,
+      63,
+      0,
+      66,
+      0,
+      "IMAGE"
+    ],
+    [
+      81,
+      69,
+      0,
+      73,
+      0,
+      "IMAGE"
+    ],
+    [
+      82,
+      63,
+      0,
+      69,
+      3,
+      "IMAGE"
+    ],
+    [
+      83,
+      63,
+      0,
+      74,
+      0,
+      "IMAGE"
+    ],
+    [
+      84,
+      74,
+      0,
+      72,
+      0,
+      "IMAGE"
+    ],
+    [
+      85,
+      74,
+      0,
+      69,
+      1,
+      "IMAGE"
+    ]
+  ],
+  "groups": [
+    {
+      "title": "中间预览图（生成大白鲨）",
+      "bounding": [
+        263,
+        1525,
+        458,
+        461
+      ],
+      "color": "#8A8",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "title": "SDXL",
+      "bounding": [
+        1099,
+        699,
+        450,
+        703
+      ],
+      "color": "#3f789e",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "title": "预览图",
+      "bounding": [
+        1549,
+        701,
+        649,
+        699
+      ],
+      "color": "#8A8",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "title": "模型",
+      "bounding": [
+        514,
+        698,
+        583,
+        704
+      ],
+      "color": "#a1309b",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "title": "提示词",
+      "bounding": [
+        59,
+        698,
+        452,
+        703
+      ],
+      "color": "#b58b2a",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "title": "中间预览图（深度图）",
+      "bounding": [
+        1204,
+        263,
+        390,
+        398
+      ],
+      "color": "#8A8",
+      "font_size": 24,
+      "flags": {}
+    }
+  ],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.5644739300537777,
+      "offset": [
+        453.6994085361092,
+        -484.9489796157411
+      ]
+    }
+  },
+  "version": 0.4
+}
