@@ -10,3 +10,4 @@ api_key.ini
 *.egg-info
 dist/
 js/
+bizyair_frontend/
