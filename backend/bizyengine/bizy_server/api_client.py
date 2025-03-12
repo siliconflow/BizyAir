@@ -6,7 +6,8 @@ import bizyengine.core as core
 from bizyengine.core.common import get_api_key
 from bizyengine.core.common.env_var import (
     BIZYAIR_PRODUCTION_TEST,
-    BIZYAIR_SERVER_ADDRESS,
+    BIZYAIR_X_SERVER,
+    BIZYAIR_Y_SERVER
 )
 
 from .errno import ErrorNo, errnos
@@ -103,7 +104,7 @@ class APIClient:
         if err is not None:
             return None, err
 
-        server_url = f"{BIZYAIR_SERVER_ADDRESS}/user/info"
+        server_url = f"{BIZYAIR_X_SERVER}/user/info"
         try:
             ret, err = await self.do_get(server_url, headers=headers)
             if err is not None:
@@ -117,7 +118,7 @@ class APIClient:
     async def sign(
         self, signature: str, type: str
     ) -> tuple[dict | None, ErrorNo | None]:
-        server_url = f"{BIZYAIR_SERVER_ADDRESS}/files/{signature}"
+        server_url = f"{BIZYAIR_X_SERVER}/files/{signature}"
         params = None
         if is_string_valid(type):
             params = {"type": type}
@@ -140,7 +141,7 @@ class APIClient:
     async def commit_file(
         self, signature: str, object_key: str, md5_hash: str, type: str
     ) -> tuple[dict | None, ErrorNo | None]:
-        server_url = f"{BIZYAIR_SERVER_ADDRESS}/files"
+        server_url = f"{BIZYAIR_X_SERVER}/files"
 
         payload = {
             "sign": signature,
@@ -163,7 +164,7 @@ class APIClient:
             return None, errnos.COMMIT_FILE
 
     async def commit_bizy_model(self, payload) -> tuple[dict | None, ErrorNo | None]:
-        server_url = f"{BIZYAIR_SERVER_ADDRESS}/bizy_models"
+        server_url = f"{BIZYAIR_X_SERVER}/bizy_models"
 
         headers, err = self.auth_header()
         if err is not None:
@@ -182,7 +183,7 @@ class APIClient:
     async def delete_bizy_model(
         self, model_id: int
     ) -> tuple[dict | None, ErrorNo | None]:
-        server_url = f"{BIZYAIR_SERVER_ADDRESS}/bizy_models/{model_id}"
+        server_url = f"{BIZYAIR_X_SERVER}/bizy_models/{model_id}"
 
         headers, err = self.auth_header()
         if err is not None:
@@ -207,7 +208,7 @@ class APIClient:
         base_models: list[str] = None,
         sort: str = None,
     ) -> tuple[dict | None, ErrorNo | None]:
-        server_url = f"{BIZYAIR_SERVER_ADDRESS}/bizy_models/community"
+        server_url = f"{BIZYAIR_X_SERVER}/bizy_models/community"
         params = {"current": current, "page_size": page_size}
         if keyword:
             params["keyword"] = keyword
@@ -241,7 +242,7 @@ class APIClient:
         base_models: list[str] = None,
         sort: str = None,
     ) -> tuple[dict | None, ErrorNo | None]:
-        server_url = f"{BIZYAIR_SERVER_ADDRESS}/bizy_models/official"
+        server_url = f"{BIZYAIR_X_SERVER}/bizy_models/official"
         params = {"current": current, "page_size": page_size}
         if keyword:
             params["keyword"] = keyword
@@ -276,7 +277,7 @@ class APIClient:
         base_models: list[str] = None,
         sort: str = None,
     ) -> tuple[dict | None, ErrorNo | None]:
-        server_url = f"{BIZYAIR_SERVER_ADDRESS}/bizy_models/{mode}"
+        server_url = f"{BIZYAIR_X_SERVER}/bizy_models/{mode}"
         params = {"current": current, "page_size": page_size}
         if keyword:
             params["keyword"] = keyword
@@ -305,7 +306,7 @@ class APIClient:
         self, model_id: int, source: str
     ) -> tuple[dict | None, ErrorNo | None]:
         server_url = (
-            f"{BIZYAIR_SERVER_ADDRESS}/bizy_models/{model_id}/detail?source={source}"
+            f"{BIZYAIR_X_SERVER}/bizy_models/{model_id}/detail?source={source}"
         )
 
         headers, err = self.auth_header()
@@ -325,7 +326,7 @@ class APIClient:
     async def get_model_version_detail(
         self, version_id: int
     ) -> tuple[dict | None, ErrorNo | None]:
-        server_url = f"{BIZYAIR_SERVER_ADDRESS}/bizy_models/versions/{version_id}"
+        server_url = f"{BIZYAIR_X_SERVER}/bizy_models/versions/{version_id}"
 
         headers, err = self.auth_header()
         if err is not None:
@@ -344,7 +345,7 @@ class APIClient:
             return None, errnos.GET_MODEL_VERSION_DETAIL
 
     async def fork_model_version(self, version_id: int) -> tuple[None, ErrorNo | None]:
-        server_url = f"{BIZYAIR_SERVER_ADDRESS}/bizy_models/versions/{version_id}/fork"
+        server_url = f"{BIZYAIR_X_SERVER}/bizy_models/versions/{version_id}/fork"
 
         headers, err = self.auth_header()
         if err is not None:
@@ -363,7 +364,7 @@ class APIClient:
     async def unfork_model_version(
         self, version_id: int
     ) -> tuple[None, ErrorNo | None]:
-        server_url = f"{BIZYAIR_SERVER_ADDRESS}/bizy_models/versions/{version_id}/fork"
+        server_url = f"{BIZYAIR_X_SERVER}/bizy_models/versions/{version_id}/fork"
 
         headers, err = self.auth_header()
         if err is not None:
@@ -382,7 +383,7 @@ class APIClient:
     async def update_model(
         self, model_id: int, name: str, type_: str, versions: list[dict]
     ) -> tuple[dict | None, ErrorNo | None]:
-        server_url = f"{BIZYAIR_SERVER_ADDRESS}/bizy_models/{model_id}"
+        server_url = f"{BIZYAIR_X_SERVER}/bizy_models/{model_id}"
 
         headers, err = self.auth_header()
         if err is not None:
@@ -403,7 +404,7 @@ class APIClient:
     async def get_upload_token(
         self, filename: str
     ) -> tuple[dict | None, ErrorNo | None]:
-        server_url = f"{BIZYAIR_SERVER_ADDRESS}/upload/token?file_name={filename}"
+        server_url = f"{BIZYAIR_X_SERVER}/upload/token?file_name={filename}"
 
         headers, err = self.auth_header()
         if err is not None:
@@ -424,7 +425,7 @@ class APIClient:
     ) -> tuple[dict | None, ErrorNo | None]:
         if like_type == "model_version":
             server_url = (
-                f"{BIZYAIR_SERVER_ADDRESS}/bizy_models/versions/{object_id}/like"
+                f"{BIZYAIR_X_SERVER}/bizy_models/versions/{object_id}/like"
             )
         else:
             return None, errnos.UNSUPPORT_LIKE_TYPE
@@ -446,7 +447,7 @@ class APIClient:
     async def get_download_url(
         self, sign: str, model_version_id: int
     ) -> tuple[str | None, ErrorNo | None]:
-        server_url = f"{BIZYAIR_SERVER_ADDRESS}/files/temp-download/{sign}?version_id={model_version_id}"
+        server_url = f"{BIZYAIR_X_SERVER}/files/temp-download/{sign}?version_id={model_version_id}"
 
         headers, err = self.auth_header()
         if err is not None:
@@ -463,7 +464,7 @@ class APIClient:
             return None, errnos.GET_DOWNLOAD_URL
 
     async def get_share_model_files(self, shareId, payload) -> (dict, ErrorNo):
-        server_url = f"{BIZYAIR_SERVER_ADDRESS}/{shareId}/models/files"
+        server_url = f"{BIZYAIR_X_SERVER}/{shareId}/models/files"
         try:
 
             def callback(ret: dict):
@@ -492,7 +493,7 @@ class APIClient:
             return [], errnos.LIST_SHARE_MODEL_FILE_ERR
 
     async def commit_dataset(self, payload) -> tuple[dict | None, ErrorNo | None]:
-        server_url = f"{BIZYAIR_SERVER_ADDRESS}/datasets"
+        server_url = f"{BIZYAIR_X_SERVER}/datasets"
 
         headers, err = self.auth_header()
         if err is not None:
@@ -511,7 +512,7 @@ class APIClient:
     async def update_dataset(
         self, dataset_id: int, name: str, versions: list[dict]
     ) -> tuple[dict | None, ErrorNo | None]:
-        server_url = f"{BIZYAIR_SERVER_ADDRESS}/datasets/{dataset_id}"
+        server_url = f"{BIZYAIR_X_SERVER}/datasets/{dataset_id}"
 
         headers, err = self.auth_header()
         if err is not None:
@@ -532,7 +533,7 @@ class APIClient:
     async def get_dataset_version_detail(
         self, version_id: int
     ) -> tuple[dict | None, ErrorNo | None]:
-        server_url = f"{BIZYAIR_SERVER_ADDRESS}/datasets/versions/{version_id}"
+        server_url = f"{BIZYAIR_X_SERVER}/datasets/versions/{version_id}"
 
         headers, err = self.auth_header()
         if err is not None:
@@ -553,7 +554,7 @@ class APIClient:
     async def delete_dataset(
         self, dataset_id: int
     ) -> tuple[dict | None, ErrorNo | None]:
-        server_url = f"{BIZYAIR_SERVER_ADDRESS}/datasets/{dataset_id}"
+        server_url = f"{BIZYAIR_X_SERVER}/datasets/{dataset_id}"
 
         headers, err = self.auth_header()
         if err is not None:
@@ -576,7 +577,7 @@ class APIClient:
         keyword: str = None,
         annotated: str = None,
     ) -> tuple[dict | None, ErrorNo | None]:
-        server_url = f"{BIZYAIR_SERVER_ADDRESS}/datasets"
+        server_url = f"{BIZYAIR_X_SERVER}/datasets"
         params = {"current": current, "page_size": page_size}
         if keyword:
             params["keyword"] = keyword
@@ -600,7 +601,7 @@ class APIClient:
     async def get_dataset_detail(
         self, dataset_id: int
     ) -> tuple[dict | None, ErrorNo | None]:
-        server_url = f"{BIZYAIR_SERVER_ADDRESS}/datasets/{dataset_id}/detail"
+        server_url = f"{BIZYAIR_X_SERVER}/datasets/{dataset_id}/detail"
 
         headers, err = self.auth_header()
         if err is not None:
@@ -617,7 +618,7 @@ class APIClient:
             return None, errnos.GET_DATASET_DETAIL
 
     async def create_share(self, payload) -> tuple[dict | None, ErrorNo | None]:
-        server_url = f"{BIZYAIR_SERVER_ADDRESS}/share"
+        server_url = f"{BIZYAIR_X_SERVER}/share"
 
         headers, err = self.auth_header()
         if err is not None:
@@ -633,7 +634,7 @@ class APIClient:
             return None, errnos.CREATE_SHARE
 
     async def get_share_detail(self, code: str) -> tuple[dict | None, ErrorNo | None]:
-        server_url = f"{BIZYAIR_SERVER_ADDRESS}/share/{code}"
+        server_url = f"{BIZYAIR_X_SERVER}/share/{code}"
 
         headers, err = self.auth_header()
         if err is not None:
@@ -650,7 +651,7 @@ class APIClient:
             return None, errnos.GET_SHARE_DETAIL
 
     async def get_data_dict(self) -> tuple[dict | None, ErrorNo | None]:
-        server_url = f"{BIZYAIR_SERVER_ADDRESS}/dict"
+        server_url = f"{BIZYAIR_X_SERVER}/dict"
         headers, err = self.auth_header()
         if err is not None:
             return None, err
@@ -666,7 +667,7 @@ class APIClient:
             return None, errnos.GET_DATA_DICT
 
     async def get_notification_unread_count(self) -> tuple[dict | None, ErrorNo | None]:
-        server_url = f"{BIZYAIR_SERVER_ADDRESS}/notifications/unread_count"
+        server_url = f"{BIZYAIR_X_SERVER}/notifications/unread_count"
         headers, err = self.auth_header()
         if err is not None:
             return None, err
@@ -691,7 +692,7 @@ class APIClient:
         types: list | None,
         read_status: bool | None,
     ) -> tuple[dict | None, ErrorNo | None]:
-        server_url = f"{BIZYAIR_SERVER_ADDRESS}/notifications"
+        server_url = f"{BIZYAIR_X_SERVER}/notifications"
         headers, err = self.auth_header()
         if err is not None:
             return None, err
@@ -719,7 +720,7 @@ class APIClient:
     async def read_notifications(
         self, notif_ids: list[int]
     ) -> tuple[dict | None, ErrorNo | None]:
-        server_url = f"{BIZYAIR_SERVER_ADDRESS}/notifications/read"
+        server_url = f"{BIZYAIR_X_SERVER}/notifications/read"
         headers, err = self.auth_header()
         if err is not None:
             return None, err
@@ -744,7 +745,7 @@ class APIClient:
     async def read_all_notifications(
         self, type: int
     ) -> tuple[dict | None, ErrorNo | None]:
-        server_url = f"{BIZYAIR_SERVER_ADDRESS}/notifications/read_all"
+        server_url = f"{BIZYAIR_X_SERVER}/notifications/read_all"
         headers, err = self.auth_header()
         if err is not None:
             return None, err
@@ -767,7 +768,7 @@ class APIClient:
 
 
     async def get_wallet(self) -> tuple[dict | None, ErrorNo | None]:
-        server_url = f"{BIZYAIR_SERVER_ADDRESS}/wallet"
+        server_url = f"{BIZYAIR_Y_SERVER}/wallet"
         headers, err = self.auth_header()
         if err is not None:
             return None, err
@@ -785,7 +786,7 @@ class APIClient:
     async def query_coins(
         self, current: int, page_size: int, coin_type: int = 0, expire_days: int = 0
     ) -> tuple[dict | None, ErrorNo | None]:
-        server_url = f"{BIZYAIR_SERVER_ADDRESS}/coins"
+        server_url = f"{BIZYAIR_Y_SERVER}/coins"
         headers, err = self.auth_header()
         if err is not None:
             return None, err
@@ -810,7 +811,7 @@ class APIClient:
             return None, errnos.QUERY_COINS
 
     async def get_user_metadata(self) -> tuple[dict | None, ErrorNo | None]:
-        server_url = f"{BIZYAIR_SERVER_ADDRESS}/user/metadata"
+        server_url = f"{BIZYAIR_X_SERVER}/user/metadata"
         headers, err = self.auth_header()
         if err is not None:
             return None, err
@@ -826,9 +827,9 @@ class APIClient:
             return None, errnos.GET_USER_METADATA
 
     async def update_user_info(
-        self, user_id: str, name: str = None, avatar: str = None, introduction: str = None
+        self, name: str = None, avatar: str = None, introduction: str = None
     ) -> tuple[dict | None, ErrorNo | None]:
-        server_url = f"{BIZYAIR_SERVER_ADDRESS}/user/metadata"
+        server_url = f"{BIZYAIR_X_SERVER}/user/metadata"
         headers, err = self.auth_header()
         if err is not None:
             return None, err
@@ -852,7 +853,7 @@ class APIClient:
             return None, errnos.UPDATE_USER_INFO
 
     async def user_real_name(self) -> tuple[dict | None, ErrorNo | None]:
-        server_url = f"{BIZYAIR_SERVER_ADDRESS}/user/real_name"
+        server_url = f"{BIZYAIR_X_SERVER}/user/real_name"
         headers, err = self.auth_header()
         if err is not None:
             return None, err

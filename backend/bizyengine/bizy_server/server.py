@@ -797,12 +797,11 @@ class BizyAirServer:
         async def update_user_info(request):
             # 更新用户信息
             json_data = await request.json()
-            user_id = json_data.get("user_id")
             name = json_data.get("name")
             avatar = json_data.get("avatar") 
             introduction = json_data.get("introduction")
 
-            resp, err = await self.api_client.update_user_info(user_id, name, avatar, introduction)
+            resp, err = await self.api_client.update_user_info(name, avatar, introduction)
             if err:
                 return ErrResponse(err)
             return OKResponse(resp)
