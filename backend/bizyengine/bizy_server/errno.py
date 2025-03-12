@@ -12,6 +12,7 @@ class ErrorNo:
 class errnos:
     OK = ErrorNo(200, 20000, None, "Success")
     NO_MODEL_FOUND = ErrorNo(404, 20226, None, "No model found")
+    INTERNAL_ERROR = ErrorNo(500, 50000, None, "Internal Error")
 
     INVALID_TYPE = ErrorNo(400, 400100, None, "Invalid model type")
     INVALID_NAME = ErrorNo(400, 400101, None, "Invalid model name")

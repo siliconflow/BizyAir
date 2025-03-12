@@ -1,5 +1,6 @@
 import asyncio
 import json
+import os
 import logging
 import threading
 import time
@@ -50,6 +51,25 @@ class BizyAirServer:
                 return ErrResponse(err)
 
             return OKResponse(info)
+        
+        @self.prompt_server.routes.post(f"/{USER_API}/logout")
+        async def user_logout(request):
+            # 读取环境变量BIZYAIR_COMFYUI_PATH
+            comfyui_path = os.getenv("BIZYAIR_COMFYUI_PATH")
+            if not comfyui_path:
+                return OKResponse({})
+
+            # 构建api_key.ini文件路径
+            api_key_path = os.path.join(comfyui_path, "api_key.ini")
+            
+            # 写入空的api_key内容
+            try:
+                with open(api_key_path, "w") as f:
+                    f.write("[auth]\napi_key =\n")
+                return OKResponse({})
+            except Exception as e:
+                logging.error(f"Failed to write api_key.ini: {str(e)}")
+                return ErrResponse(errnos.INTERNAL_ERROR)
 
         @self.prompt_server.routes.get(f"/{API_PREFIX}/ws")
         async def websocket_handler(request):
