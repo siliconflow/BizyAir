@@ -1,6 +1,8 @@
 # Common configuration
 model_version_config:
   model_version_id_prefix: "BIZYAIR_MODEL_VERSION_ID:"
+  detect_model_type:
+    url: "https://maas.platform.oneflow.cloud/supernode/detect_model_type/supernode/detect_model_type"
 
 cache_config:
   max_size: 100 # 100 items
@@ -127,6 +129,9 @@ model_rules:
         inputs:
           ckpt_name:
             - ^sdxl.*
+            - action: detect_model
+              detection_type: ckpt
+
 
   - mode_type: checkpoint
     base_model: SDXL

@@ -4,6 +4,7 @@ import './bizyair_frontend.js'
 import { hideWidget } from './subassembly/tools.js'
 
 const possibleWidgetNames=[
+    "ckpt_name",
     "lora_name",
     "control_net_name"
 ]
@@ -167,6 +168,32 @@ app.registerExtension({
     async nodeCreated(node) {
         if (node?.comfyClass === "BizyAir_ControlNetLoader") {
             setupNodeMouseBehavior(node, "Controlnet");
+        }
+    }
+})
+
+
+
+app.registerExtension({
+    name: "bizyair.siliconcloud.share.checkpoint.loader.new",
+    async beforeRegisterNodeDef(nodeType, nodeData, app) {
+        if (nodeData.name === "BizyAir_CheckpointLoaderSimple") {
+            const onNodeCreated = nodeType.prototype.onNodeCreated;
+            nodeType.prototype.onNodeCreated = function() {
+                try {
+                    const result = onNodeCreated?.apply(this, arguments);
+                    createSetWidgetCallback("Checkpoint").call(this);
+                    return result;
+                } catch (error) {
+                    console.error("Error in node creation:", error);
+                }
+            };
+        }
+    },
+
+    async nodeCreated(node) {
+        if (node?.comfyClass === "BizyAir_CheckpointLoaderSimple") {
+            setupNodeMouseBehavior(node, "Checkpoint");
         }
     }
 })
