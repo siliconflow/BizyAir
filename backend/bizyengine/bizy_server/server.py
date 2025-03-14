@@ -6,7 +6,8 @@ import threading
 import time
 import urllib.parse
 import uuid
-
+import configparser
+import shutil
 import aiohttp
 from server import PromptServer
 
@@ -52,24 +53,7 @@ class BizyAirServer:
 
             return OKResponse(info)
         
-        @self.prompt_server.routes.post(f"/{USER_API}/logout")
-        async def user_logout(request):
-            # 读取环境变量BIZYAIR_COMFYUI_PATH
-            comfyui_path = os.getenv("BIZYAIR_COMFYUI_PATH")
-            if not comfyui_path:
-                return OKResponse({})
-
-            # 构建api_key.ini文件路径
-            api_key_path = os.path.join(comfyui_path, "api_key.ini")
-            
-            # 写入空的api_key内容
-            try:
-                with open(api_key_path, "w") as f:
-                    f.write("[auth]\napi_key =\n")
-                return OKResponse({})
-            except Exception as e:
-                logging.error(f"Failed to write api_key.ini: {str(e)}")
-                return ErrResponse(errnos.INTERNAL_ERROR)
+        
 
         @self.prompt_server.routes.get(f"/{API_PREFIX}/ws")
         async def websocket_handler(request):
@@ -834,7 +818,68 @@ class BizyAirServer:
                 return ErrResponse(err)
             return OKResponse(resp)
         
+        @self.prompt_server.routes.get(f"/{USER_API}/profile")
+        async def get_user_profile(request):
+            # 获取用户本地配置
+            profile_path = os.path.join(os.getenv("BIZYAIR_COMFYUI_PATH"), "profile.ini")
+            example_path = os.path.join(os.path.dirname(profile_path), "profile.ini.example")
 
+            # 如果配置文件不存在且示例文件存在，则复制示例文件
+            if not os.path.exists(profile_path) and os.path.exists(example_path):
+                try:
+                    shutil.copy2(example_path, profile_path)
+                except Exception as e:
+                    print(f"\033[31m[BizyAir]\033[0m Fail to copy example profile: {str(e)}")
+                    return ErrResponse(errnos.COPY_PROFILE_FAILED)
+
+            # 如果配置文件仍不存在，则创建默认配置
+            if not os.path.exists(profile_path):
+                try:
+                    config = configparser.ConfigParser()
+                    config.add_section("global")
+                    config.set("global", "lang", "zh")
+                    with open(profile_path, "w") as f:
+                        config.write(f)
+                except Exception as e:
+                    print(f"\033[31m[BizyAir]\033[0m Fail to create default profile: {str(e)}")
+                    return ErrResponse(errnos.CREATE_PROFILE_FAILED)
+
+            try:
+                config = configparser.ConfigParser()
+                config.read(profile_path)
+                profile = {}
+                for section in config.sections():
+                    profile[section] = {}
+                    for key, value in config.items(section):
+                        profile[section][key] = value
+                return OKResponse(profile)
+            except Exception as e:
+                print(f"\033[31m[BizyAir]\033[0m Fail to read profile: {str(e)}")
+                return ErrResponse(errnos.READ_PROFILE_FAILED)
+
+        @self.prompt_server.routes.put(f"/{USER_API}/profile")
+        async def update_user_profile(request):
+            # 更新用户本地配置
+            json_data = await request.json()
+            profile_path = os.path.join(os.getenv("BIZYAIR_COMFYUI_PATH"), "profile.ini")
+
+            try:
+                config = configparser.ConfigParser()
+                if os.path.exists(profile_path):
+                    config.read(profile_path)
+                    
+                for section, values in json_data.items():
+                    if not config.has_section(section):
+                        config.add_section(section)
+                    for key, value in values.items():
+                        config.set(section, key, str(value))
+
+                with open(profile_path, "w") as f:
+                    config.write(f)
+                return OKResponse(None)
+            except Exception as e:
+                print(f"\033[31m[BizyAir]\033[0m Fail to write profile: {str(e)}")
+                return ErrResponse(errnos.WRITE_PROFILE_FAILED)
 
     async def send_json(self, event, data, sid=None):
         message = {"type": event, "data": data}
