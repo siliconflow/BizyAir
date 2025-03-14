@@ -1,8 +1,9 @@
-
+import configparser
 import os
 import shutil
-import configparser
+
 from .errno import errnos
+
 
 class UserProfile:
     def __init__(self):
@@ -14,21 +15,25 @@ class UserProfile:
 
     def getLang(self):
         return self.lang
-    
+
     def getAll(self):
         return self.profile_cache
 
     def load_profile(self):
         """加载用户配置文件到缓存"""
         profile_path = os.path.join(os.getenv("BIZYAIR_COMFYUI_PATH"), "profile.ini")
-        example_path = os.path.join(os.path.dirname(profile_path), "profile.ini.example")
+        example_path = os.path.join(
+            os.path.dirname(profile_path), "profile.ini.example"
+        )
 
         # 如果配置文件不存在且示例文件存在，则复制示例文件
         if not os.path.exists(profile_path) and os.path.exists(example_path):
             try:
                 shutil.copy2(example_path, profile_path)
             except Exception as e:
-                print(f"\033[31m[BizyAir]\033[0m Fail to copy example profile: {str(e)}")
+                print(
+                    f"\033[31m[BizyAir]\033[0m Fail to copy example profile: {str(e)}"
+                )
                 return
 
         # 如果配置文件仍不存在，则创建默认配置
@@ -40,7 +45,9 @@ class UserProfile:
                 with open(profile_path, "w") as f:
                     config.write(f)
             except Exception as e:
-                print(f"\033[31m[BizyAir]\033[0m Fail to create default profile: {str(e)}")
+                print(
+                    f"\033[31m[BizyAir]\033[0m Fail to create default profile: {str(e)}"
+                )
                 return
 
         try:
@@ -63,7 +70,7 @@ class UserProfile:
             config = configparser.ConfigParser()
             if os.path.exists(profile_path):
                 config.read(profile_path)
-                
+
             for section, values in json_data.items():
                 if not config.has_section(section):
                     config.add_section(section)
@@ -72,12 +79,12 @@ class UserProfile:
 
             with open(profile_path, "w") as f:
                 config.write(f)
-            
+
             # 重新加载配置
             self.load_profile()
         except Exception as e:
             print(f"\033[31m[BizyAir]\033[0m Fail to write profile: {str(e)}")
             return errnos.WRITE_PROFILE_FAILED
 
-        
+
 user_profile = UserProfile()

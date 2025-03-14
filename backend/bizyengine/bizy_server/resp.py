@@ -1,7 +1,6 @@
 from aiohttp import web
 
 from .errno import ErrorNo, errnos
-
 from .profile import user_profile
 
 
@@ -15,9 +14,7 @@ def JsonResponse(http_status_code, data):
 
 def OKResponse(data):
     message = "成功" if user_profile.getLang() == "zh" else "success"
-    return JsonResponse(
-        200, {"message": message, "code": errnos.OK.code, "data": data}
-    )
+    return JsonResponse(200, {"message": message, "code": errnos.OK.code, "data": data})
 
 
 def ErrResponse(err: ErrorNo):
