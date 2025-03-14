@@ -1,21 +1,22 @@
 import asyncio
+import configparser
 import logging
 import os
+import shutil
 import threading
 import time
 import urllib.parse
 import uuid
-import configparser
-import shutil
+
 import aiohttp
 from server import PromptServer
 
 from .api_client import APIClient
 from .errno import ErrorNo, errnos
 from .error_handler import ErrorHandler
+from .profile import user_profile
 from .resp import ErrResponse, OKResponse
 from .utils import base_model_types, check_str_param, check_type, is_string_valid, types
-from .profile import user_profile
 
 API_PREFIX = "bizyair"
 COMMUNITY_API = f"{API_PREFIX}/community"
@@ -23,6 +24,7 @@ MODEL_HOST_API = f"{API_PREFIX}/modelhost"
 USER_API = f"{API_PREFIX}/user"
 
 logging.basicConfig(level=logging.DEBUG)
+
 
 class BizyAirServer:
     def __init__(self):
@@ -32,7 +34,7 @@ class BizyAirServer:
         self.prompt_server = PromptServer.instance
         self.sockets = dict()
         self.loop = asyncio.get_event_loop()
-        
+
         self.setup_routes()
 
     def setup_routes(self):
@@ -818,7 +820,7 @@ class BizyAirServer:
             if err:
                 return ErrResponse(err)
             return OKResponse(resp)
-        
+
         @self.prompt_server.routes.get(f"/{USER_API}/language")
         async def get_user_profile(request):
             return OKResponse(user_profile.getLang())
@@ -836,7 +838,6 @@ class BizyAirServer:
             if err is not None:
                 return ErrResponse(err)
             return OKResponse({})
-            
 
         @self.prompt_server.routes.get(f"/{USER_API}/products")
         async def list_products(request):
