@@ -1,7 +1,7 @@
 import asyncio
 import json
-import os
 import logging
+import os
 import threading
 import time
 import urllib.parse
@@ -51,7 +51,7 @@ class BizyAirServer:
                 return ErrResponse(err)
 
             return OKResponse(info)
-        
+
         @self.prompt_server.routes.post(f"/{USER_API}/logout")
         async def user_logout(request):
             # 读取环境变量BIZYAIR_COMFYUI_PATH
@@ -61,7 +61,7 @@ class BizyAirServer:
 
             # 构建api_key.ini文件路径
             api_key_path = os.path.join(comfyui_path, "api_key.ini")
-            
+
             # 写入空的api_key内容
             try:
                 with open(api_key_path, "w") as f:
@@ -783,7 +783,7 @@ class BizyAirServer:
             if err:
                 return ErrResponse(err)
             return OKResponse(resp)
-        
+
         @self.prompt_server.routes.get(f"/{USER_API}/wallet")
         async def get_wallet(request):
             # 获取用户钱包信息
@@ -800,7 +800,9 @@ class BizyAirServer:
             coin_type = int(request.rel_url.query.get("coin_type", "0"))
             expire_days = int(request.rel_url.query.get("expire_days", "0"))
 
-            resp, err = await self.api_client.query_coins(current, page_size, coin_type, expire_days)
+            resp, err = await self.api_client.query_coins(
+                current, page_size, coin_type, expire_days
+            )
             if err:
                 return ErrResponse(err)
             return OKResponse(resp)
@@ -818,10 +820,12 @@ class BizyAirServer:
             # 更新用户信息
             json_data = await request.json()
             name = json_data.get("name")
-            avatar = json_data.get("avatar") 
+            avatar = json_data.get("avatar")
             introduction = json_data.get("introduction")
 
-            resp, err = await self.api_client.update_user_info(name, avatar, introduction)
+            resp, err = await self.api_client.update_user_info(
+                name, avatar, introduction
+            )
             if err:
                 return ErrResponse(err)
             return OKResponse(resp)
@@ -833,26 +837,31 @@ class BizyAirServer:
             if err:
                 return ErrResponse(err)
             return OKResponse(resp)
-        
+
         @self.prompt_server.routes.get(f"/{USER_API}/products")
         async def list_products(request):
             # 获取产品列表
-            import pdb;pdb.set_trace()
+            import pdb
+
+            pdb.set_trace()
             resp, err = await self.api_client.list_products()
             if err:
                 return ErrResponse(err)
             return OKResponse(resp)
-        
+
         @self.prompt_server.routes.get(f"/{USER_API}/pay/page")
         async def list_pay_orders(request):
             # 获取订单列表
             current = int(request.rel_url.query.get("current", "1"))
             page_size = int(request.rel_url.query.get("page_size", "10"))
-            resp, err = await self.api_client.list_pay_orders(current, page_size)
+            status = request.rel_url.query.get("status", None)
+            resp, err = await self.api_client.list_pay_orders(
+                current, page_size, status
+            )
             if err:
                 return ErrResponse(err)
             return OKResponse(resp)
-        
+
         @self.prompt_server.routes.post(f"/{USER_API}/buy")
         async def buy_product(request):
             # 购买商品
@@ -866,7 +875,7 @@ class BizyAirServer:
             if err:
                 return ErrResponse(err)
             return OKResponse(resp)
-            
+
         @self.prompt_server.routes.get(f"/{USER_API}/pay/orders")
         async def list_pay_orders(request):
             # 获取支付订单状态
@@ -877,7 +886,7 @@ class BizyAirServer:
             if err:
                 return ErrResponse(err)
             return OKResponse(resp)
-        
+
         @self.prompt_server.routes.delete(f"/{USER_API}/pay/orders")
         async def cancel_pay_order(request):
             # 取消支付订单
@@ -888,7 +897,6 @@ class BizyAirServer:
             if err:
                 return ErrResponse(err)
             return OKResponse(resp)
-
 
     async def send_json(self, event, data, sid=None):
         message = {"type": event, "data": data}

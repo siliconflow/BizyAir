@@ -7,7 +7,7 @@ from bizyengine.core.common import get_api_key
 from bizyengine.core.common.env_var import (
     BIZYAIR_PRODUCTION_TEST,
     BIZYAIR_X_SERVER,
-    BIZYAIR_Y_SERVER
+    BIZYAIR_Y_SERVER,
 )
 
 from .errno import ErrorNo, errnos
@@ -305,9 +305,7 @@ class APIClient:
     async def get_model_detail(
         self, model_id: int, source: str
     ) -> tuple[dict | None, ErrorNo | None]:
-        server_url = (
-            f"{BIZYAIR_X_SERVER}/bizy_models/{model_id}/detail?source={source}"
-        )
+        server_url = f"{BIZYAIR_X_SERVER}/bizy_models/{model_id}/detail?source={source}"
 
         headers, err = self.auth_header()
         if err is not None:
@@ -424,9 +422,7 @@ class APIClient:
         self, like_type: str, object_id: str
     ) -> tuple[dict | None, ErrorNo | None]:
         if like_type == "model_version":
-            server_url = (
-                f"{BIZYAIR_X_SERVER}/bizy_models/versions/{object_id}/like"
-            )
+            server_url = f"{BIZYAIR_X_SERVER}/bizy_models/versions/{object_id}/like"
         else:
             return None, errnos.UNSUPPORT_LIKE_TYPE
 
@@ -766,7 +762,6 @@ class APIClient:
             )
             return None, errnos.READ_ALL_NOTIF
 
-
     async def get_wallet(self) -> tuple[dict | None, ErrorNo | None]:
         server_url = f"{BIZYAIR_Y_SERVER}/wallet"
         headers, err = self.auth_header()
@@ -791,10 +786,7 @@ class APIClient:
         if err is not None:
             return None, err
 
-        params = {
-            "current": current,
-            "page_size": page_size
-        }
+        params = {"current": current, "page_size": page_size}
         if coin_type > 0:
             params["coin_type"] = coin_type
         if expire_days > 0:
@@ -868,12 +860,14 @@ class APIClient:
             print(f"\033[31m[BizyAir]\033[0m Fail to verify real name: {str(e)}")
             return None, errnos.USER_REAL_NAME
 
-    async def buy_product(self, product_id: int, platform: str) -> tuple[dict | None, ErrorNo | None]:
+    async def buy_product(
+        self, product_id: int, platform: str
+    ) -> tuple[dict | None, ErrorNo | None]:
         server_url = f"{BIZYAIR_Y_SERVER}/pay/product/{product_id}"
         headers, err = self.auth_header()
         if err is not None:
             return None, err
-        
+
         payload = {}
         if platform is not None:
             payload["platform"] = platform
@@ -882,12 +876,12 @@ class APIClient:
             ret, err = await self.do_post(server_url, headers=headers, data=payload)
             if err is not None:
                 return None, err
-            
+
             return ret["data"], None
         except Exception as e:
             print(f"\033[31m[BizyAir]\033[0m Fail to buy product: {str(e)}")
             return None, errnos.BUY_PRODUCT
-        
+
     async def get_pay_status(self, orderNum: str) -> tuple[dict | None, ErrorNo | None]:
         server_url = f"{BIZYAIR_Y_SERVER}/pay/orders/{orderNum}"
         headers, err = self.auth_header()
@@ -903,8 +897,10 @@ class APIClient:
         except Exception as e:
             print(f"\033[31m[BizyAir]\033[0m Fail to get pay status: {str(e)}")
             return None, errnos.PAY_STATUS
-        
-    async def cancel_pay_order(self, orderNum: str) -> tuple[dict | None, ErrorNo | None]:
+
+    async def cancel_pay_order(
+        self, orderNum: str
+    ) -> tuple[dict | None, ErrorNo | None]:
         server_url = f"{BIZYAIR_Y_SERVER}/pay/orders/{orderNum}"
         headers, err = self.auth_header()
         if err is not None:
@@ -919,14 +915,18 @@ class APIClient:
         except Exception as e:
             print(f"\033[31m[BizyAir]\033[0m Fail to cancel payment: {str(e)}")
             return None, errnos.PAY_CANCEL
-        
-    async def list_pay_orders(self, current: int, page_size: int) -> tuple[dict | None, ErrorNo | None]:
+
+    async def list_pay_orders(
+        self, current: int, page_size: int, status: str | None
+    ) -> tuple[dict | None, ErrorNo | None]:
         server_url = f"{BIZYAIR_Y_SERVER}/pay/page"
         headers, err = self.auth_header()
         if err is not None:
             return None, err
-        
+
         params = {"current": current, "page_size": page_size}
+        if status is not None:
+            params["status"] = status
 
         try:
             ret, err = await self.do_get(server_url, headers=headers, params=params)
@@ -943,7 +943,7 @@ class APIClient:
         headers, err = self.auth_header()
         if err is not None:
             return None, err
-        
+
         try:
             ret, err = await self.do_get(server_url, headers=headers)
             if err is not None:
