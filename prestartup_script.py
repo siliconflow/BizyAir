@@ -13,6 +13,9 @@ from packaging.requirements import Requirement
 from packaging.version import Version
 from packaging.version import parse as parse_version
 
+current_path = Path(__file__).parent.resolve()
+os.environ["BIZYAIR_COMFYUI_PATH"] = str(current_path)
+
 
 class PackageLinkParser(HTMLParser):
     def __init__(self, package_name):
@@ -94,8 +97,7 @@ def sync_bizyui_files():
     bizyui_js_path: Path = importlib.resources.files(bizyui) / "js"
     print(f"\033[92m[BizyAir]\033[0m UI location: {str(bizyui_js_path)}")
 
-    current_path = Path(__file__).parent.resolve()
-    os.environ["BIZYAIR_COMFYUI_PATH"] = str(current_path)
+    global current_path
     target_js_dir = current_path / "js"
     source_js_dir = bizyui_js_path
 
@@ -239,5 +241,11 @@ def update_bizyengine_bizyui():
 
 
 install_dependencies()
-update_bizyengine_bizyui()
-sync_bizyui_files()
+SKIP_UPDATE = os.environ.get("BIZYAIR_SKIP_UPDATE", False)
+if not SKIP_UPDATE:
+    update_bizyengine_bizyui()
+    sync_bizyui_files()
+else:
+    print(
+        f"\033[92m[BizyAir]\033[0m BIZYAIR_SKIP_UPDATE set, skip updating automatically."
+    )

@@ -53,6 +53,8 @@ class errnos:
     INVALID_SHARE_TYPE = ErrorNo(400, 400140, None, {"en": "Invalid share type", "zh": "无效的分享类型"})
     INVALID_SHARE_CODE = ErrorNo(400, 400141, None, {"en": "Invalid share code", "zh": "无效的分享代码"})
     INVALID_NOTIF_ID = ErrorNo(400, 400142, None, {"en": "Invalid notification id", "zh": "无效的通知ID"})
+    INVALID_PRODUCT_ID = ErrorNo(400, 400143, None, {"en": "Invalid product id", "zh": "无效的产品ID"})
+    INVALID_ORDER_NO = ErrorNo(400, 400144, None, {"en": "Invalid order number", "zh": "无效的订单号"})
 
     INVALID_API_KEY = ErrorNo(401, 401000, None, {"en": "Invalid API key", "zh": "无效的API密钥"})
     INVALID_USER = ErrorNo(401, 401001, None, {"en": "Invalid user", "zh": "无效的用户"})
@@ -111,3 +113,8 @@ class errnos:
     CREATE_PROFILE_FAILED = ErrorNo(500, 500149, None, {"en": "Failed to create profile", "zh": "创建配置文件失败"})
     WRITE_PROFILE_FAILED = ErrorNo(500, 500150, None, {"en": "Failed to write profile", "zh": "写入配置文件失败"})
     READ_PROFILE_FAILED = ErrorNo(500, 500151, None, {"en": "Failed to read profile", "zh": "读取配置文件失败"})
+    BUY_PRODUCT = ErrorNo(500, 500148, None, {"en": "Failed to buy product", "zh": "购买商品失败"})
+    PAY_STATUS = ErrorNo(500, 500149, None, {"en": "Failed to check payment status", "zh": "检查支付状态失败"})
+    PAY_CANCEL = ErrorNo(500, 500150, None, {"en": "Failed to cancel payment", "zh": "取消支付失败"})
+    LIST_PRODUCTS = ErrorNo(500, 500151, None, {"en": "Failed to list products", "zh": "列出商品失败"})
+    LIST_PAY_ORDER = ErrorNo(500, 500152, None, {"en": "Failed to list pay orders", "zh": "列出支付订单失败"})
