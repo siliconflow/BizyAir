@@ -12,10 +12,11 @@ from bizyengine.core.common.env_var import (
 
 from .errno import ErrorNo, errnos
 from .error_handler import ErrorHandler
+from .profile import user_profile
 from .utils import is_string_valid
 
 with open(os.path.join(os.path.dirname(__file__), "..", "version.txt"), "r") as file:
-    CLIENT_VERSION = file.read()
+    CLIENT_VERSION = file.read().strip()
 
 
 class APIClient:
@@ -38,6 +39,9 @@ class APIClient:
             }
             if BIZYAIR_PRODUCTION_TEST != None:
                 headers["x-bizyair-production-test"] = BIZYAIR_PRODUCTION_TEST
+            if user_profile.getLang():
+                headers["lang"] = user_profile.getLang()
+
             return headers, None
         except ValueError as e:
             error_message = e.args[0] if e.args else "Invalid API key"
