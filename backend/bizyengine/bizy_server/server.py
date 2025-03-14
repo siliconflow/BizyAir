@@ -15,6 +15,7 @@ from .errno import ErrorNo, errnos
 from .error_handler import ErrorHandler
 from .resp import ErrResponse, OKResponse
 from .utils import base_model_types, check_str_param, check_type, is_string_valid, types
+from .profile import user_profile
 
 API_PREFIX = "bizyair"
 COMMUNITY_API = f"{API_PREFIX}/community"
@@ -22,7 +23,6 @@ MODEL_HOST_API = f"{API_PREFIX}/modelhost"
 USER_API = f"{API_PREFIX}/user"
 
 logging.basicConfig(level=logging.DEBUG)
-
 
 class BizyAirServer:
     def __init__(self):
@@ -32,7 +32,7 @@ class BizyAirServer:
         self.prompt_server = PromptServer.instance
         self.sockets = dict()
         self.loop = asyncio.get_event_loop()
-
+        
         self.setup_routes()
 
     def setup_routes(self):
@@ -819,68 +819,24 @@ class BizyAirServer:
                 return ErrResponse(err)
             return OKResponse(resp)
         
+        @self.prompt_server.routes.get(f"/{USER_API}/language")
+        async def get_user_profile(request):
+            return OKResponse(user_profile.getLang())
+
         @self.prompt_server.routes.get(f"/{USER_API}/profile")
         async def get_user_profile(request):
-            # 获取用户本地配置
-            profile_path = os.path.join(os.getenv("BIZYAIR_COMFYUI_PATH"), "profile.ini")
-            example_path = os.path.join(os.path.dirname(profile_path), "profile.ini.example")
-
-            # 如果配置文件不存在且示例文件存在，则复制示例文件
-            if not os.path.exists(profile_path) and os.path.exists(example_path):
-                try:
-                    shutil.copy2(example_path, profile_path)
-                except Exception as e:
-                    print(f"\033[31m[BizyAir]\033[0m Fail to copy example profile: {str(e)}")
-                    return ErrResponse(errnos.COPY_PROFILE_FAILED)
-
-            # 如果配置文件仍不存在，则创建默认配置
-            if not os.path.exists(profile_path):
-                try:
-                    config = configparser.ConfigParser()
-                    config.add_section("global")
-                    config.set("global", "lang", "zh")
-                    with open(profile_path, "w") as f:
-                        config.write(f)
-                except Exception as e:
-                    print(f"\033[31m[BizyAir]\033[0m Fail to create default profile: {str(e)}")
-                    return ErrResponse(errnos.CREATE_PROFILE_FAILED)
-
-            try:
-                config = configparser.ConfigParser()
-                config.read(profile_path)
-                profile = {}
-                for section in config.sections():
-                    profile[section] = {}
-                    for key, value in config.items(section):
-                        profile[section][key] = value
-                return OKResponse(profile)
-            except Exception as e:
-                print(f"\033[31m[BizyAir]\033[0m Fail to read profile: {str(e)}")
-                return ErrResponse(errnos.READ_PROFILE_FAILED)
+            return OKResponse(user_profile.getAll())
 
         @self.prompt_server.routes.put(f"/{USER_API}/profile")
         async def update_user_profile(request):
             # 更新用户本地配置
             json_data = await request.json()
-            profile_path = os.path.join(os.getenv("BIZYAIR_COMFYUI_PATH"), "profile.ini")
 
-            try:
-                config = configparser.ConfigParser()
-                if os.path.exists(profile_path):
-                    config.read(profile_path)
-                    
-                for section, values in json_data.items():
-                    if not config.has_section(section):
-                        config.add_section(section)
-                    for key, value in values.items():
-                        config.set(section, key, str(value))
-
-                with open(profile_path, "w") as f:
-                    config.write(f)
-                return OKResponse(None)
-            except Exception as e:
-                print(f"\033[31m[BizyAir]\033[0m Fail to write profile: {str(e)}")
-                return ErrResponse(errnos.WRITE_PROFILE_FAILED)
+            err = user_profile.update_profile(json_data)
+            if err is not None:
+                return ErrResponse(err)
+            return OKResponse()
+            
 
         @self.prompt_server.routes.get(f"/{USER_API}/products")
         async def list_products(request):

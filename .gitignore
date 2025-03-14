@@ -6,6 +6,7 @@ __pycache__/
 venv/
 *.log
 api_key.ini
+profile.ini
 .DS_Store
 *.egg-info
 dist/
