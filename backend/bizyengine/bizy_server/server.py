@@ -835,7 +835,7 @@ class BizyAirServer:
             err = user_profile.update_profile(json_data)
             if err is not None:
                 return ErrResponse(err)
-            return OKResponse()
+            return OKResponse({})
             
 
         @self.prompt_server.routes.get(f"/{USER_API}/products")
