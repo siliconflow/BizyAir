@@ -56,6 +56,8 @@ class errnos:
     INVALID_SHARE_TYPE = ErrorNo(400, 400140, None, "Invalid share type")
     INVALID_SHARE_CODE = ErrorNo(400, 400141, None, "Invalid share code")
     INVALID_NOTIF_ID = ErrorNo(400, 400142, None, "Invalid notification id")
+    INVALID_PRODUCT_ID = ErrorNo(400, 400143, None, "Invalid product id")
+    INVALID_ORDER_NO = ErrorNo(400, 400144, None, "Invalid order number")
 
     INVALID_API_KEY = ErrorNo(401, 401000, None, "Invalid API key")
     INVALID_USER = ErrorNo(401, 401001, None, "Invalid user")
@@ -126,3 +128,8 @@ class errnos:
     GET_USER_METADATA = ErrorNo(500, 500145, None, "Failed to get user metadata")
     UPDATE_USER_INFO = ErrorNo(500, 500146, None, "Failed to update user info") 
     USER_REAL_NAME = ErrorNo(500, 500147, None, "Failed to verify real name")
+    BUY_PRODUCT = ErrorNo(500, 500148, None, "Failed to buy product")
+    PAY_STATUS = ErrorNo(500, 500149, None, "Failed to check payment status")
+    PAY_CANCEL = ErrorNo(500, 500150, None, "Failed to cancel payment")
+    LIST_PRODUCTS = ErrorNo(500, 500151, None, "Failed to list products")
+    LIST_PAY_ORDER =  ErrorNo(500, 500152, None, "Failed to list pay orders")

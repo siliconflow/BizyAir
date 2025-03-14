@@ -867,3 +867,89 @@ class APIClient:
         except Exception as e:
             print(f"\033[31m[BizyAir]\033[0m Fail to verify real name: {str(e)}")
             return None, errnos.USER_REAL_NAME
+
+    async def buy_product(self, product_id: int, platform: str) -> tuple[dict | None, ErrorNo | None]:
+        server_url = f"{BIZYAIR_Y_SERVER}/pay/product/{product_id}"
+        headers, err = self.auth_header()
+        if err is not None:
+            return None, err
+        
+        payload = {}
+        if platform is not None:
+            payload["platform"] = platform
+
+        try:
+            ret, err = await self.do_post(server_url, headers=headers, data=payload)
+            if err is not None:
+                return None, err
+            
+            return ret["data"], None
+        except Exception as e:
+            print(f"\033[31m[BizyAir]\033[0m Fail to buy product: {str(e)}")
+            return None, errnos.BUY_PRODUCT
+        
+    async def get_pay_status(self, orderNum: str) -> tuple[dict | None, ErrorNo | None]:
+        server_url = f"{BIZYAIR_Y_SERVER}/pay/orders/{orderNum}"
+        headers, err = self.auth_header()
+        if err is not None:
+            return None, err
+
+        try:
+            ret, err = await self.do_get(server_url, headers=headers)
+            if err is not None:
+                return None, err
+
+            return ret["data"], None
+        except Exception as e:
+            print(f"\033[31m[BizyAir]\033[0m Fail to get pay status: {str(e)}")
+            return None, errnos.PAY_STATUS
+        
+    async def cancel_pay_order(self, orderNum: str) -> tuple[dict | None, ErrorNo | None]:
+        server_url = f"{BIZYAIR_Y_SERVER}/pay/orders/{orderNum}"
+        headers, err = self.auth_header()
+        if err is not None:
+            return None, err
+
+        try:
+            ret, err = await self.do_delete(server_url, headers=headers)
+            if err is not None:
+                return None, err
+
+            return ret["data"], None
+        except Exception as e:
+            print(f"\033[31m[BizyAir]\033[0m Fail to cancel payment: {str(e)}")
+            return None, errnos.PAY_CANCEL
+        
+    async def list_pay_orders(self, current: int, page_size: int) -> tuple[dict | None, ErrorNo | None]:
+        server_url = f"{BIZYAIR_Y_SERVER}/pay/page"
+        headers, err = self.auth_header()
+        if err is not None:
+            return None, err
+        
+        params = {"current": current, "page_size": page_size}
+
+        try:
+            ret, err = await self.do_get(server_url, headers=headers, params=params)
+            if err is not None:
+                return None, err
+
+            return ret["data"], None
+        except Exception as e:
+            print(f"\033[31m[BizyAir]\033[0m Fail to list pay orders: {str(e)}")
+            return None, errnos.LIST_PAY_ORDER
+
+    async def list_products(self) -> tuple[dict | None, ErrorNo | None]:
+        server_url = f"{BIZYAIR_Y_SERVER}/products"
+        headers, err = self.auth_header()
+        if err is not None:
+            return None, err
+        
+        try:
+            ret, err = await self.do_get(server_url, headers=headers)
+            if err is not None:
+                return None, err
+
+            return ret["data"], None
+        except Exception as e:
+            print(f"\033[31m[BizyAir]\033[0m Fail to list products: {str(e)}")
+            return None, errnos.LIST_PRODUCTS

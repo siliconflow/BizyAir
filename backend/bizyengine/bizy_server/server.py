@@ -834,6 +834,60 @@ class BizyAirServer:
                 return ErrResponse(err)
             return OKResponse(resp)
         
+        @self.prompt_server.routes.get(f"/{USER_API}/products")
+        async def list_products(request):
+            # 获取产品列表
+            import pdb;pdb.set_trace()
+            resp, err = await self.api_client.list_products()
+            if err:
+                return ErrResponse(err)
+            return OKResponse(resp)
+        
+        @self.prompt_server.routes.get(f"/{USER_API}/pay/page")
+        async def list_pay_orders(request):
+            # 获取订单列表
+            current = int(request.rel_url.query.get("current", "1"))
+            page_size = int(request.rel_url.query.get("page_size", "10"))
+            resp, err = await self.api_client.list_pay_orders(current, page_size)
+            if err:
+                return ErrResponse(err)
+            return OKResponse(resp)
+        
+        @self.prompt_server.routes.post(f"/{USER_API}/buy")
+        async def buy_product(request):
+            # 购买商品
+            json_data = await request.json()
+
+            if "product_id" not in json_data:
+                return ErrResponse(errnos.INVALID_PRODUCT_ID)
+            product_id = json_data.get("product_id")
+
+            resp, err = await self.api_client.buy_product(product_id)
+            if err:
+                return ErrResponse(err)
+            return OKResponse(resp)
+            
+        @self.prompt_server.routes.get(f"/{USER_API}/pay/orders")
+        async def list_pay_orders(request):
+            # 获取支付订单状态
+            order_no = request.rel_url.query.get("order_no", None)
+            if order_no == None:
+                return ErrResponse(errnos.INVALID_ORDER_NO)
+            resp, err = await self.api_client.get_pay_status(order_no)
+            if err:
+                return ErrResponse(err)
+            return OKResponse(resp)
+        
+        @self.prompt_server.routes.delete(f"/{USER_API}/pay/orders")
+        async def cancel_pay_order(request):
+            # 取消支付订单
+            order_no = request.rel_url.query.get("order_no", None)
+            if order_no == None:
+                return ErrResponse(errnos.INVALID_ORDER_NO)
+            resp, err = await self.api_client.cancel_pay_order(order_no)
+            if err:
+                return ErrResponse(err)
+            return OKResponse(resp)
 
 
     async def send_json(self, event, data, sid=None):
