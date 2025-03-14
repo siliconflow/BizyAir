@@ -60,7 +60,7 @@ class APIClient:
                         response.status,
                         resp_json.get("code", response.status),
                         None,
-                        resp_json.get("message", await response.text()),
+                        {user_profile.getLang(): resp_json.get("message", await response.text())},
                     )
                 return resp_json, None
 
@@ -73,7 +73,7 @@ class APIClient:
                         response.status,
                         resp_json.get("code", response.status),
                         None,
-                        resp_json.get("message", await response.text()),
+                        {user_profile.getLang(): resp_json.get("message", await response.text())},
                     )
                 return resp_json, None
 
@@ -86,7 +86,7 @@ class APIClient:
                         response.status,
                         resp_json.get("code", response.status),
                         None,
-                        resp_json.get("message", await response.text()),
+                        {user_profile.getLang(): resp_json.get("message", await response.text())},
                     )
                 return resp_json, None
 
@@ -99,7 +99,7 @@ class APIClient:
                         response.status,
                         resp_json.get("code", response.status),
                         None,
-                        resp_json.get("message", await response.text()),
+                        {user_profile.getLang(): resp_json.get("message", await response.text())},
                     )
                 return resp_json, None
 
@@ -469,7 +469,7 @@ class APIClient:
 
             def callback(ret: dict):
                 if ret["code"] != errnos.OK.code:
-                    return [], ErrorNo(500, ret["code"], None, f"{ret}")
+                    return [], ErrorNo(500, ret["code"], None, {user_profile.getLang(): ret["message"]})
                 if not ret or "data" not in ret or ret["data"] is None:
                     return [], None
 

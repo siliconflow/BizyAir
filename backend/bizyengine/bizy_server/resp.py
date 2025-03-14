@@ -21,7 +21,7 @@ def OKResponse(data):
 
 
 def ErrResponse(err: ErrorNo):
-    err_msg = err.messages[user_profile.getLang()]
+    err_msg = err.messages.get(user_profile.getLang())
     if not err_msg:
         err.messages["zh"]
 

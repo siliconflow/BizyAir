@@ -841,9 +841,6 @@ class BizyAirServer:
         @self.prompt_server.routes.get(f"/{USER_API}/products")
         async def list_products(request):
             # 获取产品列表
-            import pdb
-
-            pdb.set_trace()
             resp, err = await self.api_client.list_products()
             if err:
                 return ErrResponse(err)
