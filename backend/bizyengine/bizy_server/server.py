@@ -869,7 +869,11 @@ class BizyAirServer:
                 return ErrResponse(errnos.INVALID_PRODUCT_ID)
             product_id = json_data.get("product_id")
 
-            resp, err = await self.api_client.buy_product(product_id)
+            if "platform" not in json_data:
+                return ErrResponse(errnos.INVALID_PAY_PLATFORM)
+            platform = json_data.get("platform")
+
+            resp, err = await self.api_client.buy_product(product_id, platform)
             if err:
                 return ErrResponse(err)
             return OKResponse(resp)
