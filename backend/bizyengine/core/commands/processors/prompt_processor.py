@@ -15,6 +15,7 @@ from bizyengine.core.path_utils import (
     convert_prompt_label_path_to_real_path,
     guess_url_from_node,
 )
+from server import PromptServer
 
 
 def is_link(obj):
@@ -106,15 +107,24 @@ class PromptProcessor(Processor):
     def process(
         self, url: str, prompt: Dict[str, Dict[str, Any]], last_node_ids: List[str]
     ):
+        dict = {
+            "prompt": prompt,
+            "last_node_id": last_node_ids[0],
+            "exec_info": self._exec_info(prompt),
+        }
+        if (
+            PromptServer.instance is not None
+            and PromptServer.instance.last_prompt_id is not None
+        ):
+            dict["prompt_id"] = PromptServer.instance.last_prompt_id
+            if BIZYAIR_DEBUG:
+                print(
+                    "Processing prompt with ID: " + PromptServer.instance.last_prompt_id
+                )
+
         return client.send_request(
             url=url,
-            data=json.dumps(
-                {
-                    "prompt": prompt,
-                    "last_node_id": last_node_ids[0],
-                    "exec_info": self._exec_info(prompt),
-                }
-            ).encode("utf-8"),
+            data=json.dumps(dict).encode("utf-8"),
         )
 
     def validate_input(
