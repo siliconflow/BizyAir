@@ -892,9 +892,10 @@ class BizyAirServer:
         @self.prompt_server.routes.delete(f"/{USER_API}/pay/orders")
         async def cancel_pay_order(request):
             # 取消支付订单
-            order_no = request.rel_url.query.get("order_no", None)
-            if order_no == None:
+            json_data = await request.json()
+            if "order_no" not in json_data:
                 return ErrResponse(errnos.INVALID_ORDER_NO)
+            order_no = json_data.get("order_no")
             resp, err = await self.api_client.cancel_pay_order(order_no)
             if err:
                 return ErrResponse(err)
