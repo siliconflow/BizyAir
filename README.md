@@ -28,7 +28,7 @@
 
 BizyAir is a collection of [ComfyUI](https://github.com/comfyanonymous/ComfyUI) nodes that help you overcome environmental and hardware limitations, allowing you to more easily generate high-quality content with ComfyUI.
 
-![](./docs/docs/getting-started/imgs/text-guided-segment-anything.gif)
+![](./docs/docs/getting-started/imgs/Kolors-text2img.gif)
 
 BizyAir now supports many models and nodes.
 
