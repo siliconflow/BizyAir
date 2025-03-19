@@ -163,6 +163,10 @@ class errnos:
         400, 400144, None, {"en": "Invalid order number", "zh": "无效的订单号"}
     )
 
+    INVALID_PAY_PLATFORM = ErrorNo(
+        400, 400145, None, {"en": "Invalid pay platform", "zh": "无效的支付平台"}
+    )
+
     INVALID_API_KEY = ErrorNo(
         401, 401000, None, {"en": "Invalid API key", "zh": "无效的API密钥"}
     )
