@@ -117,10 +117,9 @@ class PromptProcessor(Processor):
             and PromptServer.instance.last_prompt_id is not None
         ):
             dict["prompt_id"] = PromptServer.instance.last_prompt_id
-            if BIZYAIR_DEBUG:
-                print(
-                    "Processing prompt with ID: " + PromptServer.instance.last_prompt_id
-                )
+            print(
+                "Processing prompt with ID: " + PromptServer.instance.last_prompt_id
+            )
 
         return client.send_request(
             url=url,
