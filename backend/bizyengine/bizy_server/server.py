@@ -37,14 +37,19 @@ class BizyAirServer:
     def setup_routes(self):
         @self.prompt_server.routes.get(f"/{COMMUNITY_API}/model_types")
         async def list_model_types(request):
+            print((f"/{COMMUNITY_API}/model_types"))
+            print("types: ", types())
             return OKResponse(types())
 
         @self.prompt_server.routes.get(f"/{COMMUNITY_API}/base_model_types")
         async def list_base_model_types(request):
+            print(f"/{COMMUNITY_API}/base_model_types")
+            print("base_model_types:", base_model_types())
             return OKResponse(base_model_types())
 
         @self.prompt_server.routes.get(f"/{USER_API}/info")
         async def user_info(request):
+            print(f"/{USER_API}/info")
             info, err = await self.api_client.user_info()
             if err is not None:
                 return ErrResponse(err)
