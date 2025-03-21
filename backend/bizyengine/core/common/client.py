@@ -21,6 +21,9 @@ from .env_var import BIZYAIR_API_KEY, BIZYAIR_DEBUG, BIZYAIR_SERVER_ADDRESS
 
 IS_API_KEY_VALID = None
 
+version_path = os.path.join(os.path.dirname(__file__), "..", "..", "version.txt")
+with open(version_path, "r") as file:
+    CLIENT_VERSION = file.read().strip()
 
 @dataclass
 class APIKeyState:
@@ -126,6 +129,7 @@ def send_request(
     try:
         headers = kwargs.pop("headers") if "headers" in kwargs else _headers()
         headers["User-Agent"] = "BizyAir Client"
+        headers["x-bizyair-client-version"] = CLIENT_VERSION
 
         req = urllib.request.Request(
             url, data=data, headers=headers, method=method, **kwargs
@@ -155,14 +159,23 @@ def send_request(
                 "If you have the key, please click the 'API Key' button at the bottom right to set the key."
             )
         elif code != "N/A" and message != "N/A":
-            raise ConnectionError(
-                f"Failed to handle your request: {error_message}.\n"
-                + f"    Error code: {code}.\n"
-                + f"    Error message: {message}\n."
-                + "The cause of this issue may be incorrect parameter status or ongoing background tasks. \n"
-                + "If retrying after waiting for a while still does not resolve the issue, please report it to "
-                + "Bizyair's official support."
-            )
+            if code in [20049, 20050]:
+                raise ConnectionError(
+                    f"""Failed to handle your request:
+                    
+    {message}"""
+                )
+            else:
+                raise ConnectionError(
+                    f"""Failed to handle your request: {error_message}
+    
+    Error code: {code}
+    Error message: {message}
+    
+    The cause of this issue may be incorrect parameter status or ongoing background tasks.
+    If retrying after waiting for a while still does not resolve the issue, 
+    please report it to Bizyair's official support."""
+                )
         else:
             common_sites = [
                 "https://www.baidu.com",

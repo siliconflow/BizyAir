@@ -15,7 +15,8 @@ from .error_handler import ErrorHandler
 from .profile import user_profile
 from .utils import is_string_valid
 
-with open(os.path.join(os.path.dirname(__file__), "..", "version.txt"), "r") as file:
+version_path = os.path.join(os.path.dirname(__file__), "..", "version.txt")
+with open(version_path, "r") as file:
     CLIENT_VERSION = file.read().strip()
 
 
