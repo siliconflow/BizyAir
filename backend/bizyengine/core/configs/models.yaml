@@ -95,6 +95,8 @@ model_rules:
         inputs:
           ckpt_name:
             - ^sd3.5_large.safetensors$
+            - action: detect_model
+              detection_type: ckpt
 
   - mode_type: checkpoint
     base_model: SD3
@@ -106,6 +108,8 @@ model_rules:
         inputs:
           ckpt_name:
             - ^sd3.5_large_turbo.safetensors$
+            - action: detect_model
+              detection_type: ckpt
 
   - mode_type: checkpoint
     base_model: BaseModel
@@ -117,6 +121,8 @@ model_rules:
         inputs:
           ckpt_name:
             - ^sd15/dreamshaper_8.safetensors$
+            - action: detect_model
+              detection_type: ckpt
 
 
   - mode_type: checkpoint

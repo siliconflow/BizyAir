@@ -80,11 +80,21 @@ def detect_model(model_version_id, detection_type, **kwargs):
             "model_version_id": model_version_id,
             "detection_type": detection_type,
         },
+        "exec_info": {"api_key": client.get_api_key()},
     }
     detect_model_type: dict = models_config["model_version_config"]["detect_model_type"]
-    resq = client.send_request(data=json.dump(json_data), **detect_model_type)
-    # import ipdb; ipdb.set_trace()
-    print(resq)
+    resq = client.send_request(
+        url=detect_model_type["url"], data=json.dumps(json_data).encode("utf-8")
+    )
+    if resq["type"] != "success":
+        raise RuntimeError(
+            f"Request failed: {resq.get('type', 'unknown error')} - {resq.get('message', 'No details available')}"
+        )
+
+    payload = resq["data"]["payload"]
+
+    model_type = payload.get("model_type")
+    return model_type
 
 
 def action_call(action: str, *args, **kwargs) -> any:
@@ -100,6 +110,7 @@ def guess_url_from_node(
     model_version_id_prefix = models_config["model_version_config"][
         "model_version_id_prefix"
     ]
+    model_type = None
     for rule in rules:
         if len(rule.inputs) == 0:
             out.append(rule)
@@ -119,11 +130,14 @@ def guess_url_from_node(
                 ):
                     action = pattern["action"]
                     detection_type = pattern["detection_type"]
-                    action_call(
+                    model_type = action_call(
                         action=action,
                         model_version_id=value[len(model_version_id_prefix) :],
                         detection_type=detection_type,
                     )
+        if model_type and model_type == rule.base_model:
+            out.append(rule)
+
     return out
 
 
