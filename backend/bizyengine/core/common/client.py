@@ -25,6 +25,7 @@ version_path = os.path.join(os.path.dirname(__file__), "..", "..", "version.txt"
 with open(version_path, "r") as file:
     CLIENT_VERSION = file.read().strip()
 
+
 @dataclass
 class APIKeyState:
     current_api_key: str = field(default=None)
@@ -162,18 +163,18 @@ def send_request(
             if code in [20049, 20050]:
                 raise ConnectionError(
                     f"""Failed to handle your request:
-                    
+
     {message}"""
                 )
             else:
                 raise ConnectionError(
                     f"""Failed to handle your request: {error_message}
-    
+
     Error code: {code}
     Error message: {message}
-    
+
     The cause of this issue may be incorrect parameter status or ongoing background tasks.
-    If retrying after waiting for a while still does not resolve the issue, 
+    If retrying after waiting for a while still does not resolve the issue,
     please report it to Bizyair's official support."""
                 )
         else:
