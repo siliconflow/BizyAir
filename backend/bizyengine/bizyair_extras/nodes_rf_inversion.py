@@ -139,7 +139,6 @@ class BizyAir_FluxReverseODESampler(BizyAirBaseNode):
 class BizyAir_FluxDeGuidance(BizyAirBaseNode):
 
     RETURN_TYPES = (data_types.CONDITIONING,)
-    # FUNCTION = "append"
 
     CATEGORY = "☁️BizyAir/fluxtapoz"
     NODE_DISPLAY_NAME = "☁️BizyAir Flux DeGuidance"
@@ -222,10 +221,8 @@ class OneDiffLoadOptimizedDiffusionModel(BizyAirBaseNode):
         }
 
     RETURN_TYPES = (data_types.MODEL, "LORA_MANAGER")
-    # RETURN_TYPES = (data_types.MODEL, )
     FUNCTION = "load_unet"
     CATEGORY = "☁️BizyAir/OneDiffEnterprise"
-    # NODE_DISPLAY_NAME = "☁️BizyAir OneDiffLoadOptimizedDiffusionModel"
 
     def load_unet(self, unet_name, max_num_loras, max_ranks):
         print("why : ", folder_paths.get_filename_list("diffusion_models"))
@@ -238,38 +235,9 @@ class OneDiffLoadOptimizedDiffusionModel(BizyAirBaseNode):
             },
             outputs={"slot_index": 0},
         )
-        # model = BizyAirNodeIO(
-        #     self.assigned_id,
-        #     {self.assigned_id: node_data},
-        #     config_file=folder_paths.guess_config(unet_name=unet_name),
-        # )
+
         model = BizyAirNodeIO(
             self.assigned_id,
             {self.assigned_id: node_data},
         )
         return (model,)
-
-
-# class VAELoader1(BizyAirBaseNode):
-#     @classmethod
-#     def INPUT_TYPES(s):
-#         return {"required": {"vae_name": (folder_paths.get_filename_list("vae"),)}}
-
-#     RETURN_TYPES = (data_types.VAE,)
-#     RETURN_NAMES = ("vae",)
-#     FUNCTION = "load_vae"
-
-#     CATEGORY = "loaders"
-
-#     def load_vae(self, vae_name):
-#         node_data = create_node_data(
-#             class_type="VAELoader",
-#             inputs={"vae_name": vae_name},
-#             outputs={"slot_index": 0},
-#         )
-#         vae = BizyAirNodeIO(
-#             self.assigned_id,
-#             {self.assigned_id: node_data},
-#             # config_file=folder_paths.guess_config(vae_name=vae_name),
-#         )
-#         return (vae,)
