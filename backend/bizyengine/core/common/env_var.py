@@ -88,7 +88,7 @@ def create_api_key_file(api_key):
 #   uat:
 #     service_address: https://uat-bizyair-api.siliconflow.cn/x/v1
 _BIZYAIR_SERVER_ADDRESS = os.getenv(
-    "BIZYAIR_SERVER_ADDRESS", "https://bizyair-api.siliconflow.cn/x/v1"
+    "BIZYAIR_SERVER_ADDRESS", "https://bizyair-api-st.siliconflow.cn/x/v1"
 )
 BIZYAIR_SERVER_ADDRESS = ServerAddress(_BIZYAIR_SERVER_ADDRESS)
 BIZYAIR_API_KEY = env("BIZYAIR_API_KEY", str, load_api_key()[1])
