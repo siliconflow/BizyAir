@@ -417,3 +417,7 @@ class errnos:
     LIST_PAY_ORDER = ErrorNo(
         500, 500152, None, {"en": "Failed to list pay orders", "zh": "列出支付订单失败"}
     )
+    
+    # 添加发票相关错误码
+    FAILED_TO_FETCH_DATA = ErrorNo(500, 500143, None, "Failed to fetch data from remote server")
+    NETWORK_ERROR = ErrorNo(500, 500144, None, "Network error when connecting to remote server")
