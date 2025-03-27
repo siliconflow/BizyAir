@@ -23,6 +23,7 @@ COMMUNITY_API = f"{API_PREFIX}/community"
 MODEL_HOST_API = f"{API_PREFIX}/modelhost"
 USER_API = f"{API_PREFIX}/user"
 INVOICE_API = f"{API_PREFIX}/invoices"
+BILL_API = f"{API_PREFIX}/bill"
 
 logging.basicConfig(level=logging.DEBUG)
 
