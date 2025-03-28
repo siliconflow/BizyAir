@@ -54,54 +54,20 @@ class APIClient:
             query_string = urllib.parse.urlencode(params, doseq=True)
             url = f"{url}?{query_string}"
         async with await self.get_session() as session:
-            try:
-                async with session.get(url, headers=headers) as response:
-                    if response.status != 200:
-                        # 尝试以JSON格式获取错误信息
-                        try:
-                            resp_json = await response.json()
-                            return None, ErrorNo(
-                                response.status,
-                                resp_json.get("code", response.status),
-                                None,
-                                {
-                                    user_profile.getLang(): resp_json.get(
-                                        "message", await response.text()
-                                    )
-                                },
+            async with session.get(url, headers=headers) as response:
+                resp_json = await response.json()
+                if response.status != 200:
+                    return None, ErrorNo(
+                        response.status,
+                        resp_json.get("code", response.status),
+                        None,
+                        {
+                            user_profile.getLang(): resp_json.get(
+                                "message", await response.text()
                             )
-                        except:
-                            # 如果不是JSON格式，直接返回文本
-                            error_text = await response.text()
-                            return None, ErrorNo(
-                                response.status,
-                                response.status,
-                                None,
-                                {user_profile.getLang(): f"Error: {error_text}"},
-                            )
-                    
-                    # 正常响应处理
-                    try:
-                        resp_json = await response.json()
-                        return resp_json, None
-                    except:
-                        # 如果返回值不是JSON格式
-                        error_text = await response.text()
-                        return None, ErrorNo(
-                            400,
-                            400,
-                            None,
-                            {user_profile.getLang(): f"Invalid response format: {error_text}"},
-                        )
-            except Exception as e:
-                print(f"\033[31m[BizyAir]\033[0m API request error: {str(e)}, url={url}")
-                return None, ErrorNo(
-                    500,
-                    500,
-                    None,
-                    {user_profile.getLang(): f"API request error: {str(e)}, url={url}"},
-                )
-
+                        },
+                    )
+                return resp_json, None
     async def do_post(self, url, data=None, headers=None):
         async with await self.get_session() as session:
             async with session.post(url, json=data, headers=headers) as response:
@@ -1013,10 +979,7 @@ class APIClient:
     async def get_year_cost(
         self, year: str = None, api_key: str = None
     ) -> tuple[dict | None, ErrorNo | None]:
-        # 使用确切的正确路径
         server_url = f"{BIZYAIR_Y_SERVER}/invoices/year_cost"
-        print(f"\033[32m[BizyAir]\033[0m Requesting URL: {server_url}")
-        
         params = {}
         if year:
             params["year"] = year
@@ -1030,21 +993,14 @@ class APIClient:
         try:
             ret, err = await self.do_get(server_url, params=params, headers=headers)
             if err is not None:
-                print(f"\033[31m[BizyAir]\033[0m Error response: {err}")
                 return None, err
-            
-            # 直接返回原始响应，不尝试访问ret["data"]
-            print(f"\033[32m[BizyAir]\033[0m Success response: {ret}")
-            return ret, None
+                
+            return ret["data"], None
         except Exception as e:
             print(f"\033[31m[BizyAir]\033[0m Fail to get year cost: {str(e)}")
             return None, errnos.FAILED_TO_FETCH_DATA
-
     async def get_month_cost(self, month: str = None, api_key: str = None) -> tuple[dict | None, ErrorNo | None]:
-        # 使用确切的正确路径
         server_url = f"{BIZYAIR_Y_SERVER}/invoices/month_cost"
-        print(f"\033[32m[BizyAir]\033[0m Requesting URL: {server_url}")
-        
         params = {}
         if month:
             params["month"] = month
@@ -1058,26 +1014,53 @@ class APIClient:
         try:
             ret, err = await self.do_get(server_url, params=params, headers=headers)
             if err is not None:
-                print(f"\033[31m[BizyAir]\033[0m Error response: {err}")
                 return None, err
-            
-            if "data" in ret:
-                return ret["data"], None
-            else:
-                print(f"\033[31m[BizyAir]\033[0m Unexpected response format: {ret}")
-                return ret, None
+                
+            return ret["data"], None
         except Exception as e:
-            print(f"\033[31m[BizyAir]\033[0m Fail to get month cost: {str(e)}")
+            print(f"[31m[BizyAir][0m Fail to get month cost: {str(e)}")
             return None, errnos.FAILED_TO_FETCH_DATA
-
     async def get_day_cost(self, day: str = None, api_key: str = None) -> tuple[dict | None, ErrorNo | None]:
-        # 使用确切的正确路径
         server_url = f"{BIZYAIR_Y_SERVER}/invoices/day_cost"
-        print(f"\033[32m[BizyAir]\033[0m Requesting URL: {server_url}")
-        
         params = {}
         if day:
-            params["day"] = day
+            params["date"] = day
+        if api_key:
+            params["api_key"] = api_key
+        
+        headers, err = self.auth_header()
+        if err is not None:
+            return None, err
+            
+        try:
+            ret, err = await self.do_get(server_url, params=params, headers=headers)
+            if err is not None:
+                return None, err
+                
+            return ret["data"], None
+        except Exception as e:
+            print(f"[31m[BizyAir][0m Fail to get day cost: {str(e)}")
+            return None, errnos.FAILED_TO_FETCH_DATA
+
+    async def get_recent_cost(self, api_key: str = None) -> tuple[dict | None, ErrorNo | None]:
+        server_url = f"{BIZYAIR_Y_SERVER}/invoices/recent_cost"
+        params = {}
+        if api_key:
+            params["api_key"] = api_key
+        
+        headers, err = self.auth_header()
+        if err is not None:
+            return None, err
+            
+        try:
+            ret, err = await self.do_get(server_url, params=params, headers=headers)
+            if err is not None:
+                return None, err
+                
+            return ret["data"], None
+        except Exception as e:
+            print(f"[31m[BizyAir][0m Fail to get recent cost: {str(e)}")
+            return None, errnos.FAILED_TO_FETCH_DATA
         if api_key:
             params["api_key"] = api_key
         
