@@ -80,7 +80,7 @@ def get_pip_mirror_url():
 def get_latest_stable_version_from_pip(pip_url, package_name) -> Version:
     import requests
 
-    pkg_url = f"{pip_url}/{package_name}"
+    pkg_url = f"{pip_url.rstrip('/')}/{package_name}"
     response = requests.get(pkg_url)
     response.raise_for_status()
     html_content = response.text
