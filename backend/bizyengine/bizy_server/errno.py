@@ -417,3 +417,16 @@ class errnos:
     LIST_PAY_ORDER = ErrorNo(
         500, 500152, None, {"en": "Failed to list pay orders", "zh": "列出支付订单失败"}
     )
+    GET_YEAR_COST = ErrorNo(
+        500, 500153, None, {"en": "Failed to get year cost", "zh": "获取年度费用失败"}
+    )
+    GET_MONTH_COST = ErrorNo(
+        500, 500154, None, {"en": "Failed to get month cost", "zh": "获取月度费用失败"}
+    )
+    GET_DAY_COST = ErrorNo(
+        500, 500155, None, {"en": "Failed to get day cost", "zh": "获取日费用失败"}
+    )
+    FAILED_TO_FETCH_DATA = ErrorNo(
+        500, 500156, None, {"en": "Failed to fetch data", "zh": "获取数据失败"}
+    )
+    
