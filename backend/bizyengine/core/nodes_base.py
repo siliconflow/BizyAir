@@ -4,6 +4,8 @@ import warnings
 from functools import wraps
 from typing import List
 
+from bizyengine.core.configs.conf import config_manager
+
 from .data_types import is_send_request_datatype
 from .nodes_io import BizyAirNodeIO, create_node_data
 
@@ -20,6 +22,23 @@ LOGO = "☁️"
 PREFIX = f"BizyAir"
 NODE_CLASS_MAPPINGS = {}
 NODE_DISPLAY_NAME_MAPPINGS = {}
+
+
+def process_kwargs(kwargs):
+    possibleWidgetNames = [
+        "model_name",
+        "instantid_file",
+        "pulid_file",
+        "style_model_name",
+    ]
+
+    model_version_id = kwargs.get("model_version_id", "")
+    if model_version_id:
+        name = f"{config_manager.get_model_version_id_prefix()}{model_version_id}"
+        for key in possibleWidgetNames:
+            if key in kwargs:
+                kwargs[key] = name
+    return kwargs
 
 
 def to_camel_case(s):
@@ -122,7 +141,7 @@ class BizyAirBaseNode:
 
     def default_function(self, **kwargs):
         class_type = self._determine_class_type()
-
+        kwargs = process_kwargs(kwargs)
         node_ios = self._process_non_send_request_types(class_type, kwargs)
         # TODO: add processing for send_request_types
         send_request_datatype_list = self._get_send_request_datatypes()

@@ -4,6 +4,7 @@ import os
 import folder_paths
 import torch
 from bizyengine.core import BizyAirBaseNode, BizyAirNodeIO, create_node_data
+from bizyengine.core.configs.conf import config_manager
 from bizyengine.core.data_types import CLIP, CONDITIONING, MODEL
 
 # set the models directory
@@ -159,14 +160,44 @@ class IPAdapterModelLoader(BizyAirBaseNode):
     @classmethod
     def INPUT_TYPES(s):
         return {
-            "required": {"ipadapter_file": (["kolors/ip_adapter_plus_general.bin"],)}
+            # "required": {"ipadapter_file": (["kolors/ip_adapter_plus_general.bin"],)}
+            "required": {
+                "ipadapter_file": (
+                    [
+                        "to choose",
+                    ],
+                ),
+                "model_version_id": (
+                    "STRING",
+                    {
+                        "default": "",
+                    },
+                ),
+            }
         }
 
     RETURN_TYPES = ("IPADAPTER",)
     FUNCTION = "load_ipadapter_model"
     CATEGORY = "ipadapter/loaders"
 
+    @classmethod
+    def VALIDATE_INPUTS(cls, ipadapter_file):
+        # TODO
+        import warnings
+
+        warnings.warn(message=f"TODO fix {cls}VALIDATE_INPUTS")
+        if ipadapter_file == "" or ipadapter_file is None:
+            return False
+        return True
+
     def load_ipadapter_model(self, **kwargs):
+        model_version_id = kwargs.get("model_version_id", "")
+        if model_version_id != "":
+            # use model version id as lora name
+            ipadapter_file = (
+                f"{config_manager.get_model_version_id_prefix()}{model_version_id}"
+            )
+            kwargs["ipadapter_file"] = ipadapter_file
         node_data = create_node_data(
             class_type="IPAdapterModelLoader",
             inputs=kwargs,
