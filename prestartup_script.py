@@ -140,7 +140,9 @@ def install_dependencies():
         ]
 
     installed_packages = {
-        dist.metadata["Name"]: Version(dist.version) for dist in distributions()
+        dist.metadata["Name"]: Version(dist.version)
+        for dist in distributions()
+        if dist.version is not None
     }
 
     for package in required_packages:
@@ -230,7 +232,9 @@ def update_bizyengine_bizyui():
             print(f"Error happens when update {package_name} packages: {str(e)}")
 
     installed_packages = {
-        dist.metadata["Name"]: Version(dist.version) for dist in distributions()
+        dist.metadata["Name"]: Version(dist.version)
+        for dist in distributions()
+        if dist.version is not None
     }
     print(
         f"\033[92m[BizyAir]\033[0m Checkout updating, current pip url {mirror_pip_url}"
