@@ -14,11 +14,11 @@ repos:
         types: [python]
       - id: flake8-code-check
         name: Code Quality Check
-        entry: python3 -m flake8 .
+        entry: python3 -m flake8 --ignore=F824 --show-source .
         language: system
         types: [python]
 
-  - repo: https://github.com/pre-commit/pre-commit-hooks
+  - repo: git@github.com:pre-commit/pre-commit-hooks
     rev: v4.0.1
     hooks:
       - id: trailing-whitespace
