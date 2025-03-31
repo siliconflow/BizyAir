@@ -167,6 +167,18 @@ class errnos:
         400, 400145, None, {"en": "Invalid pay platform", "zh": "无效的支付平台"}
     )
 
+    INVALID_YEAR_PARAM = ErrorNo(
+        400, 400146, None, {"en": "Year parameter is required", "zh": "缺少年份参数"}
+    )
+
+    INVALID_MONTH_PARAM = ErrorNo(
+        400, 400147, None, {"en": "Month parameter is required", "zh": "缺少月份参数"}
+    )
+
+    INVALID_DAY_PARAM = ErrorNo(
+        400, 400148, None, {"en": "Day parameter is required", "zh": "缺少日期参数"}
+    )
+
     INVALID_API_KEY = ErrorNo(
         401, 401000, None, {"en": "Invalid API key", "zh": "无效的API密钥"}
     )
@@ -416,4 +428,17 @@ class errnos:
     )
     LIST_PAY_ORDER = ErrorNo(
         500, 500152, None, {"en": "Failed to list pay orders", "zh": "列出支付订单失败"}
+    )
+    GET_YEAR_COST = ErrorNo(
+        500, 500153, None, {"en": "Failed to get year cost", "zh": "获取年度费用失败"}
+    )
+    GET_MONTH_COST = ErrorNo(
+        500, 500154, None, {"en": "Failed to get month cost", "zh": "获取月度费用失败"}
+    )
+    GET_DAY_COST = ErrorNo(
+        500, 500155, None, {"en": "Failed to get day cost", "zh": "获取日费用失败"}
+    )
+
+    GET_RECENT_COST = ErrorNo(
+        500, 500157, None, {"en": "Failed to get recent cost", "zh": "获取最近消费失败"}
     )

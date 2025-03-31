@@ -22,6 +22,7 @@ API_PREFIX = "bizyair"
 COMMUNITY_API = f"{API_PREFIX}/community"
 MODEL_HOST_API = f"{API_PREFIX}/modelhost"
 USER_API = f"{API_PREFIX}/user"
+INVOICE_API = f"{API_PREFIX}/invoices"
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -899,6 +900,61 @@ class BizyAirServer:
             resp, err = await self.api_client.cancel_pay_order(order_no)
             if err:
                 return ErrResponse(err)
+            return OKResponse(resp)
+
+        @self.prompt_server.routes.get(f"/{INVOICE_API}/year_cost")
+        async def get_year_cost(request):
+            year = request.rel_url.query.get("year", "")
+            api_key = request.rel_url.query.get("api_key", "")
+
+            if not year:
+                return ErrResponse(errnos.INVALID_YEAR_PARAM)
+
+            resp, err = await self.api_client.get_year_cost(year=year, api_key=api_key)
+            if err is not None:
+                return ErrResponse(err)
+
+            return OKResponse(resp)
+
+        @self.prompt_server.routes.get(f"/{INVOICE_API}/month_cost")
+        async def get_month_cost(request):
+            month = request.rel_url.query.get("month", "")
+            api_key = request.rel_url.query.get("api_key", "")
+
+            if not month:
+                return ErrResponse(errnos.INVALID_MONTH_PARAM)
+
+            resp, err = await self.api_client.get_month_cost(
+                month=month, api_key=api_key
+            )
+            if err is not None:
+                return ErrResponse(err)
+
+            return OKResponse(resp)
+
+        @self.prompt_server.routes.get(f"/{INVOICE_API}/day_cost")
+        async def get_day_cost(request):
+            day = request.rel_url.query.get("day", "")
+            api_key = request.rel_url.query.get("api_key", "")
+
+            if not day:
+                return ErrResponse(errnos.INVALID_DAY_PARAM)
+
+            resp, err = await self.api_client.get_day_cost(day=day, api_key=api_key)
+            if err is not None:
+                return ErrResponse(err)
+
+            return OKResponse(resp)
+
+        @self.prompt_server.routes.get(f"/{INVOICE_API}/recent_cost")
+        async def get_recent_cost(request):
+
+            api_key = request.rel_url.query.get("api_key", "")
+
+            resp, err = await self.api_client.get_recent_cost(api_key=api_key)
+            if err is not None:
+                return ErrResponse(err)
+
             return OKResponse(resp)
 
     async def send_json(self, event, data, sid=None):
