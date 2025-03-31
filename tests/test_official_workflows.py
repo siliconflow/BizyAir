@@ -15,7 +15,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
 BIZYAIR_SERVER_ADDRESS = os.getenv(
-    "BIZYAIR_SERVER_ADDRESS", "https://bizyair-api.siliconflow.cn/x/v1"
+    "BIZYAIR_SERVER_ADDRESS", "https://bizyair-api-st.siliconflow.cn/x/v1"
 )
 BIZYAIR_KEY = os.getenv("BIZYAIR_KEY", "")
 COMFY_HOST = os.getenv("COMFY_HOST", "127.0.0.1")
