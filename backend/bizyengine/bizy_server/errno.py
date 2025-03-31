@@ -167,6 +167,18 @@ class errnos:
         400, 400145, None, {"en": "Invalid pay platform", "zh": "无效的支付平台"}
     )
 
+    INVALID_YEAR_PARAM = ErrorNo(
+        400, 400146, None, {"en": "Year parameter is required", "zh": "缺少年份参数"}
+    )
+
+    INVALID_MONTH_PARAM = ErrorNo(
+        400, 400147, None, {"en": "Month parameter is required", "zh": "缺少月份参数"}
+    )
+
+    INVALID_DAY_PARAM = ErrorNo(
+        400, 400148, None, {"en": "Day parameter is required", "zh": "缺少日期参数"}
+    )
+
     INVALID_API_KEY = ErrorNo(
         401, 401000, None, {"en": "Invalid API key", "zh": "无效的API密钥"}
     )
@@ -429,4 +441,7 @@ class errnos:
     FAILED_TO_FETCH_DATA = ErrorNo(
         500, 500156, None, {"en": "Failed to fetch data", "zh": "获取数据失败"}
     )
-    
+
+    GET_RECENT_COST = ErrorNo(
+        500, 500157, None, {"en": "Failed to get recent cost", "zh": "获取最近消费失败"}
+    )

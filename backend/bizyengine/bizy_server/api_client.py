@@ -68,6 +68,7 @@ class APIClient:
                         },
                     )
                 return resp_json, None
+
     async def do_post(self, url, data=None, headers=None):
         async with await self.get_session() as session:
             async with session.post(url, json=data, headers=headers) as response:
@@ -985,128 +986,87 @@ class APIClient:
             params["year"] = year
         if api_key:
             params["api_key"] = api_key
-        
+
         headers, err = self.auth_header()
         if err is not None:
             return None, err
-            
+
         try:
             ret, err = await self.do_get(server_url, params=params, headers=headers)
             if err is not None:
                 return None, err
-                
+
             return ret["data"], None
         except Exception as e:
             print(f"\033[31m[BizyAir]\033[0m Fail to get year cost: {str(e)}")
             return None, errnos.FAILED_TO_FETCH_DATA
-    async def get_month_cost(self, month: str = None, api_key: str = None) -> tuple[dict | None, ErrorNo | None]:
+
+    async def get_month_cost(
+        self, month: str = None, api_key: str = None
+    ) -> tuple[dict | None, ErrorNo | None]:
         server_url = f"{BIZYAIR_Y_SERVER}/invoices/month_cost"
         params = {}
         if month:
             params["month"] = month
         if api_key:
             params["api_key"] = api_key
-        
+
         headers, err = self.auth_header()
         if err is not None:
             return None, err
-            
+
         try:
             ret, err = await self.do_get(server_url, params=params, headers=headers)
             if err is not None:
                 return None, err
-                
+
             return ret["data"], None
         except Exception as e:
-            print(f"[31m[BizyAir][0m Fail to get month cost: {str(e)}")
+            print(f"\033[31m[BizyAir]\033[0m Fail to get month cost: {str(e)}")
             return None, errnos.FAILED_TO_FETCH_DATA
-    async def get_day_cost(self, day: str = None, api_key: str = None) -> tuple[dict | None, ErrorNo | None]:
+
+    async def get_day_cost(
+        self, day: str = None, api_key: str = None
+    ) -> tuple[dict | None, ErrorNo | None]:
         server_url = f"{BIZYAIR_Y_SERVER}/invoices/day_cost"
         params = {}
         if day:
             params["date"] = day
         if api_key:
             params["api_key"] = api_key
-        
-        headers, err = self.auth_header()
-        if err is not None:
-            return None, err
-            
-        try:
-            ret, err = await self.do_get(server_url, params=params, headers=headers)
-            if err is not None:
-                return None, err
-                
-            return ret["data"], None
-        except Exception as e:
-            print(f"[31m[BizyAir][0m Fail to get day cost: {str(e)}")
-            return None, errnos.FAILED_TO_FETCH_DATA
 
-    async def get_recent_cost(self, api_key: str = None) -> tuple[dict | None, ErrorNo | None]:
-        server_url = f"{BIZYAIR_Y_SERVER}/invoices/recent_cost"
-        params = {}
-        if api_key:
-            params["api_key"] = api_key
-        
         headers, err = self.auth_header()
         if err is not None:
             return None, err
-            
+
         try:
             ret, err = await self.do_get(server_url, params=params, headers=headers)
             if err is not None:
                 return None, err
-                
+
             return ret["data"], None
-        except Exception as e:
-            print(f"[31m[BizyAir][0m Fail to get recent cost: {str(e)}")
-            return None, errnos.FAILED_TO_FETCH_DATA
-        if api_key:
-            params["api_key"] = api_key
-        
-        headers, err = self.auth_header()
-        if err is not None:
-            return None, err
-            
-        try:
-            ret, err = await self.do_get(server_url, params=params, headers=headers)
-            if err is not None:
-                print(f"\033[31m[BizyAir]\033[0m Error response: {err}")
-                return None, err
-            
-            if "data" in ret:
-                return ret["data"], None
-            else:
-                print(f"\033[31m[BizyAir]\033[0m Unexpected response format: {ret}")
-                return ret, None
         except Exception as e:
             print(f"\033[31m[BizyAir]\033[0m Fail to get day cost: {str(e)}")
             return None, errnos.FAILED_TO_FETCH_DATA
 
-    async def get_recent_cost(self, api_key: str = None) -> tuple[dict | None, ErrorNo | None]:
-        # 使用确切的正确路径
+    async def get_recent_cost(
+        self, api_key: str = None
+    ) -> tuple[dict | None, ErrorNo | None]:
         server_url = f"{BIZYAIR_Y_SERVER}/invoices/recent_cost"
-        print(f"\033[32m[BizyAir]\033[0m Requesting URL: {server_url}")
-        
         params = {}
         if api_key:
             params["api_key"] = api_key
-        
+
         headers, err = self.auth_header()
         if err is not None:
             return None, err
-            
+
         try:
             ret, err = await self.do_get(server_url, params=params, headers=headers)
             if err is not None:
-                print(f"\033[31m[BizyAir]\033[0m Error response: {err}")
                 return None, err
-            
-            if "data" in ret:
-                return ret["data"], None
-            else:
-                print(f"\033[31m[BizyAir]\033[0m Unexpected response format: {ret}")
-                return ret, None
+
+            return ret["data"], None
         except Exception as e:
             print(f"\033[31m[BizyAir]\033[0m Fail to get recent cost: {str(e)}")
-            return None, errnos.FAILED_TO_FETCH_DATA
+            return None, errnos.GET_RECENT_COST

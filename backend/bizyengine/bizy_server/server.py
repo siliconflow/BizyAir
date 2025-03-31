@@ -905,53 +905,57 @@ class BizyAirServer:
 
         @self.prompt_server.routes.get(f"/{INVOICE_API}/year_cost")
         async def get_year_cost(request):
-            # 获取查询参数
             year = request.rel_url.query.get("year", "")
             api_key = request.rel_url.query.get("api_key", "")
-            
-            # 调用API获取年度费用信息
+
+            if not year:
+                return ErrResponse(errnos.INVALID_YEAR_PARAM)
+
             resp, err = await self.api_client.get_year_cost(year=year, api_key=api_key)
             if err is not None:
                 return ErrResponse(err)
-                
+
             return OKResponse(resp)
 
         @self.prompt_server.routes.get(f"/{INVOICE_API}/month_cost")
         async def get_month_cost(request):
-            # 获取查询参数
             month = request.rel_url.query.get("month", "")
             api_key = request.rel_url.query.get("api_key", "")
-            
-            # 调用API获取月度费用信息
-            resp, err = await self.api_client.get_month_cost(month=month, api_key=api_key)
+
+            if not month:
+                return ErrResponse(errnos.INVALID_MONTH_PARAM)
+
+            resp, err = await self.api_client.get_month_cost(
+                month=month, api_key=api_key
+            )
             if err is not None:
                 return ErrResponse(err)
-                
+
             return OKResponse(resp)
 
         @self.prompt_server.routes.get(f"/{INVOICE_API}/day_cost")
         async def get_day_cost(request):
-            # 获取查询参数
             day = request.rel_url.query.get("day", "")
             api_key = request.rel_url.query.get("api_key", "")
-            
-            # 调用API获取日费用信息
+
+            if not day:
+                return ErrResponse(errnos.INVALID_DAY_PARAM)
+
             resp, err = await self.api_client.get_day_cost(day=day, api_key=api_key)
             if err is not None:
                 return ErrResponse(err)
-                
+
             return OKResponse(resp)
 
         @self.prompt_server.routes.get(f"/{INVOICE_API}/recent_cost")
         async def get_recent_cost(request):
-            # 获取查询参数
+
             api_key = request.rel_url.query.get("api_key", "")
-            
-            # 调用API获取最近消费账单信息
+
             resp, err = await self.api_client.get_recent_cost(api_key=api_key)
             if err is not None:
                 return ErrResponse(err)
-                
+
             return OKResponse(resp)
 
     async def send_json(self, event, data, sid=None):
