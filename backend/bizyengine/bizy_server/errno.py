@@ -438,9 +438,6 @@ class errnos:
     GET_DAY_COST = ErrorNo(
         500, 500155, None, {"en": "Failed to get day cost", "zh": "获取日费用失败"}
     )
-    FAILED_TO_FETCH_DATA = ErrorNo(
-        500, 500156, None, {"en": "Failed to fetch data", "zh": "获取数据失败"}
-    )
 
     GET_RECENT_COST = ErrorNo(
         500, 500157, None, {"en": "Failed to get recent cost", "zh": "获取最近消费失败"}

@@ -999,7 +999,7 @@ class APIClient:
             return ret["data"], None
         except Exception as e:
             print(f"\033[31m[BizyAir]\033[0m Fail to get year cost: {str(e)}")
-            return None, errnos.FAILED_TO_FETCH_DATA
+            return None, errnos.GET_YEAR_COST
 
     async def get_month_cost(
         self, month: str = None, api_key: str = None
@@ -1023,7 +1023,7 @@ class APIClient:
             return ret["data"], None
         except Exception as e:
             print(f"\033[31m[BizyAir]\033[0m Fail to get month cost: {str(e)}")
-            return None, errnos.FAILED_TO_FETCH_DATA
+            return None, errnos.GET_MONTH_COST
 
     async def get_day_cost(
         self, day: str = None, api_key: str = None
@@ -1047,7 +1047,7 @@ class APIClient:
             return ret["data"], None
         except Exception as e:
             print(f"\033[31m[BizyAir]\033[0m Fail to get day cost: {str(e)}")
-            return None, errnos.FAILED_TO_FETCH_DATA
+            return None, errnos.GET_DAY_COST
 
     async def get_recent_cost(
         self, api_key: str = None
