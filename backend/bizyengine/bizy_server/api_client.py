@@ -976,3 +976,97 @@ class APIClient:
         except Exception as e:
             print(f"\033[31m[BizyAir]\033[0m Fail to list products: {str(e)}")
             return None, errnos.LIST_PRODUCTS
+
+    async def get_year_cost(
+        self, year: str = None, api_key: str = None
+    ) -> tuple[dict | None, ErrorNo | None]:
+        server_url = f"{BIZYAIR_Y_SERVER}/invoices/year_cost"
+        params = {}
+        if year:
+            params["year"] = year
+        if api_key:
+            params["api_key"] = api_key
+
+        headers, err = self.auth_header()
+        if err is not None:
+            return None, err
+
+        try:
+            ret, err = await self.do_get(server_url, params=params, headers=headers)
+            if err is not None:
+                return None, err
+
+            return ret["data"], None
+        except Exception as e:
+            print(f"\033[31m[BizyAir]\033[0m Fail to get year cost: {str(e)}")
+            return None, errnos.GET_YEAR_COST
+
+    async def get_month_cost(
+        self, month: str = None, api_key: str = None
+    ) -> tuple[dict | None, ErrorNo | None]:
+        server_url = f"{BIZYAIR_Y_SERVER}/invoices/month_cost"
+        params = {}
+        if month:
+            params["month"] = month
+        if api_key:
+            params["api_key"] = api_key
+
+        headers, err = self.auth_header()
+        if err is not None:
+            return None, err
+
+        try:
+            ret, err = await self.do_get(server_url, params=params, headers=headers)
+            if err is not None:
+                return None, err
+
+            return ret["data"], None
+        except Exception as e:
+            print(f"\033[31m[BizyAir]\033[0m Fail to get month cost: {str(e)}")
+            return None, errnos.GET_MONTH_COST
+
+    async def get_day_cost(
+        self, day: str = None, api_key: str = None
+    ) -> tuple[dict | None, ErrorNo | None]:
+        server_url = f"{BIZYAIR_Y_SERVER}/invoices/day_cost"
+        params = {}
+        if day:
+            params["date"] = day
+        if api_key:
+            params["api_key"] = api_key
+
+        headers, err = self.auth_header()
+        if err is not None:
+            return None, err
+
+        try:
+            ret, err = await self.do_get(server_url, params=params, headers=headers)
+            if err is not None:
+                return None, err
+
+            return ret["data"], None
+        except Exception as e:
+            print(f"\033[31m[BizyAir]\033[0m Fail to get day cost: {str(e)}")
+            return None, errnos.GET_DAY_COST
+
+    async def get_recent_cost(
+        self, api_key: str = None
+    ) -> tuple[dict | None, ErrorNo | None]:
+        server_url = f"{BIZYAIR_Y_SERVER}/invoices/recent_cost"
+        params = {}
+        if api_key:
+            params["api_key"] = api_key
+
+        headers, err = self.auth_header()
+        if err is not None:
+            return None, err
+
+        try:
+            ret, err = await self.do_get(server_url, params=params, headers=headers)
+            if err is not None:
+                return None, err
+
+            return ret["data"], None
+        except Exception as e:
+            print(f"\033[31m[BizyAir]\033[0m Fail to get recent cost: {str(e)}")
+            return None, errnos.GET_RECENT_COST
