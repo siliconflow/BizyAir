@@ -80,7 +80,7 @@ def get_pip_mirror_url():
 def get_latest_stable_version_from_pip(pip_url, package_name) -> Version:
     import requests
 
-    pkg_url = f"{pip_url.rstrip('/')}/{package_name}"
+    pkg_url = f"{pip_url}/{package_name}"
     response = requests.get(pkg_url)
     response.raise_for_status()
     html_content = response.text
@@ -140,9 +140,7 @@ def install_dependencies():
         ]
 
     installed_packages = {
-        dist.metadata["Name"]: Version(dist.version)
-        for dist in distributions()
-        if dist.version is not None
+        dist.metadata["Name"]: Version(dist.version) for dist in distributions()
     }
 
     for package in required_packages:
@@ -232,9 +230,7 @@ def update_bizyengine_bizyui():
             print(f"Error happens when update {package_name} packages: {str(e)}")
 
     installed_packages = {
-        dist.metadata["Name"]: Version(dist.version)
-        for dist in distributions()
-        if dist.version is not None
+        dist.metadata["Name"]: Version(dist.version) for dist in distributions()
     }
     print(
         f"\033[92m[BizyAir]\033[0m Checkout updating, current pip url {mirror_pip_url}"

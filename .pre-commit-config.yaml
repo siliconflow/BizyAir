@@ -14,7 +14,7 @@ repos:
         types: [python]
       - id: flake8-code-check
         name: Code Quality Check
-        entry: python3 -m flake8 --ignore=F824 --show-source .
+        entry: python3 -m flake8 .
         language: system
         types: [python]
 
