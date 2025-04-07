@@ -138,8 +138,8 @@ class GenerateLightningImage:
 
 class ToggleServerEndpoint:
     BIZYAIR_SERVER_ENDPOINTS = [
-        "https://bizyair-api-st.siliconflow.cn/x/v1",
-        "https://bizyair-api.siliconflow.cn/x/v1",
+        "https://api.bizyair.cn/x/v1",
+        "https://api.bizyair.cn/x/v1",
     ]
 
     def __init__(self):
