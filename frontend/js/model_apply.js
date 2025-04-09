@@ -292,7 +292,7 @@ app.registerExtension({
             nodeType.prototype.onNodeCreated = function() {
                 try {
                     const result = onNodeCreated?.apply(this, arguments);
-                    createSetWidgetCallback("Ipadapter").call(this);
+                    createSetWidgetCallback("Unet").call(this);
                     return result;
                 } catch (error) {
                     console.error("Error in node creation:", error);
@@ -302,8 +302,8 @@ app.registerExtension({
     },
 
     async nodeCreated(node) {
-        if (node?.comfyClass === "BizyAir_IPAdapterModelLoader") {
-            setupNodeMouseBehavior(node, "Ipadapter");
+        if (node?.comfyClass === "BizyAir_MZ_KolorsUNETLoaderV2" || node?.comfyClass === "BizyAir_UNETLoader") {
+            setupNodeMouseBehavior(node, "Unet");
         }
     }
 })
