@@ -10,22 +10,22 @@ FACEANALYSIS = "BIZYAIR_FACEANALYSIS"
 class PulidFluxModelLoader(BizyAirBaseNode):
     @classmethod
     def INPUT_TYPES(s):
-        # return {"required": {"pulid_file": (folder_paths.get_filename_list("pulid"),)}}
-        return {
-            "required": {
-                "pulid_file": (
-                    [
-                        "to choose",
-                    ],
-                ),
-                "model_version_id": (
-                    "STRING",
-                    {
-                        "default": "",
-                    },
-                ),
-            }
-        }
+        return {"required": {"pulid_file": (folder_paths.get_filename_list("pulid"),)}}
+        # return {
+        #     "required": {
+        #         "pulid_file": (
+        #             [
+        #                 "to choose",
+        #             ],
+        #         ),
+        #         "model_version_id": (
+        #             "STRING",
+        #             {
+        #                 "default": "",
+        #             },
+        #         ),
+        #     }
+        # }
 
     RETURN_TYPES = (PULIDFLUX,)
     RETURN_NAMES = ("pulid_flux",)

@@ -8,18 +8,18 @@ class UpscaleModelLoader(BizyAirBaseNode):
     def INPUT_TYPES(s):
         return {
             "required": {
-                # "model_name": (folder_paths.get_filename_list("upscale_models"),),
-                "model_name": (
-                    [
-                        "to choose",
-                    ],
-                ),
-                "model_version_id": (
-                    "STRING",
-                    {
-                        "default": "",
-                    },
-                ),
+                "model_name": (folder_paths.get_filename_list("upscale_models"),),
+                # "model_name": (
+                #     [
+                #         "to choose",
+                #     ],
+                # ),
+                # "model_version_id": (
+                #     "STRING",
+                #     {
+                #         "default": "",
+                #     },
+                # ),
             }
         }
 
