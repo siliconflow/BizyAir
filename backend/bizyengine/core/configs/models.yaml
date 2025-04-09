@@ -2,7 +2,7 @@
 model_version_config:
   model_version_id_prefix: "BIZYAIR_MODEL_VERSION_ID:"
   detect_model_type:
-    url: "https://maas.platform.oneflow.cloud/supernode/detect_model_type/supernode/detect_model_type"
+    url: "todo"
 
 cache_config:
   max_size: 100 # 100 items

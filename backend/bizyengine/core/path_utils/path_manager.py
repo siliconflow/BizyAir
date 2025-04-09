@@ -75,26 +75,28 @@ models_config: Dict[str, Dict[str, Any]] = load_yaml_config(
 
 
 def detect_model(model_version_id, detection_type, **kwargs):
-    json_data = {
-        "prompt": {
-            "model_version_id": model_version_id,
-            "detection_type": detection_type,
-        },
-        "exec_info": {"api_key": client.get_api_key()},
-    }
-    detect_model_type: dict = models_config["model_version_config"]["detect_model_type"]
-    resq = client.send_request(
-        url=detect_model_type["url"], data=json.dumps(json_data).encode("utf-8")
-    )
-    if resq["type"] != "success":
-        raise RuntimeError(
-            f"Request failed: {resq.get('type', 'unknown error')} - {resq.get('message', 'No details available')}"
-        )
+    return 'SDXL'
+    # TODO support detect_model_type
+    # json_data = {
+    #     "prompt": {
+    #         "model_version_id": model_version_id,
+    #         "detection_type": detection_type,
+    #     },
+    #     "exec_info": {"api_key": client.get_api_key()},
+    # }
+    # detect_model_type: dict = models_config["model_version_config"]["detect_model_type"]
+    # resq = client.send_request(
+    #     url=detect_model_type["url"], data=json.dumps(json_data).encode("utf-8")
+    # )
+    # if resq["type"] != "success":
+    #     raise RuntimeError(
+    #         f"Request failed: {resq.get('type', 'unknown error')} - {resq.get('message', 'No details available')}"
+    #     )
 
-    payload = resq["data"]["payload"]
+    # payload = resq["data"]["payload"]
 
-    model_type = payload.get("model_type")
-    return model_type
+    # model_type = payload.get("model_type")
+    # return model_type
 
 
 def action_call(action: str, *args, **kwargs) -> any:
@@ -121,7 +123,7 @@ def guess_url_from_node(
                 break
             for pattern in patterns:
                 value = node["inputs"][key]
-                if isinstance(pattern, str) and re.search(pattern, key) is not None:
+                if isinstance(pattern, str) and re.search(pattern, value) is not None:
                     out.append(rule)
                     skip = True
                     break
