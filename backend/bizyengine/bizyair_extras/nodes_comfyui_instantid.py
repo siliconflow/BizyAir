@@ -8,6 +8,17 @@ class InstantIDModelLoader(BizyAirBaseNode):
         return {
             "required": {
                 "instantid_file": (folder_paths.get_filename_list("instantid"),)
+                # "instantid_file": (
+                #     [
+                #         "to choose",
+                #     ],
+                # ),
+                # "model_version_id": (
+                #     "STRING",
+                #     {
+                #         "default": "",
+                #     },
+                # ),
             }
         }
 
