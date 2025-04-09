@@ -22,7 +22,7 @@
         "Node name for S&R": "BizyAirToggleServerEndpoint"
       },
       "widgets_values": [
-        "https://bizyair-api-st.siliconflow.cn/x/v1"
+        "https://api.bizyair.cn/x/v1"
       ]
     }
   ],

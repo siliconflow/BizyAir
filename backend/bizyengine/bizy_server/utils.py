@@ -26,6 +26,8 @@ BASE_MODEL_TYPE_OPTIONS = {
     "Pony": "Pony",
     "Kolors": "Kolors",
     "Hunyuan 1": "Hunyuan 1",
+    "Hunyuan Video": "Hunyuan Video",
+    "Wan Video": "Wan Video",
     "Other": "Other",
 }
 
