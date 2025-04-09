@@ -75,7 +75,7 @@ models_config: Dict[str, Dict[str, Any]] = load_yaml_config(
 
 
 def detect_model(model_version_id, detection_type, **kwargs):
-    return 'SDXL'
+    return "SDXL"
     # TODO support detect_model_type
     # json_data = {
     #     "prompt": {
