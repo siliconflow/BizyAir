@@ -43,6 +43,7 @@ class FloatingButton {
         this.dragging = true;
         this.offsetX = e.clientX - this.button.offsetLeft;
         this.offsetY = e.clientY - this.button.offsetTop;
+        e.preventDefault();
     }
 
     endDrag() {
