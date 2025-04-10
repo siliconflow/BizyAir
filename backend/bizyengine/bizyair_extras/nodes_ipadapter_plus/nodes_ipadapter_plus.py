@@ -180,24 +180,7 @@ class IPAdapterModelLoader(BizyAirBaseNode):
     FUNCTION = "load_ipadapter_model"
     CATEGORY = "ipadapter/loaders"
 
-    @classmethod
-    def VALIDATE_INPUTS(cls, ipadapter_file):
-        # TODO
-        import warnings
-
-        warnings.warn(message=f"TODO fix {cls}VALIDATE_INPUTS")
-        if ipadapter_file == "" or ipadapter_file is None:
-            return False
-        return True
-
     def load_ipadapter_model(self, **kwargs):
-        model_version_id = kwargs.get("model_version_id", "")
-        if model_version_id != "":
-            # use model version id as lora name
-            ipadapter_file = (
-                f"{config_manager.get_model_version_id_prefix()}{model_version_id}"
-            )
-            kwargs["ipadapter_file"] = ipadapter_file
         node_data = create_node_data(
             class_type="IPAdapterModelLoader",
             inputs=kwargs,

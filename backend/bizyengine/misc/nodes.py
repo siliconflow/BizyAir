@@ -633,23 +633,7 @@ class BizyAir_CLIPVisionLoader(BizyAirBaseNode):
 
     CATEGORY = "loaders"
 
-    @classmethod
-    def VALIDATE_INPUTS(cls, clip_name):
-        # TODO
-        import warnings
-
-        warnings.warn(message=f"TODO fix {cls}VALIDATE_INPUTS")
-        if clip_name == "" or clip_name is None:
-            return False
-        return True
-
-    def load_clip(self, clip_name, model_version_id=""):
-        print("why clip : ", model_version_id)
-        if model_version_id != "":
-            # use model version id as lora name
-            clip_name = (
-                f"{config_manager.get_model_version_id_prefix()}{model_version_id}"
-            )
+    def load_clip(self, clip_name):
         node_data = create_node_data(
             class_type="CLIPVisionLoader",
             inputs={"clip_name": clip_name},
@@ -709,22 +693,7 @@ class VAELoader(BizyAirBaseNode):
 
     CATEGORY = "loaders"
 
-    @classmethod
-    def VALIDATE_INPUTS(cls, vae_name):
-        # TODO
-        import warnings
-
-        warnings.warn(message=f"TODO fix {cls}VALIDATE_INPUTS")
-        if vae_name == "" or vae_name is None:
-            return False
-        return True
-
-    def load_vae(self, vae_name, model_version_id):
-        if model_version_id != "":
-            # use model version id as lora name
-            vae_name = (
-                f"{config_manager.get_model_version_id_prefix()}{model_version_id}"
-            )
+    def load_vae(self, vae_name):
         node_data = create_node_data(
             class_type="VAELoader",
             inputs={"vae_name": vae_name},
@@ -792,22 +761,7 @@ class UNETLoader(BizyAirBaseNode):
 
     CATEGORY = "advanced/loaders"
 
-    @classmethod
-    def VALIDATE_INPUTS(cls, unet_name):
-        # TODO
-        import warnings
-
-        warnings.warn(message=f"TODO fix {cls}VALIDATE_INPUTS")
-        if unet_name == "" or unet_name is None:
-            return False
-        return True
-
-    def load_unet(self, unet_name, model_version_id, weight_dtype):
-        if model_version_id != "":
-            # use model version id as lora name
-            unet_name = (
-                f"{config_manager.get_model_version_id_prefix()}{model_version_id}"
-            )
+    def load_unet(self, unet_name, weight_dtype):
         node_data = create_node_data(
             class_type="UNETLoader",
             inputs={
