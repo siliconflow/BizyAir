@@ -18,7 +18,7 @@ repos:
         language: system
         types: [python]
 
-  - repo: git@github.com:pre-commit/pre-commit-hooks.git
+  - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.0.1
     hooks:
       - id: trailing-whitespace
