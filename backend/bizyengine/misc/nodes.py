@@ -613,18 +613,18 @@ class BizyAir_CLIPVisionLoader(BizyAirBaseNode):
     def INPUT_TYPES(s):
         return {
             "required": {
-                # "clip_name": (folder_paths.get_filename_list("clip_vision"),),
-                "clip_name": (
-                    [
-                        "to choose",
-                    ],
-                ),
-                "model_version_id": (
-                    "STRING",
-                    {
-                        "default": "",
-                    },
-                ),
+                "clip_name": (folder_paths.get_filename_list("clip_vision"),),
+                # "clip_name": (
+                #     [
+                #         "to choose",
+                #     ],
+                # ),
+                # "model_version_id": (
+                #     "STRING",
+                #     {
+                #         "default": "",
+                #     },
+                # ),
             }
         }
 
@@ -658,26 +658,50 @@ class BizyAir_CLIPVisionLoader(BizyAirBaseNode):
         clip_vision = BizyAirNodeIO(self.assigned_id, {self.assigned_id: node_data})
         return (clip_vision,)
 
+    # @classmethod
+    # def VALIDATE_INPUTS(cls, clip_name):
+    #     # TODO
+    #     import warnings
+
+    #     warnings.warn(message=f"TODO fix {cls}VALIDATE_INPUTS")
+    #     if clip_name == "" or clip_name is None:
+    #         return False
+    #     return True
+
+    # def load_clip(self, clip_name, model_version_id=""):
+    #     if model_version_id != "":
+    #         # use model version id as lora name
+    #         clip_name = (
+    #             f"{config_manager.get_model_version_id_prefix()}{model_version_id}"
+    #         )
+    #     node_data = create_node_data(
+    #         class_type="CLIPVisionLoader",
+    #         inputs={"clip_name": clip_name},
+    #         outputs={"slot_index": 0},
+    #     )
+    #     clip_vision = BizyAirNodeIO(self.assigned_id, {self.assigned_id: node_data})
+    #     return (clip_vision,)
+
 
 class VAELoader(BizyAirBaseNode):
     @classmethod
     def INPUT_TYPES(s):
-        # return {"required": {"vae_name": (folder_paths.get_filename_list("vae"),)}}
-        return {
-            "required": {
-                "vae_name": (
-                    [
-                        "to choose",
-                    ],
-                ),
-                "model_version_id": (
-                    "STRING",
-                    {
-                        "default": "",
-                    },
-                ),
-            }
-        }
+        return {"required": {"vae_name": (folder_paths.get_filename_list("vae"),)}}
+        # return {
+        #     "required": {
+        #         "vae_name": (
+        #             [
+        #                 "to choose",
+        #             ],
+        #         ),
+        #         "model_version_id": (
+        #             "STRING",
+        #             {
+        #                 "default": "",
+        #             },
+        #         ),
+        #     }
+        # }
 
     RETURN_TYPES = (data_types.VAE,)
     RETURN_NAMES = ("vae",)
@@ -713,24 +737,52 @@ class VAELoader(BizyAirBaseNode):
         )
         return (vae,)
 
+    # @classmethod
+    # def VALIDATE_INPUTS(cls, vae_name):
+    #     # TODO
+    #     import warnings
+
+    #     warnings.warn(message=f"TODO fix {cls}VALIDATE_INPUTS")
+    #     if vae_name == "" or vae_name is None:
+    #         return False
+    #     return True
+
+    # def load_vae(self, vae_name, model_version_id):
+    #     if model_version_id != "":
+    #         # use model version id as lora name
+    #         vae_name = (
+    #             f"{config_manager.get_model_version_id_prefix()}{model_version_id}"
+    #         )
+    #     node_data = create_node_data(
+    #         class_type="VAELoader",
+    #         inputs={"vae_name": vae_name},
+    #         outputs={"slot_index": 0},
+    #     )
+    #     vae = BizyAirNodeIO(
+    #         self.assigned_id,
+    #         {self.assigned_id: node_data},
+    #         config_file=folder_paths.guess_config(vae_name=vae_name),
+    #     )
+    #     return (vae,)
+
 
 class UNETLoader(BizyAirBaseNode):
     @classmethod
     def INPUT_TYPES(s):
         return {
             "required": {
-                # "unet_name": (folder_paths.get_filename_list("unet"),),
-                "unet_name": (
-                    [
-                        "to choose",
-                    ],
-                ),
-                "model_version_id": (
-                    "STRING",
-                    {
-                        "default": "",
-                    },
-                ),
+                "unet_name": (folder_paths.get_filename_list("unet"),),
+                # "unet_name": (
+                #     [
+                #         "to choose",
+                #     ],
+                # ),
+                # "model_version_id": (
+                #     "STRING",
+                #     {
+                #         "default": "",
+                #     },
+                # ),
                 "weight_dtype": (["default", "fp8_e4m3fn", "fp8_e5m2"],),
             }
         }
@@ -770,6 +822,37 @@ class UNETLoader(BizyAirBaseNode):
             config_file=folder_paths.guess_config(unet_name=unet_name),
         )
         return (model,)
+
+    # @classmethod
+    # def VALIDATE_INPUTS(cls, unet_name):
+    #     # TODO
+    #     import warnings
+
+    #     warnings.warn(message=f"TODO fix {cls}VALIDATE_INPUTS")
+    #     if unet_name == "" or unet_name is None:
+    #         return False
+    #     return True
+
+    # def load_unet(self, unet_name, model_version_id, weight_dtype):
+    #     if model_version_id != "":
+    #         # use model version id as lora name
+    #         unet_name = (
+    #             f"{config_manager.get_model_version_id_prefix()}{model_version_id}"
+    #         )
+    #     node_data = create_node_data(
+    #         class_type="UNETLoader",
+    #         inputs={
+    #             "unet_name": unet_name,
+    #             "weight_dtype": weight_dtype,
+    #         },
+    #         outputs={"slot_index": 0},
+    #     )
+    #     model = BizyAirNodeIO(
+    #         self.assigned_id,
+    #         {self.assigned_id: node_data},
+    #         config_file=folder_paths.guess_config(unet_name=unet_name),
+    #     )
+    #     return (model,)
 
 
 class SamplerCustomAdvanced(BizyAirBaseNode):
@@ -865,30 +948,30 @@ class DualCLIPLoader(BizyAirBaseNode):
     def INPUT_TYPES(s):
         return {
             "required": {
-                # "clip_name1": (folder_paths.get_filename_list("clip"),),
-                # "clip_name2": (folder_paths.get_filename_list("clip"),),
-                "clip_name1": (
-                    [
-                        "to choose",
-                    ],
-                ),
-                "model_version_id1": (
-                    "STRING",
-                    {
-                        "default": "",
-                    },
-                ),
-                "clip_name2": (
-                    [
-                        "to choose",
-                    ],
-                ),
-                "model_version_id2": (
-                    "STRING",
-                    {
-                        "default": "",
-                    },
-                ),
+                "clip_name1": (folder_paths.get_filename_list("clip"),),
+                "clip_name2": (folder_paths.get_filename_list("clip"),),
+                # "clip_name1": (
+                #     [
+                #         "to choose",
+                #     ],
+                # ),
+                # "model_version_id1": (
+                #     "STRING",
+                #     {
+                #         "default": "",
+                #     },
+                # ),
+                # "clip_name2": (
+                #     [
+                #         "to choose",
+                #     ],
+                # ),
+                # "model_version_id2": (
+                #     "STRING",
+                #     {
+                #         "default": "",
+                #     },
+                # ),
                 "type": (["sdxl", "sd3", "flux"],),
             }
         }
@@ -898,29 +981,7 @@ class DualCLIPLoader(BizyAirBaseNode):
 
     CATEGORY = "advanced/loaders"
 
-    @classmethod
-    def VALIDATE_INPUTS(cls, ckpt_name):
-        # TODO
-        import warnings
-
-        warnings.warn(message=f"TODO fix {cls}VALIDATE_INPUTS")
-        if ckpt_name == "" or ckpt_name is None:
-            return False
-        return True
-
-    def load_clip(
-        self, clip_name1, model_version_id1, clip_name2, model_version_id2, type
-    ):
-        if model_version_id1 != "":
-            # use model version id as lora name
-            clip_name1 = (
-                f"{config_manager.get_model_version_id_prefix()}{model_version_id1}"
-            )
-        if model_version_id2 != "":
-            # use model version id as lora name
-            clip_name2 = (
-                f"{config_manager.get_model_version_id_prefix()}{model_version_id2}"
-            )
+    def load_clip(self, clip_name1, clip_name2, type):
         node_data = create_node_data(
             class_type="DualCLIPLoader",
             inputs={
@@ -936,6 +997,45 @@ class DualCLIPLoader(BizyAirBaseNode):
             config_file=folder_paths.guess_config(clip_name=clip_name1),
         )
         return (model,)
+
+    # @classmethod
+    # def VALIDATE_INPUTS(cls, ckpt_name):
+    #     # TODO
+    #     import warnings
+
+    #     warnings.warn(message=f"TODO fix {cls}VALIDATE_INPUTS")
+    #     if ckpt_name == "" or ckpt_name is None:
+    #         return False
+    #     return True
+
+    # def load_clip(
+    #     self, clip_name1, model_version_id1, clip_name2, model_version_id2, type
+    # ):
+    #     if model_version_id1 != "":
+    #         # use model version id as lora name
+    #         clip_name1 = (
+    #             f"{config_manager.get_model_version_id_prefix()}{model_version_id1}"
+    #         )
+    #     if model_version_id2 != "":
+    #         # use model version id as lora name
+    #         clip_name2 = (
+    #             f"{config_manager.get_model_version_id_prefix()}{model_version_id2}"
+    #         )
+    #     node_data = create_node_data(
+    #         class_type="DualCLIPLoader",
+    #         inputs={
+    #             "clip_name1": clip_name1,
+    #             "clip_name2": clip_name2,
+    #             "type": type,
+    #         },
+    #         outputs={"slot_index": 0},
+    #     )
+    #     model = BizyAirNodeIO(
+    #         self.assigned_id,
+    #         {self.assigned_id: node_data},
+    #         config_file=folder_paths.guess_config(clip_name=clip_name1),
+    #     )
+    #     return (model,)
 
 
 class KSamplerSelect(BizyAirBaseNode):
@@ -1332,18 +1432,18 @@ class StyleModelLoader(BizyAirBaseNode):
     def INPUT_TYPES(s):
         return {
             "required": {
-                # "style_model_name": (folder_paths.get_filename_list("style_models"),)
-                "style_model_name": (
-                    [
-                        "to choose",
-                    ],
-                ),
-                "model_version_id": (
-                    "STRING",
-                    {
-                        "default": "",
-                    },
-                ),
+                "style_model_name": (folder_paths.get_filename_list("style_models"),)
+                # "style_model_name": (
+                #     [
+                #         "to choose",
+                #     ],
+                # ),
+                # "model_version_id": (
+                #     "STRING",
+                #     {
+                #         "default": "",
+                #     },
+                # ),
             }
         }
 

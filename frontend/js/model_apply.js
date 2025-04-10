@@ -134,301 +134,42 @@ function setupNodeMouseBehavior(node, modelType) {
     }
 }
 
+const nodeDataNames = {
+    LoRA: "BizyAir_LoraLoader",
+    Controlnet: "BizyAir_ControlNetLoader",
+    Checkpoint: "BizyAir_CheckpointLoaderSimple",
+    Clip: "BizyAir_CLIPVisionLoader",
+    Ipadapter: "BizyAir_IPAdapterModelLoade",
+    Unet: "BizyAir_MZ_KolorsUNETLoaderV2",
+    Vae: "BizyAir_VAELoader",
+    Upscale_models: "BizyAir_UpscaleModelLoader",
+    Instantid: "BizyAir_InstantIDModelLoader",
+    Pulid: "BizyAir_PulidFluxModelLoader"
+}
 app.registerExtension({
     name: "bizyair.siliconcloud.share.lora.loader.new",
     async beforeRegisterNodeDef(nodeType, nodeData, app) {
-        if (nodeData.name === "BizyAir_LoraLoader") {
-            const onNodeCreated = nodeType.prototype.onNodeCreated;
-            nodeType.prototype.onNodeCreated = function() {
-                try {
-                    const result = onNodeCreated?.apply(this, arguments);
-                    createSetWidgetCallback("LoRA").call(this);
-                    return result;
-                } catch (error) {
-                    console.error("Error in node creation:", error);
-                }
-            };
+        for( const key in nodeDataNames){
+            if(nodeData.name === nodeDataNames[key]){
+                const onNodeCreated = nodeType.prototype.onNodeCreated;
+                nodeType.prototype.onNodeCreated = function() {
+                    try {
+                        const result = onNodeCreated?.apply(this, arguments);
+                        createSetWidgetCallback(key).call(this);
+                        return result;
+                    } catch (error) {
+                        console.error("Error in node creation:", error);
+                    }
+                };
+            }
         }
     },
 
     async nodeCreated(node) {
-        if (node?.comfyClass === "BizyAir_LoraLoader") {
-            setupNodeMouseBehavior(node, "LoRA");
-        }
-    }
-})
-
-app.registerExtension({
-    name: "bizyair.siliconcloud.share.controlnet.loader.new",
-    async beforeRegisterNodeDef(nodeType, nodeData, app) {
-        if (nodeData.name === "BizyAir_ControlNetLoader") {
-            const onNodeCreated = nodeType.prototype.onNodeCreated;
-            nodeType.prototype.onNodeCreated = function() {
-                try {
-                    const result = onNodeCreated?.apply(this, arguments);
-                    createSetWidgetCallback("Controlnet").call(this);
-                    return result;
-                } catch (error) {
-                    console.error("Error in node creation:", error);
-                }
-            };
-        }
-    },
-
-    async nodeCreated(node) {
-        if (node?.comfyClass === "BizyAir_ControlNetLoader") {
-            setupNodeMouseBehavior(node, "Controlnet");
-        }
-    }
-})
-
-
-
-app.registerExtension({
-    name: "bizyair.siliconcloud.share.checkpoint.loader.new",
-    async beforeRegisterNodeDef(nodeType, nodeData, app) {
-        if (nodeData.name === "BizyAir_CheckpointLoaderSimple") {
-            const onNodeCreated = nodeType.prototype.onNodeCreated;
-            nodeType.prototype.onNodeCreated = function() {
-                try {
-                    const result = onNodeCreated?.apply(this, arguments);
-                    createSetWidgetCallback("Checkpoint").call(this);
-                    return result;
-                } catch (error) {
-                    console.error("Error in node creation:", error);
-                }
-            };
-        }
-    },
-
-    async nodeCreated(node) {
-        if (node?.comfyClass === "BizyAir_CheckpointLoaderSimple") {
-            setupNodeMouseBehavior(node, "Checkpoint");
-        }
-    }
-})
-
-
-app.registerExtension({
-    name: "bizyair.siliconcloud.share.clipvision.loader.new",
-    async beforeRegisterNodeDef(nodeType, nodeData, app) {
-        if (nodeData.name === "BizyAir_CLIPVisionLoader") {
-            const onNodeCreated = nodeType.prototype.onNodeCreated;
-            nodeType.prototype.onNodeCreated = function() {
-                try {
-                    const result = onNodeCreated?.apply(this, arguments);
-                    createSetWidgetCallback("Clip").call(this);
-                    return result;
-                } catch (error) {
-                    console.error("Error in node creation:", error);
-                }
-            };
-        }
-    },
-
-    async nodeCreated(node) {
-        if (node?.comfyClass === "BizyAir_CLIPVisionLoader") {
-            setupNodeMouseBehavior(node, "Clip");
-        }
-    }
-})
-
-app.registerExtension({
-    name: "bizyair.siliconcloud.share.clip.loader.new",
-    async beforeRegisterNodeDef(nodeType, nodeData, app) {
-        // console.log(nodeData.name)
-        if (nodeData.name === "BizyAir_DualCLIPLoader") {
-            const onNodeCreated = nodeType.prototype.onNodeCreated;
-            nodeType.prototype.onNodeCreated = function() {
-                try {
-                    const result = onNodeCreated?.apply(this, arguments);
-                    createSetWidgetCallback("Clip").call(this);
-                    return result;
-                } catch (error) {
-                    console.error("Error in node creation:", error);
-                }
-            };
-        }
-    },
-
-    async nodeCreated(node) {
-        if (node?.comfyClass === "BizyAir_DualCLIPLoader") {
-            setupNodeMouseBehavior(node, "Clip");
-        }
-    }
-})
-
-app.registerExtension({
-    name: "bizyair.siliconcloud.share.ipadapter.loader.new",
-    async beforeRegisterNodeDef(nodeType, nodeData, app) {
-        // console.log(nodeData.name)
-        if (nodeData.name === "BizyAir_IPAdapterModelLoader") {
-            const onNodeCreated = nodeType.prototype.onNodeCreated;
-            nodeType.prototype.onNodeCreated = function() {
-                try {
-                    const result = onNodeCreated?.apply(this, arguments);
-                    createSetWidgetCallback("Ipadapter").call(this);
-                    return result;
-                } catch (error) {
-                    console.error("Error in node creation:", error);
-                }
-            };
-        }
-    },
-
-    async nodeCreated(node) {
-        if (node?.comfyClass === "BizyAir_IPAdapterModelLoader") {
-            setupNodeMouseBehavior(node, "Ipadapter");
-        }
-    }
-})
-
-app.registerExtension({
-    name: "bizyair.siliconcloud.share.unet.loader.new",
-    async beforeRegisterNodeDef(nodeType, nodeData, app) {
-        console.log(nodeData.name)
-        if (nodeData.name === "BizyAir_MZ_KolorsUNETLoaderV2" || nodeData.name === "BizyAir_UNETLoader") {
-            const onNodeCreated = nodeType.prototype.onNodeCreated;
-            nodeType.prototype.onNodeCreated = function() {
-                try {
-                    const result = onNodeCreated?.apply(this, arguments);
-                    createSetWidgetCallback("Ipadapter").call(this);
-                    return result;
-                } catch (error) {
-                    console.error("Error in node creation:", error);
-                }
-            };
-        }
-    },
-
-    async nodeCreated(node) {
-        if (node?.comfyClass === "BizyAir_IPAdapterModelLoader") {
-            setupNodeMouseBehavior(node, "Ipadapter");
-        }
-    }
-})
-
-app.registerExtension({
-    name: "bizyair.siliconcloud.share.vae.loader.new",
-    async beforeRegisterNodeDef(nodeType, nodeData, app) {
-        console.log(nodeData.name)
-        if (nodeData.name === "BizyAir_VAELoader") {
-            const onNodeCreated = nodeType.prototype.onNodeCreated;
-            nodeType.prototype.onNodeCreated = function() {
-                try {
-                    const result = onNodeCreated?.apply(this, arguments);
-                    createSetWidgetCallback("Vae").call(this);
-                    return result;
-                } catch (error) {
-                    console.error("Error in node creation:", error);
-                }
-            };
-        }
-    },
-
-    async nodeCreated(node) {
-        if (node?.comfyClass === "BizyAir_VAELoader") {
-            setupNodeMouseBehavior(node, "Vae");
-        }
-    }
-})
-
-app.registerExtension({
-    name: "bizyair.siliconcloud.share.upscale.loader.new",
-    async beforeRegisterNodeDef(nodeType, nodeData, app) {
-        console.log(nodeData.name)
-        if (nodeData.name === "BizyAir_UpscaleModelLoader") {
-            const onNodeCreated = nodeType.prototype.onNodeCreated;
-            nodeType.prototype.onNodeCreated = function() {
-                try {
-                    const result = onNodeCreated?.apply(this, arguments);
-                    createSetWidgetCallback("Upscale_models").call(this);
-                    return result;
-                } catch (error) {
-                    console.error("Error in node creation:", error);
-                }
-            };
-        }
-    },
-
-    async nodeCreated(node) {
-        if (node?.comfyClass === "BizyAir_UpscaleModelLoader") {
-            setupNodeMouseBehavior(node, "Upscale_models");
-        }
-    }
-})
-
-app.registerExtension({
-    name: "bizyair.siliconcloud.share.instantid.loader.new",
-    async beforeRegisterNodeDef(nodeType, nodeData, app) {
-        console.log(nodeData.name)
-        if (nodeData.name === "BizyAir_InstantIDModelLoader") {
-            const onNodeCreated = nodeType.prototype.onNodeCreated;
-            nodeType.prototype.onNodeCreated = function() {
-                try {
-                    const result = onNodeCreated?.apply(this, arguments);
-                    createSetWidgetCallback("Instantid").call(this);
-                    return result;
-                } catch (error) {
-                    console.error("Error in node creation:", error);
-                }
-            };
-        }
-    },
-
-    async nodeCreated(node) {
-        if (node?.comfyClass === "BizyAir_InstantIDModelLoader") {
-            setupNodeMouseBehavior(node, "Instantid");
-        }
-    }
-})
-
-app.registerExtension({
-    name: "bizyair.siliconcloud.share.pulid.loader.new",
-    async beforeRegisterNodeDef(nodeType, nodeData, app) {
-        console.log(nodeData.name)
-        if (nodeData.name === "BizyAir_PulidFluxModelLoader") {
-            const onNodeCreated = nodeType.prototype.onNodeCreated;
-            nodeType.prototype.onNodeCreated = function() {
-                try {
-                    const result = onNodeCreated?.apply(this, arguments);
-                    createSetWidgetCallback("Pulid").call(this);
-                    return result;
-                } catch (error) {
-                    console.error("Error in node creation:", error);
-                }
-            };
-        }
-    },
-
-    async nodeCreated(node) {
-        if (node?.comfyClass === "BizyAir_PulidFluxModelLoader") {
-            setupNodeMouseBehavior(node, "Pulid");
-        }
-    }
-})
-
-app.registerExtension({
-    name: "bizyair.siliconcloud.share.style.loader.new",
-    async beforeRegisterNodeDef(nodeType, nodeData, app) {
-        console.log(nodeData.name)
-        if (nodeData.name === "BizyAir_StyleModelLoader") {
-            const onNodeCreated = nodeType.prototype.onNodeCreated;
-            nodeType.prototype.onNodeCreated = function() {
-                try {
-                    const result = onNodeCreated?.apply(this, arguments);
-                    createSetWidgetCallback("Style_models").call(this);
-                    return result;
-                } catch (error) {
-                    console.error("Error in node creation:", error);
-                }
-            };
-        }
-    },
-
-    async nodeCreated(node) {
-        if (node?.comfyClass === "BizyAir_StyleModelLoader") {
-            setupNodeMouseBehavior(node, "Style_models");
+        for (const key in nodeDataNames) {
+            if (node?.comfyClass === nodeDataNames[key]) {
+                setupNodeMouseBehavior(node, key);
+            }
         }
     }
 })

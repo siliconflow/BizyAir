@@ -1,6 +1,8 @@
 import asyncio
-import json
+import configparser
 import logging
+import os
+import shutil
 import threading
 import time
 import urllib.parse
@@ -12,6 +14,7 @@ from server import PromptServer
 from .api_client import APIClient
 from .errno import ErrorNo, errnos
 from .error_handler import ErrorHandler
+from .profile import user_profile
 from .resp import ErrResponse, OKResponse
 from .utils import base_model_types, check_str_param, check_type, is_string_valid, types
 
@@ -19,6 +22,7 @@ API_PREFIX = "bizyair"
 COMMUNITY_API = f"{API_PREFIX}/community"
 MODEL_HOST_API = f"{API_PREFIX}/modelhost"
 USER_API = f"{API_PREFIX}/user"
+INVOICE_API = f"{API_PREFIX}/invoices"
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -767,6 +771,195 @@ class BizyAirServer:
             resp, err = await self.api_client.read_notifications(ids)
             if err:
                 return ErrResponse(err)
+            return OKResponse(resp)
+
+        @self.prompt_server.routes.get(f"/{USER_API}/wallet")
+        async def get_wallet(request):
+            # 获取用户钱包信息
+            resp, err = await self.api_client.get_wallet()
+            if err:
+                return ErrResponse(err)
+            return OKResponse(resp)
+
+        @self.prompt_server.routes.get(f"/{USER_API}/coins")
+        async def query_coins(request):
+            # 获取用户金币记录
+            current = int(request.rel_url.query.get("current", "1"))
+            page_size = int(request.rel_url.query.get("page_size", "10"))
+            coin_type = int(request.rel_url.query.get("coin_type", "0"))
+            expire_days = int(request.rel_url.query.get("expire_days", "0"))
+
+            resp, err = await self.api_client.query_coins(
+                current, page_size, coin_type, expire_days
+            )
+            if err:
+                return ErrResponse(err)
+            return OKResponse(resp)
+
+        @self.prompt_server.routes.get(f"/{USER_API}/metadata")
+        async def get_user_metadata(request):
+            # 获取用户元数据
+            resp, err = await self.api_client.get_user_metadata()
+            if err:
+                return ErrResponse(err)
+            return OKResponse(resp)
+
+        @self.prompt_server.routes.put(f"/{USER_API}/metadata")
+        async def update_user_info(request):
+            # 更新用户信息
+            json_data = await request.json()
+            name = json_data.get("name")
+            avatar = json_data.get("avatar")
+            introduction = json_data.get("introduction")
+
+            resp, err = await self.api_client.update_user_info(
+                name, avatar, introduction
+            )
+            if err:
+                return ErrResponse(err)
+            return OKResponse(resp)
+
+        @self.prompt_server.routes.post(f"/{USER_API}/real_name")
+        async def user_real_name(request):
+            # 实名认证
+            resp, err = await self.api_client.user_real_name()
+            if err:
+                return ErrResponse(err)
+            return OKResponse(resp)
+
+        @self.prompt_server.routes.get(f"/{USER_API}/language")
+        async def get_user_profile(request):
+            return OKResponse(user_profile.getLang())
+
+        @self.prompt_server.routes.get(f"/{USER_API}/profile")
+        async def get_user_profile(request):
+            return OKResponse(user_profile.getAll())
+
+        @self.prompt_server.routes.put(f"/{USER_API}/profile")
+        async def update_user_profile(request):
+            # 更新用户本地配置
+            json_data = await request.json()
+
+            err = user_profile.update_profile(json_data)
+            if err is not None:
+                return ErrResponse(err)
+            return OKResponse({})
+
+        @self.prompt_server.routes.get(f"/{USER_API}/products")
+        async def list_products(request):
+            # 获取产品列表
+            resp, err = await self.api_client.list_products()
+            if err:
+                return ErrResponse(err)
+            return OKResponse(resp)
+
+        @self.prompt_server.routes.get(f"/{USER_API}/pay/page")
+        async def list_pay_orders(request):
+            # 获取订单列表
+            current = int(request.rel_url.query.get("current", "1"))
+            page_size = int(request.rel_url.query.get("page_size", "10"))
+            status = request.rel_url.query.get("status", None)
+            resp, err = await self.api_client.list_pay_orders(
+                current, page_size, status
+            )
+            if err:
+                return ErrResponse(err)
+            return OKResponse(resp)
+
+        @self.prompt_server.routes.post(f"/{USER_API}/buy")
+        async def buy_product(request):
+            # 购买商品
+            json_data = await request.json()
+
+            if "product_id" not in json_data:
+                return ErrResponse(errnos.INVALID_PRODUCT_ID)
+            product_id = json_data.get("product_id")
+
+            if "platform" not in json_data:
+                return ErrResponse(errnos.INVALID_PAY_PLATFORM)
+            platform = json_data.get("platform")
+
+            resp, err = await self.api_client.buy_product(product_id, platform)
+            if err:
+                return ErrResponse(err)
+            return OKResponse(resp)
+
+        @self.prompt_server.routes.get(f"/{USER_API}/pay/orders")
+        async def list_pay_orders(request):
+            # 获取支付订单状态
+            order_no = request.rel_url.query.get("order_no", None)
+            if order_no == None:
+                return ErrResponse(errnos.INVALID_ORDER_NO)
+            resp, err = await self.api_client.get_pay_status(order_no)
+            if err:
+                return ErrResponse(err)
+            return OKResponse(resp)
+
+        @self.prompt_server.routes.delete(f"/{USER_API}/pay/orders")
+        async def cancel_pay_order(request):
+            # 取消支付订单
+            json_data = await request.json()
+            if "order_no" not in json_data:
+                return ErrResponse(errnos.INVALID_ORDER_NO)
+            order_no = json_data.get("order_no")
+            resp, err = await self.api_client.cancel_pay_order(order_no)
+            if err:
+                return ErrResponse(err)
+            return OKResponse(resp)
+
+        @self.prompt_server.routes.get(f"/{INVOICE_API}/year_cost")
+        async def get_year_cost(request):
+            year = request.rel_url.query.get("year", "")
+            api_key = request.rel_url.query.get("api_key", "")
+
+            if not year:
+                return ErrResponse(errnos.INVALID_YEAR_PARAM)
+
+            resp, err = await self.api_client.get_year_cost(year=year, api_key=api_key)
+            if err is not None:
+                return ErrResponse(err)
+
+            return OKResponse(resp)
+
+        @self.prompt_server.routes.get(f"/{INVOICE_API}/month_cost")
+        async def get_month_cost(request):
+            month = request.rel_url.query.get("month", "")
+            api_key = request.rel_url.query.get("api_key", "")
+
+            if not month:
+                return ErrResponse(errnos.INVALID_MONTH_PARAM)
+
+            resp, err = await self.api_client.get_month_cost(
+                month=month, api_key=api_key
+            )
+            if err is not None:
+                return ErrResponse(err)
+
+            return OKResponse(resp)
+
+        @self.prompt_server.routes.get(f"/{INVOICE_API}/day_cost")
+        async def get_day_cost(request):
+            day = request.rel_url.query.get("day", "")
+            api_key = request.rel_url.query.get("api_key", "")
+
+            if not day:
+                return ErrResponse(errnos.INVALID_DAY_PARAM)
+
+            resp, err = await self.api_client.get_day_cost(day=day, api_key=api_key)
+            if err is not None:
+                return ErrResponse(err)
+
+            return OKResponse(resp)
+
+        @self.prompt_server.routes.get(f"/{INVOICE_API}/recent_cost")
+        async def get_recent_cost(request):
+
+            api_key = request.rel_url.query.get("api_key", "")
+
+            resp, err = await self.api_client.get_recent_cost(api_key=api_key)
+            if err is not None:
+                return ErrResponse(err)
+
             return OKResponse(resp)
 
     async def send_json(self, event, data, sid=None):

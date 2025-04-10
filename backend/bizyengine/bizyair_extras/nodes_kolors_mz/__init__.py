@@ -14,18 +14,18 @@ class MZ_KolorsUNETLoaderV2(BizyAirBaseNode):
     def INPUT_TYPES(s):
         return {
             "required": {
-                # "unet_name": (folder_paths.get_filename_list("unet"),),
-                "unet_name": (
-                    [
-                        "to choose",
-                    ],
-                ),
-                "model_version_id": (
-                    "STRING",
-                    {
-                        "default": "",
-                    },
-                ),
+                "unet_name": (folder_paths.get_filename_list("unet"),),
+                # "unet_name": (
+                #     [
+                #         "to choose",
+                #     ],
+                # ),
+                # "model_version_id": (
+                #     "STRING",
+                #     {
+                #         "default": "",
+                #     },
+                # ),
             }
         }
 
@@ -37,24 +37,7 @@ class MZ_KolorsUNETLoaderV2(BizyAirBaseNode):
     CATEGORY = CATEGORY_NAME
     NODE_DISPLAY_NAME = f"{AUTHOR_NAME} - KolorsUNETLoaderV2"
 
-    @classmethod
-    def VALIDATE_INPUTS(cls, unet_name):
-        # TODO
-        import warnings
-
-        warnings.warn(message=f"TODO fix {cls}VALIDATE_INPUTS")
-        if unet_name == "" or unet_name is None:
-            return False
-        return True
-
     def load_unet(self, **kwargs):
-        model_version_id = kwargs.get("model_version_id", "")
-        if model_version_id != "":
-            # use model version id as lora name
-            unet_name = (
-                f"{config_manager.get_model_version_id_prefix()}{model_version_id}"
-            )
-            kwargs["unet_name"] = unet_name
         node_data = create_node_data(
             class_type="MZ_KolorsUNETLoaderV2",
             inputs=kwargs,
@@ -65,6 +48,35 @@ class MZ_KolorsUNETLoaderV2(BizyAirBaseNode):
             self.assigned_id, {self.assigned_id: node_data}, config_file=config_file
         )
         return (out,)
+
+    # @classmethod
+    # def VALIDATE_INPUTS(cls, unet_name):
+    #     # TODO
+    #     import warnings
+
+    #     warnings.warn(message=f"TODO fix {cls}VALIDATE_INPUTS")
+    #     if unet_name == "" or unet_name is None:
+    #         return False
+    #     return True
+
+    # def load_unet(self, **kwargs):
+    #     model_version_id = kwargs.get("model_version_id", "")
+    #     if model_version_id != "":
+    #         # use model version id as lora name
+    #         unet_name = (
+    #             f"{config_manager.get_model_version_id_prefix()}{model_version_id}"
+    #         )
+    #         kwargs["unet_name"] = unet_name
+    #     node_data = create_node_data(
+    #         class_type="MZ_KolorsUNETLoaderV2",
+    #         inputs=kwargs,
+    #         outputs={"slot_index": 0},
+    #     )
+    #     config_file = folder_paths.guess_config(unet_name=kwargs["unet_name"])
+    #     out = BizyAirNodeIO(
+    #         self.assigned_id, {self.assigned_id: node_data}, config_file=config_file
+    #     )
+    #     return (out,)
 
 
 WEIGHT_TYPES = [
