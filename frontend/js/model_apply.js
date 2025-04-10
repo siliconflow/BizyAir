@@ -4,8 +4,19 @@ import './bizyair_frontend.js'
 import { hideWidget } from './subassembly/tools.js'
 
 const possibleWidgetNames=[
+    "clip_name",
+    "clip_name1",
+    "clip_name2",
+    "ckpt_name",
     "lora_name",
-    "control_net_name"
+    "control_net_name",
+    "ipadapter_file",
+    "unet_name",
+    "vae_name",
+    "model_name",
+    "instantid_file",
+    "pulid_file",
+    "style_model_name",
 ]
 function createSetWidgetCallback(modelType) {
     return function setWidgetCallback() {
@@ -170,3 +181,254 @@ app.registerExtension({
         }
     }
 })
+
+
+
+app.registerExtension({
+    name: "bizyair.siliconcloud.share.checkpoint.loader.new",
+    async beforeRegisterNodeDef(nodeType, nodeData, app) {
+        if (nodeData.name === "BizyAir_CheckpointLoaderSimple") {
+            const onNodeCreated = nodeType.prototype.onNodeCreated;
+            nodeType.prototype.onNodeCreated = function() {
+                try {
+                    const result = onNodeCreated?.apply(this, arguments);
+                    createSetWidgetCallback("Checkpoint").call(this);
+                    return result;
+                } catch (error) {
+                    console.error("Error in node creation:", error);
+                }
+            };
+        }
+    },
+
+    async nodeCreated(node) {
+        if (node?.comfyClass === "BizyAir_CheckpointLoaderSimple") {
+            setupNodeMouseBehavior(node, "Checkpoint");
+        }
+    }
+})
+
+
+// app.registerExtension({
+//     name: "bizyair.siliconcloud.share.clipvision.loader.new",
+//     async beforeRegisterNodeDef(nodeType, nodeData, app) {
+//         if (nodeData.name === "BizyAir_CLIPVisionLoader") {
+//             const onNodeCreated = nodeType.prototype.onNodeCreated;
+//             nodeType.prototype.onNodeCreated = function() {
+//                 try {
+//                     const result = onNodeCreated?.apply(this, arguments);
+//                     createSetWidgetCallback("Clip").call(this);
+//                     return result;
+//                 } catch (error) {
+//                     console.error("Error in node creation:", error);
+//                 }
+//             };
+//         }
+//     },
+
+//     async nodeCreated(node) {
+//         if (node?.comfyClass === "BizyAir_CLIPVisionLoader") {
+//             setupNodeMouseBehavior(node, "Clip");
+//         }
+//     }
+// })
+
+// app.registerExtension({
+//     name: "bizyair.siliconcloud.share.clip.loader.new",
+//     async beforeRegisterNodeDef(nodeType, nodeData, app) {
+//         // console.log(nodeData.name)
+//         if (nodeData.name === "BizyAir_DualCLIPLoader") {
+//             const onNodeCreated = nodeType.prototype.onNodeCreated;
+//             nodeType.prototype.onNodeCreated = function() {
+//                 try {
+//                     const result = onNodeCreated?.apply(this, arguments);
+//                     createSetWidgetCallback("Clip").call(this);
+//                     return result;
+//                 } catch (error) {
+//                     console.error("Error in node creation:", error);
+//                 }
+//             };
+//         }
+//     },
+
+//     async nodeCreated(node) {
+//         if (node?.comfyClass === "BizyAir_DualCLIPLoader") {
+//             setupNodeMouseBehavior(node, "Clip");
+//         }
+//     }
+// })
+
+// app.registerExtension({
+//     name: "bizyair.siliconcloud.share.ipadapter.loader.new",
+//     async beforeRegisterNodeDef(nodeType, nodeData, app) {
+//         // console.log(nodeData.name)
+//         if (nodeData.name === "BizyAir_IPAdapterModelLoader") {
+//             const onNodeCreated = nodeType.prototype.onNodeCreated;
+//             nodeType.prototype.onNodeCreated = function() {
+//                 try {
+//                     const result = onNodeCreated?.apply(this, arguments);
+//                     createSetWidgetCallback("Ipadapter").call(this);
+//                     return result;
+//                 } catch (error) {
+//                     console.error("Error in node creation:", error);
+//                 }
+//             };
+//         }
+//     },
+
+//     async nodeCreated(node) {
+//         if (node?.comfyClass === "BizyAir_IPAdapterModelLoader") {
+//             setupNodeMouseBehavior(node, "Ipadapter");
+//         }
+//     }
+// })
+
+// app.registerExtension({
+//     name: "bizyair.siliconcloud.share.unet.loader.new",
+//     async beforeRegisterNodeDef(nodeType, nodeData, app) {
+//         console.log(nodeData.name)
+//         if (nodeData.name === "BizyAir_MZ_KolorsUNETLoaderV2" || nodeData.name === "BizyAir_UNETLoader") {
+//             const onNodeCreated = nodeType.prototype.onNodeCreated;
+//             nodeType.prototype.onNodeCreated = function() {
+//                 try {
+//                     const result = onNodeCreated?.apply(this, arguments);
+//                     createSetWidgetCallback("Unet").call(this);
+//                     return result;
+//                 } catch (error) {
+//                     console.error("Error in node creation:", error);
+//                 }
+//             };
+//         }
+//     },
+
+//     async nodeCreated(node) {
+//         if (node?.comfyClass === "BizyAir_MZ_KolorsUNETLoaderV2" || node?.comfyClass === "BizyAir_UNETLoader") {
+//             setupNodeMouseBehavior(node, "Unet");
+//         }
+//     }
+// })
+
+// app.registerExtension({
+//     name: "bizyair.siliconcloud.share.vae.loader.new",
+//     async beforeRegisterNodeDef(nodeType, nodeData, app) {
+//         console.log(nodeData.name)
+//         if (nodeData.name === "BizyAir_VAELoader") {
+//             const onNodeCreated = nodeType.prototype.onNodeCreated;
+//             nodeType.prototype.onNodeCreated = function() {
+//                 try {
+//                     const result = onNodeCreated?.apply(this, arguments);
+//                     createSetWidgetCallback("Vae").call(this);
+//                     return result;
+//                 } catch (error) {
+//                     console.error("Error in node creation:", error);
+//                 }
+//             };
+//         }
+//     },
+
+//     async nodeCreated(node) {
+//         if (node?.comfyClass === "BizyAir_VAELoader") {
+//             setupNodeMouseBehavior(node, "Vae");
+//         }
+//     }
+// })
+
+// app.registerExtension({
+//     name: "bizyair.siliconcloud.share.upscale.loader.new",
+//     async beforeRegisterNodeDef(nodeType, nodeData, app) {
+//         console.log(nodeData.name)
+//         if (nodeData.name === "BizyAir_UpscaleModelLoader") {
+//             const onNodeCreated = nodeType.prototype.onNodeCreated;
+//             nodeType.prototype.onNodeCreated = function() {
+//                 try {
+//                     const result = onNodeCreated?.apply(this, arguments);
+//                     createSetWidgetCallback("Upscale_models").call(this);
+//                     return result;
+//                 } catch (error) {
+//                     console.error("Error in node creation:", error);
+//                 }
+//             };
+//         }
+//     },
+
+//     async nodeCreated(node) {
+//         if (node?.comfyClass === "BizyAir_UpscaleModelLoader") {
+//             setupNodeMouseBehavior(node, "Upscale_models");
+//         }
+//     }
+// })
+
+// app.registerExtension({
+//     name: "bizyair.siliconcloud.share.instantid.loader.new",
+//     async beforeRegisterNodeDef(nodeType, nodeData, app) {
+//         console.log(nodeData.name)
+//         if (nodeData.name === "BizyAir_InstantIDModelLoader") {
+//             const onNodeCreated = nodeType.prototype.onNodeCreated;
+//             nodeType.prototype.onNodeCreated = function() {
+//                 try {
+//                     const result = onNodeCreated?.apply(this, arguments);
+//                     createSetWidgetCallback("Instantid").call(this);
+//                     return result;
+//                 } catch (error) {
+//                     console.error("Error in node creation:", error);
+//                 }
+//             };
+//         }
+//     },
+
+//     async nodeCreated(node) {
+//         if (node?.comfyClass === "BizyAir_InstantIDModelLoader") {
+//             setupNodeMouseBehavior(node, "Instantid");
+//         }
+//     }
+// })
+
+// app.registerExtension({
+//     name: "bizyair.siliconcloud.share.pulid.loader.new",
+//     async beforeRegisterNodeDef(nodeType, nodeData, app) {
+//         console.log(nodeData.name)
+//         if (nodeData.name === "BizyAir_PulidFluxModelLoader") {
+//             const onNodeCreated = nodeType.prototype.onNodeCreated;
+//             nodeType.prototype.onNodeCreated = function() {
+//                 try {
+//                     const result = onNodeCreated?.apply(this, arguments);
+//                     createSetWidgetCallback("Pulid").call(this);
+//                     return result;
+//                 } catch (error) {
+//                     console.error("Error in node creation:", error);
+//                 }
+//             };
+//         }
+//     },
+
+//     async nodeCreated(node) {
+//         if (node?.comfyClass === "BizyAir_PulidFluxModelLoader") {
+//             setupNodeMouseBehavior(node, "Pulid");
+//         }
+//     }
+// })
+
+// app.registerExtension({
+//     name: "bizyair.siliconcloud.share.style.loader.new",
+//     async beforeRegisterNodeDef(nodeType, nodeData, app) {
+//         console.log(nodeData.name)
+//         if (nodeData.name === "BizyAir_StyleModelLoader") {
+//             const onNodeCreated = nodeType.prototype.onNodeCreated;
+//             nodeType.prototype.onNodeCreated = function() {
+//                 try {
+//                     const result = onNodeCreated?.apply(this, arguments);
+//                     createSetWidgetCallback("Style_models").call(this);
+//                     return result;
+//                 } catch (error) {
+//                     console.error("Error in node creation:", error);
+//                 }
+//             };
+//         }
+//     },
+
+//     async nodeCreated(node) {
+//         if (node?.comfyClass === "BizyAir_StyleModelLoader") {
+//             setupNodeMouseBehavior(node, "Style_models");
+//         }
+//     }
+// })

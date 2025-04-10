@@ -9,6 +9,17 @@ class UpscaleModelLoader(BizyAirBaseNode):
         return {
             "required": {
                 "model_name": (folder_paths.get_filename_list("upscale_models"),),
+                # "model_name": (
+                #     [
+                #         "to choose",
+                #     ],
+                # ),
+                # "model_version_id": (
+                #     "STRING",
+                #     {
+                #         "default": "",
+                #     },
+                # ),
             }
         }
 
