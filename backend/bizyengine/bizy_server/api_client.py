@@ -37,7 +37,7 @@ class APIClient:
                 "content-type": "application/json",
                 "authorization": auth,
                 "x-bizyair-client-version": CLIENT_VERSION,
-                "x-header-from": "bizyair",
+                "X-Client-Type": "bizyair",
             }
             if BIZYAIR_PRODUCTION_TEST != None:
                 headers["x-bizyair-production-test"] = BIZYAIR_PRODUCTION_TEST
