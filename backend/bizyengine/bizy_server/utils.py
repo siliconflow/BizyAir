@@ -7,6 +7,15 @@ from .resp import ErrResponse
 TYPE_OPTIONS = {
     "LoRA": "LoRA",
     "Controlnet": "Controlnet",
+    "Checkpoint": "Checkpoint",
+    # "Clip": "Clip",
+    # "Ipadapter": "Ipadapter",
+    # "Unet": "Unet",
+    # "Vae": "Vae",
+    # "Upscale_models": "Upscale_models",
+    # "Instantid": "Instantid",
+    # "Pulid": "Pulid",
+    # "Style_models": "Style_models",
 }
 
 BASE_MODEL_TYPE_OPTIONS = {
@@ -17,6 +26,8 @@ BASE_MODEL_TYPE_OPTIONS = {
     "Pony": "Pony",
     "Kolors": "Kolors",
     "Hunyuan 1": "Hunyuan 1",
+    "Hunyuan Video": "Hunyuan Video",
+    "Wan Video": "Wan Video",
     "Other": "Other",
 }
 
