@@ -136,47 +136,11 @@ class GenerateLightningImage:
         return (tensors,)
 
 
-class ToggleServerEndpoint:
-    BIZYAIR_SERVER_ENDPOINTS = [
-        "https://api.bizyair.cn/x/v1",
-        "https://api.bizyair.cn/x/v1",
-    ]
-
-    def __init__(self):
-        self.current_index = 0
-
-    @classmethod
-    def INPUT_TYPES(s):
-        return {
-            "required": {
-                "endpoint": (s.BIZYAIR_SERVER_ENDPOINTS,),
-            }
-        }
-
-    RETURN_TYPES = ()
-    FUNCTION = "toggle_endpoint"
-    OUTPUT_NODE = True
-
-    CATEGORY = "☁️BizyAir"
-
-    def toggle_endpoint(self, endpoint):
-        BIZYAIR_SERVER_ADDRESS.address = endpoint
-        from server import PromptServer
-
-        PromptServer.instance.send_sync(
-            "bizyair.server.endpoint.switch",
-            {"message": f"Switch server endpoint to {endpoint}"},
-        )
-        return ()
-
-
 NODE_CLASS_MAPPINGS = {
     "BizyAirRemoveBackground": RemoveBackground,
     "BizyAirGenerateLightningImage": GenerateLightningImage,
-    "BizyAirToggleServerEndpoint": ToggleServerEndpoint,
 }
 NODE_DISPLAY_NAME_MAPPINGS = {
     "BizyAirRemoveBackground": "☁️BizyAir Remove Image Background",
     "BizyAirGenerateLightningImage": "☁️BizyAir Generate Photorealistic Images",
-    "BizyAirToggleServerEndpoint": "☁️BizyAir Switch Server Endpoint",
 }
