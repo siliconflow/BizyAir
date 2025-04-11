@@ -4,19 +4,19 @@ import './bizyair_frontend.js'
 import { hideWidget } from './subassembly/tools.js'
 
 const possibleWidgetNames=[
-    "clip_name",
-    "clip_name1",
-    "clip_name2",
+    // "clip_name",
+    // "clip_name1",
+    // "clip_name2",
     "ckpt_name",
     "lora_name",
     "control_net_name",
-    "ipadapter_file",
-    "unet_name",
-    "vae_name",
-    "model_name",
-    "instantid_file",
-    "pulid_file",
-    "style_model_name",
+    // "ipadapter_file",
+    // "unet_name",
+    // "vae_name",
+    // "model_name",
+    // "instantid_file",
+    // "pulid_file",
+    // "style_model_name",
 ]
 function createSetWidgetCallback(modelType) {
     return function setWidgetCallback() {
