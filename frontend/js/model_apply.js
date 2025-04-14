@@ -156,8 +156,7 @@ app.registerExtension({
                     try {
                         const result = onNodeCreated?.apply(this, arguments);
                         let selectedBaseModels = [];if (nodeData.name === nodeDataNames.Checkpoint) {
-                            selectedBaseModels = ['SDXL', 'Pony', 'SD 3.5']
-                            // 'Illustrious',
+                            selectedBaseModels = ['SDXL', 'Pony', 'SD 3.5', 'Illustrious']
                         }
                         createSetWidgetCallback(key, selectedBaseModels).call(this);
                         return result;
