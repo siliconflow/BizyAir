@@ -18,7 +18,7 @@ const possibleWidgetNames=[
     "pulid_file",
     "style_model_name",
 ]
-function createSetWidgetCallback(modelType) {
+function createSetWidgetCallback(modelType, selectedBaseModels = []) {
     return function setWidgetCallback() {
         const targetWidget = this.widgets.find(widget => possibleWidgetNames.includes(widget.name));
         if (targetWidget) {
@@ -40,7 +40,7 @@ function createSetWidgetCallback(modelType) {
                         if (typeof bizyAirLib !== 'undefined' && typeof bizyAirLib.showModelSelect === 'function') {
                             bizyAirLib.showModelSelect({
                                 modelType: [modelType],
-                                selectedBaseModels: [],
+                                selectedBaseModels,
                                 onApply: (version, model) => {
                                     if (!currentNode || !currentNode.widgets) return;
 
@@ -155,7 +155,11 @@ app.registerExtension({
                 nodeType.prototype.onNodeCreated = function() {
                     try {
                         const result = onNodeCreated?.apply(this, arguments);
-                        createSetWidgetCallback(key).call(this);
+                        let selectedBaseModels = [];if (nodeData.name === nodeDataNames.Checkpoint) {
+                            selectedBaseModels = ['SDXL', 'Pony', 'SD 3.5']
+                            // 'Illustrious',
+                        }
+                        createSetWidgetCallback(key, selectedBaseModels).call(this);
                         return result;
                     } catch (error) {
                         console.error("Error in node creation:", error);
