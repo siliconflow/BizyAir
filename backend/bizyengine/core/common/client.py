@@ -17,9 +17,12 @@ __all__ = ["send_request"]
 
 from dataclasses import dataclass, field
 
-from .env_var import BIZYAIR_API_KEY, BIZYAIR_DEBUG, BIZYAIR_SERVER_ADDRESS
-
-IS_API_KEY_VALID = None
+from .env_var import (
+    BIZYAIR_API_KEY,
+    BIZYAIR_DEBUG,
+    BIZYAIR_SERVER_ADDRESS,
+    create_api_key_file,
+)
 
 version_path = os.path.join(os.path.dirname(__file__), "..", "..", "version.txt")
 with open(version_path, "r") as file:
@@ -29,34 +32,37 @@ with open(version_path, "r") as file:
 @dataclass
 class APIKeyState:
     current_api_key: str = field(default=None)
-    is_valid: bool = field(default=None)
+    is_valid: bool = field(default=False)
 
 
+# Actual api key in use
 api_key_state = APIKeyState()
 
 
-def set_api_key(api_key: str = "YOUR_API_KEY", override: bool = False):
-    global BIZYAIR_API_KEY, api_key_state
-    if api_key_state.is_valid is not None and not override:
+def set_api_key(api_key: str = "YOUR_API_KEY", override: bool = False) -> bool:
+    global api_key_state
+    if api_key_state.is_valid and not override:
         warnings.warn("API key has already been set and will not be overridden.")
-        return
+        return True
     if validate_api_key(api_key):
-        BIZYAIR_API_KEY = api_key
+        create_api_key_file(api_key)
         api_key_state.is_valid = True
+        api_key_state.current_api_key = api_key
         print("\033[92mAPI key is set successfully.\033[0m")
+        return True
     else:
-        api_key_state.is_valid = False
         warnings.warn("Invalid API key provided.")
+        return False
 
 
 def validate_api_key(api_key: str = None) -> bool:
-    global api_key_state
     if not api_key or not isinstance(api_key, str):
-        warnings.warn("API key is not set.")
+        warnings.warn("invalid api_key")
         return False
+
+    is_valid = False
     # if api_key_state.current_api_key == api_key and api_key_state.is_valid is not None:
     #     return api_key_state.is_valid
-    api_key_state.current_api_key = api_key
     url = f"{BIZYAIR_SERVER_ADDRESS}/user/info"
     headers = {"accept": "application/json", "authorization": f"Bearer {api_key}"}
     try:
@@ -64,34 +70,34 @@ def validate_api_key(api_key: str = None) -> bool:
             method="GET", url=url, headers=headers, callback=None
         )
         if "message" not in response_data or response_data["message"] != "Ok":
-            api_key_state.is_valid = False
             raise ValueError(
                 f"\033[91mAPI key validation failed. API Key: {api_key}\033[0m"
             )
         else:
-            api_key_state.is_valid = True
+            is_valid = True
     except ConnectionError as ce:
-        api_key_state.is_valid = False
         raise ValueError(f"\033[91mConnection error: {ce}\033[0m")
     except PermissionError as pe:
-        api_key_state.is_valid = False
         raise ValueError(
             f"\033[91mError validating API key: {api_key}, error: {pe}\033[0m"
         )
     except Exception as e:
-        api_key_state.is_valid = False
         raise ValueError(f"\033[91mOther error: {e}\033[0m")
-    return api_key_state.is_valid
+
+    return is_valid
 
 
 def get_api_key() -> str:
-    global BIZYAIR_API_KEY
+    global api_key_state
     try:
-        validate_api_key(BIZYAIR_API_KEY)
+        if not api_key_state.is_valid:
+            if validate_api_key(BIZYAIR_API_KEY):
+                api_key_state.is_valid = True
+                api_key_state.current_api_key = BIZYAIR_API_KEY
     except Exception as e:
         print(str(e))
         raise ValueError(str(e))
-    return BIZYAIR_API_KEY
+    return api_key_state.current_api_key
 
 
 def _headers():
@@ -261,7 +267,8 @@ async def async_send_request(
 def fetch_models_by_type(
     url: str, model_type: str, *, method="GET", verbose=False
 ) -> dict:
-    if not validate_api_key(BIZYAIR_API_KEY):
+    global api_key_state
+    if not api_key_state.is_valid:
         return {}
 
     payload = {"type": model_type}

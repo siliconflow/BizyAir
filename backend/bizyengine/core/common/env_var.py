@@ -59,7 +59,6 @@ def env(key, type_, default=None):
 
 
 def load_api_key():
-
     file_path = BIZYAIR_COMFYUI_PATH / "api_key.ini"
 
     if file_path.is_file() and file_path.exists():
@@ -94,6 +93,7 @@ BIZYAIR_Y_SERVER = f"{_BIZYAIR_DOMAIN}/y/v1"
 
 BIZYAIR_SERVER_ADDRESS = ServerAddress(BIZYAIR_X_SERVER)
 
+# Initial value, DO NOT USE IN ACTUAL CODE!!!
 BIZYAIR_API_KEY = env("BIZYAIR_API_KEY", str, load_api_key()[1])
 # Development Settings
 BIZYAIR_DEV_REQUEST_URL = env("BIZYAIR_DEV_REQUEST_URL", str, None)
