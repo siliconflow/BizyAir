@@ -2,7 +2,6 @@ import os
 import uuid
 from pathlib import Path
 
-import bizyengine.core
 import bizyengine.core.common
 import server
 from aiohttp import web
@@ -23,7 +22,7 @@ async def set_api_key(request):
         data = await request.post()
         api_key = data.get("api_key")
         if api_key:
-            if not bizyengine.core.set_api_key(api_key, True):
+            if not bizyengine.core.common.set_api_key(api_key, True):
                 error_msg = "Wrong API key provided, please refer to cloud.siliconflow.cn to get the key"
                 print("set_api_key:", error_msg)
                 return web.Response(
@@ -48,7 +47,6 @@ async def set_api_key(request):
 async def get_api_key(request):
     try:
         if bizyengine.core.common.get_api_key():
-            print("test test test")
             return web.Response(text="Key has been loaded from the api_key.ini file")
         else:
             api_key = request.cookies.get("api_key")
@@ -58,7 +56,7 @@ async def get_api_key(request):
                     text="No api key found in cookies, please refer to cloud.siliconflow.cn to get the key",
                     status=404,
                 )
-            if bizyengine.core.set_api_key(api_key):
+            if bizyengine.core.common.set_api_key(api_key):
                 return web.Response(text="Key has been loaded from the cookies")
             return web.Response(text="Cannot set api key", status=500)
 
