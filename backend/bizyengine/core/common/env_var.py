@@ -2,6 +2,7 @@ import configparser
 import os
 from os import environ
 from pathlib import Path
+import logging
 
 BIZYAIR_COMFYUI_PATH = Path(os.environ.get("BIZYAIR_COMFYUI_PATH", "./"))
 print(f"\033[92m[BizyAir]\033[0m BizyAir ComfyUI Plugin: {str(BIZYAIR_COMFYUI_PATH)}")
@@ -59,7 +60,7 @@ def env(key, type_, default=None):
 
 
 def load_api_key():
-    print("load_api_key called")
+    logging.info("load_api_key called")
     file_path = BIZYAIR_COMFYUI_PATH / "api_key.ini"
 
     if file_path.is_file() and file_path.exists():
@@ -73,7 +74,7 @@ def load_api_key():
 
 
 def create_api_key_file(api_key):
-    print("create_api_key_file called")
+    logging.info("create_api_key_file called")
     config = configparser.ConfigParser()
     config["auth"] = {"api_key": api_key}
     file_path = BIZYAIR_COMFYUI_PATH / "api_key.ini"

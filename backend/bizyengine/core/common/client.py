@@ -1,12 +1,13 @@
 import json
 import os
-import pprint
+import plogging.info
 import urllib.error
 import urllib.request
 import warnings
 from abc import ABC, abstractmethod
 from collections import defaultdict
 from typing import Any, Union
+import logging
 
 import aiohttp
 import comfy
@@ -40,7 +41,7 @@ api_key_state = APIKeyState()
 
 
 def set_api_key(api_key: str = "YOUR_API_KEY", override: bool = False) -> bool:
-    print("client.py set_api_key called")
+    logging.info("client.py set_api_key called")
     global api_key_state
     if api_key_state.is_valid and not override:
         warnings.warn("API key has already been set and will not be overridden.")
@@ -49,7 +50,7 @@ def set_api_key(api_key: str = "YOUR_API_KEY", override: bool = False) -> bool:
         create_api_key_file(api_key)
         api_key_state.is_valid = True
         api_key_state.current_api_key = api_key
-        print("\033[92mAPI key is set successfully.\033[0m")
+        logging.info("\033[92mAPI key is set successfully.\033[0m")
         return True
     else:
         warnings.warn("Invalid API key provided.")
@@ -57,7 +58,7 @@ def set_api_key(api_key: str = "YOUR_API_KEY", override: bool = False) -> bool:
 
 
 def validate_api_key(api_key: str = None) -> bool:
-    print("validating api key...")
+    logging.info("validating api key...")
     if not api_key or not isinstance(api_key, str):
         warnings.warn("invalid api_key")
         return False
@@ -86,21 +87,21 @@ def validate_api_key(api_key: str = None) -> bool:
     except Exception as e:
         raise ValueError(f"\033[91mOther error: {e}\033[0m")
 
-    print(f"api key validated: {is_valid}")
+    logging.info(f"api key validated: {is_valid}")
     return is_valid
 
 
 def get_api_key() -> str:
-    print("client.py get_api_key called")
+    logging.info("client.py get_api_key called")
     global api_key_state
     try:
         if not api_key_state.is_valid:
             if validate_api_key(BIZYAIR_API_KEY):
                 api_key_state.is_valid = True
                 api_key_state.current_api_key = BIZYAIR_API_KEY
-                print("API key set successfully")
+                logging.info("API key set successfully")
     except Exception as e:
-        print(str(e))
+        logging.info(str(e))
         raise ValueError(str(e))
     return api_key_state.current_api_key
 
@@ -152,8 +153,8 @@ def send_request(
         error_message = str(e)
         response_body = e.read().decode("utf-8") if hasattr(e, "read") else "N/A"
         if verbose:
-            print(f"URLError encountered: {error_message}")
-            print(f"Response Body: {response_data}")
+            logging.info(f"URLError encountered: {error_message}")
+            logging.info(f"Response Body: {response_data}")
         code, message = "N/A", "N/A"
         try:
             response_dict = json.loads(response_body)
@@ -163,7 +164,7 @@ def send_request(
 
         except json.JSONDecodeError:
             if verbose:
-                print("Failed to decode response body as JSON.")
+                logging.info("Failed to decode response body as JSON.")
 
         if "Unauthorized" in error_message:
             raise PermissionError(
@@ -245,7 +246,7 @@ async def async_send_request(
                 if response.status != 200:
                     error_message = f"HTTP Status {response.status}"
                     if verbose:
-                        print(f"Error encountered: {error_message}")
+                        logging.info(f"Error encountered: {error_message}")
                     if response.status == 401:
                         raise PermissionError(
                             "Key is invalid, please refer to https://cloud.siliconflow.cn to get the API key.\n"
@@ -262,10 +263,10 @@ async def async_send_request(
                     return callback(json.loads(response_data))
                 return json.loads(response_data)
     except aiohttp.ClientError as e:
-        print(f"Error fetching data: {e}")
+        logging.info(f"Error fetching data: {e}")
         return {}
     except Exception as e:
-        print(f"Error fetching data: {str(e)}")
+        logging.info(f"Error fetching data: {str(e)}")
         return {}
 
 
@@ -278,7 +279,7 @@ def fetch_models_by_type(
 
     payload = {"type": model_type}
     if BIZYAIR_DEBUG:
-        pprint.pprint(payload)
+        plogging.info.plogging.info(payload)
     msg = send_request(
         method=method,
         url=url,

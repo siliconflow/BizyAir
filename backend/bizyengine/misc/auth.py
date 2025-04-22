@@ -5,6 +5,7 @@ from pathlib import Path
 import bizyengine.core.common
 import server
 from aiohttp import web
+import logging
 
 # html_file_path = Path(os.path.dirname(os.path.abspath(__file__))) / "set_api_key.html"
 # with open(html_file_path, "r", encoding="utf-8") as htmlfile:
@@ -24,43 +25,43 @@ async def set_api_key(request):
         if api_key:
             if not bizyengine.core.common.set_api_key(api_key, True):
                 error_msg = "Wrong API key provided, please refer to cloud.siliconflow.cn to get the key"
-                print("set_api_key:", error_msg)
+                logging.info("set_api_key:", error_msg)
                 return web.Response(
                     text=error_msg,
                     status=400,
                 )
-            print("Set the key sucessfully.")
+            logging.info("Set the key sucessfully.")
             return web.Response(text="ok")
         else:
             error_msg = "No API key provided, please refer to cloud.siliconflow.cn to get the key"
-            print("set_api_key:", error_msg)
+            logging.info("set_api_key:", error_msg)
             return web.Response(
                 text=error_msg,
                 status=400,
             )
     except Exception as e:
-        print(f"set api key error: {str(e)}")
+        logging.info(f"set api key error: {str(e)}")
         return web.Response(text=str(e), status=500)
 
 
 @server.PromptServer.instance.routes.get("/bizyair/get_api_key")
 async def get_api_key(request):
-    print("auth.py get_api_key called")
+    logging.info("auth.py get_api_key called")
     try:
         if bizyengine.core.common.get_api_key():
             return web.Response(text="Key has been loaded from the api_key.ini file")
         else:
-            print("getting api key from cookie")
+            logging.info("getting api key from cookie")
             api_key = request.cookies.get("api_key")
             if not api_key:
-                print("No api key found in cookies")
+                logging.info("No api key found in cookies")
                 return web.Response(
                     text="No api key found in cookies, please refer to cloud.siliconflow.cn to get the key",
                     status=404,
                 )
             if bizyengine.core.common.set_api_key(api_key):
                 return web.Response(text="Key has been loaded from the cookies")
-            print("cannot set api key")
+            logging.info("cannot set api key")
             return web.Response(text="Cannot set api key", status=500)
 
     except Exception as e:
