@@ -24,6 +24,7 @@ BASE_MODEL_TYPE_OPTIONS = {
     "SD 1.5": "SD 1.5",
     "SD 3.5": "SD 3.5",
     "Pony": "Pony",
+    "Illustrious": "Illustrious",
     "Kolors": "Kolors",
     "Hunyuan 1": "Hunyuan 1",
     "Hunyuan Video": "Hunyuan Video",
