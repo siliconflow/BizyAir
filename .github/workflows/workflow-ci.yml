@@ -109,10 +109,10 @@ jobs:
       run: |
         cd backend
         python3 -m pip install -e .
-        cd ../frontend
-        python3 -m build
-        frontend_version=$(cat version.txt)
-        python3 -m pip install dist/bizyui-${frontend_version}-py3-none-any.whl
+#        cd ../frontend
+#        python3 -m build
+#        frontend_version=$(cat version.txt)
+#        python3 -m pip install dist/bizyui-${frontend_version}-py3-none-any.whl
 
     - name: Run ComfyUI on Linux
       if: matrix.os == 'ubuntu-latest'
@@ -123,12 +123,11 @@ jobs:
         cd custom_nodes/BizyAir
         echo "Current directory: $(pwd)"
         python3 tests/write_api_ini_file.py
-        echo "Running test script now"
         python3 tests/${{ env.test_script }}
       env:
         BIZYAIR_KEY: ${{ secrets.BIZYAIR_KEY }}
         BIZYAIR_API_KEY: ${{ secrets.BIZYAIR_KEY }}
-        BIZYAIR_DOMAIN: ${{ vars.BIZYAIR_DOMAIN }}
+        BIZYAIR_SERVER_ADDRESS: ${{ vars.BIZYAIR_SERVER_ADDRESS }}
         PYTHONPATH: ${{ github.workspace }}/ComfyUI
         BIZYAIR_TEST_SKIP_WORKFLOW_IDS: ${{ vars.BIZYAIR_TEST_SKIP_WORKFLOW_IDS }}
         BIZYAIR_OFFICIAL_WORKFLOW_MAX_TOTAL: ${{ vars.BIZYAIR_OFFICIAL_WORKFLOW_MAX_TOTAL }}
@@ -146,7 +145,7 @@ jobs:
       env:
         BIZYAIR_KEY: ${{ secrets.BIZYAIR_KEY }}
         BIZYAIR_API_KEY: ${{ secrets.BIZYAIR_KEY }}
-        BIZYAIR_DOMAIN: ${{ vars.BIZYAIR_DOMAIN }}
+        BIZYAIR_SERVER_ADDRESS: ${{ vars.BIZYAIR_SERVER_ADDRESS }}
         PYTHONPATH: ${{ github.workspace }}/ComfyUI
         PYTHONIOENCODING: utf-8
         BIZYAIR_TEST_SKIP_WORKFLOW_IDS: ${{ vars.BIZYAIR_TEST_SKIP_WORKFLOW_IDS }}
