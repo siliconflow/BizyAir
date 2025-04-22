@@ -120,6 +120,7 @@ jobs:
         cd custom_nodes/BizyAir
         echo "Current directory: $(pwd)"
         python3 tests/write_api_ini_file.py
+        echo "Running test script now"
         python3 tests/${{ env.test_script }}
       env:
         BIZYAIR_KEY: ${{ secrets.BIZYAIR_KEY }}
