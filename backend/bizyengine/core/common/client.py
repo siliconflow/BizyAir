@@ -1,6 +1,6 @@
 import json
 import os
-import plogging.info
+import pprint
 import urllib.error
 import urllib.request
 import warnings
@@ -279,7 +279,7 @@ def fetch_models_by_type(
 
     payload = {"type": model_type}
     if BIZYAIR_DEBUG:
-        plogging.info.plogging.info(payload)
+        pprint.pprint(payload)
     msg = send_request(
         method=method,
         url=url,
