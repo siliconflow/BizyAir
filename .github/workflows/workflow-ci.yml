@@ -108,6 +108,7 @@ jobs:
     - name: Install Local BizyAir
       working-directory: ComfyUI/custom_nodes/BizyAir
       run: |
+        python3 -m pip uninstall bizyengine -y
         cd backend
         python3 -m pip install -e .
 #        cd ../frontend
