@@ -59,6 +59,7 @@ def env(key, type_, default=None):
 
 
 def load_api_key():
+    print("load_api_key called")
     file_path = BIZYAIR_COMFYUI_PATH / "api_key.ini"
 
     if file_path.is_file() and file_path.exists():
@@ -72,6 +73,7 @@ def load_api_key():
 
 
 def create_api_key_file(api_key):
+    print("create_api_key_file called")
     config = configparser.ConfigParser()
     config["auth"] = {"api_key": api_key}
     file_path = BIZYAIR_COMFYUI_PATH / "api_key.ini"

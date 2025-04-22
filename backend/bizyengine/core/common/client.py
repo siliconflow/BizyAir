@@ -40,6 +40,7 @@ api_key_state = APIKeyState()
 
 
 def set_api_key(api_key: str = "YOUR_API_KEY", override: bool = False) -> bool:
+    print("client.py set_api_key called")
     global api_key_state
     if api_key_state.is_valid and not override:
         warnings.warn("API key has already been set and will not be overridden.")
@@ -85,10 +86,12 @@ def validate_api_key(api_key: str = None) -> bool:
     except Exception as e:
         raise ValueError(f"\033[91mOther error: {e}\033[0m")
 
+    print(f"api key validated: {is_valid}")
     return is_valid
 
 
 def get_api_key() -> str:
+    print("client.py get_api_key called")
     global api_key_state
     try:
         if not api_key_state.is_valid:

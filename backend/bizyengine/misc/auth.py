@@ -45,10 +45,12 @@ async def set_api_key(request):
 
 @server.PromptServer.instance.routes.get("/bizyair/get_api_key")
 async def get_api_key(request):
+    print("auth.py get_api_key called")
     try:
         if bizyengine.core.common.get_api_key():
             return web.Response(text="Key has been loaded from the api_key.ini file")
         else:
+            print("getting api key from cookie")
             api_key = request.cookies.get("api_key")
             if not api_key:
                 print("No api key found in cookies")
@@ -58,6 +60,7 @@ async def get_api_key(request):
                 )
             if bizyengine.core.common.set_api_key(api_key):
                 return web.Response(text="Key has been loaded from the cookies")
+            print("cannot set api key")
             return web.Response(text="Cannot set api key", status=500)
 
     except Exception as e:
