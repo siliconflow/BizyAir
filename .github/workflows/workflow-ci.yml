@@ -103,6 +103,14 @@ jobs:
         python3 -m pip install -r ComfyUI/custom_nodes/BizyAir/requirements.txt
         python3 -m pip show torch
 
+    - name: Install Local BizyAir
+      working-directory: ComfyUI/custom_nodes/BizyAir
+      run: |
+        cd backend
+        python3 -m pip install -e .
+        cd ../frontend
+        python3 -m pip install -e .
+
     - name: Run ComfyUI on Linux
       if: matrix.os == 'ubuntu-latest'
       run: |
