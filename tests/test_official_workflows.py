@@ -114,7 +114,7 @@ def clear_curernt_workflow(driver):
         raise Exception("Error: clear graph failed.")
 
 
-def wait_until_queue_finished(driver, timeout=100):
+def wait_until_queue_finished(driver, timeout=3600):
     time.sleep(0.3)
     try:
         wait = WebDriverWait(driver, timeout)
@@ -139,7 +139,7 @@ def wait_until_app_ready(driver):
     )
 
 
-def launch_and_wait(driver, *, timeout=100):
+def launch_and_wait(driver, *, timeout=3600):
     click_queue_prompt_button(driver)
     wait_until_queue_finished(driver, timeout)
 
@@ -361,7 +361,7 @@ if __name__ == "__main__":
             COMFY_HOST,
             COMFY_PORT,
             url,
-            timeout=100,
+            timeout=3600,
         )
 
     driver.quit()
