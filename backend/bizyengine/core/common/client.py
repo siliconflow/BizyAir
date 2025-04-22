@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 import pprint
 import urllib.error
@@ -7,7 +8,6 @@ import warnings
 from abc import ABC, abstractmethod
 from collections import defaultdict
 from typing import Any, Union
-import logging
 
 import aiohttp
 import comfy

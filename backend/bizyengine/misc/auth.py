@@ -1,3 +1,4 @@
+import logging
 import os
 import uuid
 from pathlib import Path
@@ -5,7 +6,6 @@ from pathlib import Path
 import bizyengine.core.common
 import server
 from aiohttp import web
-import logging
 
 # html_file_path = Path(os.path.dirname(os.path.abspath(__file__))) / "set_api_key.html"
 # with open(html_file_path, "r", encoding="utf-8") as htmlfile:

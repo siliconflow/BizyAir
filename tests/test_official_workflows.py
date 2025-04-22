@@ -14,9 +14,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
-BIZYAIR_DOMAIN = os.getenv(
-    "BIZYAIR_DOMAIN", "https://api.bizyair.cn"
-)
+BIZYAIR_DOMAIN = os.getenv("BIZYAIR_DOMAIN", "https://api.bizyair.cn")
 BIZYAIR_KEY = os.getenv("BIZYAIR_KEY", "")
 COMFY_HOST = os.getenv("COMFY_HOST", "127.0.0.1")
 COMFY_PORT = os.getenv("COMFY_PORT", "8188")

@@ -1,8 +1,8 @@
 import configparser
+import logging
 import os
 from os import environ
 from pathlib import Path
-import logging
 
 BIZYAIR_COMFYUI_PATH = Path(os.environ.get("BIZYAIR_COMFYUI_PATH", "./"))
 print(f"\033[92m[BizyAir]\033[0m BizyAir ComfyUI Plugin: {str(BIZYAIR_COMFYUI_PATH)}")
