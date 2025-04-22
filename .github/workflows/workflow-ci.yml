@@ -128,7 +128,7 @@ jobs:
         python3 -m pip install -e .
         cd ../frontend
         python3 -m build
-        $frontend_version = Get-Content version.txt -Raw
+        $frontend_version=$($(Get-Content version.txt -Raw) -replace "`n","" -replace "`r","")
         python3 -m pip install dist/bizyui-$frontend_version-py3-none-any.whl
 
     - name: Run ComfyUI on Linux
