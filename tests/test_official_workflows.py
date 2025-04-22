@@ -106,7 +106,7 @@ def click_queue_prompt_button(driver):
         raise Exception("Error: app.queuePrompt() failed.")
 
 
-def clear_curernt_workflow(driver):
+def clear_current_workflow(driver):
     try:
         driver.execute_script("window.app.graph.clear()")
     except Exception as e:
@@ -177,7 +177,7 @@ def launch_prompt(driver, comfy_host, comfy_port, workflow_url, timeout):
             app_ready = True
 
         print(" clear the workflow...")
-        clear_curernt_workflow(driver)
+        clear_current_workflow(driver)
         print(" workflow cleard")
 
         print(" load the target workflow...")

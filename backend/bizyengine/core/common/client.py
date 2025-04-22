@@ -94,6 +94,7 @@ def get_api_key() -> str:
             if validate_api_key(BIZYAIR_API_KEY):
                 api_key_state.is_valid = True
                 api_key_state.current_api_key = BIZYAIR_API_KEY
+                print("API key set successfully")
     except Exception as e:
         print(str(e))
         raise ValueError(str(e))
