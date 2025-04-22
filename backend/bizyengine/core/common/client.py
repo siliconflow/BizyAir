@@ -41,7 +41,7 @@ api_key_state = APIKeyState()
 
 
 def set_api_key(api_key: str = "YOUR_API_KEY", override: bool = False) -> bool:
-    logging.info("client.py set_api_key called")
+    logging.debug("client.py set_api_key called")
     global api_key_state
     if api_key_state.is_valid and not override:
         warnings.warn("API key has already been set and will not be overridden.")
@@ -58,7 +58,7 @@ def set_api_key(api_key: str = "YOUR_API_KEY", override: bool = False) -> bool:
 
 
 def validate_api_key(api_key: str = None) -> bool:
-    logging.info("validating api key...")
+    logging.debug("validating api key...")
     if not api_key or not isinstance(api_key, str):
         warnings.warn("invalid api_key")
         return False
@@ -87,12 +87,12 @@ def validate_api_key(api_key: str = None) -> bool:
     except Exception as e:
         raise ValueError(f"\033[91mOther error: {e}\033[0m")
 
-    logging.info(f"api key validated: {is_valid}")
+    logging.debug(f"api key validated: {is_valid}")
     return is_valid
 
 
 def get_api_key() -> str:
-    logging.info("client.py get_api_key called")
+    logging.debug("client.py get_api_key called")
     global api_key_state
     try:
         if not api_key_state.is_valid:
@@ -101,7 +101,7 @@ def get_api_key() -> str:
                 api_key_state.current_api_key = BIZYAIR_API_KEY
                 logging.info("API key set successfully")
     except Exception as e:
-        logging.info(str(e))
+        logging.error(str(e))
         raise ValueError(str(e))
     return api_key_state.current_api_key
 
@@ -153,7 +153,7 @@ def send_request(
         error_message = str(e)
         response_body = e.read().decode("utf-8") if hasattr(e, "read") else "N/A"
         if verbose:
-            logging.info(f"URLError encountered: {error_message}")
+            logging.error(f"URLError encountered: {error_message}")
             logging.info(f"Response Body: {response_data}")
         code, message = "N/A", "N/A"
         try:
@@ -164,7 +164,7 @@ def send_request(
 
         except json.JSONDecodeError:
             if verbose:
-                logging.info("Failed to decode response body as JSON.")
+                logging.error("Failed to decode response body as JSON.")
 
         if "Unauthorized" in error_message:
             raise PermissionError(
@@ -246,7 +246,7 @@ async def async_send_request(
                 if response.status != 200:
                     error_message = f"HTTP Status {response.status}"
                     if verbose:
-                        logging.info(f"Error encountered: {error_message}")
+                        logging.error(f"Error encountered: {error_message}")
                     if response.status == 401:
                         raise PermissionError(
                             "Key is invalid, please refer to https://cloud.siliconflow.cn to get the API key.\n"
@@ -263,10 +263,10 @@ async def async_send_request(
                     return callback(json.loads(response_data))
                 return json.loads(response_data)
     except aiohttp.ClientError as e:
-        logging.info(f"Error fetching data: {e}")
+        logging.error(f"Error fetching data: {e}")
         return {}
     except Exception as e:
-        logging.info(f"Error fetching data: {str(e)}")
+        logging.error(f"Error fetching data: {str(e)}")
         return {}
 
 

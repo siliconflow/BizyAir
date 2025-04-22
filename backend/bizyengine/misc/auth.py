@@ -25,43 +25,43 @@ async def set_api_key(request):
         if api_key:
             if not bizyengine.core.common.set_api_key(api_key, True):
                 error_msg = "Wrong API key provided, please refer to cloud.siliconflow.cn to get the key"
-                logging.info("set_api_key:", error_msg)
+                logging.error("set_api_key:", error_msg)
                 return web.Response(
                     text=error_msg,
                     status=400,
                 )
-            logging.info("Set the key sucessfully.")
+            logging.info("Set api key sucessfully.")
             return web.Response(text="ok")
         else:
             error_msg = "No API key provided, please refer to cloud.siliconflow.cn to get the key"
-            logging.info("set_api_key:", error_msg)
+            logging.error("set_api_key:", error_msg)
             return web.Response(
                 text=error_msg,
                 status=400,
             )
     except Exception as e:
-        logging.info(f"set api key error: {str(e)}")
+        logging.error(f"set api key error: {str(e)}")
         return web.Response(text=str(e), status=500)
 
 
 @server.PromptServer.instance.routes.get("/bizyair/get_api_key")
 async def get_api_key(request):
-    logging.info("auth.py get_api_key called")
+    logging.debug("auth.py get_api_key called")
     try:
         if bizyengine.core.common.get_api_key():
             return web.Response(text="Key has been loaded from the api_key.ini file")
         else:
-            logging.info("getting api key from cookie")
+            logging.debug("getting api key from cookie")
             api_key = request.cookies.get("api_key")
             if not api_key:
-                logging.info("No api key found in cookies")
+                logging.error("No api key found in cookies")
                 return web.Response(
                     text="No api key found in cookies, please refer to cloud.siliconflow.cn to get the key",
                     status=404,
                 )
             if bizyengine.core.common.set_api_key(api_key):
                 return web.Response(text="Key has been loaded from the cookies")
-            logging.info("cannot set api key")
+            logging.error("cannot set api key")
             return web.Response(text="Cannot set api key", status=500)
 
     except Exception as e:
