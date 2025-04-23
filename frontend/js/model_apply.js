@@ -135,7 +135,7 @@ function setupNodeMouseBehavior(node, modelType) {
 }
 
 const nodeDataNames = {
-    LoRA: "BizyAir_LoraLoader",
+    LoRA: ["BizyAir_LoraLoader","BizyAir_NunchakuFluxLoraLoader"],
     Controlnet: "BizyAir_ControlNetLoader",
     Checkpoint: "BizyAir_CheckpointLoaderSimple",
     // Clip: "BizyAir_CLIPVisionLoader",
@@ -150,7 +150,12 @@ app.registerExtension({
     name: "bizyair.siliconcloud.share.lora.loader.new",
     async beforeRegisterNodeDef(nodeType, nodeData, app) {
         for( const key in nodeDataNames){
-            if(nodeData.name === nodeDataNames[key]){
+            const names = nodeDataNames[key];
+            const isMatch = Array.isArray(names) ?
+                names.includes(nodeData.name) :
+                (nodeData.name === names);
+
+            if(isMatch){
                 const onNodeCreated = nodeType.prototype.onNodeCreated;
                 nodeType.prototype.onNodeCreated = function() {
                     try {
@@ -170,7 +175,13 @@ app.registerExtension({
 
     async nodeCreated(node) {
         for (const key in nodeDataNames) {
-            if (node?.comfyClass === nodeDataNames[key]) {
+
+            const names = nodeDataNames[key]; //  string | array | undefined
+            const isMatch = names ?
+                (Array.isArray(names) ? names.includes(node?.comfyClass) : node?.comfyClass === names)
+                : false;
+
+            if (isMatch) {
                 setupNodeMouseBehavior(node, key);
             }
         }
