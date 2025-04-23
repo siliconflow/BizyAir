@@ -14,9 +14,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
-BIZYAIR_SERVER_ADDRESS = os.getenv(
-    "BIZYAIR_SERVER_ADDRESS", "https://api.bizyair.cn/x/v1"
-)
+BIZYAIR_DOMAIN = os.getenv("BIZYAIR_DOMAIN", "https://api.bizyair.cn")
 BIZYAIR_KEY = os.getenv("BIZYAIR_KEY", "")
 COMFY_HOST = os.getenv("COMFY_HOST", "127.0.0.1")
 COMFY_PORT = os.getenv("COMFY_PORT", "8188")
@@ -114,7 +112,7 @@ def clear_curernt_workflow(driver):
         raise Exception("Error: clear graph failed.")
 
 
-def wait_until_queue_finished(driver, timeout=100):
+def wait_until_queue_finished(driver, timeout=3600):
     time.sleep(0.3)
     try:
         wait = WebDriverWait(driver, timeout)
@@ -139,7 +137,7 @@ def wait_until_app_ready(driver):
     )
 
 
-def launch_and_wait(driver, *, timeout=100):
+def launch_and_wait(driver, *, timeout=3600):
     click_queue_prompt_button(driver)
     wait_until_queue_finished(driver, timeout)
 
@@ -260,7 +258,7 @@ def get_auth_header() -> dict:
 
 
 async def query_official_models(api_key) -> tuple[dict | None, bool]:
-    server_url = f"{BIZYAIR_SERVER_ADDRESS}/bizy_models/official"
+    server_url = f"{BIZYAIR_DOMAIN}/x/v1/bizy_models/official"
     params = {
         "current": 1,
         "page_size": BIZYAIR_OFFICIAL_WORKFLOW_MAX_TOTAL,
@@ -299,7 +297,7 @@ async def get_session():
 
 
 async def get_download_url(sign: str, model_version_id: int) -> tuple[str | None, bool]:
-    server_url = f"{BIZYAIR_SERVER_ADDRESS}/files/temp-download/{sign}?version_id={model_version_id}"
+    server_url = f"{BIZYAIR_DOMAIN}/x/v1/files/temp-download/{sign}?version_id={model_version_id}"
 
     headers = get_auth_header()
 
@@ -361,7 +359,7 @@ if __name__ == "__main__":
             COMFY_HOST,
             COMFY_PORT,
             url,
-            timeout=100,
+            timeout=3600,
         )
 
     driver.quit()

@@ -80,6 +80,7 @@ jobs:
       uses: actions/checkout@v4
       with:
         path: ComfyUI/custom_nodes/BizyAir
+        ref: ${{ github.head_ref || github.event.inputs.branch }}
 
     - name: Set up Python
       uses: actions/setup-python@v5
@@ -101,7 +102,34 @@ jobs:
         python3 -m pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
         python3 -m pip install -r ComfyUI/requirements.txt
         python3 -m pip install -r ComfyUI/custom_nodes/BizyAir/requirements.txt
+        python3 -m pip install -r ComfyUI/custom_nodes/BizyAir/dev_requirements.txt
         python3 -m pip show torch
+
+    - name: Install Local BizyAir on Linux
+      if: matrix.os == 'ubuntu-latest'
+      working-directory: ComfyUI/custom_nodes/BizyAir
+      run: |
+        python3 -m pip uninstall bizyengine -y
+        python3 -m pip uninstall bizyui -y
+        cd backend
+        python3 -m pip install -e .
+        cd ../frontend
+        python3 -m build
+        frontend_version=$(cat version.txt)
+        python3 -m pip install dist/bizyui-${frontend_version}-py3-none-any.whl
+
+    - name: Install Local BizyAir on Windows
+      if: matrix.os == 'windows-latest'
+      working-directory: ComfyUI/custom_nodes/BizyAir
+      run: |
+        python3 -m pip uninstall bizyengine -y
+        python3 -m pip uninstall bizyui -y
+        cd backend
+        python3 -m pip install -e .
+        cd ../frontend
+        python3 -m build
+        $frontend_version=$($(Get-Content version.txt -Raw) -replace "`n","" -replace "`r","")
+        python3 -m pip install dist/bizyui-$frontend_version-py3-none-any.whl
 
     - name: Run ComfyUI on Linux
       if: matrix.os == 'ubuntu-latest'
@@ -116,7 +144,7 @@ jobs:
       env:
         BIZYAIR_KEY: ${{ secrets.BIZYAIR_KEY }}
         BIZYAIR_API_KEY: ${{ secrets.BIZYAIR_KEY }}
-        BIZYAIR_SERVER_ADDRESS: ${{ vars.BIZYAIR_SERVER_ADDRESS }}
+        BIZYAIR_DOMAIN: ${{ vars.BIZYAIR_DOMAIN }}
         PYTHONPATH: ${{ github.workspace }}/ComfyUI
         BIZYAIR_TEST_SKIP_WORKFLOW_IDS: ${{ vars.BIZYAIR_TEST_SKIP_WORKFLOW_IDS }}
         BIZYAIR_OFFICIAL_WORKFLOW_MAX_TOTAL: ${{ vars.BIZYAIR_OFFICIAL_WORKFLOW_MAX_TOTAL }}
@@ -133,7 +161,7 @@ jobs:
       env:
         BIZYAIR_KEY: ${{ secrets.BIZYAIR_KEY }}
         BIZYAIR_API_KEY: ${{ secrets.BIZYAIR_KEY }}
-        BIZYAIR_SERVER_ADDRESS: ${{ vars.BIZYAIR_SERVER_ADDRESS }}
+        BIZYAIR_DOMAIN: ${{ vars.BIZYAIR_DOMAIN }}
         PYTHONPATH: ${{ github.workspace }}/ComfyUI
         PYTHONIOENCODING: utf-8
         BIZYAIR_TEST_SKIP_WORKFLOW_IDS: ${{ vars.BIZYAIR_TEST_SKIP_WORKFLOW_IDS }}
