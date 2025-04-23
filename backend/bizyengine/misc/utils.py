@@ -123,9 +123,9 @@ def format_bytes(num_bytes: int) -> str:
 
 
 def get_api_key():
-    from .auth import API_KEY
+    from bizyengine.core.common import get_api_key as bcc_get_api_key
 
-    return API_KEY
+    return bcc_get_api_key()
 
 
 def get_llm_response(
