@@ -102,7 +102,7 @@ class NunchakuTextEncoderLoader(BizyAirBaseNode):
                 ),
                 "use_4bit_t5": (["disable"],),
                 "int4_model": (
-                    "none",
+                    ["none"],
                     {"tooltip": "The name of the 4-bit T5 model."},
                 ),
             }
@@ -160,11 +160,17 @@ class NunchakuFluxLoraLoader(BizyAirBaseNode):
         "You can link multiple LoRA nodes."
     )
 
+    @classmethod
+    def VALIDATE_INPUTS(cls, lora_name, **kwargs):
+        if lora_name == "" or lora_name is None:
+            return False
+        return True
+
     def load_lora(
         self,
         model,
         lora_name,
-        strength_model,
+        lora_strength,
         model_version_id: str = None,
     ):
         assigned_id = self.assigned_id
@@ -180,7 +186,7 @@ class NunchakuFluxLoraLoader(BizyAirBaseNode):
             inputs={
                 "model": model,
                 "lora_name": lora_name,
-                "strength_model": strength_model,
+                "lora_strength": lora_strength,
             },
             outputs={"slot_index": 0},
         )
