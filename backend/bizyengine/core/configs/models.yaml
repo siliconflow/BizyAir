@@ -53,9 +53,9 @@ model_rules:
             - ^flux/flux1-schnell.sft$
 
   - mode_type: unet
-    base_model: NunchakuFluxDiT
+    base_model: FLUX
     describe: NunchakuFluxDiT
-    score: 3
+    score: 5
     route: /supernode/bizyair-flux-nunchaku1-unet
     nodes:
       - class_type: NunchakuFluxDiTLoader
