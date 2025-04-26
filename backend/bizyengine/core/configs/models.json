@@ -82,6 +82,7 @@
     "t5xxl_fp16.safetensors",
     "t5xxl_fp8_e4m3fn.safetensors"
   ],
+  "text_encoders":["t5xxl_fp16.safetensors","clip_l.safetensors"],
   "upscale_models": [
     "4x_NMKD-Siax_200k.pth",
     "RealESRGAN_x4plus.pth",

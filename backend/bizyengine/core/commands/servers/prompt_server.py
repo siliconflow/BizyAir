@@ -104,7 +104,7 @@ class BizyAirTask:
         return self.get_data(len(self.data_pool) - 1)
 
     def do_task_until_completed(
-        self, *, timeout: int = 600, poll_interval: float = 1
+        self, *, timeout: int = 3600, poll_interval: float = 1
     ) -> list[dict]:
         offset = 0
         start_time = time.time()
@@ -169,7 +169,7 @@ class PromptServer(Command):
             if BizyAirTask.check_inputs(result):
                 self.cache_manager.set(cache_key, result)
                 bz_task = BizyAirTask.from_data(result, check_inputs=False)
-                bz_task.do_task_until_completed(timeout=10 * 60)  # 10 minutes
+                bz_task.do_task_until_completed(timeout=60 * 60)  # 60 minutes
                 last_data = bz_task.get_last_data()
                 response_data = last_data.get("data")
             out = response_data["payload"]
