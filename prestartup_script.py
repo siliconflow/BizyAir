@@ -154,9 +154,8 @@ def install_dependencies():
             ):
                 try:
                     print(f"\033[92m[BizyAir]\033[0m Try to install depency {package}")
-                    subprocess.check_call(
-                        [sys.executable, "-m", "pip", "install", package]
-                    )
+                    install_comamnd = [sys.executable, "-m", "pip", "install", package]
+                    subprocess.check_call(install_comamnd)
                 except subprocess.CalledProcessError as e:
                     print(f"\033[91m[BizyAir]\033[0m Failed to install {package}: {e}")
                     continue
@@ -199,9 +198,8 @@ def update_bizyengine_bizyui():
         try:
             if package_name not in installed_packages:
                 print(f"\033[92m[BizyAir]\033[0m Try to install {package_name}")
-                subprocess.check_call(
-                    [sys.executable, "-m", "pip", "install", package_name]
-                )
+                update_command = [sys.executable, "-m", "pip", "install", package_name]
+                subprocess.check_call(update_command)
             else:
                 latest_version = get_latest_stable_version_from_pip(
                     mirror_pip_url, package_name
@@ -218,18 +216,20 @@ def update_bizyengine_bizyui():
                         )
                         return
                     print(f"\033[92m[BizyAir]\033[0m UPDATE {package_name} NOW")
-                    subprocess.check_call(
-                        [
-                            sys.executable,
-                            "-m",
-                            "pip",
-                            "install",
-                            "--upgrade",
-                            package_name,
-                        ]
-                    )
+                    update_command = [
+                        sys.executable,
+                        "-m",
+                        "pip",
+                        "install",
+                        "--upgrade",
+                        package_name,
+                    ]
+                    subprocess.check_call(update_command)
         except Exception as e:
-            print(f"Error happens when update {package_name} packages: {str(e)}")
+            print(
+                f"\033[92m[BizyAir]\033[0m Error happens when update {package_name} packages: {str(e)}"
+                f"\n{' '*10}Try to update manually: \033[91m{' '.join(update_command)}\033[0m"
+            )
 
     installed_packages = {
         dist.metadata["Name"]: Version(dist.version)
