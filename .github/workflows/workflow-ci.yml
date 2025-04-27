@@ -110,26 +110,16 @@ jobs:
       working-directory: ComfyUI/custom_nodes/BizyAir
       run: |
         python3 -m pip uninstall bizyengine -y
-        python3 -m pip uninstall bizyui -y
         cd backend
         python3 -m pip install -e .
-        cd ../frontend
-        python3 -m build
-        frontend_version=$(cat version.txt)
-        python3 -m pip install dist/bizyui-${frontend_version}-py3-none-any.whl
 
     - name: Install Local BizyAir on Windows
       if: matrix.os == 'windows-latest'
       working-directory: ComfyUI/custom_nodes/BizyAir
       run: |
         python3 -m pip uninstall bizyengine -y
-        python3 -m pip uninstall bizyui -y
         cd backend
         python3 -m pip install -e .
-        cd ../frontend
-        python3 -m build
-        $frontend_version=$($(Get-Content version.txt -Raw) -replace "`n","" -replace "`r","")
-        python3 -m pip install dist/bizyui-$frontend_version-py3-none-any.whl
 
     - name: Run ComfyUI on Linux
       if: matrix.os == 'ubuntu-latest'
