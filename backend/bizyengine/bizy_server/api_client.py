@@ -1,3 +1,5 @@
+import asyncio
+import json
 import os
 import urllib
 
@@ -18,6 +20,10 @@ from .utils import is_string_valid
 version_path = os.path.join(os.path.dirname(__file__), "..", "version.txt")
 with open(version_path, "r") as file:
     CLIENT_VERSION = file.read().strip()
+
+# API请求地址
+QWEN_MODEL_API_URL = "https://api.siliconflow.cn/v1/chat/completions"
+QWEN_IMAGE_API_URL = "https://api.siliconflow.cn/v1/images/generations"
 
 
 class APIClient:
@@ -1071,3 +1077,201 @@ class APIClient:
         except Exception as e:
             print(f"\033[31m[BizyAir]\033[0m Fail to get recent cost: {str(e)}")
             return None, errnos.GET_RECENT_COST
+
+    async def forward_model_request(self, request_data):
+        try:
+            import asyncio
+            import json
+            import socket
+            import ssl
+            import urllib.parse
+
+            request_data["stream"] = True
+            # 参数检查
+            if "messages" not in request_data:
+                return None, errnos.MODEL_API_ERROR
+
+            if (
+                not isinstance(request_data["messages"], list)
+                or len(request_data["messages"]) == 0
+            ):
+                return None, errnos.MODEL_API_ERROR
+
+            # 创建自定义流式响应对象，绕过aiohttp抽象层
+            response_stream = StreamResponse(request_data)
+
+            # 异步启动连接和数据请求
+            asyncio.create_task(response_stream.connect_and_request())
+
+            # 返回流式响应对象
+            return response_stream, None
+
+        except Exception as e:
+            print(f"\033[31m[BizyAir]\033[0m 模型API转发失败: {str(e)}")
+            return None, errnos.MODEL_API_ERROR
+
+    async def stream_model_response(self, response):
+        """
+        流式传输模型响应
+
+        Args:
+            response: 从千问API获取的响应对象
+
+        Returns:
+            一个异步生成器，用于流式传输响应数据
+        """
+        try:
+            # 创建一个流式传输生成器
+            async for chunk in response.content.iter_any():
+                yield chunk
+
+        except Exception as e:
+            print(f"\033[31m[BizyAir]\033[0m 读取数据失败: {str(e)}")
+            raise
+
+    async def release(self):
+        """关闭连接"""
+        if self.writer and not self.closed:
+            self.writer.close()
+            try:
+                await self.writer.wait_closed()
+            except:
+                pass
+            self.closed = True
+
+    async def forward_image_request(self, request_data):
+        try:
+            api_key = get_api_key()
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {api_key}",
+            }
+            # 创建异步HTTP会话
+            async with aiohttp.ClientSession() as session:
+                async with session.post(
+                    QWEN_IMAGE_API_URL, headers=headers, json=request_data
+                ) as response:
+                    # 读取并解析响应
+                    if response.status != 200:
+                        error_text = await response.text()
+                        print(f"\033[31m[BizyAir]\033[0m 图像生成失败: {error_text}")
+                        return None, errnos.MODEL_API_ERROR
+
+                    result = await response.json()
+                    return result, None
+        except Exception as e:
+            print(f"\033[31m[BizyAir]\033[0m 图像生成请求失败: {str(e)}")
+            return None, errnos.MODEL_API_ERROR
+
+
+class StreamResponse:
+    """自定义流式响应类"""
+
+    def __init__(self, request_data):
+        self.request_data = request_data
+        self.reader = None
+        self.writer = None
+        self.closed = False
+        self.content = self
+        self.connected = False
+        self.connection_event = asyncio.Event()
+        self.buffer = b""
+
+    async def connect_and_request(self):
+        """建立连接并发送请求"""
+        try:
+            # 获取用户API密钥
+            api_key = get_api_key()
+
+            # 建立SSL连接
+            self.reader, self.writer = await asyncio.open_connection(
+                "api.siliconflow.cn", 443, ssl=True
+            )
+
+            # 准备HTTP请求
+            json_data = json.dumps(self.request_data)
+            request = (
+                f"POST /v1/chat/completions HTTP/1.1\r\n"
+                f"Host: api.siliconflow.cn\r\n"
+                f"Authorization: Bearer {api_key}\r\n"
+                f"Accept: text/event-stream\r\n"
+                f"Content-Type: application/json\r\n"
+                f"Content-Length: {len(json_data)}\r\n"
+                f"Connection: keep-alive\r\n"
+                f"\r\n"
+                f"{json_data}"
+            )
+
+            # 发送请求
+            self.writer.write(request.encode("utf-8"))
+            await self.writer.drain()
+
+            # 读取HTTP响应头
+            response_line = await self.reader.readline()
+            if not response_line:
+                raise Exception("服务器关闭了连接")
+
+            status_line = response_line.decode("utf-8").strip()
+
+            if not status_line.startswith("HTTP/1.1 200"):
+                raise Exception(f"API请求失败: {status_line}")
+
+            # 读取响应头
+            headers = {}
+            while True:
+                line = await self.reader.readline()
+                if line == b"\r\n" or not line:
+                    break
+
+                try:
+                    header_line = line.decode("utf-8").strip()
+                    if ":" in header_line:
+                        key, value = header_line.split(":", 1)
+                        headers[key.strip()] = value.strip()
+                except Exception:
+                    pass
+
+            self.connected = True
+            self.connection_event.set()
+
+        except Exception as e:
+            error_msg = f"连接失败: {str(e)}"
+            print(f"\033[31m[BizyAir]\033[0m {error_msg}")
+            self.closed = True
+            self.connection_event.set()
+
+    async def iter_any(self):
+        """模拟aiohttp的iter_any方法"""
+        if not self.connected:
+            await self.connection_event.wait()
+
+        if not self.connected:
+            error_msg = "连接失败，无法读取数据"
+            print(f"\033[31m[BizyAir]\033[0m {error_msg}")
+            raise Exception(error_msg)
+
+        try:
+            while not self.closed:
+                # 读取一段数据
+                chunk = await self.reader.read(1024)
+                if not chunk:
+                    break
+
+                yield chunk
+
+        except Exception as e:
+            error_msg = f"读取数据失败: {str(e)}"
+            print(f"\033[31m[BizyAir]\033[0m {error_msg}")
+            raise
+
+    async def release(self):
+        """关闭连接"""
+        if self.writer and not self.closed:
+            print(f"\033[32m[BizyAir]\033[0m 关闭流式连接")
+            self.writer.close()
+            try:
+                await self.writer.wait_closed()
+                print(f"\033[32m[BizyAir]\033[0m 连接已安全关闭")
+            except Exception as e:
+                print(f"\033[33m[BizyAir]\033[0m 关闭连接时出现警告: {str(e)}")
+            self.closed = True

@@ -23,6 +23,7 @@ COMMUNITY_API = f"{API_PREFIX}/community"
 MODEL_HOST_API = f"{API_PREFIX}/modelhost"
 USER_API = f"{API_PREFIX}/user"
 INVOICE_API = f"{API_PREFIX}/invoices"
+MODEL_API = f"{API_PREFIX}/model"
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -956,6 +957,72 @@ class BizyAirServer:
                 return ErrResponse(err)
 
             return OKResponse(resp)
+
+        @self.prompt_server.routes.post(f"/{MODEL_API}/chat")
+        async def chat_completions(request):
+            try:
+                request_data = await request.json()
+
+                response, err = await self.api_client.forward_model_request(
+                    request_data
+                )
+                if err is not None:
+                    return ErrResponse(err)
+                # 创建并准备流式响应
+                resp = aiohttp.web.StreamResponse(
+                    status=200,
+                    reason="OK",
+                    headers={
+                        "Content-Type": "text/event-stream",
+                        "Cache-Control": "no-cache",
+                        "Connection": "keep-alive",
+                    },
+                )
+                await resp.prepare(request)
+                # 发送数据块
+                try:
+                    async for chunk in self.api_client.stream_model_response(response):
+                        await resp.write(chunk)
+                        if b'data: {"error": "Connection closed."}' in chunk:
+                            # 返回前特殊处理STREAMING_CONNECTION_ERROR
+                            await resp.write_eof()
+                            return resp
+                except (
+                    aiohttp.ClientConnectionError,
+                    aiohttp.ClientPayloadError,
+                    ConnectionResetError,
+                ) as _:
+                    logging.error(f"流式传输中连接错误: {str(_)}")
+                    # 添加一条最终的错误信息
+                    await resp.write(
+                        b'data: {"error": "Streaming connection closed unexpectedly"}\n\n'
+                    )
+                    await resp.write(b"data: [DONE]\n\n")
+
+                await resp.write_eof()
+                return resp
+
+            except Exception:
+                # logging.error(f"处理模型API请求时出错")
+                return ErrResponse(errnos.MODEL_API_ERROR)
+
+        @self.prompt_server.routes.post(f"/{MODEL_API}/images")
+        async def image_generations(request):
+            try:
+                # 解析请求数据
+                request_data = await request.json()
+
+                # 转发图像生成请求
+                result, err = await self.api_client.forward_image_request(request_data)
+                if err is not None:
+                    return ErrResponse(err)
+
+                # 返回结果
+                return OKResponse(result)
+
+            except Exception as e:
+                logging.error(f"处理图像生成请求时出错: {str(e)}")
+                return ErrResponse(errnos.MODEL_API_ERROR)
 
     async def send_json(self, event, data, sid=None):
         message = {"type": event, "data": data}
