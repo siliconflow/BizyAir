@@ -1003,7 +1003,6 @@ class BizyAirServer:
                 return resp
 
             except Exception:
-                # logging.error(f"处理模型API请求时出错")
                 return ErrResponse(errnos.MODEL_API_ERROR)
 
         @self.prompt_server.routes.post(f"/{MODEL_API}/images")
@@ -1021,7 +1020,6 @@ class BizyAirServer:
                 return OKResponse(result)
 
             except Exception as e:
-                logging.error(f"处理图像生成请求时出错: {str(e)}")
                 return ErrResponse(errnos.MODEL_API_ERROR)
 
     async def send_json(self, event, data, sid=None):

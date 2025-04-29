@@ -1107,7 +1107,7 @@ class APIClient:
             return response_stream, None
 
         except Exception as e:
-            print(f"\033[31m[BizyAir]\033[0m 模型API转发失败: {str(e)}")
+            print(f"\033[31m[BizyAir]\033[0m Model API forwarding failed: {str(e)}")
             return None, errnos.MODEL_API_ERROR
 
     async def stream_model_response(self, response):
@@ -1126,7 +1126,7 @@ class APIClient:
                 yield chunk
 
         except Exception as e:
-            print(f"\033[31m[BizyAir]\033[0m 读取数据失败: {str(e)}")
+            print(f"\033[31m[BizyAir]\033[0m Failed to read data: {str(e)}")
             raise
 
     async def release(self):
@@ -1135,7 +1135,7 @@ class APIClient:
             self.writer.close()
             try:
                 await self.writer.wait_closed()
-            except:
+            except Exception as e:
                 pass
             self.closed = True
 
@@ -1154,13 +1154,13 @@ class APIClient:
                     # 读取并解析响应
                     if response.status != 200:
                         error_text = await response.text()
-                        print(f"\033[31m[BizyAir]\033[0m 图像生成失败: {error_text}")
+                        print(f"\033[31m[BizyAir]\033[0m Image generation failed: {error_text}")
                         return None, errnos.MODEL_API_ERROR
 
                     result = await response.json()
                     return result, None
         except Exception as e:
-            print(f"\033[31m[BizyAir]\033[0m 图像生成请求失败: {str(e)}")
+            print(f"\033[31m[BizyAir]\033[0m Image generation request failed: {str(e)}")
             return None, errnos.MODEL_API_ERROR
 
 
@@ -1209,12 +1209,12 @@ class StreamResponse:
             # 读取HTTP响应头
             response_line = await self.reader.readline()
             if not response_line:
-                raise Exception("服务器关闭了连接")
+                raise Exception("Server closed the connection")
 
             status_line = response_line.decode("utf-8").strip()
 
             if not status_line.startswith("HTTP/1.1 200"):
-                raise Exception(f"API请求失败: {status_line}")
+                raise Exception(f"API request failed: {status_line}")
 
             # 读取响应头
             headers = {}
@@ -1235,7 +1235,7 @@ class StreamResponse:
             self.connection_event.set()
 
         except Exception as e:
-            error_msg = f"连接失败: {str(e)}"
+            error_msg = f"Connection failed: {str(e)}"
             print(f"\033[31m[BizyAir]\033[0m {error_msg}")
             self.closed = True
             self.connection_event.set()
@@ -1246,7 +1246,7 @@ class StreamResponse:
             await self.connection_event.wait()
 
         if not self.connected:
-            error_msg = "连接失败，无法读取数据"
+            error_msg = "Connection failed, unable to read data"
             print(f"\033[31m[BizyAir]\033[0m {error_msg}")
             raise Exception(error_msg)
 
@@ -1260,18 +1260,16 @@ class StreamResponse:
                 yield chunk
 
         except Exception as e:
-            error_msg = f"读取数据失败: {str(e)}"
+            error_msg = f"Failed to read data: {str(e)}"
             print(f"\033[31m[BizyAir]\033[0m {error_msg}")
             raise
 
     async def release(self):
         """关闭连接"""
         if self.writer and not self.closed:
-            print(f"\033[32m[BizyAir]\033[0m 关闭流式连接")
             self.writer.close()
             try:
                 await self.writer.wait_closed()
-                print(f"\033[32m[BizyAir]\033[0m 连接已安全关闭")
             except Exception as e:
-                print(f"\033[33m[BizyAir]\033[0m 关闭连接时出现警告: {str(e)}")
+                pass
             self.closed = True

@@ -442,3 +442,18 @@ class errnos:
     GET_RECENT_COST = ErrorNo(
         500, 500157, None, {"en": "Failed to get recent cost", "zh": "获取最近消费失败"}
     )
+
+    MODEL_API_ERROR = ErrorNo(
+        500, 500158, None, {"en": "Failed to call model API", "zh": "调用模型API失败"}
+    )
+
+    MODEL_API_TIMEOUT = ErrorNo(
+        500, 500159, None, {"en": "Model API request timeout", "zh": "模型API请求超时"}
+    )
+
+    STREAMING_CONNECTION_ERROR = ErrorNo(
+        500,
+        500160,
+        None,
+        {"en": "Streaming connection closed unexpectedly", "zh": "流式连接异常关闭"},
+    )
