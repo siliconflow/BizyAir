@@ -1154,7 +1154,9 @@ class APIClient:
                     # 读取并解析响应
                     if response.status != 200:
                         error_text = await response.text()
-                        print(f"\033[31m[BizyAir]\033[0m Image generation failed: {error_text}")
+                        print(
+                            f"\033[31m[BizyAir]\033[0m Image generation failed: {error_text}"
+                        )
                         return None, errnos.MODEL_API_ERROR
 
                     result = await response.json()
