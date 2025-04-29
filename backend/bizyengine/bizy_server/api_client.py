@@ -1135,7 +1135,7 @@ class APIClient:
             self.writer.close()
             try:
                 await self.writer.wait_closed()
-            except Exception as e:
+            except Exception:
                 pass
             self.closed = True
 
@@ -1270,6 +1270,6 @@ class StreamResponse:
             self.writer.close()
             try:
                 await self.writer.wait_closed()
-            except Exception as e:
+            except Exception:
                 pass
             self.closed = True

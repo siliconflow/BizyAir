@@ -1019,7 +1019,7 @@ class BizyAirServer:
                 # 返回结果
                 return OKResponse(result)
 
-            except Exception as e:
+            except Exception:
                 return ErrResponse(errnos.MODEL_API_ERROR)
 
     async def send_json(self, event, data, sid=None):
