@@ -1,3 +1,5 @@
+import asyncio
+import json
 import os
 import urllib
 
@@ -18,6 +20,10 @@ from .utils import is_string_valid
 version_path = os.path.join(os.path.dirname(__file__), "..", "version.txt")
 with open(version_path, "r") as file:
     CLIENT_VERSION = file.read().strip()
+
+# API请求地址
+QWEN_MODEL_API_URL = "https://api.siliconflow.cn/v1/chat/completions"
+QWEN_IMAGE_API_URL = "https://api.siliconflow.cn/v1/images/generations"
 
 
 class APIClient:
@@ -1071,3 +1077,139 @@ class APIClient:
         except Exception as e:
             print(f"\033[31m[BizyAir]\033[0m Fail to get recent cost: {str(e)}")
             return None, errnos.GET_RECENT_COST
+
+    async def forward_model_request(self, request_data):
+        try:
+            import asyncio
+            import json
+
+            from .stream_response import StreamResponse
+
+            request_data["stream"] = True
+            # 参数检查
+            if "messages" not in request_data:
+                return None, errnos.MODEL_API_ERROR
+
+            if (
+                not isinstance(request_data["messages"], list)
+                or len(request_data["messages"]) == 0
+            ):
+                return None, errnos.MODEL_API_ERROR
+
+            # 获取用户API密钥
+            api_key = get_api_key()
+
+            # 创建自定义流式响应对象，设置60秒超时
+            response_stream = StreamResponse(request_data, timeout=60)
+
+            # 异步启动连接和数据请求
+            asyncio.create_task(response_stream.connect_and_request(api_key))
+
+            # 返回流式响应对象
+            return response_stream, None
+
+        except Exception as e:
+            print(f"\033[31m[BizyAir]\033[0m Model API forwarding failed: {str(e)}")
+            return None, errnos.MODEL_API_ERROR
+
+    async def stream_model_response(self, response):
+        """
+        流式传输模型响应
+
+        Args:
+            response: 从API获取的StreamResponse对象
+
+        Returns:
+            一个异步生成器，用于流式传输响应数据
+        """
+        # 生成请求ID用于日志
+        req_id = f"stream-{id(response)}"
+
+        # 验证response对象是否有效
+        if not response:
+            print(f"\033[31m[BizyAir-{req_id}]\033[0m 无效的response对象 (为None)")
+            yield b'data: {"error": "Invalid response object (None)"}\n\n'
+            yield b"data: [DONE]\n\n"
+            return
+
+        if not hasattr(response, "content") or not hasattr(
+            response.content, "iter_any"
+        ):
+            print(
+                f"\033[31m[BizyAir-{req_id}]\033[0m 无效的response对象 (缺少必要方法)"
+            )
+            yield b'data: {"error": "Invalid response object (missing methods)"}\n\n'
+            yield b"data: [DONE]\n\n"
+            return
+
+        error_occurred = False
+        chunks_forwarded = 0
+        chunk = None  # 定义在外部，以便finally块可以访问
+
+        try:
+            # 使用StreamResponse.iter_any方法创建流式传输生成器
+            async for chunk in response.content.iter_any():
+                chunks_forwarded += 1
+
+                yield chunk
+                # 是否是结束标记
+                if b"data: [DONE]" in chunk:
+                    break
+                # 是否包含错误
+                if b'data: {"error"' in chunk or b'data: {"message":' in chunk:
+                    error_occurred = True
+
+        except Exception as e:
+            error_occurred = True
+            error_msg = f"读取流式数据失败: {str(e)}"
+            print(f"\033[31m[BizyAir-{req_id}]\033[0m {error_msg}")
+
+            # 返回错误消息
+            error_json = json.dumps({"error": error_msg})
+            yield f"data: {error_json}\n\n".encode("utf-8")
+
+            # 如果还没有发送过DONE，则发送
+            if chunks_forwarded == 0 or (chunk and not b"data: [DONE]" in chunk):
+                yield b"data: [DONE]\n\n"
+
+        finally:
+            # 如果没有发生错误，但也没有转发任何数据，发送一个空响应
+            if not error_occurred and chunks_forwarded == 0:
+                yield b'data: {"content": ""}\n\n'
+                yield b"data: [DONE]\n\n"
+
+    async def release(self):
+        """关闭连接"""
+        if self.writer and not self.closed:
+            self.writer.close()
+            try:
+                await self.writer.wait_closed()
+            except Exception:
+                pass
+            self.closed = True
+
+    async def forward_image_request(self, request_data):
+        try:
+            api_key = get_api_key()
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {api_key}",
+            }
+            # 创建异步HTTP会话
+            async with aiohttp.ClientSession() as session:
+                async with session.post(
+                    QWEN_IMAGE_API_URL, headers=headers, json=request_data
+                ) as response:
+                    # 读取并解析响应
+                    if response.status != 200:
+                        error_text = await response.text()
+                        print(
+                            f"\033[31m[BizyAir]\033[0m Image generation failed: {error_text}"
+                        )
+                        return None, errnos.MODEL_API_ERROR
+
+                    result = await response.json()
+                    return result, None
+        except Exception as e:
+            print(f"\033[31m[BizyAir]\033[0m Image generation request failed: {str(e)}")
+            return None, errnos.MODEL_API_ERROR
