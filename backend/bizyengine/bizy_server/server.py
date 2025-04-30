@@ -1,5 +1,6 @@
 import asyncio
 import configparser
+import json
 import logging
 import os
 import shutil
@@ -960,14 +961,24 @@ class BizyAirServer:
 
         @self.prompt_server.routes.post(f"/{MODEL_API}/chat")
         async def chat_completions(request):
+            response = None  # 确保变量在退出前定义
+            resp = None  # 响应对象引用
+            req_id = f"req-{id(request)}"  # 为请求生成唯一ID
+
             try:
+                # 解析请求数据
                 request_data = await request.json()
 
+                # 转发请求到模型服务
                 response, err = await self.api_client.forward_model_request(
                     request_data
                 )
                 if err is not None:
+                    print(
+                        f"\033[31m[聊天请求-{req_id}]\033[0m 转发请求失败: {err.message}"
+                    )
                     return ErrResponse(err)
+
                 # 创建并准备流式响应
                 resp = aiohttp.web.StreamResponse(
                     status=200,
@@ -976,34 +987,117 @@ class BizyAirServer:
                         "Content-Type": "text/event-stream",
                         "Cache-Control": "no-cache",
                         "Connection": "keep-alive",
+                        "X-Accel-Buffering": "no",  # 禁用Nginx缓冲
                     },
                 )
                 await resp.prepare(request)
-                # 发送数据块
-                try:
-                    async for chunk in self.api_client.stream_model_response(response):
-                        await resp.write(chunk)
-                        if b'data: {"error": "Connection closed."}' in chunk:
-                            # 返回前特殊处理STREAMING_CONNECTION_ERROR
-                            await resp.write_eof()
-                            return resp
-                except (
-                    aiohttp.ClientConnectionError,
-                    aiohttp.ClientPayloadError,
-                    ConnectionResetError,
-                ) as _:
-                    logging.error(f"流式传输中连接错误: {str(_)}")
-                    # 添加一条最终的错误信息
-                    await resp.write(
-                        b'data: {"error": "Streaming connection closed unexpectedly"}\n\n'
-                    )
-                    await resp.write(b"data: [DONE]\n\n")
 
-                await resp.write_eof()
+                # 确保异步生成器正确创建
+                generator = self.api_client.stream_model_response(response)
+                if not generator:
+                    print(f"\033[31m[聊天请求-{req_id}]\033[0m 创建异步生成器失败")
+                    # 返回错误响应
+                    if not resp.prepared:
+                        return ErrResponse(errnos.MODEL_API_ERROR)
+                    else:
+                        # 如果响应已准备，发送错误数据帧
+                        try:
+                            error_msg = json.dumps({"error": "创建数据流失败"})
+                            await resp.write(f"data: {error_msg}\n\n".encode("utf-8"))
+                            await resp.write(b"data: [DONE]\n\n")
+                        except Exception as e:
+                            print(
+                                f"\033[31m[聊天请求-{req_id}]\033[0m 写入错误消息时出错: {str(e)}"
+                            )
+                        finally:
+                            try:
+                                await resp.write_eof()
+                            except:
+                                pass
+                        return resp
+
+                # 开始流式传输
+                any_chunk_sent = False  # 跟踪是否发送了任何数据块
+
+                try:
+                    async for chunk in generator:
+                        if chunk:
+                            try:
+                                await resp.write(chunk)
+                                any_chunk_sent = True
+                                await resp.drain()  # 确保数据被立即发送
+                            except (
+                                ConnectionResetError,
+                                ConnectionError,
+                                aiohttp.ClientOSError,
+                            ) as e:
+                                print(
+                                    f"\033[31m[聊天请求-{req_id}]\033[0m 流式传输中连接错误: {str(e)}"
+                                )
+                                break
+                except Exception as e:
+                    print(f"\033[31m[聊天请求-{req_id}]\033[0m 流式传输错误: {str(e)}")
+                    # 如果尚未发送任何数据块，尝试发送错误信息
+                    if not any_chunk_sent and not resp.prepared:
+                        return ErrResponse(errnos.MODEL_API_ERROR)
+                    elif not any_chunk_sent:
+                        try:
+                            error_msg = json.dumps({"error": f"流式传输错误: {str(e)}"})
+                            await resp.write(f"data: {error_msg}\n\n".encode("utf-8"))
+                            await resp.write(b"data: [DONE]\n\n")
+                        except Exception as write_err:
+                            print(
+                                f"\033[31m[聊天请求-{req_id}]\033[0m 写入错误消息时出错: {str(write_err)}"
+                            )
+
+                # 检查是否发送了数据
+                if not any_chunk_sent:
+                    print(
+                        f"\033[33m[聊天请求-{req_id}]\033[0m 警告: 没有发送任何数据块"
+                    )
+                    try:
+                        await resp.write(b'data: {"content": ""}\n\n')
+                        await resp.write(b"data: [DONE]\n\n")
+                    except Exception as e:
+                        print(
+                            f"\033[31m[聊天请求-{req_id}]\033[0m 写入空响应时出错: {str(e)}"
+                        )
+
+                try:
+                    await resp.write_eof()
+                except Exception as e:
+                    print(
+                        f"\033[31m[聊天请求-{req_id}]\033[0m 结束响应时出错: {str(e)}"
+                    )
+
                 return resp
 
-            except Exception:
+            except Exception as e:
+                print(
+                    f"\033[31m[聊天请求-{req_id}]\033[0m 处理请求时发生错误: {str(e)}"
+                )
+                # 如果响应已经准备好，尝试发送错误信息
+                if resp and resp.prepared:
+                    try:
+                        error_msg = json.dumps({"error": f"服务器错误: {str(e)}"})
+                        await resp.write(f"data: {error_msg}\n\n".encode("utf-8"))
+                        await resp.write(b"data: [DONE]\n\n")
+                        await resp.write_eof()
+                    except:
+                        pass
+                    return resp
+
                 return ErrResponse(errnos.MODEL_API_ERROR)
+
+            finally:
+                # 确保所有资源被释放
+                if response and hasattr(response, "release"):
+                    try:
+                        await response.release()
+                    except Exception as e:
+                        print(
+                            f"\033[31m[聊天请求-{req_id}]\033[0m 关闭连接时出错: {str(e)}"
+                        )
 
         @self.prompt_server.routes.post(f"/{MODEL_API}/images")
         async def image_generations(request):

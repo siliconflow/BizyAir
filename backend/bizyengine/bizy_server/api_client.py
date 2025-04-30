@@ -1082,9 +1082,8 @@ class APIClient:
         try:
             import asyncio
             import json
-            import socket
-            import ssl
-            import urllib.parse
+
+            from .stream_response import StreamResponse
 
             request_data["stream"] = True
             # 参数检查
@@ -1097,11 +1096,14 @@ class APIClient:
             ):
                 return None, errnos.MODEL_API_ERROR
 
-            # 创建自定义流式响应对象，绕过aiohttp抽象层
-            response_stream = StreamResponse(request_data)
+            # 获取用户API密钥
+            api_key = get_api_key()
+
+            # 创建自定义流式响应对象，设置60秒超时
+            response_stream = StreamResponse(request_data, timeout=60)
 
             # 异步启动连接和数据请求
-            asyncio.create_task(response_stream.connect_and_request())
+            asyncio.create_task(response_stream.connect_and_request(api_key))
 
             # 返回流式响应对象
             return response_stream, None
@@ -1115,19 +1117,66 @@ class APIClient:
         流式传输模型响应
 
         Args:
-            response: 从千问API获取的响应对象
+            response: 从API获取的StreamResponse对象
 
         Returns:
             一个异步生成器，用于流式传输响应数据
         """
+        # 生成请求ID用于日志
+        req_id = f"stream-{id(response)}"
+
+        # 验证response对象是否有效
+        if not response:
+            print(f"\033[31m[BizyAir-{req_id}]\033[0m 无效的response对象 (为None)")
+            yield b'data: {"error": "Invalid response object (None)"}\n\n'
+            yield b"data: [DONE]\n\n"
+            return
+
+        if not hasattr(response, "content") or not hasattr(
+            response.content, "iter_any"
+        ):
+            print(
+                f"\033[31m[BizyAir-{req_id}]\033[0m 无效的response对象 (缺少必要方法)"
+            )
+            yield b'data: {"error": "Invalid response object (missing methods)"}\n\n'
+            yield b"data: [DONE]\n\n"
+            return
+
+        error_occurred = False
+        chunks_forwarded = 0
+        chunk = None  # 定义在外部，以便finally块可以访问
+
         try:
-            # 创建一个流式传输生成器
+            # 使用StreamResponse.iter_any方法创建流式传输生成器
             async for chunk in response.content.iter_any():
+                chunks_forwarded += 1
+
                 yield chunk
+                # 是否是结束标记
+                if b"data: [DONE]" in chunk:
+                    break
+                # 是否包含错误
+                if b'data: {"error"' in chunk or b'data: {"message":' in chunk:
+                    error_occurred = True
 
         except Exception as e:
-            print(f"\033[31m[BizyAir]\033[0m Failed to read data: {str(e)}")
-            raise
+            error_occurred = True
+            error_msg = f"读取流式数据失败: {str(e)}"
+            print(f"\033[31m[BizyAir-{req_id}]\033[0m {error_msg}")
+
+            # 返回错误消息
+            error_json = json.dumps({"error": error_msg})
+            yield f"data: {error_json}\n\n".encode("utf-8")
+
+            # 如果还没有发送过DONE，则发送
+            if chunks_forwarded == 0 or (chunk and not b"data: [DONE]" in chunk):
+                yield b"data: [DONE]\n\n"
+
+        finally:
+            # 如果没有发生错误，但也没有转发任何数据，发送一个空响应
+            if not error_occurred and chunks_forwarded == 0:
+                yield b'data: {"content": ""}\n\n'
+                yield b"data: [DONE]\n\n"
 
     async def release(self):
         """关闭连接"""
@@ -1164,114 +1213,3 @@ class APIClient:
         except Exception as e:
             print(f"\033[31m[BizyAir]\033[0m Image generation request failed: {str(e)}")
             return None, errnos.MODEL_API_ERROR
-
-
-class StreamResponse:
-    """自定义流式响应类"""
-
-    def __init__(self, request_data):
-        self.request_data = request_data
-        self.reader = None
-        self.writer = None
-        self.closed = False
-        self.content = self
-        self.connected = False
-        self.connection_event = asyncio.Event()
-        self.buffer = b""
-
-    async def connect_and_request(self):
-        """建立连接并发送请求"""
-        try:
-            # 获取用户API密钥
-            api_key = get_api_key()
-
-            # 建立SSL连接
-            self.reader, self.writer = await asyncio.open_connection(
-                "api.siliconflow.cn", 443, ssl=True
-            )
-
-            # 准备HTTP请求
-            json_data = json.dumps(self.request_data)
-            request = (
-                f"POST /v1/chat/completions HTTP/1.1\r\n"
-                f"Host: api.siliconflow.cn\r\n"
-                f"Authorization: Bearer {api_key}\r\n"
-                f"Accept: text/event-stream\r\n"
-                f"Content-Type: application/json\r\n"
-                f"Content-Length: {len(json_data)}\r\n"
-                f"Connection: keep-alive\r\n"
-                f"\r\n"
-                f"{json_data}"
-            )
-
-            # 发送请求
-            self.writer.write(request.encode("utf-8"))
-            await self.writer.drain()
-
-            # 读取HTTP响应头
-            response_line = await self.reader.readline()
-            if not response_line:
-                raise Exception("Server closed the connection")
-
-            status_line = response_line.decode("utf-8").strip()
-
-            if not status_line.startswith("HTTP/1.1 200"):
-                raise Exception(f"API request failed: {status_line}")
-
-            # 读取响应头
-            headers = {}
-            while True:
-                line = await self.reader.readline()
-                if line == b"\r\n" or not line:
-                    break
-
-                try:
-                    header_line = line.decode("utf-8").strip()
-                    if ":" in header_line:
-                        key, value = header_line.split(":", 1)
-                        headers[key.strip()] = value.strip()
-                except Exception:
-                    pass
-
-            self.connected = True
-            self.connection_event.set()
-
-        except Exception as e:
-            error_msg = f"Connection failed: {str(e)}"
-            print(f"\033[31m[BizyAir]\033[0m {error_msg}")
-            self.closed = True
-            self.connection_event.set()
-
-    async def iter_any(self):
-        """模拟aiohttp的iter_any方法"""
-        if not self.connected:
-            await self.connection_event.wait()
-
-        if not self.connected:
-            error_msg = "Connection failed, unable to read data"
-            print(f"\033[31m[BizyAir]\033[0m {error_msg}")
-            raise Exception(error_msg)
-
-        try:
-            while not self.closed:
-                # 读取一段数据
-                chunk = await self.reader.read(1024)
-                if not chunk:
-                    break
-
-                yield chunk
-
-        except Exception as e:
-            error_msg = f"Failed to read data: {str(e)}"
-            print(f"\033[31m[BizyAir]\033[0m {error_msg}")
-            raise
-
-    async def release(self):
-        """关闭连接"""
-        if self.writer and not self.closed:
-            self.writer.close()
-            try:
-                await self.writer.wait_closed()
-            except Exception:
-                pass
-            self.closed = True
