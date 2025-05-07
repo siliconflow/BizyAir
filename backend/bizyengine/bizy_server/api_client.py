@@ -1097,7 +1097,7 @@ class APIClient:
                 return None, errnos.MODEL_API_ERROR
 
             # TODO: 前端能选择provide、model之后删除下句
-            request_data["model"] = f"maas:{request_data["model"]}"
+            request_data["model"] = f"maas:{request_data['model']}"
 
             client = OpenAI(
                 base_url=BIZYAIR_X_SERVER,
