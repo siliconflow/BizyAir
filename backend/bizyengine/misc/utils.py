@@ -6,7 +6,7 @@ import urllib.parse
 import urllib.request
 import zlib
 from typing import List, Tuple, Union
-
+from bizyengine.core.common.env_var import BIZYAIR_SERVER_ADDRESS
 import numpy as np
 
 BIZYAIR_DEBUG = os.getenv("BIZYAIR_DEBUG", False)
@@ -135,7 +135,7 @@ def get_llm_response(
     max_tokens: int = 1024,
     temperature: float = 0.7,
 ):
-    api_url = "https://api.siliconflow.cn/v1/chat/completions"
+    api_url = f"{BIZYAIR_SERVER_ADDRESS}/chat/completions"
     API_KEY = get_api_key()
     headers = {
         "accept": "application/json",
@@ -169,7 +169,7 @@ def get_vlm_response(
     temperature: float = 0.7,
     detail: str = "auto",
 ):
-    api_url = "https://api.siliconflow.cn/v1/chat/completions"
+    api_url = f"{BIZYAIR_SERVER_ADDRESS}/chat/completions"
     API_KEY = get_api_key()
     headers = {
         "accept": "application/json",

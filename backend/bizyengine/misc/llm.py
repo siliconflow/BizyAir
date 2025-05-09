@@ -18,7 +18,7 @@ from .utils import (
 
 
 async def fetch_all_models(api_key):
-    url = "https://api.bizyair.cn/x/v1/llm/models"
+    url = f"{BIZYAIR_SERVER_ADDRESS}/llm/models"
     headers = {"accept": "application/json", "authorization": f"Bearer {api_key}"}
     params = {"type": "text", "sub_type": "chat"}
 
