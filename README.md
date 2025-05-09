@@ -1,4 +1,12 @@
 # BizyAir
+- [2025/04/24] 🌩️ BizyAir add Illustrious、Pony model and billing function.
+- [2025/03/31] 🌩️ BizyAir fix some problems.
+- [2025/03/12] 🌩️ BizyAir add message box and refactor packaging
+- [2025/03/06] 🌩️ BizyAir Support cogview4 6b.
+- [2025/02/27] 🌩️ BizyAir supports wan_t2v_1.3b.
+- [2025/02/23] 🌩️ BizyAir optimize joycaptio.
+- [2025/01/28] 🌩️ BizyAir supports Janus_Pro_7B Model.
+- [2025/01/24] 🌩️ BizyAir add trellis nodes.
 - [2025/01/09] 🌩️ BizyAir supports Shuttle 3.1 Aesthetic. [Shuttle 3.1 Aesthetic](./examples/bizyair-shuttleai_shuttle_3_1_aesthetic.json)
 - [2024/12/17] 🌩️ BizyAir supports Flux Upscale Model. [FLUX Upscale](./examples/bizyair-flux1-upscale.json)
 - [2024/11/27] 🌩️ BizyAir supports Stable Diffusion 3.5 Large ControlNet Canny, Depth, and Blur. [ControlNet Canny](./examples/bizyair_sd3_5_canny.json) [ControlNet Depth](./examples/bizyair_sd3_5_depth.json) [ControlNet Blur](./examples/bizyair_sd3_5_blur.json)
