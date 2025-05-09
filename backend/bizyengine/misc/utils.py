@@ -6,8 +6,9 @@ import urllib.parse
 import urllib.request
 import zlib
 from typing import List, Tuple, Union
-from bizyengine.core.common.env_var import BIZYAIR_SERVER_ADDRESS
+
 import numpy as np
+from bizyengine.core.common.env_var import BIZYAIR_SERVER_ADDRESS
 
 BIZYAIR_DEBUG = os.getenv("BIZYAIR_DEBUG", False)
 
