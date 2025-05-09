@@ -18,7 +18,7 @@ from .utils import (
 
 
 async def fetch_all_models(api_key):
-    url = "https://api.siliconflow.cn/v1/models"
+    url = "https://api.bizyair.cn/x/v1/llm/models"
     headers = {"accept": "application/json", "authorization": f"Bearer {api_key}"}
     params = {"type": "text", "sub_type": "chat"}
 
