@@ -196,9 +196,9 @@ def yes_or_no(package_name) -> str:
 def update_bizyengine_bizyui():
     def _update_package_when_needed(package_name):
         try:
+            update_command = [sys.executable, "-m", "pip", "install", package_name]
             if package_name not in installed_packages:
                 print(f"\033[92m[BizyAir]\033[0m Try to install {package_name}")
-                update_command = [sys.executable, "-m", "pip", "install", package_name]
                 subprocess.check_call(update_command)
             else:
                 latest_version = get_latest_stable_version_from_pip(
