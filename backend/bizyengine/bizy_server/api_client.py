@@ -1082,6 +1082,7 @@ class APIClient:
     def forward_model_request(self, request_data):
         try:
             request_data["stream"] = True
+            # 硅基云API接受top_k但是openai库不支持
             request_data.pop("top_k")
             # 参数检查
             if "messages" not in request_data:
@@ -1096,7 +1097,7 @@ class APIClient:
             if "model" not in request_data:
                 return None, errnos.MODEL_API_ERROR
 
-            # TODO: 前端能选择provide、model之后删除下句
+            # TODO: 前端能选择provider、model之后删除下句
             request_data["model"] = f"SiliconFlow:{request_data['model']}"
 
             client = OpenAI(
