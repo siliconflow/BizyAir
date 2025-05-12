@@ -35,6 +35,7 @@
 - [2024/07/10] 🌩️ We release nodes that support Kolors and LLM(large language models).
 
 BizyAir is a collection of [ComfyUI](https://github.com/comfyanonymous/ComfyUI) nodes that help you overcome environmental and hardware limitations, allowing you to more easily generate high-quality content with ComfyUI.
+
 BizyAir now supports many models and nodes.
 [Product introduction](https://docs.bizyair.cn/index.html)
 
