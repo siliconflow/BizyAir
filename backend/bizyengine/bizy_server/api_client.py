@@ -38,6 +38,8 @@ class APIClient:
     def auth_header(self):
         try:
             api_key = get_api_key()
+            if not api_key:
+                return None, errnos.INVALID_API_KEY
             auth = f"Bearer {api_key}"
             headers = {
                 "accept": "application/json",
@@ -1081,6 +1083,10 @@ class APIClient:
 
     def forward_model_request(self, request_data):
         try:
+            api_key = get_api_key()
+            if not api_key:
+                return None, errnos.INVALID_API_KEY
+            
             request_data["stream"] = True
             # 硅基云API接受top_k但是openai库不支持
             request_data.pop("top_k")
@@ -1102,7 +1108,7 @@ class APIClient:
 
             client = OpenAI(
                 base_url=BIZYAIR_X_SERVER,
-                api_key=get_api_key(),
+                api_key=api_key,
                 timeout=60.0,
                 max_retries=0,
             )
@@ -1117,6 +1123,8 @@ class APIClient:
     async def forward_image_request(self, request_data):
         try:
             api_key = get_api_key()
+            if not api_key:
+                return None, errnos.INVALID_API_KEY
             headers = {
                 "Content-Type": "application/json",
                 "Authorization": f"Bearer {api_key}",
