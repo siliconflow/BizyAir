@@ -65,14 +65,15 @@ class APIClient:
             async with session.get(url, headers=headers) as response:
                 resp_json = await response.json()
                 if response.status != 200:
+                    isJson = isinstance(resp_json, dict) 
                     return None, ErrorNo(
                         response.status,
-                        resp_json.get("code", response.status),
+                        resp_json.get("code", response.status) if isJson else resp_json,
                         None,
                         {
                             user_profile.getLang(): resp_json.get(
                                 "message", await response.text()
-                            )
+                            ) if isJson else resp_json
                         },
                     )
                 return resp_json, None
@@ -82,14 +83,15 @@ class APIClient:
             async with session.post(url, json=data, headers=headers) as response:
                 resp_json = await response.json()
                 if response.status != 200:
+                    isJson = isinstance(resp_json, dict)
                     return None, ErrorNo(
                         response.status,
-                        resp_json.get("code", response.status),
+                        resp_json.get("code", response.status) if isJson else resp_json,
                         None,
                         {
                             user_profile.getLang(): resp_json.get(
                                 "message", await response.text()
-                            )
+                            ) if isJson else resp_json
                         },
                     )
                 return resp_json, None
@@ -99,14 +101,15 @@ class APIClient:
             async with session.put(url, json=data, headers=headers) as response:
                 resp_json = await response.json()
                 if response.status != 200:
+                    isJson = isinstance(resp_json, dict)
                     return None, ErrorNo(
                         response.status,
-                        resp_json.get("code", response.status),
+                        resp_json.get("code", response.status) if isJson else resp_json,
                         None,
                         {
                             user_profile.getLang(): resp_json.get(
                                 "message", await response.text()
-                            )
+                            ) if isJson else resp_json
                         },
                     )
                 return resp_json, None
@@ -116,14 +119,15 @@ class APIClient:
             async with session.delete(url, json=data, headers=headers) as response:
                 resp_json = await response.json()
                 if response.status != 200:
+                    isJson = isinstance(resp_json, dict)
                     return None, ErrorNo(
                         response.status,
-                        resp_json.get("code", response.status),
+                        resp_json.get("code", response.status) if isJson else resp_json,
                         None,
                         {
                             user_profile.getLang(): resp_json.get(
                                 "message", await response.text()
-                            )
+                            ) if isJson else resp_json
                         },
                     )
                 return resp_json, None
