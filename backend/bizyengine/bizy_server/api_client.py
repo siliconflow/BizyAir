@@ -65,15 +65,17 @@ class APIClient:
             async with session.get(url, headers=headers) as response:
                 resp_json = await response.json()
                 if response.status != 200:
-                    isJson = isinstance(resp_json, dict) 
+                    isJson = isinstance(resp_json, dict)
                     return None, ErrorNo(
                         response.status,
                         resp_json.get("code", response.status) if isJson else resp_json,
                         None,
                         {
-                            user_profile.getLang(): resp_json.get(
-                                "message", await response.text()
-                            ) if isJson else resp_json
+                            user_profile.getLang(): (
+                                resp_json.get("message", await response.text())
+                                if isJson
+                                else resp_json
+                            )
                         },
                     )
                 return resp_json, None
@@ -89,9 +91,11 @@ class APIClient:
                         resp_json.get("code", response.status) if isJson else resp_json,
                         None,
                         {
-                            user_profile.getLang(): resp_json.get(
-                                "message", await response.text()
-                            ) if isJson else resp_json
+                            user_profile.getLang(): (
+                                resp_json.get("message", await response.text())
+                                if isJson
+                                else resp_json
+                            )
                         },
                     )
                 return resp_json, None
@@ -107,9 +111,11 @@ class APIClient:
                         resp_json.get("code", response.status) if isJson else resp_json,
                         None,
                         {
-                            user_profile.getLang(): resp_json.get(
-                                "message", await response.text()
-                            ) if isJson else resp_json
+                            user_profile.getLang(): (
+                                resp_json.get("message", await response.text())
+                                if isJson
+                                else resp_json
+                            )
                         },
                     )
                 return resp_json, None
@@ -125,9 +131,11 @@ class APIClient:
                         resp_json.get("code", response.status) if isJson else resp_json,
                         None,
                         {
-                            user_profile.getLang(): resp_json.get(
-                                "message", await response.text()
-                            ) if isJson else resp_json
+                            user_profile.getLang(): (
+                                resp_json.get("message", await response.text())
+                                if isJson
+                                else resp_json
+                            )
                         },
                     )
                 return resp_json, None
