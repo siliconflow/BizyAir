@@ -22,6 +22,7 @@ from .env_var import (
     BIZYAIR_API_KEY,
     BIZYAIR_DEBUG,
     BIZYAIR_SERVER_ADDRESS,
+    BIZYAIR_SERVER_MODE,
     create_api_key_file,
 )
 
@@ -41,6 +42,8 @@ api_key_state = APIKeyState()
 
 
 def set_api_key(api_key: str = "YOUR_API_KEY", override: bool = False) -> bool:
+    if BIZYAIR_SERVER_MODE:
+        return
     logging.debug("client.py set_api_key called")
     global api_key_state
     if api_key_state.is_valid and not override:
@@ -58,6 +61,9 @@ def set_api_key(api_key: str = "YOUR_API_KEY", override: bool = False) -> bool:
 
 
 def validate_api_key(api_key: str = None) -> bool:
+    if BIZYAIR_SERVER_MODE:
+        return False
+
     logging.debug("validating api key...")
     if not api_key or not isinstance(api_key, str):
         warnings.warn("invalid api_key")
@@ -92,6 +98,8 @@ def validate_api_key(api_key: str = None) -> bool:
 
 
 def get_api_key() -> str:
+    if BIZYAIR_SERVER_MODE:
+        return None
     logging.debug("client.py get_api_key called")
     global api_key_state
     try:
