@@ -30,6 +30,10 @@ MODEL_API = f"{API_PREFIX}/model"
 
 logging.basicConfig(level=logging.DEBUG)
 
+def _get_request_api_key(request_headers):
+    if BIZYAIR_SERVER_MODE:
+        return request_headers.get("api_key")
+    return None
 
 class BizyAirServer:
     def __init__(self):
@@ -66,15 +70,13 @@ class BizyAirServer:
             resp, err = None, None
 
             # 调用API查询数据集
-            api_key = None
-            if BIZYAIR_SERVER_MODE:
-                api_key = request.headers["api_key"]
+            request_api_key = _get_request_api_key(request.headers)
             resp, err = await self.api_client.query_datasets(
                 current,
                 page_size,
                 keyword=keyword,
                 annotated=annotated,
-                api_key=api_key,
+                request_api_key=request_api_key,
             )
             if err:
                 return ErrResponse(err)
@@ -93,10 +95,8 @@ class BizyAirServer:
                 return ErrResponse(errnos.INVALID_DATASET_ID)
 
             # 调用API获取数据集详情
-            api_key = None
-            if BIZYAIR_SERVER_MODE:
-                api_key = request.headers["api_key"]
-            resp, err = await self.api_client.get_dataset_detail(dataset_id, api_key=api_key)
+            request_api_key = _get_request_api_key(request.headers)
+            resp, err = await self.api_client.get_dataset_detail(dataset_id, request_api_key=request_api_key)
             if err:
                 return ErrResponse(err)
 
@@ -118,9 +118,7 @@ class BizyAirServer:
             sort = json_data.get("sort", "")
             resp, err = None, None
 
-            api_key = None
-            if BIZYAIR_SERVER_MODE:
-                api_key = request.headers["api_key"]
+            request_api_key = _get_request_api_key(request.headers)
             if mode in ["my", "my_fork"]:
                 # 调用API查询模型
                 resp, err = await self.api_client.query_models(
@@ -131,7 +129,7 @@ class BizyAirServer:
                     model_types=model_types,
                     base_models=base_models,
                     sort=sort,
-                    api_key=api_key,
+                    request_api_key=request_api_key,
                 )
             elif mode == "publicity":
                 # 调用API查询社区模型
@@ -142,7 +140,7 @@ class BizyAirServer:
                     model_types=model_types,
                     base_models=base_models,
                     sort=sort,
-                    api_key=api_key,
+                    request_api_key=request_api_key,
                 )
             elif mode == "official":
                 resp, err = await self.api_client.query_official_models(
@@ -152,7 +150,7 @@ class BizyAirServer:
                     model_types=model_types,
                     base_models=base_models,
                     sort=sort,
-                    api_key=api_key,
+                    request_api_key=request_api_key,
                 )
             if err:
                 return ErrResponse(err)
@@ -171,10 +169,8 @@ class BizyAirServer:
             source = request.rel_url.query.get("source", "")
 
             # 调用API获取模型详情
-            api_key = None
-            if BIZYAIR_SERVER_MODE:
-                api_key = request.headers["api_key"]
-            resp, err = await self.api_client.get_model_detail(model_id, source, api_key=api_key)
+            request_api_key = _get_request_api_key(request.headers)
+            resp, err = await self.api_client.get_model_detail(model_id, source, request_api_key=request_api_key)
             if err:
                 return ErrResponse(err)
 
@@ -190,10 +186,8 @@ class BizyAirServer:
                 return ErrResponse(errnos.INVALID_MODEL_ID)
 
             # 调用API删除模型
-            api_key = None
-            if BIZYAIR_SERVER_MODE:
-                api_key = request.headers["api_key"]
-            resp, err = await self.api_client.delete_bizy_model(model_id, api_key=api_key)
+            request_api_key = _get_request_api_key(request.headers)
+            resp, err = await self.api_client.delete_bizy_model(model_id, request_api_key=request_api_key)
             if err:
                 return ErrResponse(err)
 
@@ -254,11 +248,9 @@ class BizyAirServer:
                         return ErrResponse(errnos.INVALID_VERSION_FIELD(field))
 
             # 调用API更新模型
-            api_key = None
-            if BIZYAIR_SERVER_MODE:
-                api_key = request.headers["api_key"]
+            request_api_key = _get_request_api_key(request.headers)
             resp, err = await self.api_client.update_model(
-                model_id, json_data["name"], json_data["type"], versions, api_key=api_key,
+                model_id, json_data["name"], json_data["type"], versions, request_api_key=request_api_key,
             )
             if err:
                 return ErrResponse(err)
@@ -283,10 +275,8 @@ class BizyAirServer:
                     return ErrResponse(errnos.INVALID_MODEL_VERSION_ID)
 
                 # 调用API fork模型版本
-                api_key = None
-                if BIZYAIR_SERVER_MODE:
-                    api_key = request.headers["api_key"]
-                _, err = await self.api_client.fork_model_version(version_id, api_key=api_key)
+                request_api_key = _get_request_api_key(request.headers)
+                _, err = await self.api_client.fork_model_version(version_id, request_api_key=request_api_key)
                 if err:
                     return ErrResponse(err)
 
@@ -307,10 +297,8 @@ class BizyAirServer:
                     return ErrResponse(errnos.INVALID_MODEL_VERSION_ID)
 
                 # 调用API fork模型版本
-                api_key = None
-                if BIZYAIR_SERVER_MODE:
-                    api_key = request.headers["api_key"]
-                _, err = await self.api_client.unfork_model_version(version_id, api_key=api_key)
+                request_api_key = _get_request_api_key(request.headers)
+                _, err = await self.api_client.unfork_model_version(version_id, request_api_key=request_api_key)
                 if err:
                     return ErrResponse(err)
 
@@ -333,11 +321,9 @@ class BizyAirServer:
                     return ErrResponse(errnos.INVALID_MODEL_VERSION_ID)
 
                 # 调用API like模型版本
-                api_key = None
-                if BIZYAIR_SERVER_MODE:
-                    api_key = request.headers["api_key"]
+                request_api_key = _get_request_api_key(request.headers)
                 _, err = await self.api_client.toggle_user_like(
-                    "model_version", version_id, api_key=api_key
+                    "model_version", version_id, request_api_key=request_api_key
                 )
                 if err:
                     return ErrResponse(err)
@@ -364,11 +350,9 @@ class BizyAirServer:
                 return ErrResponse(errnos.INVALID_SIGN)
 
             # 获取上传凭证
-            api_key = None
-            if BIZYAIR_SERVER_MODE:
-                api_key = request.headers["api_key"]
+            request_api_key = _get_request_api_key(request.headers)
             url, err = await self.api_client.get_download_url(
-                sign=sign, model_version_id=model_version_id, api_key=api_key
+                sign=sign, model_version_id=model_version_id, request_api_key=request_api_key
             )
             if err:
                 return ErrResponse(err)
@@ -384,10 +368,8 @@ class BizyAirServer:
 
         @self.prompt_server.routes.get(f"/{API_PREFIX}/dict")
         async def get_data_dict(request):
-            api_key = None
-            if BIZYAIR_SERVER_MODE:
-                api_key = request.headers["api_key"]
-            data_dict, err = await self.api_client.get_data_dict(api_key=api_key)
+            request_api_key = _get_request_api_key(request.headers)
+            data_dict, err = await self.api_client.get_data_dict(request_api_key=request_api_key)
             if err is not None:
                 return ErrResponse(err)
 
@@ -432,10 +414,8 @@ class BizyAirServer:
                 version_names.add(version.get("version"))
 
             # 调用API提交数据集
-            api_key = None
-            if BIZYAIR_SERVER_MODE:
-                api_key = request.headers["api_key"]
-            resp, err = await self.api_client.commit_dataset(payload=json_data, api_key=api_key)
+            request_api_key = _get_request_api_key(request.headers)
+            resp, err = await self.api_client.commit_dataset(payload=json_data, request_api_key=request_api_key)
             if err:
                 return ErrResponse(err)
 
@@ -499,11 +479,9 @@ class BizyAirServer:
                 version_names.add(version.get("version"))
 
             # 调用API更新数据集
-            api_key = None
-            if BIZYAIR_SERVER_MODE:
-                api_key = request.headers["api_key"]
+            request_api_key = _get_request_api_key(request.headers)
             resp, err = await self.api_client.update_dataset(
-                dataset_id, json_data["name"], versions, api_key=api_key
+                dataset_id, json_data["name"], versions, request_api_key=request_api_key
             )
             if err:
                 return ErrResponse(err)
@@ -527,10 +505,8 @@ class BizyAirServer:
                 return ErrResponse(errnos.INVALID_DATASET_ID)
 
             # 调用API删除数据集
-            api_key = None
-            if BIZYAIR_SERVER_MODE:
-                api_key = request.headers["api_key"]
-            resp, err = await self.api_client.delete_dataset(dataset_id, api_key=api_key)
+            request_api_key = _get_request_api_key(request.headers)
+            resp, err = await self.api_client.delete_dataset(dataset_id, request_api_key=request_api_key)
             if err:
                 return ErrResponse(err)
 
@@ -554,10 +530,8 @@ class BizyAirServer:
                 return ErrResponse(errnos.INVALID_SHARE_TYPE)
 
             # 调用API提交数据集
-            api_key = None
-            if BIZYAIR_SERVER_MODE:
-                api_key = request.headers["api_key"]
-            resp, err = await self.api_client.create_share(payload=json_data, api_key=api_key)
+            request_api_key = _get_request_api_key(request.headers)
+            resp, err = await self.api_client.create_share(payload=json_data, request_api_key=request_api_key)
             if err:
                 return ErrResponse(err)
 
@@ -573,10 +547,8 @@ class BizyAirServer:
                 return ErrResponse(errnos.INVALID_MODEL_VERSION_ID)
 
             # 调用API获取数据集详情
-            api_key = None
-            if BIZYAIR_SERVER_MODE:
-                api_key = request.headers["api_key"]
-            resp, err = await self.api_client.get_model_version_detail(version_id, api_key=api_key)
+            request_api_key = _get_request_api_key(request.headers)
+            resp, err = await self.api_client.get_model_version_detail(version_id, request_api_key=request_api_key)
             if err:
                 return ErrResponse(err)
 
@@ -590,10 +562,8 @@ class BizyAirServer:
                 return ErrResponse(errnos.EMPTY_SHA256SUM)
 
             type = request.rel_url.query.get("type")
-            api_key = None
-            if BIZYAIR_SERVER_MODE:
-                api_key = request.headers["api_key"]
-            sign_data, err = await self.api_client.sign(sha256sum, type, api_key=api_key)
+            request_api_key = _get_request_api_key(request.headers)
+            sign_data, err = await self.api_client.sign(sha256sum, type, request_api_key=request_api_key)
             if err is not None:
                 return ErrResponse(err)
 
@@ -607,10 +577,8 @@ class BizyAirServer:
                 return ErrResponse(errnos.INVALID_FILENAME)
 
             filename = urllib.parse.quote(filename)
-            api_key = None
-            if BIZYAIR_SERVER_MODE:
-                api_key = request.headers["api_key"]
-            token, err = await self.api_client.get_upload_token(filename=filename, api_key=api_key)
+            request_api_key = _get_request_api_key(request.headers)
+            token, err = await self.api_client.get_upload_token(filename=filename, request_api_key=request_api_key)
             if err is not None:
                 return ErrResponse(err)
             return OKResponse(token)
@@ -635,17 +603,33 @@ class BizyAirServer:
             if "md5_hash" in json_data:
                 md5_hash = json_data.get("md5_hash")
 
-            api_key = None
-            if BIZYAIR_SERVER_MODE:
-                api_key = request.headers["api_key"]
+            request_api_key = _get_request_api_key(request.headers)
             commit_data, err = await self.api_client.commit_file(
-                signature=sha256sum, object_key=object_key, md5_hash=md5_hash, type=type, api_key=api_key
+                signature=sha256sum, object_key=object_key, md5_hash=md5_hash, type=type, request_api_key=request_api_key
             )
             # print("commit_data", commit_data)
             if err is not None:
                 return ErrResponse(err)
 
             return OKResponse(None)
+        
+        # 由于历史原因，前端请求body里有apikey所以是post
+        @self.prompt_server.routes.post(f"/{API_PREFIX}/get_silicon_cloud_llm_models")
+        async def get_silicon_cloud_llm_models_endpoint(request):
+            request_api_key = _get_request_api_key(request.headers)
+            all_models = await self.api_client.fetch_all_llm_models(request_api_key=request_api_key)
+            llm_models = [model for model in all_models if "vl" not in model.lower()]
+            llm_models.append("No LLM Enhancement")
+            return OKResponse(llm_models)
+
+        # 由于历史原因，前端请求body里有apikey所以是post
+        @self.prompt_server.routes.post(f"/{API_PREFIX}/get_silicon_cloud_vlm_models")
+        async def get_silicon_cloud_vlm_models_endpoint(request):
+            request_api_key = _get_request_api_key(request.headers)
+            all_models = await self.api_client.fetch_all_llm_models(request_api_key=request_api_key)
+            vlm_models = [model for model in all_models if "vl" in model.lower()]
+            vlm_models.append("No VLM Enhancement")
+            return OKResponse(vlm_models)
 
         # 服务器模式下以下路径不会注册
         if BIZYAIR_SERVER_MODE:
@@ -981,7 +965,7 @@ class BizyAirServer:
             if not year:
                 return ErrResponse(errnos.INVALID_YEAR_PARAM)
 
-            resp, err = await self.api_client.get_year_cost(year=year, api_key=api_key)
+            resp, err = await self.api_client.get_year_cost(year=year, query_api_key=api_key)
             if err is not None:
                 return ErrResponse(err)
 
@@ -996,7 +980,7 @@ class BizyAirServer:
                 return ErrResponse(errnos.INVALID_MONTH_PARAM)
 
             resp, err = await self.api_client.get_month_cost(
-                month=month, api_key=api_key
+                month=month, query_api_key=api_key
             )
             if err is not None:
                 return ErrResponse(err)
@@ -1011,7 +995,7 @@ class BizyAirServer:
             if not day:
                 return ErrResponse(errnos.INVALID_DAY_PARAM)
 
-            resp, err = await self.api_client.get_day_cost(day=day, api_key=api_key)
+            resp, err = await self.api_client.get_day_cost(day=day, query_api_key=api_key)
             if err is not None:
                 return ErrResponse(err)
 
@@ -1022,7 +1006,7 @@ class BizyAirServer:
 
             api_key = request.rel_url.query.get("api_key", "")
 
-            resp, err = await self.api_client.get_recent_cost(api_key=api_key)
+            resp, err = await self.api_client.get_recent_cost(query_api_key=api_key)
             if err is not None:
                 return ErrResponse(err)
 

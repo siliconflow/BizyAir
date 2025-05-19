@@ -91,7 +91,7 @@ def USDU_base_inputs():
 
 
 def prepare_inputs(required: list, optional: list = None):
-    inputs = {}
+    inputs = {"hidden": { "prompt": "PROMPT" }}
     if required:
         inputs["required"] = {}
         for name, type in required:
@@ -124,7 +124,7 @@ class UltimateSDUpscale(BizyAirBaseNode):
         return prepare_inputs(required, optional)
 
     RETURN_TYPES = ("IMAGE",)
-    FUNCTION = "upscale"
+    #FUNCTION = "upscale"
     CATEGORY = "image/upscaling"
 
     def upscale(self, **kwargs):

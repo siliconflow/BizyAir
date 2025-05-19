@@ -163,7 +163,7 @@ class PromptServer(Command):
             and "task_id" in result.get("data", {})
         )
 
-    def _get_result(self, result: Dict[str, Any], *, cache_key: str = None):
+    def _get_result(self, result: Dict[str, Any], *, cache_key: str = None, **kwargs):
         try:
             response_data = result["data"]
             if BizyAirTask.check_inputs(result):
@@ -182,29 +182,28 @@ class PromptServer(Command):
 
     def execute(
         self,
-        prompt: Dict[str, Dict[str, Any]],
+        nodes: Dict[str, Dict[str, Any]],
         last_node_ids: List[str],
         *args,
         **kwargs,
     ):
-
-        prompt = encode_data(prompt)
+        nodes = encode_data(nodes)
 
         if BIZYAIR_DEBUG:
             debug_info = {
-                "prompt": truncate_long_strings(prompt, 50),
+                "prompt": truncate_long_strings(nodes, 50),
                 "last_node_ids": last_node_ids,
             }
             pprint.pprint(debug_info, indent=4)
 
-        url = self.router(prompt=prompt, last_node_ids=last_node_ids)
+        url = self.router(nodes=nodes, last_node_ids=last_node_ids, **kwargs)
 
         if BIZYAIR_DEBUG:
             print(f"Generated URL: {url}")
 
         start_time = time.time()
         sh256 = hashlib.sha256(
-            json.dumps({"url": url, "prompt": prompt}).encode("utf-8")
+            json.dumps({"url": url, "prompt": nodes}).encode("utf-8")
         ).hexdigest()
         end_time = time.time()
         if BIZYAIR_DEBUG:
@@ -218,7 +217,7 @@ class PromptServer(Command):
                 print(f"Cache hit for sh256-{sh256}")
             out = cached_output
         else:
-            result = self.processor(url, prompt=prompt, last_node_ids=last_node_ids)
+            result = self.processor(url, nodes=nodes, last_node_ids=last_node_ids, **kwargs)
             out = self._get_result(result, cache_key=sh256)
 
         if BIZYAIR_DEBUG:

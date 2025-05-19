@@ -82,10 +82,10 @@ class BizyAirNodeIO:
                 self.nodes.update(other.nodes)
 
     def send_request(
-        self, url=None, headers=None, *, progress_callback=None, stream=False
+        self, url=None, headers=None, *, progress_callback=None, stream=False, **kwargs
     ) -> any:
         out = invoker.prompt_server.execute(
-            prompt=self.nodes, last_node_ids=[self.node_id]
+            nodes=self.nodes, last_node_ids=[self.node_id], **kwargs
         )
         return out
 

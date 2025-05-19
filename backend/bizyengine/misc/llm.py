@@ -3,66 +3,23 @@ import json
 
 import aiohttp
 from aiohttp import web
+from bizyengine.core import BizyAirMiscBaseNode
+from bizyengine.core.common import client
 from bizyengine.core.common.env_var import BIZYAIR_SERVER_ADDRESS
 from bizyengine.core.image_utils import decode_data, encode_comfy_image, encode_data
 from server import PromptServer
 
 from .utils import (
     decode_and_deserialize,
-    get_api_key,
+    _get_api_key,
     get_llm_response,
     get_vlm_response,
     send_post_request,
     serialize_and_encode,
+    get_api_key_and_prompt_id
 )
 
-
-async def fetch_all_models(api_key):
-    url = f"{BIZYAIR_SERVER_ADDRESS}/llm/models"
-    headers = {"accept": "application/json", "authorization": f"Bearer {api_key}"}
-    params = {"type": "text", "sub_type": "chat"}
-
-    try:
-        async with aiohttp.ClientSession() as session:
-            async with session.get(
-                url, headers=headers, params=params, timeout=10
-            ) as response:
-                if response.status == 200:
-                    data = await response.json()
-                    all_models = [model["id"] for model in data["data"]]
-                    return all_models
-                else:
-                    print(f"Error fetching models: HTTP Status {response.status}")
-                    return []
-    except aiohttp.ClientError as e:
-        print(f"Error fetching models: {e}")
-        return []
-    except asyncio.exceptions.TimeoutError:
-        print("Request to fetch models timed out")
-        return []
-
-
-@PromptServer.instance.routes.post("/bizyair/get_silicon_cloud_llm_models")
-async def get_silicon_cloud_llm_models_endpoint(request):
-    data = await request.json()
-    api_key = data.get("api_key", get_api_key())
-    all_models = await fetch_all_models(api_key)
-    llm_models = [model for model in all_models if "vl" not in model.lower()]
-    llm_models.append("No LLM Enhancement")
-    return web.json_response(llm_models)
-
-
-@PromptServer.instance.routes.post("/bizyair/get_silicon_cloud_vlm_models")
-async def get_silicon_cloud_vlm_models_endpoint(request):
-    data = await request.json()
-    api_key = data.get("api_key", get_api_key())
-    all_models = await fetch_all_models(api_key)
-    vlm_models = [model for model in all_models if "vl" in model.lower()]
-    vlm_models.append("No VLM Enhancement")
-    return web.json_response(vlm_models)
-
-
-class SiliconCloudLLMAPI:
+class SiliconCloudLLMAPI(BizyAirMiscBaseNode):
     def __init__(self):
         pass
 
@@ -93,7 +50,8 @@ class SiliconCloudLLMAPI:
                     "FLOAT",
                     {"default": 0.7, "min": 0.0, "max": 2.0, "step": 0.01},
                 ),
-            }
+            },
+            "hidden": { "prompt": "PROMPT" }
         }
 
     RETURN_TYPES = ("STRING",)
@@ -102,23 +60,23 @@ class SiliconCloudLLMAPI:
     CATEGORY = "☁️BizyAir/AI Assistants"
 
     def get_llm_model_response(
-        self, model, system_prompt, user_prompt, max_tokens, temperature
+        self, model, system_prompt, user_prompt, max_tokens, temperature, **kwargs
     ):
         if model == "No LLM Enhancement":
             return {"ui": {"text": (user_prompt,)}, "result": (user_prompt,)}
-        response = get_llm_response(
+        ret = get_llm_response(
             model,
             system_prompt,
             user_prompt,
             max_tokens,
             temperature,
+            **kwargs
         )
-        ret = json.loads(response)
         text = ret["choices"][0]["message"]["content"]
         return (text,)  # if update ui:  {"ui": {"text": (text,)}, "result": (text,)}
 
 
-class SiliconCloudVLMAPI:
+class SiliconCloudVLMAPI(BizyAirMiscBaseNode):
     def __init__(self):
         pass
 
@@ -148,7 +106,8 @@ class SiliconCloudVLMAPI:
                     {"default": 0.7, "min": 0.0, "max": 2.0, "step": 0.01},
                 ),
                 "detail": (["auto", "low", "high"], {"default": "auto"}),
-            }
+            },
+            "hidden": { "prompt": "PROMPT" }
         }
 
     RETURN_TYPES = ("STRING",)
@@ -157,7 +116,7 @@ class SiliconCloudVLMAPI:
     CATEGORY = "☁️BizyAir/AI Assistants"
 
     def get_vlm_model_response(
-        self, model, system_prompt, user_prompt, images, max_tokens, temperature, detail
+        self, model, system_prompt, user_prompt, images, max_tokens, temperature, detail, **kwargs
     ):
         if model == "No VLM Enhancement":
             return (user_prompt,)
@@ -171,7 +130,7 @@ class SiliconCloudVLMAPI:
         # 提取所有编码后的图像
         base64_images = list(encoded_images_dict.values())
 
-        response = get_vlm_response(
+        ret = get_vlm_response(
             model,
             system_prompt,
             user_prompt,
@@ -179,13 +138,13 @@ class SiliconCloudVLMAPI:
             max_tokens,
             temperature,
             detail,
+            **kwargs
         )
-        ret = json.loads(response)
         text = ret["choices"][0]["message"]["content"]
         return (text,)
 
 
-class BizyAirJoyCaption:
+class BizyAirJoyCaption(BizyAirMiscBaseNode):
     # refer to: https://huggingface.co/spaces/fancyfeast/joy-caption-pre-alpha
     API_URL = f"{BIZYAIR_SERVER_ADDRESS}/supernode/joycaption2"
 
@@ -216,7 +175,8 @@ class BizyAirJoyCaption:
                         "display": "number",
                     },
                 ),
-            }
+            },
+            "hidden": { "prompt": "PROMPT" }
         }
 
     RETURN_TYPES = ("STRING",)
@@ -224,8 +184,10 @@ class BizyAirJoyCaption:
 
     CATEGORY = "☁️BizyAir/AI Assistants"
 
-    def joycaption(self, image, do_sample, temperature, max_tokens):
-        API_KEY = get_api_key()
+    def joycaption(self, image, do_sample, temperature, max_tokens, **kwargs):
+        extra_data = get_api_key_and_prompt_id(prompt=kwargs["prompt"])
+        headers = client.headers(api_key=extra_data["api_key"])
+
         SIZE_LIMIT = 1536
         # device = image.device
         _, w, h, c = image.shape
@@ -244,17 +206,18 @@ class BizyAirJoyCaption:
             "name_input": "",
             "custom_prompt": "A descriptive caption for this image:\n",
         }
-        auth = f"Bearer {API_KEY}"
-        headers = {
-            "accept": "application/json",
-            "content-type": "application/json",
-            "authorization": auth,
-        }
         input_image = encode_data(image, disable_image_marker=True)
         payload["image"] = input_image
+        if "prompt_id" in extra_data:
+            payload["prompt_id"] = extra_data["prompt_id"]
+        data = json.dumps(payload).encode("utf-8")
 
-        ret: str = send_post_request(self.API_URL, payload=payload, headers=headers)
-        ret = json.loads(ret)
+        ret = client.send_request(
+            url=self.API_URL,
+            data=data,
+            headers=headers,
+            callback=None,
+        )
 
         try:
             if "result" in ret:
@@ -275,7 +238,7 @@ class BizyAirJoyCaption:
         return (caption,)
 
 
-class BizyAirJoyCaption2:
+class BizyAirJoyCaption2(BizyAirMiscBaseNode):
     def __init__(self):
         pass
 
@@ -348,7 +311,8 @@ class BizyAirJoyCaption2:
                         "multiline": True,
                     },
                 ),
-            }
+            },
+            "hidden": { "prompt": "PROMPT" }
         }
 
     RETURN_TYPES = ("STRING",)
@@ -367,8 +331,11 @@ class BizyAirJoyCaption2:
         extra_options,
         name_input,
         custom_prompt,
+        **kwargs
     ):
-        API_KEY = get_api_key()
+        extra_data = get_api_key_and_prompt_id(prompt=kwargs["prompt"])
+        headers = client.headers(api_key=extra_data["api_key"])
+        
         SIZE_LIMIT = 1536
         _, w, h, c = image.shape
         assert (
@@ -386,17 +353,18 @@ class BizyAirJoyCaption2:
             "name_input": name_input,
             "custom_prompt": custom_prompt,
         }
-        auth = f"Bearer {API_KEY}"
-        headers = {
-            "accept": "application/json",
-            "content-type": "application/json",
-            "authorization": auth,
-        }
         input_image = encode_data(image, disable_image_marker=True)
         payload["image"] = input_image
+        if "prompt_id" in extra_data:
+            payload["prompt_id"] = extra_data["prompt_id"]
+        data = json.dumps(payload).encode("utf-8")
 
-        ret: str = send_post_request(self.API_URL, payload=payload, headers=headers)
-        ret = json.loads(ret)
+        ret: str = client.send_request(
+            url=self.API_URL,
+            data=data,
+            headers=headers,
+            callback=None
+        )
 
         try:
             if "result" in ret:

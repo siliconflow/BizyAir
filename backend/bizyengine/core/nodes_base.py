@@ -91,7 +91,7 @@ def ensure_unique_id(org_func, original_has_unique_id=False):
     return new_func
 
 
-def ensure_hidden_unique_id(org_input_types_func):
+def ensure_hidden_unique_id_and_prompt(org_input_types_func):
     original_has_unique_id = False
 
     @wraps(org_input_types_func)
@@ -105,11 +105,28 @@ def ensure_hidden_unique_id(org_input_types_func):
             result["hidden"]["unique_id"] = "UNIQUE_ID"
         else:
             original_has_unique_id = True
+        # Also set prompt
+        if "prompt" not in result["hidden"]:
+            result["hidden"]["prompt"] = "PROMPT"
         return result
 
     # Ensure original_has_unique_id is correctly set before returning
     new_input_types_func()
     return new_input_types_func, original_has_unique_id
+
+
+def ensure_hidden_prompt(org_input_types_func):
+    @wraps(org_input_types_func)
+    def new_input_types_func():
+        result = org_input_types_func()
+        if "hidden" not in result:
+            result["hidden"] = {"prompt": "PROMPT"}
+        elif "prompt" not in result["hidden"]:
+            result["hidden"]["prompt"] = "PROMPT"
+        return result
+
+    new_input_types_func()
+    return new_input_types_func
 
 
 class BizyAirBaseNode:
@@ -124,7 +141,7 @@ class BizyAirBaseNode:
     @classmethod
     def setup_input_types(cls):
         # https://docs.comfy.org/essentials/custom_node_more_on_inputs#hidden-inputs
-        new_input_types_func, original_has_unique_id = ensure_hidden_unique_id(
+        new_input_types_func, original_has_unique_id = ensure_hidden_unique_id_and_prompt(
             cls.INPUT_TYPES
         )
         cls.INPUT_TYPES = new_input_types_func
@@ -146,7 +163,7 @@ class BizyAirBaseNode:
         # TODO: add processing for send_request_types
         send_request_datatype_list = self._get_send_request_datatypes()
         if len(send_request_datatype_list) == len(self.RETURN_TYPES):
-            return self._process_all_send_request_types(node_ios)
+            return self._process_all_send_request_types(node_ios, **kwargs)
         return node_ios
 
     def _get_send_request_datatypes(self):
@@ -172,7 +189,25 @@ class BizyAirBaseNode:
             outs.append(node)
         return tuple(outs)
 
-    def _process_all_send_request_types(self, node_ios: List[BizyAirNodeIO]):
-        out = node_ios[0].send_request()
+    def _process_all_send_request_types(self, node_ios: List[BizyAirNodeIO], **kwargs):
+        out = node_ios[0].send_request(**kwargs)
         assert len(out) == len(self.RETURN_TYPES)
         return out
+
+
+class BizyAirMiscBaseNode:
+    # 作为Misc节点基类来保证hidden prompt存在
+    def __init_subclass__(cls, **kwargs):
+        if not hasattr(cls, "CATEGORY"):
+            return
+        if not cls.CATEGORY.startswith(f"{LOGO}{PREFIX}"):
+            cls.CATEGORY = f"{LOGO}{PREFIX}/{cls.CATEGORY}"
+        cls.setup_input_types()
+
+    @classmethod
+    def setup_input_types(cls):
+        # https://docs.comfy.org/essentials/custom_node_more_on_inputs#hidden-inputs
+        new_input_types_func = ensure_hidden_prompt(
+            cls.INPUT_TYPES
+        )
+        cls.INPUT_TYPES = new_input_types_func

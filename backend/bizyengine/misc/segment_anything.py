@@ -6,13 +6,16 @@ from enum import Enum
 import folder_paths
 import numpy as np
 import torch
+
+from bizyengine.core import BizyAirMiscBaseNode
+from bizyengine.core.common import client
 from bizyengine.core.common.env_var import BIZYAIR_SERVER_ADDRESS
 from bizyengine.core.image_utils import decode_base64_to_np, encode_image_to_base64
 from nodes import LoadImage
 from PIL import Image, ImageOps, ImageSequence
 
 from .route_sam import SAM_COORDINATE
-from .utils import get_api_key, send_post_request
+from .utils import _get_api_key, get_api_key_and_prompt_id
 
 
 class INFER_MODE(Enum):
@@ -27,7 +30,7 @@ class EDIT_MODE(Enum):
     point = 1
 
 
-class BizyAirSegmentAnythingText:
+class BizyAirSegmentAnythingText(BizyAirMiscBaseNode):
     API_URL = f"{BIZYAIR_SERVER_ADDRESS}/supernode/sam"
 
     @classmethod
@@ -44,7 +47,8 @@ class BizyAirSegmentAnythingText:
                     "FLOAT",
                     {"default": 0.3, "min": 0, "max": 1.0, "step": 0.01},
                 ),
-            }
+            },
+            "hidden": { "prompt": "PROMPT" }
         }
 
     RETURN_TYPES = ("IMAGE", "MASK")
@@ -52,8 +56,10 @@ class BizyAirSegmentAnythingText:
 
     CATEGORY = "☁️BizyAir/segment-anything"
 
-    def text_sam(self, image, prompt, box_threshold, text_threshold):
-        API_KEY = get_api_key()
+    def text_sam(self, image, prompt, box_threshold, text_threshold, **kwargs):
+        extra_data = get_api_key_and_prompt_id(prompt=kwargs["prompt"])
+        headers = client.headers(api_key=extra_data["api_key"])
+
         SIZE_LIMIT = 1536
         device = image.device
         _, w, h, c = image.shape
@@ -70,19 +76,20 @@ class BizyAirSegmentAnythingText:
                 "text_threshold": text_threshold,
             },
         }
-        auth = f"Bearer {API_KEY}"
-        headers = {
-            "accept": "application/json",
-            "content-type": "application/json",
-            "authorization": auth,
-        }
         image = image.squeeze(0).numpy()
         image_pil = Image.fromarray((image * 255).astype(np.uint8))
         input_image = encode_image_to_base64(image_pil, format="webp")
         payload["image"] = input_image
+        if "prompt_id" in extra_data:
+            payload["prompt_id"] = extra_data["prompt_id"]
+        data = json.dumps(payload).encode("utf-8")
 
-        ret: str = send_post_request(self.API_URL, payload=payload, headers=headers)
-        ret = json.loads(ret)
+        ret = client.send_request(
+            url=self.API_URL,
+            data=data,
+            headers=headers,
+            callback=None,
+        )
 
         try:
             if "result" in ret:
@@ -117,7 +124,7 @@ class BizyAirSegmentAnythingText:
         return (img, img_mask)
 
 
-class BizyAirSegmentAnythingPointBox:
+class BizyAirSegmentAnythingPointBox(BizyAirMiscBaseNode):
     API_URL = f"{BIZYAIR_SERVER_ADDRESS}/supernode/sam"
 
     @classmethod
@@ -133,6 +140,7 @@ class BizyAirSegmentAnythingPointBox:
                 "image": (sorted(files), {"image_upload": True}),
                 "is_point": ("BOOLEAN", {"default": True}),
             },
+            "hidden": { "prompt": "PROMPT" }
         }
 
     RETURN_TYPES = ("IMAGE", "MASK", "IMAGE")
@@ -141,8 +149,10 @@ class BizyAirSegmentAnythingPointBox:
 
     CATEGORY = "☁️BizyAir/segment-anything"
 
-    def apply(self, image, is_point):
-        API_KEY = get_api_key()
+    def apply(self, image, is_point, **kwargs):
+        extra_data = get_api_key_and_prompt_id(prompt=kwargs["prompt"])
+        headers = client.headers(api_key=extra_data["api_key"])
+
         SIZE_LIMIT = 1536
 
         # 加载原始图像
@@ -201,20 +211,21 @@ class BizyAirSegmentAnythingPointBox:
                 },
             }
 
-        auth = f"Bearer {API_KEY}"
-        headers = {
-            "accept": "application/json",
-            "content-type": "application/json",
-            "authorization": auth,
-        }
         # 处理用于API的图像
         api_image = image_to_process.squeeze(0).numpy()
         image_pil = Image.fromarray((api_image * 255).astype(np.uint8))
         input_image = encode_image_to_base64(image_pil, format="webp")
         payload["image"] = input_image
+        if "prompt_id" in extra_data:
+            payload["prompt_id"] = extra_data["prompt_id"]
+        data = json.dumps(payload).encode("utf-8")
 
-        ret: str = send_post_request(self.API_URL, payload=payload, headers=headers)
-        ret = json.loads(ret)
+        ret = client.send_request(
+            url=self.API_URL,
+            data=data,
+            headers=headers,
+            callback=None
+        )
 
         try:
             if "result" in ret:

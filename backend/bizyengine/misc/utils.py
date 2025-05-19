@@ -8,12 +8,19 @@ import zlib
 from typing import List, Tuple, Union
 
 import numpy as np
-from bizyengine.core.common.env_var import BIZYAIR_SERVER_ADDRESS
+from bizyengine.core.common.env_var import BIZYAIR_SERVER_ADDRESS, BIZYAIR_SERVER_MODE
+from bizyengine.core.common import client
+
+from server import PromptServer
 
 BIZYAIR_DEBUG = os.getenv("BIZYAIR_DEBUG", False)
+BIZYAIR_PARAM_MAGIC_NODE_ID = "bizyair_magic_node"
 
-
+# 
+# TODO: Deprecated, delete this
 def send_post_request(api_url, payload, headers):
+    import warnings
+    warnings.warn(message=f"send_post_request is deprecated")
     """
     Sends a POST request to the specified API URL with the given payload and headers.
 
@@ -123,10 +130,28 @@ def format_bytes(num_bytes: int) -> str:
         return f"{num_bytes / (1024 * 1024):.2f} MB"
 
 
-def get_api_key():
-    from bizyengine.core.common import get_api_key as bcc_get_api_key
+def _get_api_key():
+    from bizyengine.core.common import get_api_key
+    return get_api_key()
 
-    return bcc_get_api_key()
+
+def get_api_key_and_prompt_id(prompt: dict = None):
+    extra_data = {}
+    if BIZYAIR_SERVER_MODE:
+        if BIZYAIR_PARAM_MAGIC_NODE_ID in prompt:
+            extra_data["api_key"] = prompt[BIZYAIR_PARAM_MAGIC_NODE_ID]["_meta"]["api_key"]
+            extra_data["prompt_id"] = prompt[BIZYAIR_PARAM_MAGIC_NODE_ID]["_meta"]["prompt_id"]
+            print("Using server mode passed in prompt_id: " + extra_data["prompt_id"])
+    else:
+        extra_data["api_key"] = _get_api_key()
+        if (
+            PromptServer.instance is not None
+            and PromptServer.instance.last_prompt_id is not None
+        ):
+            extra_data["prompt_id"] = PromptServer.instance.last_prompt_id
+            print("Processing prompt with ID: " + PromptServer.instance.last_prompt_id)
+
+    return extra_data
 
 
 def get_llm_response(
@@ -135,14 +160,11 @@ def get_llm_response(
     user_prompt: str,
     max_tokens: int = 1024,
     temperature: float = 0.7,
+    **kwargs
 ):
     api_url = f"{BIZYAIR_SERVER_ADDRESS}/chat/completions"
-    API_KEY = get_api_key()
-    headers = {
-        "accept": "application/json",
-        "content-type": "application/json",
-        "Authorization": f"Bearer {API_KEY}",
-    }
+    extra_data = get_api_key_and_prompt_id(prompt=kwargs["prompt"])
+    headers = client.headers(api_key=extra_data["api_key"])
 
     payload = {
         "model": model,
@@ -157,7 +179,16 @@ def get_llm_response(
         "stream": False,
         "n": 1,
     }
-    response = send_post_request(api_url, headers=headers, payload=payload)
+    if "prompt_id" in extra_data:
+        payload["prompt_id"] = extra_data["prompt_id"]
+    data = json.dumps(payload).encode("utf-8")
+
+    response = client.send_request(
+        url=api_url,
+        data=data,
+        headers=headers,
+        callback=None,
+    )
     return response
 
 
@@ -169,14 +200,11 @@ def get_vlm_response(
     max_tokens: int = 1024,
     temperature: float = 0.7,
     detail: str = "auto",
+    **kwargs
 ):
     api_url = f"{BIZYAIR_SERVER_ADDRESS}/chat/completions"
-    API_KEY = get_api_key()
-    headers = {
-        "accept": "application/json",
-        "content-type": "application/json",
-        "Authorization": f"Bearer {API_KEY}",
-    }
+    extra_data = get_api_key_and_prompt_id(prompt=kwargs["prompt"])
+    headers = client.headers(api_key=extra_data["api_key"])
 
     messages = [
         {
@@ -214,6 +242,14 @@ def get_vlm_response(
         "stream": False,
         "n": 1,
     }
+    if "prompt_id" in extra_data:
+        payload["prompt_id"] = extra_data["prompt_id"]
+    data = json.dumps(payload).encode("utf-8")
 
-    response = send_post_request(api_url, headers=headers, payload=payload)
+    response = client.send_request(
+        url=api_url,
+        headers=headers,
+        data=data,
+        callback=None,
+    )
     return response

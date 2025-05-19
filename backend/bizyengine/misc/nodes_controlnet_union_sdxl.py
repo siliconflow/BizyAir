@@ -11,7 +11,7 @@ import requests
 from bizyengine.core.common.env_var import BIZYAIR_SERVER_ADDRESS
 from bizyengine.core.image_utils import decode_comfy_image, encode_comfy_image
 
-from .utils import get_api_key
+from .utils import _get_api_key
 
 
 class StableDiffusionXLControlNetUnionPipeline:
@@ -88,7 +88,7 @@ class StableDiffusionXLControlNetUnionPipeline:
         return {
             "accept": "application/json",
             "content-type": "application/json",
-            "authorization": f"Bearer {get_api_key()}",
+            "authorization": f"Bearer {_get_api_key()}",
         }
 
     def process(

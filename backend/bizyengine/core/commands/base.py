@@ -13,7 +13,7 @@ class Processor(ABC):
     def process(
         self,
         url: str,
-        prompt,
+        nodes,
     ) -> Any:
         pass
 

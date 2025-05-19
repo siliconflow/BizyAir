@@ -1,23 +1,24 @@
 import os
 import uuid
+import json
 
 import torch
-from bizyengine.core import BizyAirBaseNode, BizyAirNodeIO, create_node_data
+from bizyengine.core import BizyAirBaseNode, BizyAirNodeIO, BizyAirMiscBaseNode, create_node_data
 from bizyengine.core.common.env_var import BIZYAIR_SERVER_ADDRESS
 from bizyengine.core.data_types import CONDITIONING
 from bizyengine.core.image_utils import encode_data
+from bizyengine.core.common import client
 
 from .utils import (
     decode_and_deserialize,
-    get_api_key,
-    send_post_request,
+    get_api_key_and_prompt_id,
     serialize_and_encode,
 )
 
 CATEGORY_NAME = "☁️BizyAir/Kolors"
 
 
-class BizyAirMZChatGLM3TextEncode:
+class BizyAirMZChatGLM3TextEncode(BizyAirMiscBaseNode):
     API_URL = f"{BIZYAIR_SERVER_ADDRESS}/supernode/mzkolorschatglm3"
 
     @classmethod
@@ -25,7 +26,8 @@ class BizyAirMZChatGLM3TextEncode:
         return {
             "required": {
                 "text": ("STRING", {"multiline": True, "dynamicPrompts": True}),
-            }
+            },
+            "hidden": { "prompt": "PROMPT" }
         }
 
     RETURN_TYPES = ("CONDITIONING",)
@@ -33,24 +35,26 @@ class BizyAirMZChatGLM3TextEncode:
     FUNCTION = "encode"
     CATEGORY = CATEGORY_NAME
 
-    def encode(self, text):
-        API_KEY = get_api_key()
+    def encode(self, text, **kwargs):
+        extra_data = get_api_key_and_prompt_id(prompt=kwargs["prompt"])
+        headers = client.headers(api_key=extra_data["api_key"])
+
         assert len(text) <= 4096, f"the prompt is too long, length: {len(text)}"
 
         payload = {
             "text": text,
         }
-        auth = f"Bearer {API_KEY}"
-        headers = {
-            "accept": "application/json",
-            "content-type": "application/json",
-            "authorization": auth,
-        }
+        if "prompt_id" in extra_data:
+            payload["prompt_id"] = extra_data["prompt_id"]
+        data = json.dumps(payload).encode("utf-8")
 
-        response: str = send_post_request(
-            self.API_URL, payload=payload, headers=headers
+        tensors_np = client.send_request(
+            url=self.API_URL,
+            data=data,
+            headers=headers,
+            callback=None,
+            response_handler=decode_and_deserialize
         )
-        tensors_np = decode_and_deserialize(response)
 
         ret_conditioning = []
         for item in tensors_np:
