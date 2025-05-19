@@ -78,7 +78,7 @@ class BizyAir_MinusZoneChatGLM3TextEncode(BizyAirMZChatGLM3TextEncode, BizyAirBa
 
     FUNCTION = "mz_encode"
 
-    def mz_encode(self, text):
+    def mz_encode(self, text, **kwargs):
         out = self.encode(text)[0]
         node_data = create_node_data(
             class_type="ComfyAirLoadData",

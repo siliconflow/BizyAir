@@ -4,6 +4,7 @@ import warnings
 from functools import wraps
 from typing import List
 
+from bizyengine.core.common.env_var import BIZYAIR_DEBUG
 from bizyengine.core.configs.conf import config_manager
 
 from .data_types import is_send_request_datatype
@@ -138,6 +139,14 @@ class BizyAirBaseNode:
         register_node(cls, PREFIX)
         cls.setup_input_types()
 
+        # 验证FUNCTION接受**kwargs
+        if BIZYAIR_DEBUG:
+            import inspect
+
+            sig = inspect.signature(getattr(cls, cls.FUNCTION))
+            params = sig.parameters.values()
+            assert any([True for p in params if p.kind == p.VAR_KEYWORD])
+
     @classmethod
     def setup_input_types(cls):
         # https://docs.comfy.org/essentials/custom_node_more_on_inputs#hidden-inputs
@@ -203,6 +212,14 @@ class BizyAirMiscBaseNode:
         if not cls.CATEGORY.startswith(f"{LOGO}{PREFIX}"):
             cls.CATEGORY = f"{LOGO}{PREFIX}/{cls.CATEGORY}"
         cls.setup_input_types()
+
+        # 验证FUNCTION接受**kwargs
+        if BIZYAIR_DEBUG:
+            import inspect
+
+            sig = inspect.signature(getattr(cls, cls.FUNCTION))
+            params = sig.parameters.values()
+            assert any([True for p in params if p.kind == p.VAR_KEYWORD])
 
     @classmethod
     def setup_input_types(cls):

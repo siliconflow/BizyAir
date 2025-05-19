@@ -376,7 +376,9 @@ class BizyAir_LoraLoader_Legacy(BizyAirBaseNode):
 
     CATEGORY = f"{PREFIX}/loaders"
 
-    def load_lora(self, model, clip, lora_name, strength_model, strength_clip):
+    def load_lora(
+        self, model, clip, lora_name, strength_model, strength_clip, **kwargs
+    ):
         assigned_id = self.assigned_id
         new_model: BizyAirNodeIO = model.copy(assigned_id)
         new_clip: BizyAirNodeIO = clip.copy(assigned_id)
@@ -516,7 +518,7 @@ class BizyAir_ControlNetLoader_Legacy(BizyAirBaseNode):
 
     CATEGORY = f"{PREFIX}/loaders"
 
-    def load_controlnet(self, control_net_name):
+    def load_controlnet(self, control_net_name, **kwargs):
 
         node_data = create_node_data(
             class_type="ControlNetLoader",
