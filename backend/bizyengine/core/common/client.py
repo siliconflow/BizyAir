@@ -117,11 +117,12 @@ def get_api_key() -> str:
 def headers(api_key: str = None):
     return _headers(api_key=api_key)
 
+
 def _headers(api_key: str = None):
     headers = {
         "accept": "application/json",
         "content-type": "application/json",
-        "authorization":  f"Bearer {api_key if api_key else get_api_key()}"
+        "authorization": f"Bearer {api_key if api_key else get_api_key()}",
     }
     return headers
 
@@ -247,7 +248,7 @@ async def async_send_request(
     callback: callable = process_response_data,
     **kwargs,
 ) -> dict:
-    headers = kwargs.pop("headers") if "headers" in kwargs else headers()
+    headers = kwargs.pop("headers") if "headers" in kwargs else _headers()
     try:
         async with aiohttp.ClientSession() as session:
             async with session.request(

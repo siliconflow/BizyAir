@@ -55,7 +55,7 @@ class BizyAir_KSampler(BizyAirBaseNode):
         }
 
     RETURN_TYPES = ("LATENT",)
-    #FUNCTION = "sample"
+    # FUNCTION = "sample"
     RETURN_NAMES = (f"LATENT",)
     CATEGORY = f"{PREFIX}/sampling"
 
@@ -71,7 +71,7 @@ class BizyAir_KSampler(BizyAirBaseNode):
         negative,
         latent_image,
         denoise=1,
-        **kwargs
+        **kwargs,
     ):
         new_model: BizyAirNodeIO = model.copy(self.assigned_id)
         new_model.add_node_data(
@@ -91,7 +91,9 @@ class BizyAir_KSampler(BizyAirBaseNode):
             outputs={"slot_index": 0},
         )
         progress_callback = ProgressCallback()
-        return new_model.send_request(progress_callback=progress_callback, extra_pnginfo=kwargs["extra_pnginfo"])
+        return new_model.send_request(
+            progress_callback=progress_callback, extra_pnginfo=kwargs["extra_pnginfo"]
+        )
 
 
 class KSamplerAdvanced(BizyAirBaseNode):
@@ -128,7 +130,7 @@ class KSamplerAdvanced(BizyAirBaseNode):
         }
 
     RETURN_TYPES = ("LATENT",)
-    #FUNCTION = "sample"
+    # FUNCTION = "sample"
 
     CATEGORY = "sampling"
 
@@ -137,7 +139,9 @@ class KSamplerAdvanced(BizyAirBaseNode):
         kwargs["model"] = model
         new_model.add_node_data(class_type="KSamplerAdvanced", inputs=kwargs)
         progress_callback = ProgressCallback()
-        return new_model.send_request(progress_callback=progress_callback, extra_pnginfo=kwargs["extra_pnginfo"])
+        return new_model.send_request(
+            progress_callback=progress_callback, extra_pnginfo=kwargs["extra_pnginfo"]
+        )
 
 
 class BizyAir_CheckpointLoaderSimple(BizyAirBaseNode):
@@ -160,7 +164,7 @@ class BizyAir_CheckpointLoaderSimple(BizyAirBaseNode):
         }
 
     RETURN_TYPES = (data_types.MODEL, data_types.CLIP, data_types.VAE)
-    #FUNCTION = "load_checkpoint"
+    # FUNCTION = "load_checkpoint"
     CATEGORY = f"{PREFIX}/loaders"
     RETURN_NAMES = (
         f"model",
@@ -225,7 +229,7 @@ class BizyAir_CLIPTextEncode(BizyAirBaseNode):
 
     RETURN_TYPES = (data_types.CONDITIONING,)
     RETURN_NAMES = ("CONDITIONING",)
-    #FUNCTION = "encode"
+    # FUNCTION = "encode"
 
     CATEGORY = f"{PREFIX}/conditioning"
 
@@ -250,7 +254,7 @@ class BizyAir_VAEDecode(BizyAirBaseNode):
 
     RETURN_TYPES = ("IMAGE",)
     RETURN_NAMES = (f"IMAGE",)
-    #FUNCTION = "decode"
+    # FUNCTION = "decode"
 
     CATEGORY = f"{PREFIX}/latent"
 
@@ -299,7 +303,7 @@ class BizyAir_LoraLoader(BizyAirBaseNode):
     RETURN_TYPES = (data_types.MODEL, data_types.CLIP)
     RETURN_NAMES = ("MODEL", "CLIP")
 
-    #FUNCTION = "load_lora"
+    # FUNCTION = "load_lora"
     CATEGORY = f"{PREFIX}/loaders"
 
     def load_lora(
@@ -402,7 +406,7 @@ class BizyAir_VAEEncode(BizyAirBaseNode):
 
     RETURN_TYPES = ("LATENT",)
     RETURN_NAMES = (f"LATENT",)
-    #FUNCTION = "encode"
+    # FUNCTION = "encode"
     CATEGORY = f"{PREFIX}/latent"
 
     def encode(self, vae, pixels, extra_pnginfo=None):
@@ -432,7 +436,7 @@ class BizyAir_VAEEncodeForInpaint(BizyAirBaseNode):
 
     RETURN_TYPES = (f"LATENT",)
     RETURN_NAMES = (f"LATENT",)
-    #FUNCTION = "encode"
+    # FUNCTION = "encode"
     CATEGORY = f"{PREFIX}/latent/inpaint"
 
     def encode(self, vae, pixels, mask, grow_mask_by=6, extra_pnginfo=None):
@@ -466,7 +470,7 @@ class BizyAir_ControlNetLoader(BizyAirBaseNode):
 
     RETURN_TYPES = (data_types.CONTROL_NET,)
     RETURN_NAMES = ("CONTROL_NET",)
-    #FUNCTION = "load_controlnet"
+    # FUNCTION = "load_controlnet"
 
     CATEGORY = f"{PREFIX}/loaders"
 
@@ -552,7 +556,7 @@ class BizyAir_ControlNetApplyAdvanced(BizyAirBaseNode):
 
     RETURN_TYPES = (data_types.CONDITIONING, data_types.CONDITIONING)
     RETURN_NAMES = ("positive", "negative")
-    #FUNCTION = "apply_controlnet"
+    # FUNCTION = "apply_controlnet"
 
     CATEGORY = "conditioning"
 
@@ -589,7 +593,7 @@ class BizyAir_ControlNetApply(BizyAirBaseNode):
 
     RETURN_TYPES = (data_types.CONDITIONING,)
     RETURN_NAMES = ("CONDITIONING",)
-    #FUNCTION = "apply_controlnet"
+    # FUNCTION = "apply_controlnet"
 
     CATEGORY = f"{PREFIX}/conditioning/controlnet"
 
@@ -631,7 +635,7 @@ class BizyAir_CLIPVisionLoader(BizyAirBaseNode):
         }
 
     RETURN_TYPES = ("CLIP_VISION",)
-    #FUNCTION = "load_clip"
+    # FUNCTION = "load_clip"
 
     CATEGORY = "loaders"
 
@@ -691,7 +695,7 @@ class VAELoader(BizyAirBaseNode):
 
     RETURN_TYPES = (data_types.VAE,)
     RETURN_NAMES = ("vae",)
-    #FUNCTION = "load_vae"
+    # FUNCTION = "load_vae"
 
     CATEGORY = "loaders"
 
@@ -759,7 +763,7 @@ class UNETLoader(BizyAirBaseNode):
         }
 
     RETURN_TYPES = (data_types.MODEL,)
-    #FUNCTION = "load_unet"
+    # FUNCTION = "load_unet"
 
     CATEGORY = "advanced/loaders"
 
@@ -827,7 +831,7 @@ class SamplerCustomAdvanced(BizyAirBaseNode):
     RETURN_TYPES = ("LATENT", "LATENT")
     RETURN_NAMES = ("output", "denoised_output")
 
-    #FUNCTION = "sample"
+    # FUNCTION = "sample"
 
     CATEGORY = "sampling/custom_sampling"
 
@@ -853,7 +857,7 @@ class BasicGuider(BizyAirBaseNode):
 
     RETURN_TYPES = ("GUIDER",)
 
-    #FUNCTION = "get_guider"
+    # FUNCTION = "get_guider"
     CATEGORY = "sampling/custom_sampling/guiders"
 
     def get_guider(self, model: BizyAirNodeIO, conditioning):
@@ -887,7 +891,7 @@ class BasicScheduler(BizyAirBaseNode):
     RETURN_TYPES = ("SIGMAS",)
     CATEGORY = "sampling/custom_sampling/schedulers"
 
-    #FUNCTION = "get_sigmas"
+    # FUNCTION = "get_sigmas"
 
     def get_sigmas(self, **kwargs):
         new_model: BizyAirNodeIO = kwargs["model"].copy(self.assigned_id)
@@ -933,7 +937,7 @@ class DualCLIPLoader(BizyAirBaseNode):
         }
 
     RETURN_TYPES = (data_types.CLIP,)
-    #FUNCTION = "load_clip"
+    # FUNCTION = "load_clip"
 
     CATEGORY = "advanced/loaders"
 
@@ -1006,7 +1010,7 @@ class KSamplerSelect(BizyAirBaseNode):
     RETURN_TYPES = ("SAMPLER",)
     CATEGORY = "sampling/custom_sampling/samplers"
 
-    #FUNCTION = "get_sampler"
+    # FUNCTION = "get_sampler"
 
     def get_sampler(self, **kwargs):
         node_data = create_node_data(
@@ -1034,7 +1038,7 @@ class RandomNoise(BizyAirBaseNode):
         }
 
     RETURN_TYPES = ("NOISE",)
-    #FUNCTION = "get_noise"
+    # FUNCTION = "get_noise"
     CATEGORY = "sampling/custom_sampling/noise"
 
     def get_noise(self, noise_seed):
@@ -1066,7 +1070,7 @@ class CLIPSetLastLayer(BizyAirBaseNode):
         }
 
     RETURN_TYPES = (data_types.CLIP,)
-    #FUNCTION = "set_last_layer"
+    # FUNCTION = "set_last_layer"
 
     CATEGORY = "conditioning"
 
@@ -1098,7 +1102,7 @@ class InpaintModelConditioning(BizyAirBaseNode):
 
     RETURN_TYPES = (data_types.CONDITIONING, data_types.CONDITIONING, "LATENT")
     RETURN_NAMES = ("positive", "negative", "latent")
-    #FUNCTION = "encode"
+    # FUNCTION = "encode"
 
     CATEGORY = "conditioning/inpaint"
 
@@ -1184,7 +1188,7 @@ class ConditioningCombine(BizyAirBaseNode):
         }
 
     RETURN_TYPES = (data_types.CONDITIONING,)
-    #FUNCTION = "combine"
+    # FUNCTION = "combine"
     NODE_DISPLAY_NAME = "Conditioning (Combine)"
     CATEGORY = "conditioning"
 
@@ -1204,7 +1208,7 @@ class ConditioningAverage(BizyAirBaseNode):
         }
 
     RETURN_TYPES = (data_types.CONDITIONING,)
-    #FUNCTION = "addWeighted"
+    # FUNCTION = "addWeighted"
     NODE_DISPLAY_NAME = "Conditioning (Average)"
     CATEGORY = "conditioning"
 
@@ -1220,7 +1224,7 @@ class ConditioningConcat(BizyAirBaseNode):
         }
 
     RETURN_TYPES = (data_types.CONDITIONING,)
-    #FUNCTION = "concat"
+    # FUNCTION = "concat"
     NODE_DISPLAY_NAME = "Conditioning (Concat)"
     CATEGORY = "conditioning"
 
@@ -1255,7 +1259,7 @@ class ConditioningSetArea(BizyAirBaseNode):
         }
 
     RETURN_TYPES = (data_types.CONDITIONING,)
-    #FUNCTION = "append"
+    # FUNCTION = "append"
     NODE_DISPLAY_NAME = "Conditioning (Set Area)"
     CATEGORY = "conditioning"
 
@@ -1284,7 +1288,7 @@ class ConditioningSetAreaPercentage(BizyAirBaseNode):
         }
 
     RETURN_TYPES = (data_types.CONDITIONING,)
-    #FUNCTION = "append"
+    # FUNCTION = "append"
     NODE_DISPLAY_NAME = "Conditioning (Set Area with Percentage)"
     CATEGORY = "conditioning"
 
@@ -1305,7 +1309,7 @@ class ConditioningSetMask(BizyAirBaseNode):
         }
 
     RETURN_TYPES = (data_types.CONDITIONING,)
-    #FUNCTION = "append"
+    # FUNCTION = "append"
     NODE_DISPLAY_NAME = "Conditioning (Set Mask)"
     CATEGORY = "conditioning"
 
@@ -1316,7 +1320,7 @@ class ConditioningZeroOut(BizyAirBaseNode):
         return {"required": {"conditioning": (data_types.CONDITIONING,)}}
 
     RETURN_TYPES = (data_types.CONDITIONING,)
-    #FUNCTION = "zero_out"
+    # FUNCTION = "zero_out"
 
     CATEGORY = "advanced/conditioning"
 
@@ -1339,7 +1343,7 @@ class ConditioningSetTimestepRange(BizyAirBaseNode):
         }
 
     RETURN_TYPES = (data_types.CONDITIONING,)
-    #FUNCTION = "set_range"
+    # FUNCTION = "set_range"
 
     CATEGORY = "advanced/conditioning"
 
@@ -1379,7 +1383,7 @@ class CLIPVisionEncode(BizyAirBaseNode):
         return {"required": {"clip_vision": ("CLIP_VISION",), "image": ("IMAGE",)}}
 
     RETURN_TYPES = ("CLIP_VISION_OUTPUT",)
-    #FUNCTION = "encode"
+    # FUNCTION = "encode"
 
     CATEGORY = "conditioning"
 
@@ -1405,7 +1409,7 @@ class StyleModelLoader(BizyAirBaseNode):
         }
 
     RETURN_TYPES = (data_types.STYLE_MODEL,)
-    #FUNCTION = "load_style_model"
+    # FUNCTION = "load_style_model"
 
     CATEGORY = "loaders"
 
@@ -1422,9 +1426,10 @@ class StyleModelApply(BizyAirBaseNode):
         }
 
     RETURN_TYPES = (data_types.CONDITIONING,)
-    #FUNCTION = "apply_stylemodel"
+    # FUNCTION = "apply_stylemodel"
 
     CATEGORY = "conditioning/style_model"
+
 
 # 仅用于使用meta传参，故没有输入输出
 class PassParameter(BizyAirBaseNode):

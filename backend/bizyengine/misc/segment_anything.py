@@ -6,7 +6,6 @@ from enum import Enum
 import folder_paths
 import numpy as np
 import torch
-
 from bizyengine.core import BizyAirMiscBaseNode
 from bizyengine.core.common import client
 from bizyengine.core.common.env_var import BIZYAIR_SERVER_ADDRESS
@@ -48,7 +47,7 @@ class BizyAirSegmentAnythingText(BizyAirMiscBaseNode):
                     {"default": 0.3, "min": 0, "max": 1.0, "step": 0.01},
                 ),
             },
-            "hidden": { "prompt": "PROMPT" }
+            "hidden": {"prompt": "PROMPT"},
         }
 
     RETURN_TYPES = ("IMAGE", "MASK")
@@ -140,7 +139,7 @@ class BizyAirSegmentAnythingPointBox(BizyAirMiscBaseNode):
                 "image": (sorted(files), {"image_upload": True}),
                 "is_point": ("BOOLEAN", {"default": True}),
             },
-            "hidden": { "prompt": "PROMPT" }
+            "hidden": {"prompt": "PROMPT"},
         }
 
     RETURN_TYPES = ("IMAGE", "MASK", "IMAGE")
@@ -221,10 +220,7 @@ class BizyAirSegmentAnythingPointBox(BizyAirMiscBaseNode):
         data = json.dumps(payload).encode("utf-8")
 
         ret = client.send_request(
-            url=self.API_URL,
-            data=data,
-            headers=headers,
-            callback=None
+            url=self.API_URL, data=data, headers=headers, callback=None
         )
 
         try:

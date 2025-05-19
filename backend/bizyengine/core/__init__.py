@@ -4,6 +4,6 @@ from bizyengine.core.nodes_base import (
     NODE_CLASS_MAPPINGS,
     NODE_DISPLAY_NAME_MAPPINGS,
     BizyAirBaseNode,
-    BizyAirMiscBaseNode
+    BizyAirMiscBaseNode,
 )
 from bizyengine.core.nodes_io import BizyAirNodeIO, create_node_data

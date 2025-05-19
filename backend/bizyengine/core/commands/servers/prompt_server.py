@@ -217,7 +217,9 @@ class PromptServer(Command):
                 print(f"Cache hit for sh256-{sh256}")
             out = cached_output
         else:
-            result = self.processor(url, nodes=nodes, last_node_ids=last_node_ids, **kwargs)
+            result = self.processor(
+                url, nodes=nodes, last_node_ids=last_node_ids, **kwargs
+            )
             out = self._get_result(result, cache_key=sh256)
 
         if BIZYAIR_DEBUG:

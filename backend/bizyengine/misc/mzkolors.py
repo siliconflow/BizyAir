@@ -1,13 +1,18 @@
+import json
 import os
 import uuid
-import json
 
 import torch
-from bizyengine.core import BizyAirBaseNode, BizyAirNodeIO, BizyAirMiscBaseNode, create_node_data
+from bizyengine.core import (
+    BizyAirBaseNode,
+    BizyAirMiscBaseNode,
+    BizyAirNodeIO,
+    create_node_data,
+)
+from bizyengine.core.common import client
 from bizyengine.core.common.env_var import BIZYAIR_SERVER_ADDRESS
 from bizyengine.core.data_types import CONDITIONING
 from bizyengine.core.image_utils import encode_data
-from bizyengine.core.common import client
 
 from .utils import (
     decode_and_deserialize,
@@ -27,7 +32,7 @@ class BizyAirMZChatGLM3TextEncode(BizyAirMiscBaseNode):
             "required": {
                 "text": ("STRING", {"multiline": True, "dynamicPrompts": True}),
             },
-            "hidden": { "prompt": "PROMPT" }
+            "hidden": {"prompt": "PROMPT"},
         }
 
     RETURN_TYPES = ("CONDITIONING",)
@@ -53,7 +58,7 @@ class BizyAirMZChatGLM3TextEncode(BizyAirMiscBaseNode):
             data=data,
             headers=headers,
             callback=None,
-            response_handler=decode_and_deserialize
+            response_handler=decode_and_deserialize,
         )
 
         ret_conditioning = []

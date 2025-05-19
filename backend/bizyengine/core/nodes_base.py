@@ -141,8 +141,8 @@ class BizyAirBaseNode:
     @classmethod
     def setup_input_types(cls):
         # https://docs.comfy.org/essentials/custom_node_more_on_inputs#hidden-inputs
-        new_input_types_func, original_has_unique_id = ensure_hidden_unique_id_and_prompt(
-            cls.INPUT_TYPES
+        new_input_types_func, original_has_unique_id = (
+            ensure_hidden_unique_id_and_prompt(cls.INPUT_TYPES)
         )
         cls.INPUT_TYPES = new_input_types_func
         setattr(
@@ -207,7 +207,5 @@ class BizyAirMiscBaseNode:
     @classmethod
     def setup_input_types(cls):
         # https://docs.comfy.org/essentials/custom_node_more_on_inputs#hidden-inputs
-        new_input_types_func = ensure_hidden_prompt(
-            cls.INPUT_TYPES
-        )
+        new_input_types_func = ensure_hidden_prompt(cls.INPUT_TYPES)
         cls.INPUT_TYPES = new_input_types_func

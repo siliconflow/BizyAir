@@ -8,9 +8,9 @@ import bizyengine.core as core
 from bizyengine.core.common import get_api_key
 from bizyengine.core.common.env_var import (
     BIZYAIR_PRODUCTION_TEST,
+    BIZYAIR_SERVER_MODE,
     BIZYAIR_X_SERVER,
     BIZYAIR_Y_SERVER,
-    BIZYAIR_SERVER_MODE,
 )
 from openai import OpenAI
 
@@ -180,7 +180,12 @@ class APIClient:
             return None, errnos.SIGN_FILE
 
     async def commit_file(
-        self, signature: str, object_key: str, md5_hash: str, type: str, request_api_key: str = None
+        self,
+        signature: str,
+        object_key: str,
+        md5_hash: str,
+        type: str,
+        request_api_key: str = None,
     ) -> tuple[dict | None, ErrorNo | None]:
         server_url = f"{BIZYAIR_X_SERVER}/files"
 
@@ -248,7 +253,7 @@ class APIClient:
         model_types: list[str] = None,
         base_models: list[str] = None,
         sort: str = None,
-        request_api_key: str = None
+        request_api_key: str = None,
     ) -> tuple[dict | None, ErrorNo | None]:
         server_url = f"{BIZYAIR_X_SERVER}/bizy_models/community"
         params = {"current": current, "page_size": page_size}
@@ -283,7 +288,7 @@ class APIClient:
         model_types: list[str] = None,
         base_models: list[str] = None,
         sort: str = None,
-        request_api_key: str = None
+        request_api_key: str = None,
     ) -> tuple[dict | None, ErrorNo | None]:
         server_url = f"{BIZYAIR_X_SERVER}/bizy_models/official"
         params = {"current": current, "page_size": page_size}
@@ -319,7 +324,7 @@ class APIClient:
         model_types: list[str] = None,
         base_models: list[str] = None,
         sort: str = None,
-        request_api_key: str = None
+        request_api_key: str = None,
     ) -> tuple[dict | None, ErrorNo | None]:
         server_url = f"{BIZYAIR_X_SERVER}/bizy_models/{mode}"
         params = {"current": current, "page_size": page_size}
@@ -386,7 +391,9 @@ class APIClient:
             )
             return None, errnos.GET_MODEL_VERSION_DETAIL
 
-    async def fork_model_version(self, version_id: int, request_api_key: str = None) -> tuple[None, ErrorNo | None]:
+    async def fork_model_version(
+        self, version_id: int, request_api_key: str = None
+    ) -> tuple[None, ErrorNo | None]:
         server_url = f"{BIZYAIR_X_SERVER}/bizy_models/versions/{version_id}/fork"
 
         headers, err = self.auth_header(api_key=request_api_key)
@@ -423,7 +430,12 @@ class APIClient:
             return None, errnos.UNFORK_MODEL_VERSION
 
     async def update_model(
-        self, model_id: int, name: str, type_: str, versions: list[dict], request_api_key: str = None
+        self,
+        model_id: int,
+        name: str,
+        type_: str,
+        versions: list[dict],
+        request_api_key: str = None,
     ) -> tuple[dict | None, ErrorNo | None]:
         server_url = f"{BIZYAIR_X_SERVER}/bizy_models/{model_id}"
 
@@ -534,7 +546,9 @@ class APIClient:
             )
             return [], errnos.LIST_SHARE_MODEL_FILE_ERR
 
-    async def commit_dataset(self, payload, request_api_key: str = None) -> tuple[dict | None, ErrorNo | None]:
+    async def commit_dataset(
+        self, payload, request_api_key: str = None
+    ) -> tuple[dict | None, ErrorNo | None]:
         server_url = f"{BIZYAIR_X_SERVER}/datasets"
 
         headers, err = self.auth_header(api_key=request_api_key)
@@ -552,7 +566,11 @@ class APIClient:
             return None, errnos.COMMIT_DATASET
 
     async def update_dataset(
-        self, dataset_id: int, name: str, versions: list[dict], request_api_key: str = None
+        self,
+        dataset_id: int,
+        name: str,
+        versions: list[dict],
+        request_api_key: str = None,
     ) -> tuple[dict | None, ErrorNo | None]:
         server_url = f"{BIZYAIR_X_SERVER}/datasets/{dataset_id}"
 
@@ -618,7 +636,7 @@ class APIClient:
         page_size: int,
         keyword: str = None,
         annotated: str = None,
-        request_api_key: str = None
+        request_api_key: str = None,
     ) -> tuple[dict | None, ErrorNo | None]:
         server_url = f"{BIZYAIR_X_SERVER}/datasets"
         params = {"current": current, "page_size": page_size}
@@ -660,7 +678,9 @@ class APIClient:
             print(f"\033[31m[BizyAir]\033[0m Fail to get dataset detail: {str(e)}")
             return None, errnos.GET_DATASET_DETAIL
 
-    async def create_share(self, payload, request_api_key: str = None) -> tuple[dict | None, ErrorNo | None]:
+    async def create_share(
+        self, payload, request_api_key: str = None
+    ) -> tuple[dict | None, ErrorNo | None]:
         server_url = f"{BIZYAIR_X_SERVER}/share"
 
         headers, err = self.auth_header(api_key=request_api_key)
@@ -693,7 +713,9 @@ class APIClient:
             print(f"\033[31m[BizyAir]\033[0m Fail to get share detail: {str(e)}")
             return None, errnos.GET_SHARE_DETAIL
 
-    async def get_data_dict(self, request_api_key: str = None) -> tuple[dict | None, ErrorNo | None]:
+    async def get_data_dict(
+        self, request_api_key: str = None
+    ) -> tuple[dict | None, ErrorNo | None]:
         server_url = f"{BIZYAIR_X_SERVER}/dict"
         headers, err = self.auth_header(api_key=request_api_key)
         if err is not None:
@@ -1059,8 +1081,6 @@ class APIClient:
         if query_api_key:
             params["api_key"] = query_api_key
 
-        
-
         headers, err = self.auth_header()
         if err is not None:
             return None, err
@@ -1157,7 +1177,6 @@ class APIClient:
         except Exception as e:
             print(f"\033[31m[BizyAir]\033[0m Image generation request failed: {str(e)}")
             return None, errnos.MODEL_API_ERROR
-
 
     async def fetch_all_llm_models(self, request_api_key: str = None):
         url = f"{BIZYAIR_X_SERVER}/llm/models"

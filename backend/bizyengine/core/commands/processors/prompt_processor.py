@@ -34,7 +34,9 @@ from dataclasses import dataclass
 
 
 class SearchServiceRouter(Processor):
-    def process(self, nodes: Dict[str, Dict[str, Any]], last_node_ids: List[str], **kwargs):
+    def process(
+        self, nodes: Dict[str, Dict[str, Any]], last_node_ids: List[str], **kwargs
+    ):
         if BIZYAIR_DEV_REQUEST_URL:
             return BIZYAIR_DEV_REQUEST_URL
 
@@ -91,10 +93,7 @@ class SearchServiceRouter(Processor):
 
 class PromptProcessor(Processor):
     def _exec_info(self, nodes: Dict[str, Dict[str, Any]], api_key: str):
-        exec_info = {
-            "model_version_ids": [],
-            "api_key": api_key
-        }
+        exec_info = {"model_version_ids": [], "api_key": api_key}
 
         model_version_id_prefix = config_manager.get_model_version_id_prefix()
         for node_id, node_data in nodes.items():
@@ -105,7 +104,11 @@ class PromptProcessor(Processor):
         return exec_info
 
     def process(
-        self, url: str, nodes: Dict[str, Dict[str, Any]], last_node_ids: List[str], **kwargs
+        self,
+        url: str,
+        nodes: Dict[str, Dict[str, Any]],
+        last_node_ids: List[str],
+        **kwargs,
     ):
         extra_data = get_api_key_and_prompt_id(prompt=kwargs["prompt"])
         # NOTE: nodes是bizyair中的节点数据，与comfybridge约定叫prompt，但是comfyui中的隐藏输入也叫prompt且是通过关键字传进来，所以把优先让给comfyui
@@ -120,10 +123,14 @@ class PromptProcessor(Processor):
         return client.send_request(
             url=url,
             data=json.dumps(dict).encode("utf-8"),
-            headers=client.headers(api_key=extra_data["api_key"])
+            headers=client.headers(api_key=extra_data["api_key"]),
         )
 
     def validate_input(
-        self, url: str, nodes: Dict[str, Dict[str, Any]], last_node_ids: List[str], **kwargs
+        self,
+        url: str,
+        nodes: Dict[str, Dict[str, Any]],
+        last_node_ids: List[str],
+        **kwargs,
     ):
         return True

@@ -10,14 +10,15 @@ from bizyengine.core.image_utils import decode_data, encode_comfy_image, encode_
 from server import PromptServer
 
 from .utils import (
-    decode_and_deserialize,
     _get_api_key,
+    decode_and_deserialize,
+    get_api_key_and_prompt_id,
     get_llm_response,
     get_vlm_response,
     send_post_request,
     serialize_and_encode,
-    get_api_key_and_prompt_id
 )
+
 
 class SiliconCloudLLMAPI(BizyAirMiscBaseNode):
     def __init__(self):
@@ -51,7 +52,7 @@ class SiliconCloudLLMAPI(BizyAirMiscBaseNode):
                     {"default": 0.7, "min": 0.0, "max": 2.0, "step": 0.01},
                 ),
             },
-            "hidden": { "prompt": "PROMPT" }
+            "hidden": {"prompt": "PROMPT"},
         }
 
     RETURN_TYPES = ("STRING",)
@@ -65,12 +66,7 @@ class SiliconCloudLLMAPI(BizyAirMiscBaseNode):
         if model == "No LLM Enhancement":
             return {"ui": {"text": (user_prompt,)}, "result": (user_prompt,)}
         ret = get_llm_response(
-            model,
-            system_prompt,
-            user_prompt,
-            max_tokens,
-            temperature,
-            **kwargs
+            model, system_prompt, user_prompt, max_tokens, temperature, **kwargs
         )
         text = ret["choices"][0]["message"]["content"]
         return (text,)  # if update ui:  {"ui": {"text": (text,)}, "result": (text,)}
@@ -107,7 +103,7 @@ class SiliconCloudVLMAPI(BizyAirMiscBaseNode):
                 ),
                 "detail": (["auto", "low", "high"], {"default": "auto"}),
             },
-            "hidden": { "prompt": "PROMPT" }
+            "hidden": {"prompt": "PROMPT"},
         }
 
     RETURN_TYPES = ("STRING",)
@@ -116,7 +112,15 @@ class SiliconCloudVLMAPI(BizyAirMiscBaseNode):
     CATEGORY = "☁️BizyAir/AI Assistants"
 
     def get_vlm_model_response(
-        self, model, system_prompt, user_prompt, images, max_tokens, temperature, detail, **kwargs
+        self,
+        model,
+        system_prompt,
+        user_prompt,
+        images,
+        max_tokens,
+        temperature,
+        detail,
+        **kwargs,
     ):
         if model == "No VLM Enhancement":
             return (user_prompt,)
@@ -138,7 +142,7 @@ class SiliconCloudVLMAPI(BizyAirMiscBaseNode):
             max_tokens,
             temperature,
             detail,
-            **kwargs
+            **kwargs,
         )
         text = ret["choices"][0]["message"]["content"]
         return (text,)
@@ -176,7 +180,7 @@ class BizyAirJoyCaption(BizyAirMiscBaseNode):
                     },
                 ),
             },
-            "hidden": { "prompt": "PROMPT" }
+            "hidden": {"prompt": "PROMPT"},
         }
 
     RETURN_TYPES = ("STRING",)
@@ -312,7 +316,7 @@ class BizyAirJoyCaption2(BizyAirMiscBaseNode):
                     },
                 ),
             },
-            "hidden": { "prompt": "PROMPT" }
+            "hidden": {"prompt": "PROMPT"},
         }
 
     RETURN_TYPES = ("STRING",)
@@ -331,11 +335,11 @@ class BizyAirJoyCaption2(BizyAirMiscBaseNode):
         extra_options,
         name_input,
         custom_prompt,
-        **kwargs
+        **kwargs,
     ):
         extra_data = get_api_key_and_prompt_id(prompt=kwargs["prompt"])
         headers = client.headers(api_key=extra_data["api_key"])
-        
+
         SIZE_LIMIT = 1536
         _, w, h, c = image.shape
         assert (
@@ -360,10 +364,7 @@ class BizyAirJoyCaption2(BizyAirMiscBaseNode):
         data = json.dumps(payload).encode("utf-8")
 
         ret: str = client.send_request(
-            url=self.API_URL,
-            data=data,
-            headers=headers,
-            callback=None
+            url=self.API_URL, data=data, headers=headers, callback=None
         )
 
         try:

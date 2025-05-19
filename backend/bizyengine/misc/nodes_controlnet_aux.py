@@ -1,5 +1,6 @@
-import os
 import json
+import os
+
 import numpy as np
 import torch
 from bizyengine.core import BizyAirMiscBaseNode
@@ -7,10 +8,10 @@ from bizyengine.core.common import client
 from bizyengine.core.common.env_var import BIZYAIR_SERVER_ADDRESS
 
 from .utils import (
-    decode_and_deserialize,
     _get_api_key,
+    decode_and_deserialize,
+    get_api_key_and_prompt_id,
     serialize_and_encode,
-    get_api_key_and_prompt_id
 )
 
 # Sync with theoritical limit from Comfy base
@@ -25,7 +26,7 @@ class BasePreprocessor(BizyAirMiscBaseNode):
             raise TypeError("Subclass must define 'model_name'")
         cls.API_URL = f"{BIZYAIR_SERVER_ADDRESS}{cls.model_name}"
         cls.CATEGORY = f"☁️BizyAir/{cls.CATEGORY}"
- 
+
     RETURN_TYPES = ("IMAGE",)
     FUNCTION = "execute"
 
@@ -39,15 +40,15 @@ class BasePreprocessor(BizyAirMiscBaseNode):
         kwargs["image"] = serialize_and_encode(image, compress)[0]
         kwargs["is_compress"] = compress
         if "prompt_id" in extra_data:
-            kwargs["prompt_id"] = extra_data["prompt_id"]        
+            kwargs["prompt_id"] = extra_data["prompt_id"]
         data = json.dumps(kwargs).encode("utf-8")
-        
+
         image_np = client.send_request(
             url=self.API_URL,
             data=data,
             headers=headers,
             callback=None,
-            response_handler=decode_and_deserialize
+            response_handler=decode_and_deserialize,
         )
         image_torch = torch.from_numpy(image_np).to(device)
         return (image_torch,)
@@ -69,7 +70,7 @@ def create_node_input_types(**extra_kwargs):
                 },
             ),  # Cosmetic only: display as "number" or "slider"})
         },
-        "hidden": { "prompt": "PROMPT" }
+        "hidden": {"prompt": "PROMPT"},
     }
 
 

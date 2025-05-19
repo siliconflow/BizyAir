@@ -8,18 +8,19 @@ import zlib
 from typing import List, Tuple, Union
 
 import numpy as np
-from bizyengine.core.common.env_var import BIZYAIR_SERVER_ADDRESS, BIZYAIR_SERVER_MODE
 from bizyengine.core.common import client
-
+from bizyengine.core.common.env_var import BIZYAIR_SERVER_ADDRESS, BIZYAIR_SERVER_MODE
 from server import PromptServer
 
 BIZYAIR_DEBUG = os.getenv("BIZYAIR_DEBUG", False)
 BIZYAIR_PARAM_MAGIC_NODE_ID = "bizyair_magic_node"
 
-# 
+
+#
 # TODO: Deprecated, delete this
 def send_post_request(api_url, payload, headers):
     import warnings
+
     warnings.warn(message=f"send_post_request is deprecated")
     """
     Sends a POST request to the specified API URL with the given payload and headers.
@@ -132,6 +133,7 @@ def format_bytes(num_bytes: int) -> str:
 
 def _get_api_key():
     from bizyengine.core.common import get_api_key
+
     return get_api_key()
 
 
@@ -139,8 +141,12 @@ def get_api_key_and_prompt_id(prompt: dict = None):
     extra_data = {}
     if BIZYAIR_SERVER_MODE:
         if BIZYAIR_PARAM_MAGIC_NODE_ID in prompt:
-            extra_data["api_key"] = prompt[BIZYAIR_PARAM_MAGIC_NODE_ID]["_meta"]["api_key"]
-            extra_data["prompt_id"] = prompt[BIZYAIR_PARAM_MAGIC_NODE_ID]["_meta"]["prompt_id"]
+            extra_data["api_key"] = prompt[BIZYAIR_PARAM_MAGIC_NODE_ID]["_meta"][
+                "api_key"
+            ]
+            extra_data["prompt_id"] = prompt[BIZYAIR_PARAM_MAGIC_NODE_ID]["_meta"][
+                "prompt_id"
+            ]
             print("Using server mode passed in prompt_id: " + extra_data["prompt_id"])
     else:
         extra_data["api_key"] = _get_api_key()
@@ -160,7 +166,7 @@ def get_llm_response(
     user_prompt: str,
     max_tokens: int = 1024,
     temperature: float = 0.7,
-    **kwargs
+    **kwargs,
 ):
     api_url = f"{BIZYAIR_SERVER_ADDRESS}/chat/completions"
     extra_data = get_api_key_and_prompt_id(prompt=kwargs["prompt"])
@@ -200,7 +206,7 @@ def get_vlm_response(
     max_tokens: int = 1024,
     temperature: float = 0.7,
     detail: str = "auto",
-    **kwargs
+    **kwargs,
 ):
     api_url = f"{BIZYAIR_SERVER_ADDRESS}/chat/completions"
     extra_data = get_api_key_and_prompt_id(prompt=kwargs["prompt"])

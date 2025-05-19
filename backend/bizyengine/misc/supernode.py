@@ -22,8 +22,8 @@ from PIL import Image, ImageOps, ImageSequence
 
 from .utils import (
     decode_and_deserialize,
+    get_api_key_and_prompt_id,
     serialize_and_encode,
-    get_api_key_and_prompt_id
 )
 
 
@@ -36,7 +36,7 @@ class RemoveBackground(BizyAirMiscBaseNode):
             "required": {
                 "image": ("IMAGE",),
             },
-            "hidden": { "prompt": "PROMPT" }
+            "hidden": {"prompt": "PROMPT"},
         }
 
     RETURN_TYPES = ("IMAGE", "MASK")
@@ -70,7 +70,7 @@ class RemoveBackground(BizyAirMiscBaseNode):
             data=data,
             headers=headers,
             callback=None,
-            response_handler=decode_and_deserialize
+            response_handler=decode_and_deserialize,
         )
 
         t_images = tensors["images"].to(device)
@@ -104,7 +104,7 @@ class GenerateLightningImage(BizyAirMiscBaseNode):
                 ),
                 "batch_size": ("INT", {"default": 1, "min": 1, "max": 4}),
             },
-            "hidden": { "prompt": "PROMPT" }
+            "hidden": {"prompt": "PROMPT"},
         }
 
     RETURN_TYPES = ("IMAGE",)
@@ -115,7 +115,7 @@ class GenerateLightningImage(BizyAirMiscBaseNode):
     def generate_image(self, prompt, seed, width, height, cfg, batch_size, **kwargs):
         extra_data = get_api_key_and_prompt_id(prompt=kwargs["prompt"])
         headers = client.headers(api_key=extra_data["api_key"])
-        
+
         assert (
             width <= 1024 and height <= 1024
         ), f"width and height must be less than 1024, but got {width} and {height}"
@@ -131,13 +131,13 @@ class GenerateLightningImage(BizyAirMiscBaseNode):
         if "prompt_id" in extra_data:
             payload["prompt_id"] = extra_data["prompt_id"]
         data = json.dumps(payload).encode("utf-8")
-        
+
         tensors_np = client.send_request(
             url=self.API_URL,
             data=data,
             headers=headers,
             callback=None,
-            response_handler=decode_and_deserialize
+            response_handler=decode_and_deserialize,
         )
         tensors = torch.from_numpy(tensors_np)
 
