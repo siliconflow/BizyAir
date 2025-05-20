@@ -8,6 +8,7 @@ import zlib
 from typing import List, Tuple, Union
 
 import numpy as np
+from bizyengine.core import BIZYAIR_PROMPT_KEY
 from bizyengine.core.common import client
 from bizyengine.core.common.env_var import BIZYAIR_SERVER_ADDRESS, BIZYAIR_SERVER_MODE
 from server import PromptServer
@@ -137,9 +138,12 @@ def _get_api_key():
     return get_api_key()
 
 
-def get_api_key_and_prompt_id(prompt: dict = None):
+def get_api_key_and_prompt_id(**kwargs):
     extra_data = {}
     if BIZYAIR_SERVER_MODE:
+        if not BIZYAIR_PROMPT_KEY in kwargs:
+            return extra_data
+        prompt = kwargs[BIZYAIR_PROMPT_KEY]
         if BIZYAIR_PARAM_MAGIC_NODE_ID in prompt:
             extra_data["api_key"] = prompt[BIZYAIR_PARAM_MAGIC_NODE_ID]["_meta"][
                 "api_key"
@@ -169,7 +173,7 @@ def get_llm_response(
     **kwargs,
 ):
     api_url = f"{BIZYAIR_SERVER_ADDRESS}/chat/completions"
-    extra_data = get_api_key_and_prompt_id(prompt=kwargs["prompt"])
+    extra_data = get_api_key_and_prompt_id(**kwargs)
     headers = client.headers(api_key=extra_data["api_key"])
 
     payload = {
@@ -209,7 +213,7 @@ def get_vlm_response(
     **kwargs,
 ):
     api_url = f"{BIZYAIR_SERVER_ADDRESS}/chat/completions"
-    extra_data = get_api_key_and_prompt_id(prompt=kwargs["prompt"])
+    extra_data = get_api_key_and_prompt_id(**kwargs)
     headers = client.headers(api_key=extra_data["api_key"])
 
     messages = [

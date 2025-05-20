@@ -91,7 +91,7 @@ def USDU_base_inputs():
 
 
 def prepare_inputs(required: list, optional: list = None):
-    inputs = {"hidden": {"prompt": "PROMPT"}}
+    inputs = {}
     if required:
         inputs["required"] = {}
         for name, type in required:

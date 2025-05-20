@@ -36,7 +36,6 @@ class RemoveBackground(BizyAirMiscBaseNode):
             "required": {
                 "image": ("IMAGE",),
             },
-            "hidden": {"prompt": "PROMPT"},
         }
 
     RETURN_TYPES = ("IMAGE", "MASK")
@@ -45,7 +44,7 @@ class RemoveBackground(BizyAirMiscBaseNode):
     CATEGORY = "☁️BizyAir"
 
     def remove_background(self, image, **kwargs):
-        extra_data = get_api_key_and_prompt_id(prompt=kwargs["prompt"])
+        extra_data = get_api_key_and_prompt_id(**kwargs)
         headers = client.headers(api_key=extra_data["api_key"])
 
         device = image.device
@@ -104,7 +103,6 @@ class GenerateLightningImage(BizyAirMiscBaseNode):
                 ),
                 "batch_size": ("INT", {"default": 1, "min": 1, "max": 4}),
             },
-            "hidden": {"prompt": "PROMPT"},
         }
 
     RETURN_TYPES = ("IMAGE",)
@@ -113,7 +111,7 @@ class GenerateLightningImage(BizyAirMiscBaseNode):
     CATEGORY = "☁️BizyAir"
 
     def generate_image(self, prompt, seed, width, height, cfg, batch_size, **kwargs):
-        extra_data = get_api_key_and_prompt_id(prompt=kwargs["prompt"])
+        extra_data = get_api_key_and_prompt_id(**kwargs)
         headers = client.headers(api_key=extra_data["api_key"])
 
         assert (

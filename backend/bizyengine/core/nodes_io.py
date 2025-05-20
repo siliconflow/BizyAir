@@ -85,7 +85,7 @@ class BizyAirNodeIO:
         self, url=None, headers=None, *, progress_callback=None, stream=False, **kwargs
     ) -> any:
         out = invoker.prompt_server.execute(
-            nodes=self.nodes, last_node_ids=[self.node_id], **kwargs
+            prompt=self.nodes, last_node_ids=[self.node_id], **kwargs
         )
         return out
 

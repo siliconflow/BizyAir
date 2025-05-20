@@ -32,7 +32,6 @@ class BizyAirMZChatGLM3TextEncode(BizyAirMiscBaseNode):
             "required": {
                 "text": ("STRING", {"multiline": True, "dynamicPrompts": True}),
             },
-            "hidden": {"prompt": "PROMPT"},
         }
 
     RETURN_TYPES = ("CONDITIONING",)
@@ -41,7 +40,7 @@ class BizyAirMZChatGLM3TextEncode(BizyAirMiscBaseNode):
     CATEGORY = CATEGORY_NAME
 
     def encode(self, text, **kwargs):
-        extra_data = get_api_key_and_prompt_id(prompt=kwargs["prompt"])
+        extra_data = get_api_key_and_prompt_id(**kwargs)
         headers = client.headers(api_key=extra_data["api_key"])
 
         assert len(text) <= 4096, f"the prompt is too long, length: {len(text)}"

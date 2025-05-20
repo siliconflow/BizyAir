@@ -1,6 +1,7 @@
 import bizyengine.core.path_utils as path_utils
 from bizyengine.core.common import set_api_key, validate_api_key
 from bizyengine.core.nodes_base import (
+    BIZYAIR_PROMPT_KEY,
     NODE_CLASS_MAPPINGS,
     NODE_DISPLAY_NAME_MAPPINGS,
     BizyAirBaseNode,

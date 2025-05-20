@@ -84,7 +84,7 @@ class BizyAirTask:
             raise ValueError(f"Invalid inputs: {inputs}")
         data = inputs.get("data", {})
         task_id = data.get("task_id", "")
-        extra_data = get_api_key_and_prompt_id(prompt=kwargs["prompt"])
+        extra_data = get_api_key_and_prompt_id(**kwargs)
         return cls(
             task_id=task_id,
             data_pool=[],
@@ -198,28 +198,28 @@ class PromptServer(Command):
 
     def execute(
         self,
-        nodes: Dict[str, Dict[str, Any]],
+        prompt: Dict[str, Dict[str, Any]],
         last_node_ids: List[str],
         *args,
         **kwargs,
     ):
-        nodes = encode_data(nodes)
+        prompt = encode_data(prompt)
 
         if BIZYAIR_DEBUG:
             debug_info = {
-                "prompt": truncate_long_strings(nodes, 50),
+                "prompt": truncate_long_strings(prompt, 50),
                 "last_node_ids": last_node_ids,
             }
             pprint.pprint(debug_info, indent=4)
 
-        url = self.router(nodes=nodes, last_node_ids=last_node_ids, **kwargs)
+        url = self.router(prompt=prompt, last_node_ids=last_node_ids, **kwargs)
 
         if BIZYAIR_DEBUG:
             print(f"Generated URL: {url}")
 
         start_time = time.time()
         sh256 = hashlib.sha256(
-            json.dumps({"url": url, "prompt": nodes}).encode("utf-8")
+            json.dumps({"url": url, "prompt": prompt}).encode("utf-8")
         ).hexdigest()
         end_time = time.time()
         if BIZYAIR_DEBUG:
@@ -234,7 +234,7 @@ class PromptServer(Command):
             out = cached_output
         else:
             result = self.processor(
-                url, nodes=nodes, last_node_ids=last_node_ids, **kwargs
+                url, prompt=prompt, last_node_ids=last_node_ids, **kwargs
             )
             out = self._get_result(result, cache_key=sh256, **kwargs)
 

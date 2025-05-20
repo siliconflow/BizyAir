@@ -52,7 +52,6 @@ class SiliconCloudLLMAPI(BizyAirMiscBaseNode):
                     {"default": 0.7, "min": 0.0, "max": 2.0, "step": 0.01},
                 ),
             },
-            "hidden": {"prompt": "PROMPT"},
         }
 
     RETURN_TYPES = ("STRING",)
@@ -103,7 +102,6 @@ class SiliconCloudVLMAPI(BizyAirMiscBaseNode):
                 ),
                 "detail": (["auto", "low", "high"], {"default": "auto"}),
             },
-            "hidden": {"prompt": "PROMPT"},
         }
 
     RETURN_TYPES = ("STRING",)
@@ -180,7 +178,6 @@ class BizyAirJoyCaption(BizyAirMiscBaseNode):
                     },
                 ),
             },
-            "hidden": {"prompt": "PROMPT"},
         }
 
     RETURN_TYPES = ("STRING",)
@@ -189,7 +186,7 @@ class BizyAirJoyCaption(BizyAirMiscBaseNode):
     CATEGORY = "☁️BizyAir/AI Assistants"
 
     def joycaption(self, image, do_sample, temperature, max_tokens, **kwargs):
-        extra_data = get_api_key_and_prompt_id(prompt=kwargs["prompt"])
+        extra_data = get_api_key_and_prompt_id(**kwargs)
         headers = client.headers(api_key=extra_data["api_key"])
 
         SIZE_LIMIT = 1536
@@ -316,7 +313,6 @@ class BizyAirJoyCaption2(BizyAirMiscBaseNode):
                     },
                 ),
             },
-            "hidden": {"prompt": "PROMPT"},
         }
 
     RETURN_TYPES = ("STRING",)
@@ -337,7 +333,7 @@ class BizyAirJoyCaption2(BizyAirMiscBaseNode):
         custom_prompt,
         **kwargs,
     ):
-        extra_data = get_api_key_and_prompt_id(prompt=kwargs["prompt"])
+        extra_data = get_api_key_and_prompt_id(**kwargs)
         headers = client.headers(api_key=extra_data["api_key"])
 
         SIZE_LIMIT = 1536

@@ -31,7 +31,7 @@ class BasePreprocessor(BizyAirMiscBaseNode):
     FUNCTION = "execute"
 
     def execute(self, **kwargs):
-        extra_data = get_api_key_and_prompt_id(prompt=kwargs["prompt"])
+        extra_data = get_api_key_and_prompt_id(**kwargs)
         headers = client.headers(api_key=extra_data["api_key"])
 
         compress = True
@@ -70,7 +70,6 @@ def create_node_input_types(**extra_kwargs):
                 },
             ),  # Cosmetic only: display as "number" or "slider"})
         },
-        "hidden": {"prompt": "PROMPT"},
     }
 
 

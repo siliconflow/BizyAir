@@ -47,7 +47,6 @@ class BizyAirSegmentAnythingText(BizyAirMiscBaseNode):
                     {"default": 0.3, "min": 0, "max": 1.0, "step": 0.01},
                 ),
             },
-            "hidden": {"prompt": "PROMPT"},
         }
 
     RETURN_TYPES = ("IMAGE", "MASK")
@@ -56,7 +55,7 @@ class BizyAirSegmentAnythingText(BizyAirMiscBaseNode):
     CATEGORY = "☁️BizyAir/segment-anything"
 
     def text_sam(self, image, prompt, box_threshold, text_threshold, **kwargs):
-        extra_data = get_api_key_and_prompt_id(prompt=kwargs["prompt"])
+        extra_data = get_api_key_and_prompt_id(**kwargs)
         headers = client.headers(api_key=extra_data["api_key"])
 
         SIZE_LIMIT = 1536
@@ -139,7 +138,6 @@ class BizyAirSegmentAnythingPointBox(BizyAirMiscBaseNode):
                 "image": (sorted(files), {"image_upload": True}),
                 "is_point": ("BOOLEAN", {"default": True}),
             },
-            "hidden": {"prompt": "PROMPT"},
         }
 
     RETURN_TYPES = ("IMAGE", "MASK", "IMAGE")
@@ -149,7 +147,7 @@ class BizyAirSegmentAnythingPointBox(BizyAirMiscBaseNode):
     CATEGORY = "☁️BizyAir/segment-anything"
 
     def apply(self, image, is_point, **kwargs):
-        extra_data = get_api_key_and_prompt_id(prompt=kwargs["prompt"])
+        extra_data = get_api_key_and_prompt_id(**kwargs)
         headers = client.headers(api_key=extra_data["api_key"])
 
         SIZE_LIMIT = 1536

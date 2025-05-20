@@ -3,7 +3,7 @@ from collections import deque
 from typing import Any, Dict, List
 
 from bizyengine.core.commands.base import Processor  # type: ignore
-from bizyengine.core.common import client, get_api_key
+from bizyengine.core.common import client
 from bizyengine.core.common.caching import BizyAirTaskCache, CacheConfig
 from bizyengine.core.common.env_var import (
     BIZYAIR_DEBUG,
@@ -106,16 +106,15 @@ class PromptProcessor(Processor):
     def process(
         self,
         url: str,
-        nodes: Dict[str, Dict[str, Any]],
+        prompt: Dict[str, Dict[str, Any]],
         last_node_ids: List[str],
         **kwargs,
     ):
-        extra_data = get_api_key_and_prompt_id(prompt=kwargs["prompt"])
-        # NOTE: nodes是bizyair中的节点数据，与comfybridge约定叫prompt，但是comfyui中的隐藏输入也叫prompt且是通过关键字传进来，所以把优先让给comfyui
+        extra_data = get_api_key_and_prompt_id(**kwargs)
         dict = {
-            "prompt": nodes,
+            "prompt": prompt,
             "last_node_id": last_node_ids[0],
-            "exec_info": self._exec_info(nodes, extra_data["api_key"]),
+            "exec_info": self._exec_info(prompt, extra_data["api_key"]),
         }
         if "prompt_id" in extra_data:
             dict["prompt_id"] = extra_data["prompt_id"]

@@ -24,6 +24,8 @@ PREFIX = f"BizyAir"
 NODE_CLASS_MAPPINGS = {}
 NODE_DISPLAY_NAME_MAPPINGS = {}
 
+BIZYAIR_PROMPT_KEY = "bizyair_prompt"
+
 
 def process_kwargs(kwargs):
     possibleWidgetNames = [
@@ -106,9 +108,9 @@ def ensure_hidden_unique_id_and_prompt(org_input_types_func):
             result["hidden"]["unique_id"] = "UNIQUE_ID"
         else:
             original_has_unique_id = True
-        # Also set prompt
-        if "prompt" not in result["hidden"]:
-            result["hidden"]["prompt"] = "PROMPT"
+        # Also set prompt, but to avoid naming conflict prefix with 'bizyair'
+        if BIZYAIR_PROMPT_KEY not in result["hidden"]:
+            result["hidden"][BIZYAIR_PROMPT_KEY] = "PROMPT"
         return result
 
     # Ensure original_has_unique_id is correctly set before returning
