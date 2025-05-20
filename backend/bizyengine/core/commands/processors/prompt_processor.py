@@ -15,7 +15,6 @@ from bizyengine.core.path_utils import (
     convert_prompt_label_path_to_real_path,
     guess_url_from_node,
 )
-from bizyengine.misc.utils import get_api_key_and_prompt_id
 
 
 def is_link(obj):
@@ -110,19 +109,18 @@ class PromptProcessor(Processor):
         last_node_ids: List[str],
         **kwargs,
     ):
-        extra_data = get_api_key_and_prompt_id(**kwargs)
         dict = {
             "prompt": prompt,
             "last_node_id": last_node_ids[0],
-            "exec_info": self._exec_info(prompt, extra_data["api_key"]),
+            "exec_info": self._exec_info(prompt, kwargs["api_key"]),
         }
-        if "prompt_id" in extra_data:
-            dict["prompt_id"] = extra_data["prompt_id"]
+        if "prompt_id" in kwargs:
+            dict["prompt_id"] = kwargs["prompt_id"]
 
         return client.send_request(
             url=url,
             data=json.dumps(dict).encode("utf-8"),
-            headers=client.headers(api_key=extra_data["api_key"]),
+            headers=client.headers(api_key=kwargs["api_key"]),
         )
 
     def validate_input(

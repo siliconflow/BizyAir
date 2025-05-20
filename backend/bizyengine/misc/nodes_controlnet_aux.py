@@ -3,16 +3,11 @@ import os
 
 import numpy as np
 import torch
-from bizyengine.core import BizyAirMiscBaseNode
+from bizyengine.core import BizyAirMiscBaseNode, pop_api_key_and_prompt_id
 from bizyengine.core.common import client
 from bizyengine.core.common.env_var import BIZYAIR_SERVER_ADDRESS
 
-from .utils import (
-    _get_api_key,
-    decode_and_deserialize,
-    get_api_key_and_prompt_id,
-    serialize_and_encode,
-)
+from .utils import decode_and_deserialize, serialize_and_encode
 
 # Sync with theoritical limit from Comfy base
 # https://github.com/comfyanonymous/ComfyUI/blob/eecd69b53a896343775bcb02a4f8349e7442ffd1/nodes.py#L45
@@ -31,7 +26,7 @@ class BasePreprocessor(BizyAirMiscBaseNode):
     FUNCTION = "execute"
 
     def execute(self, **kwargs):
-        extra_data = get_api_key_and_prompt_id(**kwargs)
+        extra_data = pop_api_key_and_prompt_id(kwargs)
         headers = client.headers(api_key=extra_data["api_key"])
 
         compress = True

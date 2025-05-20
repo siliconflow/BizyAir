@@ -18,7 +18,6 @@ from bizyengine.core.common.env_var import (
 from bizyengine.core.common.utils import truncate_long_strings
 from bizyengine.core.configs.conf import config_manager
 from bizyengine.core.image_utils import decode_data, encode_data
-from bizyengine.misc.utils import get_api_key_and_prompt_id
 
 
 def get_task_result(task_id: str, offset: int = 0, api_key: str = None) -> dict:
@@ -84,12 +83,11 @@ class BizyAirTask:
             raise ValueError(f"Invalid inputs: {inputs}")
         data = inputs.get("data", {})
         task_id = data.get("task_id", "")
-        extra_data = get_api_key_and_prompt_id(**kwargs)
         return cls(
             task_id=task_id,
             data_pool=[],
             data_status="started",
-            api_key=extra_data["api_key"],
+            api_key=kwargs["api_key"],
         )
 
     def is_finished(self) -> bool:

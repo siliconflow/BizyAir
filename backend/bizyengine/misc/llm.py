@@ -3,16 +3,14 @@ import json
 
 import aiohttp
 from aiohttp import web
-from bizyengine.core import BizyAirMiscBaseNode
+from bizyengine.core import BizyAirMiscBaseNode, pop_api_key_and_prompt_id
 from bizyengine.core.common import client
 from bizyengine.core.common.env_var import BIZYAIR_SERVER_ADDRESS
 from bizyengine.core.image_utils import decode_data, encode_comfy_image, encode_data
 from server import PromptServer
 
 from .utils import (
-    _get_api_key,
     decode_and_deserialize,
-    get_api_key_and_prompt_id,
     get_llm_response,
     get_vlm_response,
     send_post_request,
@@ -186,7 +184,7 @@ class BizyAirJoyCaption(BizyAirMiscBaseNode):
     CATEGORY = "☁️BizyAir/AI Assistants"
 
     def joycaption(self, image, do_sample, temperature, max_tokens, **kwargs):
-        extra_data = get_api_key_and_prompt_id(**kwargs)
+        extra_data = pop_api_key_and_prompt_id(kwargs)
         headers = client.headers(api_key=extra_data["api_key"])
 
         SIZE_LIMIT = 1536
@@ -333,7 +331,7 @@ class BizyAirJoyCaption2(BizyAirMiscBaseNode):
         custom_prompt,
         **kwargs,
     ):
-        extra_data = get_api_key_and_prompt_id(**kwargs)
+        extra_data = pop_api_key_and_prompt_id(kwargs)
         headers = client.headers(api_key=extra_data["api_key"])
 
         SIZE_LIMIT = 1536

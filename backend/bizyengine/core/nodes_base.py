@@ -4,9 +4,11 @@ import warnings
 from functools import wraps
 from typing import List
 
-from bizyengine.core.common.env_var import BIZYAIR_DEBUG
+from bizyengine.core.common.env_var import BIZYAIR_DEBUG, BIZYAIR_SERVER_MODE
 from bizyengine.core.configs.conf import config_manager
+from server import PromptServer
 
+from .common.client import get_api_key
 from .data_types import is_send_request_datatype
 from .nodes_io import BizyAirNodeIO, create_node_data
 
@@ -25,6 +27,33 @@ NODE_CLASS_MAPPINGS = {}
 NODE_DISPLAY_NAME_MAPPINGS = {}
 
 BIZYAIR_PROMPT_KEY = "bizyair_prompt"
+BIZYAIR_PARAM_MAGIC_NODE_ID = "bizyair_magic_node"
+
+
+def pop_api_key_and_prompt_id(kwargs):
+    extra_data = {}
+    prompt = None
+    if BIZYAIR_PROMPT_KEY in kwargs:
+        prompt = kwargs.pop(BIZYAIR_PROMPT_KEY)
+    if BIZYAIR_SERVER_MODE:
+        if BIZYAIR_PARAM_MAGIC_NODE_ID in prompt:
+            extra_data["api_key"] = prompt[BIZYAIR_PARAM_MAGIC_NODE_ID]["_meta"][
+                "api_key"
+            ]
+            extra_data["prompt_id"] = prompt[BIZYAIR_PARAM_MAGIC_NODE_ID]["_meta"][
+                "prompt_id"
+            ]
+            print("Using server mode passed in prompt_id: " + extra_data["prompt_id"])
+    else:
+        extra_data["api_key"] = get_api_key()
+        if (
+            PromptServer.instance is not None
+            and PromptServer.instance.last_prompt_id is not None
+        ):
+            extra_data["prompt_id"] = PromptServer.instance.last_prompt_id
+            print("Processing prompt with ID: " + PromptServer.instance.last_prompt_id)
+
+    return extra_data
 
 
 def process_kwargs(kwargs):
@@ -154,13 +183,14 @@ class BizyAirBaseNode:
         return str(self._assigned_id)
 
     def default_function(self, **kwargs):
+        extra_data = pop_api_key_and_prompt_id(kwargs)
         class_type = self._determine_class_type()
         kwargs = process_kwargs(kwargs)
         node_ios = self._process_non_send_request_types(class_type, kwargs)
         # TODO: add processing for send_request_types
         send_request_datatype_list = self._get_send_request_datatypes()
         if len(send_request_datatype_list) == len(self.RETURN_TYPES):
-            return self._process_all_send_request_types(node_ios, **kwargs)
+            return self._process_all_send_request_types(node_ios, **extra_data)
         return node_ios
 
     def _get_send_request_datatypes(self):

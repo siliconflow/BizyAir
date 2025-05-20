@@ -22,7 +22,7 @@ from PIL import Image, ImageOps, ImageSequence
 
 from .utils import (
     decode_and_deserialize,
-    get_api_key_and_prompt_id,
+    pop_api_key_and_prompt_id,
     serialize_and_encode,
 )
 
@@ -44,7 +44,7 @@ class RemoveBackground(BizyAirMiscBaseNode):
     CATEGORY = "☁️BizyAir"
 
     def remove_background(self, image, **kwargs):
-        extra_data = get_api_key_and_prompt_id(**kwargs)
+        extra_data = pop_api_key_and_prompt_id(kwargs)
         headers = client.headers(api_key=extra_data["api_key"])
 
         device = image.device
@@ -111,7 +111,7 @@ class GenerateLightningImage(BizyAirMiscBaseNode):
     CATEGORY = "☁️BizyAir"
 
     def generate_image(self, prompt, seed, width, height, cfg, batch_size, **kwargs):
-        extra_data = get_api_key_and_prompt_id(**kwargs)
+        extra_data = pop_api_key_and_prompt_id(kwargs)
         headers = client.headers(api_key=extra_data["api_key"])
 
         assert (

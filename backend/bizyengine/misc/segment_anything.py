@@ -6,7 +6,7 @@ from enum import Enum
 import folder_paths
 import numpy as np
 import torch
-from bizyengine.core import BizyAirMiscBaseNode
+from bizyengine.core import BizyAirMiscBaseNode, pop_api_key_and_prompt_id
 from bizyengine.core.common import client
 from bizyengine.core.common.env_var import BIZYAIR_SERVER_ADDRESS
 from bizyengine.core.image_utils import decode_base64_to_np, encode_image_to_base64
@@ -14,7 +14,6 @@ from nodes import LoadImage
 from PIL import Image, ImageOps, ImageSequence
 
 from .route_sam import SAM_COORDINATE
-from .utils import _get_api_key, get_api_key_and_prompt_id
 
 
 class INFER_MODE(Enum):
@@ -55,7 +54,7 @@ class BizyAirSegmentAnythingText(BizyAirMiscBaseNode):
     CATEGORY = "☁️BizyAir/segment-anything"
 
     def text_sam(self, image, prompt, box_threshold, text_threshold, **kwargs):
-        extra_data = get_api_key_and_prompt_id(**kwargs)
+        extra_data = pop_api_key_and_prompt_id(kwargs)
         headers = client.headers(api_key=extra_data["api_key"])
 
         SIZE_LIMIT = 1536
@@ -147,7 +146,7 @@ class BizyAirSegmentAnythingPointBox(BizyAirMiscBaseNode):
     CATEGORY = "☁️BizyAir/segment-anything"
 
     def apply(self, image, is_point, **kwargs):
-        extra_data = get_api_key_and_prompt_id(**kwargs)
+        extra_data = pop_api_key_and_prompt_id(kwargs)
         headers = client.headers(api_key=extra_data["api_key"])
 
         SIZE_LIMIT = 1536

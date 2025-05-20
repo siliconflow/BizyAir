@@ -16,7 +16,7 @@ from bizyengine.core.image_utils import encode_data
 
 from .utils import (
     decode_and_deserialize,
-    get_api_key_and_prompt_id,
+    pop_api_key_and_prompt_id,
     serialize_and_encode,
 )
 
@@ -40,7 +40,7 @@ class BizyAirMZChatGLM3TextEncode(BizyAirMiscBaseNode):
     CATEGORY = CATEGORY_NAME
 
     def encode(self, text, **kwargs):
-        extra_data = get_api_key_and_prompt_id(**kwargs)
+        extra_data = pop_api_key_and_prompt_id(kwargs)
         headers = client.headers(api_key=extra_data["api_key"])
 
         assert len(text) <= 4096, f"the prompt is too long, length: {len(text)}"
