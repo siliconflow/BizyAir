@@ -8,7 +8,6 @@ import zlib
 from typing import List, Tuple, Union
 
 import numpy as np
-from bizyengine.core import BIZYAIR_PROMPT_KEY
 from bizyengine.core.common import client
 from bizyengine.core.common.env_var import BIZYAIR_SERVER_ADDRESS, BIZYAIR_SERVER_MODE
 from server import PromptServer
@@ -141,6 +140,8 @@ def _get_api_key():
 def get_api_key_and_prompt_id(**kwargs):
     extra_data = {}
     if BIZYAIR_SERVER_MODE:
+        from bizyengine.core.nodes_base import BIZYAIR_PROMPT_KEY
+
         if not BIZYAIR_PROMPT_KEY in kwargs:
             return extra_data
         prompt = kwargs[BIZYAIR_PROMPT_KEY]

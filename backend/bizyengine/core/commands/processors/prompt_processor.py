@@ -35,7 +35,7 @@ from dataclasses import dataclass
 
 class SearchServiceRouter(Processor):
     def process(
-        self, nodes: Dict[str, Dict[str, Any]], last_node_ids: List[str], **kwargs
+        self, prompt: Dict[str, Dict[str, Any]], last_node_ids: List[str], **kwargs
     ):
         if BIZYAIR_DEV_REQUEST_URL:
             return BIZYAIR_DEV_REQUEST_URL
@@ -45,7 +45,7 @@ class SearchServiceRouter(Processor):
         visited = {key: True for key in last_node_ids}
         results: List[ModelRule] = []
         class_type_table = {
-            node_data["class_type"]: True for node_data in nodes.values()
+            node_data["class_type"]: True for node_data in prompt.values()
         }
 
         while queue:
@@ -53,10 +53,10 @@ class SearchServiceRouter(Processor):
             if BIZYAIR_DEBUG:
                 print(vertex, end="->")
 
-            rules = guess_url_from_node(nodes[vertex], class_type_table)
+            rules = guess_url_from_node(prompt[vertex], class_type_table)
             if rules:
                 results.extend(rules)
-            for _, in_data in nodes[vertex].get("inputs", {}).items():
+            for _, in_data in prompt[vertex].get("inputs", {}).items():
                 if is_link(in_data):
                     neighbor = in_data[0]
                     if neighbor not in visited:
@@ -85,18 +85,18 @@ class SearchServiceRouter(Processor):
         return f"{BIZYAIR_SERVER_ADDRESS}{out_route}"
 
     def validate_input(
-        self, nodes: Dict[str, Dict[str, Any]], last_node_ids: List[str], **kwargs
+        self, prompt: Dict[str, Dict[str, Any]], last_node_ids: List[str], **kwargs
     ):
         assert len(last_node_ids) == 1
         return True
 
 
 class PromptProcessor(Processor):
-    def _exec_info(self, nodes: Dict[str, Dict[str, Any]], api_key: str):
+    def _exec_info(self, prompt: Dict[str, Dict[str, Any]], api_key: str):
         exec_info = {"model_version_ids": [], "api_key": api_key}
 
         model_version_id_prefix = config_manager.get_model_version_id_prefix()
-        for node_id, node_data in nodes.items():
+        for node_id, node_data in prompt.items():
             for k, v in node_data.get("inputs", {}).items():
                 if isinstance(v, str) and v.startswith(model_version_id_prefix):
                     model_version_id = int(v[len(model_version_id_prefix) :])
@@ -128,7 +128,7 @@ class PromptProcessor(Processor):
     def validate_input(
         self,
         url: str,
-        nodes: Dict[str, Dict[str, Any]],
+        prompt: Dict[str, Dict[str, Any]],
         last_node_ids: List[str],
         **kwargs,
     ):
