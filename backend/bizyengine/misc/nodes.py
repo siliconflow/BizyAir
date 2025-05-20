@@ -72,7 +72,6 @@ class BizyAir_KSampler(BizyAirBaseNode):
         negative,
         latent_image,
         denoise=1,
-        **kwargs,
     ):
         new_model: BizyAirNodeIO = model.copy(self.assigned_id)
         new_model.add_node_data(
@@ -138,7 +137,7 @@ class KSamplerAdvanced(BizyAirBaseNode):
         kwargs["model"] = model
         new_model.add_node_data(class_type="KSamplerAdvanced", inputs=kwargs)
         progress_callback = ProgressCallback()
-        return new_model.send_request(progress_callback=progress_callback, **kwargs)
+        return new_model.send_request(progress_callback=progress_callback)
 
 
 class BizyAir_CheckpointLoaderSimple(BizyAirBaseNode):
