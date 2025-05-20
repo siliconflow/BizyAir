@@ -116,20 +116,6 @@ def ensure_hidden_unique_id_and_prompt(org_input_types_func):
     return new_input_types_func, original_has_unique_id
 
 
-def ensure_hidden_prompt(org_input_types_func):
-    @wraps(org_input_types_func)
-    def new_input_types_func():
-        result = org_input_types_func()
-        if "hidden" not in result:
-            result["hidden"] = {"prompt": "PROMPT"}
-        elif "prompt" not in result["hidden"]:
-            result["hidden"]["prompt"] = "PROMPT"
-        return result
-
-    new_input_types_func()
-    return new_input_types_func
-
-
 class BizyAirBaseNode:
     FUNCTION = "default_function"
 
@@ -205,12 +191,11 @@ class BizyAirBaseNode:
 
 
 class BizyAirMiscBaseNode:
-    # 作为Misc节点基类来保证hidden prompt存在
+    # 作为Misc节点基类来保证hidden prompt, unique id存在
     def __init_subclass__(cls, **kwargs):
-        if not hasattr(cls, "CATEGORY"):
-            return
-        if not cls.CATEGORY.startswith(f"{LOGO}{PREFIX}"):
-            cls.CATEGORY = f"{LOGO}{PREFIX}/{cls.CATEGORY}"
+        if hasattr(cls, "CATEGORY"):
+            if not cls.CATEGORY.startswith(f"{LOGO}{PREFIX}"):
+                cls.CATEGORY = f"{LOGO}{PREFIX}/{cls.CATEGORY}"
         cls.setup_input_types()
 
         # 验证FUNCTION接受**kwargs
@@ -223,6 +208,15 @@ class BizyAirMiscBaseNode:
 
     @classmethod
     def setup_input_types(cls):
+        if not hasattr(cls, "INPUT_TYPES"):
+            cls.INPUT_TYPES = lambda: {}
         # https://docs.comfy.org/essentials/custom_node_more_on_inputs#hidden-inputs
-        new_input_types_func = ensure_hidden_prompt(cls.INPUT_TYPES)
+        new_input_types_func, original_has_unique_id = (
+            ensure_hidden_unique_id_and_prompt(cls.INPUT_TYPES)
+        )
         cls.INPUT_TYPES = new_input_types_func
+        setattr(
+            cls,
+            cls.FUNCTION,
+            ensure_unique_id(getattr(cls, cls.FUNCTION), original_has_unique_id),
+        )
