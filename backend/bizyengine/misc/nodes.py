@@ -59,6 +59,7 @@ class BizyAir_KSampler(BizyAirBaseNode):
     RETURN_NAMES = (f"LATENT",)
     CATEGORY = f"{PREFIX}/sampling"
 
+    # deprecated
     def sample(
         self,
         model,
@@ -91,9 +92,7 @@ class BizyAir_KSampler(BizyAirBaseNode):
             outputs={"slot_index": 0},
         )
         progress_callback = ProgressCallback()
-        return new_model.send_request(
-            progress_callback=progress_callback, extra_pnginfo=kwargs["extra_pnginfo"]
-        )
+        return new_model.send_request(progress_callback=progress_callback)
 
 
 class KSamplerAdvanced(BizyAirBaseNode):
@@ -139,9 +138,7 @@ class KSamplerAdvanced(BizyAirBaseNode):
         kwargs["model"] = model
         new_model.add_node_data(class_type="KSamplerAdvanced", inputs=kwargs)
         progress_callback = ProgressCallback()
-        return new_model.send_request(
-            progress_callback=progress_callback, extra_pnginfo=kwargs["extra_pnginfo"]
-        )
+        return new_model.send_request(progress_callback=progress_callback, **kwargs)
 
 
 class BizyAir_CheckpointLoaderSimple(BizyAirBaseNode):
@@ -411,7 +408,8 @@ class BizyAir_VAEEncode(BizyAirBaseNode):
     # FUNCTION = "encode"
     CATEGORY = f"{PREFIX}/latent"
 
-    def encode(self, vae, pixels, extra_pnginfo=None):
+    # deprecated
+    def encode(self, vae, pixels):
         new_vae: BizyAirNodeIO = vae.copy(self.assigned_id)
         new_vae.add_node_data(
             class_type="VAEEncode",
@@ -421,7 +419,7 @@ class BizyAir_VAEEncode(BizyAirBaseNode):
             },
             outputs={"slot_index": 0},
         )
-        return new_vae.send_request(extra_pnginfo=extra_pnginfo)
+        return new_vae.send_request()
 
 
 class BizyAir_VAEEncodeForInpaint(BizyAirBaseNode):
@@ -441,7 +439,8 @@ class BizyAir_VAEEncodeForInpaint(BizyAirBaseNode):
     # FUNCTION = "encode"
     CATEGORY = f"{PREFIX}/latent/inpaint"
 
-    def encode(self, vae, pixels, mask, grow_mask_by=6, extra_pnginfo=None):
+    # deprecated
+    def encode(self, vae, pixels, mask, grow_mask_by=6):
         new_vae: BizyAirNodeIO = vae.copy(self.assigned_id)
         new_vae.add_node_data(
             class_type="VAEEncodeForInpaint",
@@ -453,7 +452,7 @@ class BizyAir_VAEEncodeForInpaint(BizyAirBaseNode):
             },
             outputs={"slot_index": 0},
         )
-        return new_vae.send_request(extra_pnginfo=extra_pnginfo)
+        return new_vae.send_request()
 
 
 class BizyAir_ControlNetLoader(BizyAirBaseNode):
