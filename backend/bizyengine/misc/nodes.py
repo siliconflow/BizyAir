@@ -311,6 +311,7 @@ class BizyAir_LoraLoader(BizyAirBaseNode):
         strength_model,
         strength_clip,
         model_version_id: str = None,
+        **kwargs
     ):
         assigned_id = self.assigned_id
         new_model: BizyAirNodeIO = model.copy(assigned_id)
