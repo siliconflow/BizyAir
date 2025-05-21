@@ -38,7 +38,11 @@ class APIClient:
 
     def auth_header(self, api_key: str = None):
         try:
-            auth = f"Bearer {api_key if BIZYAIR_SERVER_MODE else get_api_key()}"
+            if not BIZYAIR_SERVER_MODE:
+                api_key = get_api_key()
+            if not api_key:
+                return None, errnos.INVALID_API_KEY
+            auth = f"Bearer {api_key}"
             headers = {
                 "accept": "application/json",
                 "content-type": "application/json",
@@ -1119,6 +1123,10 @@ class APIClient:
 
     def forward_model_request(self, request_data):
         try:
+            api_key = get_api_key()
+            if not api_key:
+                return None, errnos.INVALID_API_KEY
+
             request_data["stream"] = True
             # 硅基云API接受top_k但是openai库不支持
             request_data.pop("top_k")
@@ -1135,17 +1143,26 @@ class APIClient:
             if "model" not in request_data:
                 return None, errnos.MODEL_API_ERROR
 
-            # TODO: 前端能选择provider、model之后删除下句
+            # TODO: 前端能选择provider、model之后删除下句，但目前无此规划是写死的模型
             request_data["model"] = f"SiliconFlow:{request_data['model']}"
+
+            # 获取前端生成的request_id和prompt_id
+            request_id = request_data.pop("request_id", None)
+            prompt_id = request_data.pop("prompt_id", None)
+            extra_body = {}
+            if request_id:
+                extra_body["request_id"] = request_id
+            if prompt_id:
+                extra_body["prompt_id"] = prompt_id
 
             client = OpenAI(
                 base_url=BIZYAIR_X_SERVER,
-                api_key=get_api_key(),
+                api_key=api_key,
                 timeout=60.0,
                 max_retries=0,
             )
             return client.chat.completions.with_streaming_response.create(
-                **request_data
+                extra_body=extra_body, **request_data
             )
 
         except Exception as e:
@@ -1155,6 +1172,8 @@ class APIClient:
     async def forward_image_request(self, request_data):
         try:
             api_key = get_api_key()
+            if not api_key:
+                return None, errnos.INVALID_API_KEY
             headers = {
                 "Content-Type": "application/json",
                 "Authorization": f"Bearer {api_key}",
