@@ -299,7 +299,8 @@ class BizyAir_LoraLoader(BizyAirBaseNode):
     RETURN_TYPES = (data_types.MODEL, data_types.CLIP)
     RETURN_NAMES = ("MODEL", "CLIP")
 
-    # FUNCTION = "load_lora"
+    # 不能使用default_function
+    FUNCTION = "load_lora"
     CATEGORY = f"{PREFIX}/loaders"
 
     def load_lora(
