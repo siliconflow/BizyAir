@@ -3,7 +3,7 @@ from collections import deque
 from typing import Any, Dict, List
 
 from bizyengine.core.commands.base import Processor  # type: ignore
-from bizyengine.core.common import client, get_api_key
+from bizyengine.core.common import client
 from bizyengine.core.common.caching import BizyAirTaskCache, CacheConfig
 from bizyengine.core.common.env_var import (
     BIZYAIR_DEBUG,
@@ -15,7 +15,6 @@ from bizyengine.core.path_utils import (
     convert_prompt_label_path_to_real_path,
     guess_url_from_node,
 )
-from server import PromptServer
 
 
 def is_link(obj):
@@ -34,7 +33,9 @@ from dataclasses import dataclass
 
 
 class SearchServiceRouter(Processor):
-    def process(self, prompt: Dict[str, Dict[str, Any]], last_node_ids: List[str]):
+    def process(
+        self, prompt: Dict[str, Dict[str, Any]], last_node_ids: List[str], **kwargs
+    ):
         if BIZYAIR_DEV_REQUEST_URL:
             return BIZYAIR_DEV_REQUEST_URL
 
@@ -83,18 +84,15 @@ class SearchServiceRouter(Processor):
         return f"{BIZYAIR_SERVER_ADDRESS}{out_route}"
 
     def validate_input(
-        self, prompt: Dict[str, Dict[str, Any]], last_node_ids: List[str]
+        self, prompt: Dict[str, Dict[str, Any]], last_node_ids: List[str], **kwargs
     ):
         assert len(last_node_ids) == 1
         return True
 
 
 class PromptProcessor(Processor):
-    def _exec_info(self, prompt: Dict[str, Dict[str, Any]]):
-        exec_info = {
-            "model_version_ids": [],
-            "api_key": get_api_key(),
-        }
+    def _exec_info(self, prompt: Dict[str, Dict[str, Any]], api_key: str):
+        exec_info = {"model_version_ids": [], "api_key": api_key}
 
         model_version_id_prefix = config_manager.get_model_version_id_prefix()
         for node_id, node_data in prompt.items():
@@ -105,26 +103,31 @@ class PromptProcessor(Processor):
         return exec_info
 
     def process(
-        self, url: str, prompt: Dict[str, Dict[str, Any]], last_node_ids: List[str]
+        self,
+        url: str,
+        prompt: Dict[str, Dict[str, Any]],
+        last_node_ids: List[str],
+        **kwargs,
     ):
         dict = {
             "prompt": prompt,
             "last_node_id": last_node_ids[0],
-            "exec_info": self._exec_info(prompt),
+            "exec_info": self._exec_info(prompt, kwargs["api_key"]),
         }
-        if (
-            PromptServer.instance is not None
-            and PromptServer.instance.last_prompt_id is not None
-        ):
-            dict["prompt_id"] = PromptServer.instance.last_prompt_id
-            print("Processing prompt with ID: " + PromptServer.instance.last_prompt_id)
+        if "prompt_id" in kwargs:
+            dict["prompt_id"] = kwargs["prompt_id"]
 
         return client.send_request(
             url=url,
             data=json.dumps(dict).encode("utf-8"),
+            headers=client.headers(api_key=kwargs["api_key"]),
         )
 
     def validate_input(
-        self, url: str, prompt: Dict[str, Dict[str, Any]], last_node_ids: List[str]
+        self,
+        url: str,
+        prompt: Dict[str, Dict[str, Any]],
+        last_node_ids: List[str],
+        **kwargs,
     ):
         return True

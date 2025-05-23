@@ -31,7 +31,7 @@ class LoadImageURL(BizyAirBaseNode):
     FUNCTION = "apply"
     NODE_DISPLAY_NAME = "Load Image (URL)"
 
-    def apply(self, url: str):
+    def apply(self, url: str, **kwargs):
         url = url.strip()
         input_dir = folder_paths.get_input_directory()
 
@@ -88,6 +88,6 @@ class Image_Encode(BizyAirBaseNode):
     RETURN_TYPES = ("IMAGE",)
     NODE_DISPLAY_NAME = "Image Encode"
 
-    def apply(self, image, lossless=False):
+    def apply(self, image, lossless=False, **kwargs):
         out = encode_data(image, lossless=lossless)
         return (out,)

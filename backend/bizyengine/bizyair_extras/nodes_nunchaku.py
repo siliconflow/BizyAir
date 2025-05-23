@@ -167,11 +167,7 @@ class NunchakuFluxLoraLoader(BizyAirBaseNode):
         return True
 
     def load_lora(
-        self,
-        model,
-        lora_name,
-        lora_strength,
-        model_version_id: str = None,
+        self, model, lora_name, lora_strength, model_version_id: str = None, **kwargs
     ):
         assigned_id = self.assigned_id
         new_model: BizyAirNodeIO = model.copy(assigned_id)

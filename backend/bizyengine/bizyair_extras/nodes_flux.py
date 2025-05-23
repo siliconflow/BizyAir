@@ -56,7 +56,7 @@ class FluxGuidance(BizyAirBaseNode):
 
     CATEGORY = "advanced/conditioning/flux"
 
-    def append(self, conditioning: BizyAirNodeIO, guidance):
+    def append(self, conditioning: BizyAirNodeIO, guidance, **kwargs):
         new_conditioning = conditioning.copy(self.assigned_id)
         new_conditioning.add_node_data(
             class_type="FluxGuidance",

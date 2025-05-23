@@ -219,6 +219,7 @@ class BizyAirDetailMethodPredict(BizyAirBaseNode):
         detail_dilate,
         black_point,
         white_point,
+        **kwargs
     ):
 
         ret_images = []

@@ -178,7 +178,7 @@ class BizyAirDownloadFile(BizyAirBaseNode):
     OUTPUT_NODE = True
     OUTPUT_IS_LIST = (False,)
 
-    def main(self, url, file_name):
+    def main(self, url, file_name, **kwargs):
         assert url is not None
         file_name = file_name + ".glb"
         out_dir = os.path.join(folder_paths.get_output_directory(), "trellis_output")

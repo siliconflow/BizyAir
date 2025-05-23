@@ -9,7 +9,7 @@ from typing import Any, Dict, List
 import comfy
 from bizyengine.core.commands.base import Command, Processor  # type: ignore
 from bizyengine.core.common.caching import BizyAirTaskCache, CacheConfig
-from bizyengine.core.common.client import send_request
+from bizyengine.core.common.client import headers, send_request
 from bizyengine.core.common.env_var import (
     BIZYAIR_DEBUG,
     BIZYAIR_DEV_GET_TASK_RESULT_SERVER,
@@ -20,7 +20,7 @@ from bizyengine.core.configs.conf import config_manager
 from bizyengine.core.image_utils import decode_data, encode_data
 
 
-def get_task_result(task_id: str, offset: int = 0) -> dict:
+def get_task_result(task_id: str, offset: int = 0, api_key: str = None) -> dict:
     """
     Get the result of a task.
     """
@@ -34,8 +34,12 @@ def get_task_result(task_id: str, offset: int = 0) -> dict:
 
     if BIZYAIR_DEBUG:
         print(f"Debug: get task result url: {url}")
+    _headers = headers(api_key=api_key)
     response_json = send_request(
-        method="GET", url=url, data=json.dumps({"offset": offset}).encode("utf-8")
+        method="GET",
+        url=url,
+        data=json.dumps({"offset": offset}).encode("utf-8"),
+        headers=_headers,
     )
     out = response_json
     events = out.get("data", {}).get("events", [])
@@ -47,7 +51,9 @@ def get_task_result(task_id: str, offset: int = 0) -> dict:
             and event["data"].startswith("https://")
         ):
             # event["data"] = requests.get(event["data"]).json()
-            event["data"] = send_request(method="GET", url=event["data"])
+            event["data"] = send_request(
+                method="GET", url=event["data"], headers=_headers
+            )
         new_events.append(event)
     out["data"]["events"] = new_events
     return out
@@ -59,6 +65,7 @@ class BizyAirTask:
     task_id: str
     data_pool: list[dict] = field(default_factory=list)
     data_status: str = None
+    api_key: str = None
 
     @staticmethod
     def check_inputs(inputs: dict) -> bool:
@@ -69,12 +76,19 @@ class BizyAirTask:
         )
 
     @classmethod
-    def from_data(cls, inputs: dict, check_inputs: bool = True) -> "BizyAirTask":
+    def from_data(
+        cls, inputs: dict, check_inputs: bool = True, **kwargs
+    ) -> "BizyAirTask":
         if check_inputs and not cls.check_inputs(inputs):
             raise ValueError(f"Invalid inputs: {inputs}")
         data = inputs.get("data", {})
         task_id = data.get("task_id", "")
-        return cls(task_id=task_id, data_pool=[], data_status="started")
+        return cls(
+            task_id=task_id,
+            data_pool=[],
+            data_status="started",
+            api_key=kwargs["api_key"],
+        )
 
     def is_finished(self) -> bool:
         if not self.data_pool:
@@ -85,7 +99,7 @@ class BizyAirTask:
 
     def send_request(self, offset: int = 0) -> dict:
         if offset >= len(self.data_pool):
-            return get_task_result(self.task_id, offset)
+            return get_task_result(self.task_id, offset, self.api_key)
         else:
             return self.data_pool[offset]
 
@@ -163,12 +177,12 @@ class PromptServer(Command):
             and "task_id" in result.get("data", {})
         )
 
-    def _get_result(self, result: Dict[str, Any], *, cache_key: str = None):
+    def _get_result(self, result: Dict[str, Any], *, cache_key: str = None, **kwargs):
         try:
             response_data = result["data"]
             if BizyAirTask.check_inputs(result):
                 self.cache_manager.set(cache_key, result)
-                bz_task = BizyAirTask.from_data(result, check_inputs=False)
+                bz_task = BizyAirTask.from_data(result, check_inputs=False, **kwargs)
                 bz_task.do_task_until_completed(timeout=60 * 60)  # 60 minutes
                 last_data = bz_task.get_last_data()
                 response_data = last_data.get("data")
@@ -187,7 +201,6 @@ class PromptServer(Command):
         *args,
         **kwargs,
     ):
-
         prompt = encode_data(prompt)
 
         if BIZYAIR_DEBUG:
@@ -197,7 +210,7 @@ class PromptServer(Command):
             }
             pprint.pprint(debug_info, indent=4)
 
-        url = self.router(prompt=prompt, last_node_ids=last_node_ids)
+        url = self.router(prompt=prompt, last_node_ids=last_node_ids, **kwargs)
 
         if BIZYAIR_DEBUG:
             print(f"Generated URL: {url}")
@@ -218,8 +231,10 @@ class PromptServer(Command):
                 print(f"Cache hit for sh256-{sh256}")
             out = cached_output
         else:
-            result = self.processor(url, prompt=prompt, last_node_ids=last_node_ids)
-            out = self._get_result(result, cache_key=sh256)
+            result = self.processor(
+                url, prompt=prompt, last_node_ids=last_node_ids, **kwargs
+            )
+            out = self._get_result(result, cache_key=sh256, **kwargs)
 
         if BIZYAIR_DEBUG:
             pprint.pprint({"out": truncate_long_strings(out, 50)}, indent=4)
