@@ -10,6 +10,7 @@ import urllib.parse
 import uuid
 
 import aiohttp
+import execution
 import openai
 from bizyengine.core.common.env_var import BIZYAIR_SERVER_MODE
 from server import PromptServer
@@ -669,6 +670,20 @@ class BizyAirServer:
             vlm_models = [model for model in all_models if "vl" in model.lower()]
             vlm_models.append("No VLM Enhancement")
             return OKResponse(vlm_models)
+
+        @self.prompt_server.routes.post(f"/{API_PREFIX}/validate_prompt")
+        async def validate_prompt(request):
+            json_data = await request.json()
+            if not "prompt" in json_data:
+                return ErrResponse(errnos.MISSING_PROMPT)
+
+            valid = execution.validate_prompt(json_data["prompt"])
+            if valid[0]:
+                return OKResponse(None)
+            else:
+                err = errnos.INVALID_PROMPT.copy()
+                err.data = {"error": valid[1], "node_errors": valid[3]}
+                return ErrResponse(err)
 
         # 服务器模式下以下路径不会注册
         if BIZYAIR_SERVER_MODE:

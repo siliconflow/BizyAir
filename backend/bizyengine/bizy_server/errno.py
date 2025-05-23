@@ -179,6 +179,15 @@ class errnos:
         400, 400148, None, {"en": "Day parameter is required", "zh": "缺少日期参数"}
     )
 
+    MISSING_PROMPT = ErrorNo(
+        400, 400149, None, {"en": "Missing parameter prompt", "zh": "缺少参数prompt"}
+    )
+
+    # 具体错误动态填
+    INVALID_PROMPT = ErrorNo(
+        400, 400150, None, {"en": "Invalid prompt", "zh": "工作流错误"}
+    )
+
     INVALID_API_KEY = ErrorNo(
         401, 401000, None, {"en": "Invalid API key", "zh": "无效的API密钥"}
     )
