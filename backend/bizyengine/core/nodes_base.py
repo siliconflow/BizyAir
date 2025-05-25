@@ -3,10 +3,13 @@ import logging
 import warnings
 from functools import wraps
 from typing import List
+import json
+from pathlib import Path
+from typing import Dict, Any
 
-from bizyengine.core.configs.conf import config_manager
+from .configs.conf import config_manager
 
-from .data_types import is_send_request_datatype
+from .data_types import is_send_request_datatype, convert_to_custom_type
 from .nodes_io import BizyAirNodeIO, create_node_data
 
 try:
@@ -99,6 +102,9 @@ def ensure_hidden_unique_id(org_input_types_func):
         nonlocal original_has_unique_id
 
         result = org_input_types_func()
+
+        result = convert_to_custom_type(result) 
+
         if "hidden" not in result:
             result["hidden"] = {"unique_id": "UNIQUE_ID"}
         elif "unique_id" not in result["hidden"]:
@@ -118,11 +124,18 @@ class BizyAirBaseNode:
     def __init_subclass__(cls, **kwargs):
         if not cls.CATEGORY.startswith(f"{LOGO}{PREFIX}"):
             cls.CATEGORY = f"{LOGO}{PREFIX}/{cls.CATEGORY}"
+
+        if hasattr(cls, 'RETURN_TYPES'):
+            setattr(cls, 'RETURN_TYPES', convert_to_custom_type(cls.RETURN_TYPES))
+            
         register_node(cls, PREFIX)
         cls.setup_input_types()
 
     @classmethod
     def setup_input_types(cls):
+        if not hasattr(cls, cls.FUNCTION):
+            cls.FUNCTION = BizyAirBaseNode.FUNCTION
+
         # https://docs.comfy.org/essentials/custom_node_more_on_inputs#hidden-inputs
         new_input_types_func, original_has_unique_id = ensure_hidden_unique_id(
             cls.INPUT_TYPES
@@ -176,3 +189,88 @@ class BizyAirBaseNode:
         out = node_ios[0].send_request()
         assert len(out) == len(self.RETURN_TYPES)
         return out
+
+
+class NodeDefinitionLoader:
+    """Responsible for validating and loading node configurations"""
+    
+    @staticmethod
+    def validate_node_configuration(config: Dict[str, Any]) -> None:
+        """Ensure required fields exist in node configuration"""
+        if "output" not in config:
+            raise ValueError("Node configuration missing required 'output' field")
+        if not isinstance(config["output"], list):
+            raise TypeError("Node outputs must be defined as a list")
+
+    @classmethod
+    def create_input_specification(cls, config: Dict[str, Any]) -> classmethod:
+        """Factory method to create standardized INPUT_TYPES classmethod"""
+        def input_spec(_: type) -> Dict[str, Any]:
+            """Normalize input type specifications with backward compatibility"""
+            # Handle both 'input' and legacy 'inputs' keys
+            input_config = config.get("input") or config.get("inputs", {})
+            return input_config if isinstance(input_config, dict) else {}
+        
+        return classmethod(input_spec)
+
+    @classmethod
+    def assemble_class_properties(cls, class_name: str, config: Dict[str, Any]) -> Dict[str, Any]:
+        """Construct complete class attribute dictionary with safe defaults"""
+        return {
+            "__name__": class_name,
+            "__qualname__": class_name,
+            "_config": config,
+            "NODE_DISPLAY_NAME": config.get("display_name", class_name),
+            "RETURN_TYPES": tuple(config["output"]),
+            "DESCRIPTION": config.get("description", ""),
+            "OUTPUT_NODE": config.get("output_node", False),
+            "CATEGORY": config.get("category", "Uncategorized"),
+            "INPUT_TYPES": cls.create_input_specification(config),
+        }
+
+def load_node_definitions(json_path: Path) -> None:
+    """Main entry point for processing JSON node configuration files"""
+    try:
+        with open(json_path, 'r') as config_file:
+            node_configurations = json.load(config_file)
+    except (json.JSONDecodeError, UnicodeDecodeError) as decode_error:
+        print(f"Configuration load failed for {json_path}: {str(decode_error)}")
+        return
+
+    for node_class_name, node_config in node_configurations.items():
+        try:
+            NodeDefinitionLoader.validate_node_configuration(node_config)
+            class_properties = NodeDefinitionLoader.assemble_class_properties(
+                node_class_name, 
+                node_config
+            )
+            
+            # Create dynamic node class
+            NodeImplementation = type(
+                node_class_name,
+                (BizyAirBaseNode,),
+                class_properties
+            )
+            
+            # Instantiate to trigger registration
+            _ = NodeImplementation()
+            
+        except (ValueError, TypeError) as validation_error:
+            print(f"Skipping invalid node {node_class_name}: {str(validation_error)}")
+
+def initialize_custom_nodes() -> None:
+    """Orchestrates custom node initialization process"""
+    node_directory = Path(__file__).parents[1] / 'custom_nodes'
+    
+    if not node_directory.is_dir():
+        return
+    
+    for config_file in node_directory.glob('*.json'):
+        try:
+            load_node_definitions(config_file)
+        except IOError as file_error:
+            print(f"File processing error {config_file}: {str(file_error)}")
+
+# Initialize nodes on module import
+if __name__ != "__main__":
+    initialize_custom_nodes()

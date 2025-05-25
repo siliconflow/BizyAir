@@ -27,7 +27,7 @@ model_types:
 task_api:
   # Base URL for task-related API calls
   task_result_endpoint: /bizy_task
-
+    
 
 model_rules:
   - mode_type: unet
@@ -48,7 +48,7 @@ model_rules:
     route: /supernode/flux-bizyair-sdxl-comfy-ksampler
     nodes:
       - class_type: UNETLoader
-        inputs:
+        inputs: 
           unet_name:
             - ^flux/flux1-schnell.sft$
 

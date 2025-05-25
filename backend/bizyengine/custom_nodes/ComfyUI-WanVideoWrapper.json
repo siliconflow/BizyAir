@@ -1,0 +1,3891 @@
+{
+  "WanVideoSampler": {
+    "input": {
+      "required": {
+        "model": [
+          "WANVIDEOMODEL"
+        ],
+        "text_embeds": [
+          "WANVIDEOTEXTEMBEDS"
+        ],
+        "image_embeds": [
+          "WANVIDIMAGE_EMBEDS"
+        ],
+        "steps": [
+          "INT",
+          {
+            "default": 30,
+            "min": 1
+          }
+        ],
+        "cfg": [
+          "FLOAT",
+          {
+            "default": 6,
+            "min": 0,
+            "max": 30,
+            "step": 0.01
+          }
+        ],
+        "shift": [
+          "FLOAT",
+          {
+            "default": 5,
+            "min": 0,
+            "max": 1000,
+            "step": 0.01
+          }
+        ],
+        "seed": [
+          "INT",
+          {
+            "default": 0,
+            "min": 0,
+            "max": 1.8446744073709552e+19
+          }
+        ],
+        "force_offload": [
+          "BOOLEAN",
+          {
+            "default": true,
+            "tooltip": "Moves the model to the offload device after sampling"
+          }
+        ],
+        "scheduler": [
+          [
+            "unipc",
+            "unipc/beta",
+            "dpm++",
+            "dpm++/beta",
+            "dpm++_sde",
+            "dpm++_sde/beta",
+            "euler",
+            "euler/beta",
+            "deis",
+            "lcm",
+            "lcm/beta",
+            "flowmatch_causvid"
+          ],
+          {
+            "default": "unipc"
+          }
+        ],
+        "riflex_freq_index": [
+          "INT",
+          {
+            "default": 0,
+            "min": 0,
+            "max": 1000,
+            "step": 1,
+            "tooltip": "Frequency index for RIFLEX, disabled when 0, default 6. Allows for new frames to be generated after without looping"
+          }
+        ]
+      },
+      "optional": {
+        "samples": [
+          "LATENT",
+          {
+            "tooltip": "init Latents to use for video2video process"
+          }
+        ],
+        "denoise_strength": [
+          "FLOAT",
+          {
+            "default": 1,
+            "min": 0,
+            "max": 1,
+            "step": 0.01
+          }
+        ],
+        "feta_args": [
+          "FETAARGS"
+        ],
+        "context_options": [
+          "WANVIDCONTEXT"
+        ],
+        "teacache_args": [
+          "TEACACHEARGS"
+        ],
+        "flowedit_args": [
+          "FLOWEDITARGS"
+        ],
+        "batched_cfg": [
+          "BOOLEAN",
+          {
+            "default": false,
+            "tooltip": "Batc cond and uncond for faster sampling, possibly faster on some hardware, uses more memory"
+          }
+        ],
+        "slg_args": [
+          "SLGARGS"
+        ],
+        "rope_function": [
+          [
+            "default",
+            "comfy"
+          ],
+          {
+            "default": "comfy",
+            "tooltip": "Comfy's RoPE implementation doesn't use complex numbers and can thus be compiled, that should be a lot faster when using torch.compile"
+          }
+        ],
+        "loop_args": [
+          "LOOPARGS"
+        ],
+        "experimental_args": [
+          "EXPERIMENTALARGS"
+        ],
+        "sigmas": [
+          "SIGMAS"
+        ],
+        "unianimate_poses": [
+          "UNIANIMATE_POSE"
+        ],
+        "fantasytalking_embeds": [
+          "FANTASYTALKING_EMBEDS"
+        ]
+      }
+    },
+    "input_order": {
+      "required": [
+        "model",
+        "text_embeds",
+        "image_embeds",
+        "steps",
+        "cfg",
+        "shift",
+        "seed",
+        "force_offload",
+        "scheduler",
+        "riflex_freq_index"
+      ],
+      "optional": [
+        "samples",
+        "denoise_strength",
+        "feta_args",
+        "context_options",
+        "teacache_args",
+        "flowedit_args",
+        "batched_cfg",
+        "slg_args",
+        "rope_function",
+        "loop_args",
+        "experimental_args",
+        "sigmas",
+        "unianimate_poses",
+        "fantasytalking_embeds"
+      ]
+    },
+    "output": [
+      "LATENT"
+    ],
+    "output_is_list": [
+      false
+    ],
+    "output_name": [
+      "samples"
+    ],
+    "name": "WanVideoSampler",
+    "display_name": "WanVideo Sampler",
+    "description": "",
+    "python_module": "custom_nodes.ComfyUI-WanVideoWrapper",
+    "category": "WanVideoWrapper",
+    "output_node": false
+  },
+  "WanVideoDecode": {
+    "input": {
+      "required": {
+        "vae": [
+          "WANVAE"
+        ],
+        "samples": [
+          "LATENT"
+        ],
+        "enable_vae_tiling": [
+          "BOOLEAN",
+          {
+            "default": false,
+            "tooltip": "Drastically reduces memory use but will introduce seams at tile stride boundaries. The location and number of seams is dictated by the tile stride size. The visibility of seams can be controlled by increasing the tile size. Seams become less obvious at 1.5x stride and are barely noticeable at 2x stride size. Which is to say if you use a stride width of 160, the seams are barely noticeable with a tile width of 320."
+          }
+        ],
+        "tile_x": [
+          "INT",
+          {
+            "default": 272,
+            "min": 40,
+            "max": 2048,
+            "step": 8,
+            "tooltip": "Tile width in pixels. Smaller values use less VRAM but will make seams more obvious."
+          }
+        ],
+        "tile_y": [
+          "INT",
+          {
+            "default": 272,
+            "min": 40,
+            "max": 2048,
+            "step": 8,
+            "tooltip": "Tile height in pixels. Smaller values use less VRAM but will make seams more obvious."
+          }
+        ],
+        "tile_stride_x": [
+          "INT",
+          {
+            "default": 144,
+            "min": 32,
+            "max": 2040,
+            "step": 8,
+            "tooltip": "Tile stride width in pixels. Smaller values use less VRAM but will introduce more seams."
+          }
+        ],
+        "tile_stride_y": [
+          "INT",
+          {
+            "default": 128,
+            "min": 32,
+            "max": 2040,
+            "step": 8,
+            "tooltip": "Tile stride height in pixels. Smaller values use less VRAM but will introduce more seams."
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": [
+        "vae",
+        "samples",
+        "enable_vae_tiling",
+        "tile_x",
+        "tile_y",
+        "tile_stride_x",
+        "tile_stride_y"
+      ]
+    },
+    "output": [
+      "IMAGE"
+    ],
+    "output_is_list": [
+      false
+    ],
+    "output_name": [
+      "images"
+    ],
+    "name": "WanVideoDecode",
+    "display_name": "WanVideo Decode",
+    "description": "",
+    "python_module": "custom_nodes.ComfyUI-WanVideoWrapper",
+    "category": "WanVideoWrapper",
+    "output_node": false
+  },
+  "WanVideoTextEncode": {
+    "input": {
+      "required": {
+        "t5": [
+          "WANTEXTENCODER"
+        ],
+        "positive_prompt": [
+          "STRING",
+          {
+            "default": "",
+            "multiline": true
+          }
+        ],
+        "negative_prompt": [
+          "STRING",
+          {
+            "default": "",
+            "multiline": true
+          }
+        ]
+      },
+      "optional": {
+        "force_offload": [
+          "BOOLEAN",
+          {
+            "default": true
+          }
+        ],
+        "model_to_offload": [
+          "WANVIDEOMODEL",
+          {
+            "tooltip": "Model to move to offload_device before encoding"
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": [
+        "t5",
+        "positive_prompt",
+        "negative_prompt"
+      ],
+      "optional": [
+        "force_offload",
+        "model_to_offload"
+      ]
+    },
+    "output": [
+      "WANVIDEOTEXTEMBEDS"
+    ],
+    "output_is_list": [
+      false
+    ],
+    "output_name": [
+      "text_embeds"
+    ],
+    "name": "WanVideoTextEncode",
+    "display_name": "WanVideo TextEncode",
+    "description": "Encodes text prompts into text embeddings. For rudimentary prompt travel you can input multiple prompts separated by '|', they will be equally spread over the video length",
+    "python_module": "custom_nodes.ComfyUI-WanVideoWrapper",
+    "category": "WanVideoWrapper",
+    "output_node": false
+  },
+  "WanVideoModelLoader": {
+    "input": {
+      "required": {
+        "model": [
+          [
+            "Wan2_1-I2V-14B-480P_fp8_e4m3fn.safetensors"
+          ],
+          {
+            "tooltip": "These models are loaded from the 'ComfyUI/models/diffusion_models' -folder"
+          }
+        ],
+        "base_precision": [
+          [
+            "fp32",
+            "bf16",
+            "fp16",
+            "fp16_fast"
+          ],
+          {
+            "default": "bf16"
+          }
+        ],
+        "quantization": [
+          [
+            "disabled",
+            "fp8_e4m3fn",
+            "fp8_e4m3fn_fast",
+            "fp8_e5m2",
+            "fp8_e4m3fn_fast_no_ffn",
+            "torchao_fp8dq",
+            "torchao_fp8dqrow",
+            "torchao_int8dq",
+            "torchao_fp6",
+            "torchao_int4",
+            "torchao_int8"
+          ],
+          {
+            "default": "disabled",
+            "tooltip": "optional quantization method"
+          }
+        ],
+        "load_device": [
+          [
+            "main_device",
+            "offload_device"
+          ],
+          {
+            "default": "main_device",
+            "tooltip": "Initial device to load the model to, NOT recommended with the larger models unless you have 48GB+ VRAM"
+          }
+        ]
+      },
+      "optional": {
+        "attention_mode": [
+          [
+            "sdpa",
+            "flash_attn_2",
+            "flash_attn_3",
+            "sageattn",
+            "flex_attention"
+          ],
+          {
+            "default": "sdpa"
+          }
+        ],
+        "compile_args": [
+          "WANCOMPILEARGS"
+        ],
+        "block_swap_args": [
+          "BLOCKSWAPARGS"
+        ],
+        "lora": [
+          "WANVIDLORA",
+          {
+            "default": null
+          }
+        ],
+        "vram_management_args": [
+          "VRAM_MANAGEMENTARGS",
+          {
+            "default": null,
+            "tooltip": "Alternative offloading method from DiffSynth-Studio, more aggressive in reducing memory use than block swapping, but can be slower"
+          }
+        ],
+        "vace_model": [
+          "VACEPATH",
+          {
+            "default": null,
+            "tooltip": "VACE model to use when not using model that has it included"
+          }
+        ],
+        "fantasytalking_model": [
+          "FANTASYTALKINGMODEL",
+          {
+            "default": null,
+            "tooltip": "FantasyTalking model https://github.com/Fantasy-AMAP"
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": [
+        "model",
+        "base_precision",
+        "quantization",
+        "load_device"
+      ],
+      "optional": [
+        "attention_mode",
+        "compile_args",
+        "block_swap_args",
+        "lora",
+        "vram_management_args",
+        "vace_model",
+        "fantasytalking_model"
+      ]
+    },
+    "output": [
+      "WANVIDEOMODEL"
+    ],
+    "output_is_list": [
+      false
+    ],
+    "output_name": [
+      "model"
+    ],
+    "name": "WanVideoModelLoader",
+    "display_name": "WanVideo Model Loader",
+    "description": "",
+    "python_module": "custom_nodes.ComfyUI-WanVideoWrapper",
+    "category": "WanVideoWrapper",
+    "output_node": false
+  },
+  "WanVideoVAELoader": {
+    "input": {
+      "required": {
+        "model_name": [
+          [
+            "Wan2_1_VAE_fp32.safetensors"
+          ],
+          {
+            "tooltip": "These models are loaded from 'ComfyUI/models/vae'"
+          }
+        ]
+      },
+      "optional": {
+        "precision": [
+          [
+            "fp16",
+            "fp32",
+            "bf16"
+          ],
+          {
+            "default": "bf16"
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": [
+        "model_name"
+      ],
+      "optional": [
+        "precision"
+      ]
+    },
+    "output": [
+      "WANVAE"
+    ],
+    "output_is_list": [
+      false
+    ],
+    "output_name": [
+      "vae"
+    ],
+    "name": "WanVideoVAELoader",
+    "display_name": "WanVideo VAE Loader",
+    "description": "Loads Wan VAE model from 'ComfyUI/models/vae'",
+    "python_module": "custom_nodes.ComfyUI-WanVideoWrapper",
+    "category": "WanVideoWrapper",
+    "output_node": false
+  },
+  "LoadWanVideoT5TextEncoder": {
+    "input": {
+      "required": {
+        "model_name": [
+          [
+            "umt5-xxl-enc-fp8_e4m3fn.safetensors"
+          ],
+          {
+            "tooltip": "These models are loaded from 'ComfyUI/models/text_encoders'"
+          }
+        ],
+        "precision": [
+          [
+            "fp32",
+            "bf16"
+          ],
+          {
+            "default": "bf16"
+          }
+        ]
+      },
+      "optional": {
+        "load_device": [
+          [
+            "main_device",
+            "offload_device"
+          ],
+          {
+            "default": "offload_device"
+          }
+        ],
+        "quantization": [
+          [
+            "disabled",
+            "fp8_e4m3fn"
+          ],
+          {
+            "default": "disabled",
+            "tooltip": "optional quantization method"
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": [
+        "model_name",
+        "precision"
+      ],
+      "optional": [
+        "load_device",
+        "quantization"
+      ]
+    },
+    "output": [
+      "WANTEXTENCODER"
+    ],
+    "output_is_list": [
+      false
+    ],
+    "output_name": [
+      "wan_t5_model"
+    ],
+    "name": "LoadWanVideoT5TextEncoder",
+    "display_name": "Load WanVideo T5 TextEncoder",
+    "description": "Loads Wan text_encoder model from 'ComfyUI/models/LLM'",
+    "python_module": "custom_nodes.ComfyUI-WanVideoWrapper",
+    "category": "WanVideoWrapper",
+    "output_node": false
+  },
+  "WanVideoImageClipEncode": {
+    "input": {
+      "required": {
+        "clip_vision": [
+          "CLIP_VISION"
+        ],
+        "image": [
+          "IMAGE",
+          {
+            "tooltip": "Image to encode"
+          }
+        ],
+        "vae": [
+          "WANVAE"
+        ],
+        "generation_width": [
+          "INT",
+          {
+            "default": 832,
+            "min": 64,
+            "max": 2048,
+            "step": 8,
+            "tooltip": "Width of the image to encode"
+          }
+        ],
+        "generation_height": [
+          "INT",
+          {
+            "default": 480,
+            "min": 64,
+            "max": 29048,
+            "step": 8,
+            "tooltip": "Height of the image to encode"
+          }
+        ],
+        "num_frames": [
+          "INT",
+          {
+            "default": 81,
+            "min": 1,
+            "max": 10000,
+            "step": 4,
+            "tooltip": "Number of frames to encode"
+          }
+        ]
+      },
+      "optional": {
+        "force_offload": [
+          "BOOLEAN",
+          {
+            "default": true
+          }
+        ],
+        "noise_aug_strength": [
+          "FLOAT",
+          {
+            "default": 0,
+            "min": 0,
+            "max": 10,
+            "step": 0.001,
+            "tooltip": "Strength of noise augmentation, helpful for I2V where some noise can add motion and give sharper results"
+          }
+        ],
+        "latent_strength": [
+          "FLOAT",
+          {
+            "default": 1,
+            "min": 0,
+            "max": 10,
+            "step": 0.001,
+            "tooltip": "Additional latent multiplier, helpful for I2V where lower values allow for more motion"
+          }
+        ],
+        "clip_embed_strength": [
+          "FLOAT",
+          {
+            "default": 1,
+            "min": 0,
+            "max": 10,
+            "step": 0.001,
+            "tooltip": "Additional clip embed multiplier"
+          }
+        ],
+        "adjust_resolution": [
+          "BOOLEAN",
+          {
+            "default": true,
+            "tooltip": "Performs the same resolution adjustment as in the original code"
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": [
+        "clip_vision",
+        "image",
+        "vae",
+        "generation_width",
+        "generation_height",
+        "num_frames"
+      ],
+      "optional": [
+        "force_offload",
+        "noise_aug_strength",
+        "latent_strength",
+        "clip_embed_strength",
+        "adjust_resolution"
+      ]
+    },
+    "output": [
+      "WANVIDIMAGE_EMBEDS"
+    ],
+    "output_is_list": [
+      false
+    ],
+    "output_name": [
+      "image_embeds"
+    ],
+    "name": "WanVideoImageClipEncode",
+    "display_name": "WanVideo ImageClip Encode (Deprecated)",
+    "description": "",
+    "python_module": "custom_nodes.ComfyUI-WanVideoWrapper",
+    "category": "WanVideoWrapper",
+    "output_node": false,
+    "deprecated": true
+  },
+  "WanVideoClipVisionEncode": {
+    "input": {
+      "required": {
+        "clip_vision": [
+          "CLIP_VISION"
+        ],
+        "image_1": [
+          "IMAGE",
+          {
+            "tooltip": "Image to encode"
+          }
+        ],
+        "strength_1": [
+          "FLOAT",
+          {
+            "default": 1,
+            "min": 0,
+            "max": 10,
+            "step": 0.001,
+            "tooltip": "Additional clip embed multiplier"
+          }
+        ],
+        "strength_2": [
+          "FLOAT",
+          {
+            "default": 1,
+            "min": 0,
+            "max": 10,
+            "step": 0.001,
+            "tooltip": "Additional clip embed multiplier"
+          }
+        ],
+        "crop": [
+          [
+            "center",
+            "disabled"
+          ],
+          {
+            "default": "center",
+            "tooltip": "Crop image to 224x224 before encoding"
+          }
+        ],
+        "combine_embeds": [
+          [
+            "average",
+            "sum",
+            "concat",
+            "batch"
+          ],
+          {
+            "default": "average",
+            "tooltip": "Method to combine multiple clip embeds"
+          }
+        ],
+        "force_offload": [
+          "BOOLEAN",
+          {
+            "default": true
+          }
+        ]
+      },
+      "optional": {
+        "image_2": [
+          "IMAGE"
+        ],
+        "negative_image": [
+          "IMAGE",
+          {
+            "tooltip": "image to use for uncond"
+          }
+        ],
+        "tiles": [
+          "INT",
+          {
+            "default": 0,
+            "min": 0,
+            "max": 16,
+            "step": 2,
+            "tooltip": "Use matteo's tiled image encoding for improved accuracy"
+          }
+        ],
+        "ratio": [
+          "FLOAT",
+          {
+            "default": 0.5,
+            "min": 0,
+            "max": 1,
+            "step": 0.01,
+            "tooltip": "Ratio of the tile average"
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": [
+        "clip_vision",
+        "image_1",
+        "strength_1",
+        "strength_2",
+        "crop",
+        "combine_embeds",
+        "force_offload"
+      ],
+      "optional": [
+        "image_2",
+        "negative_image",
+        "tiles",
+        "ratio"
+      ]
+    },
+    "output": [
+      "WANVIDIMAGE_CLIPEMBEDS"
+    ],
+    "output_is_list": [
+      false
+    ],
+    "output_name": [
+      "image_embeds"
+    ],
+    "name": "WanVideoClipVisionEncode",
+    "display_name": "WanVideo ClipVision Encode",
+    "description": "",
+    "python_module": "custom_nodes.ComfyUI-WanVideoWrapper",
+    "category": "WanVideoWrapper",
+    "output_node": false
+  },
+  "WanVideoImageToVideoEncode": {
+    "input": {
+      "required": {
+        "vae": [
+          "WANVAE"
+        ],
+        "width": [
+          "INT",
+          {
+            "default": 832,
+            "min": 64,
+            "max": 2048,
+            "step": 8,
+            "tooltip": "Width of the image to encode"
+          }
+        ],
+        "height": [
+          "INT",
+          {
+            "default": 480,
+            "min": 64,
+            "max": 29048,
+            "step": 8,
+            "tooltip": "Height of the image to encode"
+          }
+        ],
+        "num_frames": [
+          "INT",
+          {
+            "default": 81,
+            "min": 1,
+            "max": 10000,
+            "step": 4,
+            "tooltip": "Number of frames to encode"
+          }
+        ],
+        "noise_aug_strength": [
+          "FLOAT",
+          {
+            "default": 0,
+            "min": 0,
+            "max": 10,
+            "step": 0.001,
+            "tooltip": "Strength of noise augmentation, helpful for I2V where some noise can add motion and give sharper results"
+          }
+        ],
+        "start_latent_strength": [
+          "FLOAT",
+          {
+            "default": 1,
+            "min": 0,
+            "max": 10,
+            "step": 0.001,
+            "tooltip": "Additional latent multiplier, helpful for I2V where lower values allow for more motion"
+          }
+        ],
+        "end_latent_strength": [
+          "FLOAT",
+          {
+            "default": 1,
+            "min": 0,
+            "max": 10,
+            "step": 0.001,
+            "tooltip": "Additional latent multiplier, helpful for I2V where lower values allow for more motion"
+          }
+        ],
+        "force_offload": [
+          "BOOLEAN",
+          {
+            "default": true
+          }
+        ]
+      },
+      "optional": {
+        "clip_embeds": [
+          "WANVIDIMAGE_CLIPEMBEDS",
+          {
+            "tooltip": "Clip vision encoded image"
+          }
+        ],
+        "start_image": [
+          "IMAGE",
+          {
+            "tooltip": "Image to encode"
+          }
+        ],
+        "end_image": [
+          "IMAGE",
+          {
+            "tooltip": "end frame"
+          }
+        ],
+        "control_embeds": [
+          "WANVIDIMAGE_EMBEDS",
+          {
+            "tooltip": "Control signal for the Fun -model"
+          }
+        ],
+        "fun_or_fl2v_model": [
+          "BOOLEAN",
+          {
+            "default": true,
+            "tooltip": "Enable when using official FLF2V or Fun model"
+          }
+        ],
+        "temporal_mask": [
+          "MASK",
+          {
+            "tooltip": "mask"
+          }
+        ],
+        "extra_latents": [
+          "LATENT",
+          {
+            "tooltip": "Extra latents to add to the input front, used for Skyreels A2 reference images"
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": [
+        "vae",
+        "width",
+        "height",
+        "num_frames",
+        "noise_aug_strength",
+        "start_latent_strength",
+        "end_latent_strength",
+        "force_offload"
+      ],
+      "optional": [
+        "clip_embeds",
+        "start_image",
+        "end_image",
+        "control_embeds",
+        "fun_or_fl2v_model",
+        "temporal_mask",
+        "extra_latents"
+      ]
+    },
+    "output": [
+      "WANVIDIMAGE_EMBEDS"
+    ],
+    "output_is_list": [
+      false
+    ],
+    "output_name": [
+      "image_embeds"
+    ],
+    "name": "WanVideoImageToVideoEncode",
+    "display_name": "WanVideo ImageToVideo Encode",
+    "description": "",
+    "python_module": "custom_nodes.ComfyUI-WanVideoWrapper",
+    "category": "WanVideoWrapper",
+    "output_node": false
+  },
+  "LoadWanVideoClipTextEncoder": {
+    "input": {
+      "required": {
+        "model_name": [
+          [
+            "open-clip-xlm-roberta-large-vit-huge-14_visual_fp16.safetensors"
+          ],
+          {
+            "tooltip": "These models are loaded from 'ComfyUI/models/clip_vision'"
+          }
+        ],
+        "precision": [
+          [
+            "fp16",
+            "fp32",
+            "bf16"
+          ],
+          {
+            "default": "fp16"
+          }
+        ]
+      },
+      "optional": {
+        "load_device": [
+          [
+            "main_device",
+            "offload_device"
+          ],
+          {
+            "default": "offload_device"
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": [
+        "model_name",
+        "precision"
+      ],
+      "optional": [
+        "load_device"
+      ]
+    },
+    "output": [
+      "CLIP_VISION"
+    ],
+    "output_is_list": [
+      false
+    ],
+    "output_name": [
+      "wan_clip_vision"
+    ],
+    "name": "LoadWanVideoClipTextEncoder",
+    "display_name": "Load WanVideo Clip Encoder",
+    "description": "Loads Wan clip_vision model from 'ComfyUI/models/clip_vision'",
+    "python_module": "custom_nodes.ComfyUI-WanVideoWrapper",
+    "category": "WanVideoWrapper",
+    "output_node": false
+  },
+  "WanVideoEncode": {
+    "input": {
+      "required": {
+        "vae": [
+          "WANVAE"
+        ],
+        "image": [
+          "IMAGE"
+        ],
+        "enable_vae_tiling": [
+          "BOOLEAN",
+          {
+            "default": false,
+            "tooltip": "Drastically reduces memory use but may introduce seams"
+          }
+        ],
+        "tile_x": [
+          "INT",
+          {
+            "default": 272,
+            "min": 64,
+            "max": 2048,
+            "step": 1,
+            "tooltip": "Tile size in pixels, smaller values use less VRAM, may introduce more seams"
+          }
+        ],
+        "tile_y": [
+          "INT",
+          {
+            "default": 272,
+            "min": 64,
+            "max": 2048,
+            "step": 1,
+            "tooltip": "Tile size in pixels, smaller values use less VRAM, may introduce more seams"
+          }
+        ],
+        "tile_stride_x": [
+          "INT",
+          {
+            "default": 144,
+            "min": 32,
+            "max": 2048,
+            "step": 32,
+            "tooltip": "Tile stride in pixels, smaller values use less VRAM, may introduce more seams"
+          }
+        ],
+        "tile_stride_y": [
+          "INT",
+          {
+            "default": 128,
+            "min": 32,
+            "max": 2048,
+            "step": 32,
+            "tooltip": "Tile stride in pixels, smaller values use less VRAM, may introduce more seams"
+          }
+        ]
+      },
+      "optional": {
+        "noise_aug_strength": [
+          "FLOAT",
+          {
+            "default": 0,
+            "min": 0,
+            "max": 10,
+            "step": 0.001,
+            "tooltip": "Strength of noise augmentation, helpful for leapfusion I2V where some noise can add motion and give sharper results"
+          }
+        ],
+        "latent_strength": [
+          "FLOAT",
+          {
+            "default": 1,
+            "min": 0,
+            "max": 10,
+            "step": 0.001,
+            "tooltip": "Additional latent multiplier, helpful for leapfusion I2V where lower values allow for more motion"
+          }
+        ],
+        "mask": [
+          "MASK"
+        ]
+      }
+    },
+    "input_order": {
+      "required": [
+        "vae",
+        "image",
+        "enable_vae_tiling",
+        "tile_x",
+        "tile_y",
+        "tile_stride_x",
+        "tile_stride_y"
+      ],
+      "optional": [
+        "noise_aug_strength",
+        "latent_strength",
+        "mask"
+      ]
+    },
+    "output": [
+      "LATENT"
+    ],
+    "output_is_list": [
+      false
+    ],
+    "output_name": [
+      "samples"
+    ],
+    "name": "WanVideoEncode",
+    "display_name": "WanVideo Encode",
+    "description": "",
+    "python_module": "custom_nodes.ComfyUI-WanVideoWrapper",
+    "category": "WanVideoWrapper",
+    "output_node": false
+  },
+  "WanVideoBlockSwap": {
+    "input": {
+      "required": {
+        "blocks_to_swap": [
+          "INT",
+          {
+            "default": 20,
+            "min": 0,
+            "max": 40,
+            "step": 1,
+            "tooltip": "Number of transformer blocks to swap, the 14B model has 40, while the 1.3B model has 30 blocks"
+          }
+        ],
+        "offload_img_emb": [
+          "BOOLEAN",
+          {
+            "default": false,
+            "tooltip": "Offload img_emb to offload_device"
+          }
+        ],
+        "offload_txt_emb": [
+          "BOOLEAN",
+          {
+            "default": false,
+            "tooltip": "Offload time_emb to offload_device"
+          }
+        ]
+      },
+      "optional": {
+        "use_non_blocking": [
+          "BOOLEAN",
+          {
+            "default": true,
+            "tooltip": "Use non-blocking memory transfer for offloading, reserves more RAM but is faster"
+          }
+        ],
+        "vace_blocks_to_swap": [
+          "INT",
+          {
+            "default": 0,
+            "min": 0,
+            "max": 15,
+            "step": 1,
+            "tooltip": "Number of VACE blocks to swap, the VACE model has 15 blocks"
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": [
+        "blocks_to_swap",
+        "offload_img_emb",
+        "offload_txt_emb"
+      ],
+      "optional": [
+        "use_non_blocking",
+        "vace_blocks_to_swap"
+      ]
+    },
+    "output": [
+      "BLOCKSWAPARGS"
+    ],
+    "output_is_list": [
+      false
+    ],
+    "output_name": [
+      "block_swap_args"
+    ],
+    "name": "WanVideoBlockSwap",
+    "display_name": "WanVideo BlockSwap",
+    "description": "Settings for block swapping, reduces VRAM use by swapping blocks to CPU memory",
+    "python_module": "custom_nodes.ComfyUI-WanVideoWrapper",
+    "category": "WanVideoWrapper",
+    "output_node": false
+  },
+  "WanVideoTorchCompileSettings": {
+    "input": {
+      "required": {
+        "backend": [
+          [
+            "inductor",
+            "cudagraphs"
+          ],
+          {
+            "default": "inductor"
+          }
+        ],
+        "fullgraph": [
+          "BOOLEAN",
+          {
+            "default": false,
+            "tooltip": "Enable full graph mode"
+          }
+        ],
+        "mode": [
+          [
+            "default",
+            "max-autotune",
+            "max-autotune-no-cudagraphs",
+            "reduce-overhead"
+          ],
+          {
+            "default": "default"
+          }
+        ],
+        "dynamic": [
+          "BOOLEAN",
+          {
+            "default": false,
+            "tooltip": "Enable dynamic mode"
+          }
+        ],
+        "dynamo_cache_size_limit": [
+          "INT",
+          {
+            "default": 64,
+            "min": 0,
+            "max": 1024,
+            "step": 1,
+            "tooltip": "torch._dynamo.config.cache_size_limit"
+          }
+        ],
+        "compile_transformer_blocks_only": [
+          "BOOLEAN",
+          {
+            "default": true,
+            "tooltip": "Compile only the transformer blocks, usually enough and can make compilation faster and less error prone"
+          }
+        ]
+      },
+      "optional": {
+        "dynamo_recompile_limit": [
+          "INT",
+          {
+            "default": 128,
+            "min": 0,
+            "max": 1024,
+            "step": 1,
+            "tooltip": "torch._dynamo.config.recompile_limit"
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": [
+        "backend",
+        "fullgraph",
+        "mode",
+        "dynamic",
+        "dynamo_cache_size_limit",
+        "compile_transformer_blocks_only"
+      ],
+      "optional": [
+        "dynamo_recompile_limit"
+      ]
+    },
+    "output": [
+      "WANCOMPILEARGS"
+    ],
+    "output_is_list": [
+      false
+    ],
+    "output_name": [
+      "torch_compile_args"
+    ],
+    "name": "WanVideoTorchCompileSettings",
+    "display_name": "WanVideo Torch Compile Settings",
+    "description": "torch.compile settings, when connected to the model loader, torch.compile of the selected layers is attempted. Requires Triton and torch 2.5.0 is recommended",
+    "python_module": "custom_nodes.ComfyUI-WanVideoWrapper",
+    "category": "WanVideoWrapper",
+    "output_node": false
+  },
+  "WanVideoEmptyEmbeds": {
+    "input": {
+      "required": {
+        "width": [
+          "INT",
+          {
+            "default": 832,
+            "min": 64,
+            "max": 2048,
+            "step": 8,
+            "tooltip": "Width of the image to encode"
+          }
+        ],
+        "height": [
+          "INT",
+          {
+            "default": 480,
+            "min": 64,
+            "max": 29048,
+            "step": 8,
+            "tooltip": "Height of the image to encode"
+          }
+        ],
+        "num_frames": [
+          "INT",
+          {
+            "default": 81,
+            "min": 1,
+            "max": 10000,
+            "step": 4,
+            "tooltip": "Number of frames to encode"
+          }
+        ]
+      },
+      "optional": {
+        "control_embeds": [
+          "WANVIDIMAGE_EMBEDS",
+          {
+            "tooltip": "control signal for the Fun -model"
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": [
+        "width",
+        "height",
+        "num_frames"
+      ],
+      "optional": [
+        "control_embeds"
+      ]
+    },
+    "output": [
+      "WANVIDIMAGE_EMBEDS"
+    ],
+    "output_is_list": [
+      false
+    ],
+    "output_name": [
+      "image_embeds"
+    ],
+    "name": "WanVideoEmptyEmbeds",
+    "display_name": "WanVideo Empty Embeds",
+    "description": "",
+    "python_module": "custom_nodes.ComfyUI-WanVideoWrapper",
+    "category": "WanVideoWrapper",
+    "output_node": false
+  },
+  "WanVideoLoraSelect": {
+    "input": {
+      "required": {
+        "lora": [
+          "STRING",
+          {
+            "default": "lora",
+            "multiline": true, 
+            "tooltip": "LORA models are expected to be in ComfyUI/models/loras with .safetensors extension"
+          }
+        ],
+        "strength": [
+          "FLOAT",
+          {
+            "default": 1,
+            "min": -10,
+            "max": 10,
+            "step": 0.0001,
+            "tooltip": "LORA strength, set to 0.0 to unmerge the LORA"
+          }
+        ]
+      },
+      "optional": {
+        "prev_lora": [
+          "WANVIDLORA",
+          {
+            "default": null,
+            "tooltip": "For loading multiple LoRAs"
+          }
+        ],
+        "blocks": [
+          "SELECTEDBLOCKS"
+        ],
+        "low_mem_load": [
+          "BOOLEAN",
+          {
+            "default": false,
+            "tooltip": "Load the LORA model with less VRAM usage, slower loading"
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": [
+        "lora",
+        "strength"
+      ],
+      "optional": [
+        "prev_lora",
+        "blocks",
+        "low_mem_load"
+      ]
+    },
+    "output": [
+      "WANVIDLORA"
+    ],
+    "output_is_list": [
+      false
+    ],
+    "output_name": [
+      "lora"
+    ],
+    "name": "WanVideoLoraSelect",
+    "display_name": "WanVideo Lora Select",
+    "description": "Select a LoRA model from ComfyUI/models/loras",
+    "python_module": "custom_nodes.ComfyUI-WanVideoWrapper",
+    "category": "WanVideoWrapper",
+    "output_node": false
+  },
+  "WanVideoLoraBlockEdit": {
+    "input": {
+      "required": {
+        "blocks.0.": [
+          "BOOLEAN",
+          {
+            "default": true
+          }
+        ],
+        "blocks.1.": [
+          "BOOLEAN",
+          {
+            "default": true
+          }
+        ],
+        "blocks.2.": [
+          "BOOLEAN",
+          {
+            "default": true
+          }
+        ],
+        "blocks.3.": [
+          "BOOLEAN",
+          {
+            "default": true
+          }
+        ],
+        "blocks.4.": [
+          "BOOLEAN",
+          {
+            "default": true
+          }
+        ],
+        "blocks.5.": [
+          "BOOLEAN",
+          {
+            "default": true
+          }
+        ],
+        "blocks.6.": [
+          "BOOLEAN",
+          {
+            "default": true
+          }
+        ],
+        "blocks.7.": [
+          "BOOLEAN",
+          {
+            "default": true
+          }
+        ],
+        "blocks.8.": [
+          "BOOLEAN",
+          {
+            "default": true
+          }
+        ],
+        "blocks.9.": [
+          "BOOLEAN",
+          {
+            "default": true
+          }
+        ],
+        "blocks.10.": [
+          "BOOLEAN",
+          {
+            "default": true
+          }
+        ],
+        "blocks.11.": [
+          "BOOLEAN",
+          {
+            "default": true
+          }
+        ],
+        "blocks.12.": [
+          "BOOLEAN",
+          {
+            "default": true
+          }
+        ],
+        "blocks.13.": [
+          "BOOLEAN",
+          {
+            "default": true
+          }
+        ],
+        "blocks.14.": [
+          "BOOLEAN",
+          {
+            "default": true
+          }
+        ],
+        "blocks.15.": [
+          "BOOLEAN",
+          {
+            "default": true
+          }
+        ],
+        "blocks.16.": [
+          "BOOLEAN",
+          {
+            "default": true
+          }
+        ],
+        "blocks.17.": [
+          "BOOLEAN",
+          {
+            "default": true
+          }
+        ],
+        "blocks.18.": [
+          "BOOLEAN",
+          {
+            "default": true
+          }
+        ],
+        "blocks.19.": [
+          "BOOLEAN",
+          {
+            "default": true
+          }
+        ],
+        "blocks.20.": [
+          "BOOLEAN",
+          {
+            "default": true
+          }
+        ],
+        "blocks.21.": [
+          "BOOLEAN",
+          {
+            "default": true
+          }
+        ],
+        "blocks.22.": [
+          "BOOLEAN",
+          {
+            "default": true
+          }
+        ],
+        "blocks.23.": [
+          "BOOLEAN",
+          {
+            "default": true
+          }
+        ],
+        "blocks.24.": [
+          "BOOLEAN",
+          {
+            "default": true
+          }
+        ],
+        "blocks.25.": [
+          "BOOLEAN",
+          {
+            "default": true
+          }
+        ],
+        "blocks.26.": [
+          "BOOLEAN",
+          {
+            "default": true
+          }
+        ],
+        "blocks.27.": [
+          "BOOLEAN",
+          {
+            "default": true
+          }
+        ],
+        "blocks.28.": [
+          "BOOLEAN",
+          {
+            "default": true
+          }
+        ],
+        "blocks.29.": [
+          "BOOLEAN",
+          {
+            "default": true
+          }
+        ],
+        "blocks.30.": [
+          "BOOLEAN",
+          {
+            "default": true
+          }
+        ],
+        "blocks.31.": [
+          "BOOLEAN",
+          {
+            "default": true
+          }
+        ],
+        "blocks.32.": [
+          "BOOLEAN",
+          {
+            "default": true
+          }
+        ],
+        "blocks.33.": [
+          "BOOLEAN",
+          {
+            "default": true
+          }
+        ],
+        "blocks.34.": [
+          "BOOLEAN",
+          {
+            "default": true
+          }
+        ],
+        "blocks.35.": [
+          "BOOLEAN",
+          {
+            "default": true
+          }
+        ],
+        "blocks.36.": [
+          "BOOLEAN",
+          {
+            "default": true
+          }
+        ],
+        "blocks.37.": [
+          "BOOLEAN",
+          {
+            "default": true
+          }
+        ],
+        "blocks.38.": [
+          "BOOLEAN",
+          {
+            "default": true
+          }
+        ],
+        "blocks.39.": [
+          "BOOLEAN",
+          {
+            "default": true
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": [
+        "blocks.0.",
+        "blocks.1.",
+        "blocks.2.",
+        "blocks.3.",
+        "blocks.4.",
+        "blocks.5.",
+        "blocks.6.",
+        "blocks.7.",
+        "blocks.8.",
+        "blocks.9.",
+        "blocks.10.",
+        "blocks.11.",
+        "blocks.12.",
+        "blocks.13.",
+        "blocks.14.",
+        "blocks.15.",
+        "blocks.16.",
+        "blocks.17.",
+        "blocks.18.",
+        "blocks.19.",
+        "blocks.20.",
+        "blocks.21.",
+        "blocks.22.",
+        "blocks.23.",
+        "blocks.24.",
+        "blocks.25.",
+        "blocks.26.",
+        "blocks.27.",
+        "blocks.28.",
+        "blocks.29.",
+        "blocks.30.",
+        "blocks.31.",
+        "blocks.32.",
+        "blocks.33.",
+        "blocks.34.",
+        "blocks.35.",
+        "blocks.36.",
+        "blocks.37.",
+        "blocks.38.",
+        "blocks.39."
+      ]
+    },
+    "output": [
+      "SELECTEDBLOCKS"
+    ],
+    "output_is_list": [
+      false
+    ],
+    "output_name": [
+      "blocks"
+    ],
+    "name": "WanVideoLoraBlockEdit",
+    "display_name": "WanVideo Lora Block Edit",
+    "description": "",
+    "python_module": "custom_nodes.ComfyUI-WanVideoWrapper",
+    "category": "WanVideoWrapper",
+    "output_node": false,
+    "output_tooltips": [
+      "The modified lora model"
+    ]
+  },
+  "WanVideoEnhanceAVideo": {
+    "input": {
+      "required": {
+        "weight": [
+          "FLOAT",
+          {
+            "default": 2,
+            "min": 0,
+            "max": 100,
+            "step": 0.01,
+            "tooltip": "The feta Weight of the Enhance-A-Video"
+          }
+        ],
+        "start_percent": [
+          "FLOAT",
+          {
+            "default": 0,
+            "min": 0,
+            "max": 1,
+            "step": 0.01,
+            "tooltip": "Start percentage of the steps to apply Enhance-A-Video"
+          }
+        ],
+        "end_percent": [
+          "FLOAT",
+          {
+            "default": 1,
+            "min": 0,
+            "max": 1,
+            "step": 0.01,
+            "tooltip": "End percentage of the steps to apply Enhance-A-Video"
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": [
+        "weight",
+        "start_percent",
+        "end_percent"
+      ]
+    },
+    "output": [
+      "FETAARGS"
+    ],
+    "output_is_list": [
+      false
+    ],
+    "output_name": [
+      "feta_args"
+    ],
+    "name": "WanVideoEnhanceAVideo",
+    "display_name": "WanVideo Enhance-A-Video",
+    "description": "https://github.com/NUS-HPC-AI-Lab/Enhance-A-Video",
+    "python_module": "custom_nodes.ComfyUI-WanVideoWrapper",
+    "category": "WanVideoWrapper",
+    "output_node": false
+  },
+  "WanVideoContextOptions": {
+    "input": {
+      "required": {
+        "context_schedule": [
+          [
+            "uniform_standard",
+            "uniform_looped",
+            "static_standard"
+          ]
+        ],
+        "context_frames": [
+          "INT",
+          {
+            "default": 81,
+            "min": 2,
+            "max": 1000,
+            "step": 1,
+            "tooltip": "Number of pixel frames in the context, NOTE: the latent space has 4 frames in 1"
+          }
+        ],
+        "context_stride": [
+          "INT",
+          {
+            "default": 4,
+            "min": 4,
+            "max": 100,
+            "step": 1,
+            "tooltip": "Context stride as pixel frames, NOTE: the latent space has 4 frames in 1"
+          }
+        ],
+        "context_overlap": [
+          "INT",
+          {
+            "default": 16,
+            "min": 4,
+            "max": 100,
+            "step": 1,
+            "tooltip": "Context overlap as pixel frames, NOTE: the latent space has 4 frames in 1"
+          }
+        ],
+        "freenoise": [
+          "BOOLEAN",
+          {
+            "default": true,
+            "tooltip": "Shuffle the noise"
+          }
+        ],
+        "verbose": [
+          "BOOLEAN",
+          {
+            "default": false,
+            "tooltip": "Print debug output"
+          }
+        ]
+      },
+      "optional": {
+        "vae": [
+          "WANVAE"
+        ]
+      }
+    },
+    "input_order": {
+      "required": [
+        "context_schedule",
+        "context_frames",
+        "context_stride",
+        "context_overlap",
+        "freenoise",
+        "verbose"
+      ],
+      "optional": [
+        "vae"
+      ]
+    },
+    "output": [
+      "WANVIDCONTEXT"
+    ],
+    "output_is_list": [
+      false
+    ],
+    "output_name": [
+      "context_options"
+    ],
+    "name": "WanVideoContextOptions",
+    "display_name": "WanVideo Context Options",
+    "description": "Context options for WanVideo, allows splitting the video into context windows and attemps blending them for longer generations than the model and memory otherwise would allow.",
+    "python_module": "custom_nodes.ComfyUI-WanVideoWrapper",
+    "category": "WanVideoWrapper",
+    "output_node": false
+  },
+  "WanVideoTeaCache": {
+    "input": {
+      "required": {
+        "rel_l1_thresh": [
+          "FLOAT",
+          {
+            "default": 0.3,
+            "min": 0,
+            "max": 1,
+            "step": 0.001,
+            "tooltip": "Higher values will make TeaCache more aggressive, faster, but may cause artifacts. Good value range for 1.3B: 0.05 - 0.08, for other models 0.15-0.30"
+          }
+        ],
+        "start_step": [
+          "INT",
+          {
+            "default": 1,
+            "min": 0,
+            "max": 9999,
+            "step": 1,
+            "tooltip": "Start percentage of the steps to apply TeaCache"
+          }
+        ],
+        "end_step": [
+          "INT",
+          {
+            "default": -1,
+            "min": -1,
+            "max": 9999,
+            "step": 1,
+            "tooltip": "End steps to apply TeaCache"
+          }
+        ],
+        "cache_device": [
+          [
+            "main_device",
+            "offload_device"
+          ],
+          {
+            "default": "offload_device",
+            "tooltip": "Device to cache to"
+          }
+        ],
+        "use_coefficients": [
+          "BOOLEAN",
+          {
+            "default": true,
+            "tooltip": "Use calculated coefficients for more accuracy. When enabled therel_l1_thresh should be about 10 times higher than without"
+          }
+        ]
+      },
+      "optional": {
+        "mode": [
+          [
+            "e",
+            "e0"
+          ],
+          {
+            "default": "e",
+            "tooltip": "Choice between using e (time embeds, default) or e0 (modulated time embeds)"
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": [
+        "rel_l1_thresh",
+        "start_step",
+        "end_step",
+        "cache_device",
+        "use_coefficients"
+      ],
+      "optional": [
+        "mode"
+      ]
+    },
+    "output": [
+      "TEACACHEARGS"
+    ],
+    "output_is_list": [
+      false
+    ],
+    "output_name": [
+      "teacache_args"
+    ],
+    "name": "WanVideoTeaCache",
+    "display_name": "WanVideo TeaCache",
+    "description": "\nPatch WanVideo model to use TeaCache. Speeds up inference by caching the output and  \napplying it instead of doing the step.  Best results are achieved by choosing the  \nappropriate coefficients for the model. Early steps should never be skipped, with too  \naggressive values this can happen and the motion suffers. Starting later can help with that too.   \nWhen NOT using coefficients, the threshold value should be  \nabout 10 times smaller than the value used with coefficients.  \n\nOfficial recommended values https://github.com/ali-vilab/TeaCache/tree/main/TeaCache4Wan2.1:\n\n\n\u003Cpre style='font-family:monospace'\u003E\n+-------------------+--------+---------+--------+\n|       Model       |  Low   | Medium  |  High  |\n+-------------------+--------+---------+--------+\n| Wan2.1 t2v 1.3B  |  0.05  |  0.07   |  0.08  |\n| Wan2.1 t2v 14B   |  0.14  |  0.15   |  0.20  |\n| Wan2.1 i2v 480P  |  0.13  |  0.19   |  0.26  |\n| Wan2.1 i2v 720P  |  0.18  |  0.20   |  0.30  |\n+-------------------+--------+---------+--------+\n\u003C/pre\u003E \n",
+    "python_module": "custom_nodes.ComfyUI-WanVideoWrapper",
+    "category": "WanVideoWrapper",
+    "output_node": false,
+    "experimental": true
+  },
+  "WanVideoVRAMManagement": {
+    "input": {
+      "required": {
+        "offload_percent": [
+          "FLOAT",
+          {
+            "default": 1,
+            "min": 0,
+            "max": 1,
+            "step": 0.01,
+            "tooltip": "Percentage of parameters to offload"
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": [
+        "offload_percent"
+      ]
+    },
+    "output": [
+      "VRAM_MANAGEMENTARGS"
+    ],
+    "output_is_list": [
+      false
+    ],
+    "output_name": [
+      "vram_management_args"
+    ],
+    "name": "WanVideoVRAMManagement",
+    "display_name": "WanVideo VRAM Management",
+    "description": "Alternative offloading method from DiffSynth-Studio, more aggressive in reducing memory use than block swapping, but can be slower",
+    "python_module": "custom_nodes.ComfyUI-WanVideoWrapper",
+    "category": "WanVideoWrapper",
+    "output_node": false
+  },
+  "WanVideoTextEmbedBridge": {
+    "input": {
+      "required": {
+        "positive": [
+          "CONDITIONING"
+        ],
+        "negative": [
+          "CONDITIONING"
+        ]
+      }
+    },
+    "input_order": {
+      "required": [
+        "positive",
+        "negative"
+      ]
+    },
+    "output": [
+      "WANVIDEOTEXTEMBEDS"
+    ],
+    "output_is_list": [
+      false
+    ],
+    "output_name": [
+      "text_embeds"
+    ],
+    "name": "WanVideoTextEmbedBridge",
+    "display_name": "WanVideo TextEmbed Bridge",
+    "description": "Bridge between ComfyUI native text embedding and WanVideoWrapper text embedding",
+    "python_module": "custom_nodes.ComfyUI-WanVideoWrapper",
+    "category": "WanVideoWrapper",
+    "output_node": false
+  },
+  "WanVideoFlowEdit": {
+    "input": {
+      "required": {
+        "source_embeds": [
+          "WANVIDEOTEXTEMBEDS"
+        ],
+        "skip_steps": [
+          "INT",
+          {
+            "default": 4,
+            "min": 0
+          }
+        ],
+        "drift_steps": [
+          "INT",
+          {
+            "default": 0,
+            "min": 0
+          }
+        ],
+        "drift_flow_shift": [
+          "FLOAT",
+          {
+            "default": 3,
+            "min": 1,
+            "max": 30,
+            "step": 0.01
+          }
+        ],
+        "source_cfg": [
+          "FLOAT",
+          {
+            "default": 6,
+            "min": 0,
+            "max": 30,
+            "step": 0.01
+          }
+        ],
+        "drift_cfg": [
+          "FLOAT",
+          {
+            "default": 6,
+            "min": 0,
+            "max": 30,
+            "step": 0.01
+          }
+        ]
+      },
+      "optional": {
+        "source_image_embeds": [
+          "WANVIDIMAGE_EMBEDS"
+        ]
+      }
+    },
+    "input_order": {
+      "required": [
+        "source_embeds",
+        "skip_steps",
+        "drift_steps",
+        "drift_flow_shift",
+        "source_cfg",
+        "drift_cfg"
+      ],
+      "optional": [
+        "source_image_embeds"
+      ]
+    },
+    "output": [
+      "FLOWEDITARGS"
+    ],
+    "output_is_list": [
+      false
+    ],
+    "output_name": [
+      "flowedit_args"
+    ],
+    "name": "WanVideoFlowEdit",
+    "display_name": "WanVideo FlowEdit",
+    "description": "Flowedit options for WanVideo",
+    "python_module": "custom_nodes.ComfyUI-WanVideoWrapper",
+    "category": "WanVideoWrapper",
+    "output_node": false
+  },
+  "WanVideoControlEmbeds": {
+    "input": {
+      "required": {
+        "latents": [
+          "LATENT",
+          {
+            "tooltip": "Encoded latents to use as control signals"
+          }
+        ],
+        "start_percent": [
+          "FLOAT",
+          {
+            "default": 0,
+            "min": 0,
+            "max": 1,
+            "step": 0.01,
+            "tooltip": "Start percent of the control signal"
+          }
+        ],
+        "end_percent": [
+          "FLOAT",
+          {
+            "default": 1,
+            "min": 0,
+            "max": 1,
+            "step": 0.01,
+            "tooltip": "End percent of the control signal"
+          }
+        ]
+      },
+      "optional": {
+        "fun_ref_image": [
+          "LATENT",
+          {
+            "tooltip": "Reference latent for the Fun 1.1 -model"
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": [
+        "latents",
+        "start_percent",
+        "end_percent"
+      ],
+      "optional": [
+        "fun_ref_image"
+      ]
+    },
+    "output": [
+      "WANVIDIMAGE_EMBEDS"
+    ],
+    "output_is_list": [
+      false
+    ],
+    "output_name": [
+      "image_embeds"
+    ],
+    "name": "WanVideoControlEmbeds",
+    "display_name": "WanVideo Control Embeds",
+    "description": "",
+    "python_module": "custom_nodes.ComfyUI-WanVideoWrapper",
+    "category": "WanVideoWrapper",
+    "output_node": false
+  },
+  "WanVideoSLG": {
+    "input": {
+      "required": {
+        "blocks": [
+          "STRING",
+          {
+            "default": "10",
+            "tooltip": "Blocks to skip uncond on, separated by comma, index starts from 0"
+          }
+        ],
+        "start_percent": [
+          "FLOAT",
+          {
+            "default": 0.1,
+            "min": 0,
+            "max": 1,
+            "step": 0.01,
+            "tooltip": "Start percent of the control signal"
+          }
+        ],
+        "end_percent": [
+          "FLOAT",
+          {
+            "default": 1,
+            "min": 0,
+            "max": 1,
+            "step": 0.01,
+            "tooltip": "End percent of the control signal"
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": [
+        "blocks",
+        "start_percent",
+        "end_percent"
+      ]
+    },
+    "output": [
+      "SLGARGS"
+    ],
+    "output_is_list": [
+      false
+    ],
+    "output_name": [
+      "slg_args"
+    ],
+    "name": "WanVideoSLG",
+    "display_name": "WanVideo SLG",
+    "description": "Skips uncond on the selected blocks",
+    "python_module": "custom_nodes.ComfyUI-WanVideoWrapper",
+    "category": "WanVideoWrapper",
+    "output_node": false
+  },
+  "WanVideoTinyVAELoader": {
+    "input": {
+      "required": {
+        "model_name": [
+          [],
+          {
+            "tooltip": "These models are loaded from 'ComfyUI/models/vae_approx'"
+          }
+        ]
+      },
+      "optional": {
+        "precision": [
+          [
+            "fp16",
+            "fp32",
+            "bf16"
+          ],
+          {
+            "default": "fp16"
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": [
+        "model_name"
+      ],
+      "optional": [
+        "precision"
+      ]
+    },
+    "output": [
+      "WANVAE"
+    ],
+    "output_is_list": [
+      false
+    ],
+    "output_name": [
+      "vae"
+    ],
+    "name": "WanVideoTinyVAELoader",
+    "display_name": "WanVideo Tiny VAE Loader",
+    "description": "Loads Wan VAE model from 'ComfyUI/models/vae'",
+    "python_module": "custom_nodes.ComfyUI-WanVideoWrapper",
+    "category": "WanVideoWrapper",
+    "output_node": false
+  },
+  "WanVideoLoopArgs": {
+    "input": {
+      "required": {
+        "shift_skip": [
+          "INT",
+          {
+            "default": 6,
+            "min": 0,
+            "tooltip": "Skip step of latent shift"
+          }
+        ],
+        "start_percent": [
+          "FLOAT",
+          {
+            "default": 0,
+            "min": 0,
+            "max": 1,
+            "step": 0.01,
+            "tooltip": "Start percent of the looping effect"
+          }
+        ],
+        "end_percent": [
+          "FLOAT",
+          {
+            "default": 1,
+            "min": 0,
+            "max": 1,
+            "step": 0.01,
+            "tooltip": "End percent of the looping effect"
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": [
+        "shift_skip",
+        "start_percent",
+        "end_percent"
+      ]
+    },
+    "output": [
+      "LOOPARGS"
+    ],
+    "output_is_list": [
+      false
+    ],
+    "output_name": [
+      "loop_args"
+    ],
+    "name": "WanVideoLoopArgs",
+    "display_name": "WanVideo Loop Args",
+    "description": "Looping through latent shift as shown in https://github.com/YisuiTT/Mobius/",
+    "python_module": "custom_nodes.ComfyUI-WanVideoWrapper",
+    "category": "WanVideoWrapper",
+    "output_node": false
+  },
+  "WanVideoImageResizeToClosest": {
+    "input": {
+      "required": {
+        "image": [
+          "IMAGE",
+          {
+            "tooltip": "Image to resize"
+          }
+        ],
+        "generation_width": [
+          "INT",
+          {
+            "default": 832,
+            "min": 64,
+            "max": 2048,
+            "step": 8,
+            "tooltip": "Width of the image to encode"
+          }
+        ],
+        "generation_height": [
+          "INT",
+          {
+            "default": 480,
+            "min": 64,
+            "max": 29048,
+            "step": 8,
+            "tooltip": "Height of the image to encode"
+          }
+        ],
+        "aspect_ratio_preservation": [
+          [
+            "keep_input",
+            "stretch_to_new",
+            "crop_to_new"
+          ]
+        ]
+      }
+    },
+    "input_order": {
+      "required": [
+        "image",
+        "generation_width",
+        "generation_height",
+        "aspect_ratio_preservation"
+      ]
+    },
+    "output": [
+      "IMAGE",
+      "INT",
+      "INT"
+    ],
+    "output_is_list": [
+      false,
+      false,
+      false
+    ],
+    "output_name": [
+      "image",
+      "width",
+      "height"
+    ],
+    "name": "WanVideoImageResizeToClosest",
+    "display_name": "WanVideo Image Resize To Closest",
+    "description": "Resizes image to the closest supported resolution based on aspect ratio and max pixels, according to the original code",
+    "python_module": "custom_nodes.ComfyUI-WanVideoWrapper",
+    "category": "WanVideoWrapper",
+    "output_node": false
+  },
+  "WanVideoSetBlockSwap": {
+    "input": {
+      "required": {
+        "model": [
+          "WANVIDEOMODEL"
+        ],
+        "block_swap_args": [
+          "BLOCKSWAPARGS"
+        ]
+      }
+    },
+    "input_order": {
+      "required": [
+        "model",
+        "block_swap_args"
+      ]
+    },
+    "output": [
+      "WANVIDEOMODEL"
+    ],
+    "output_is_list": [
+      false
+    ],
+    "output_name": [
+      "model"
+    ],
+    "name": "WanVideoSetBlockSwap",
+    "display_name": "WanVideo Set BlockSwap",
+    "description": "",
+    "python_module": "custom_nodes.ComfyUI-WanVideoWrapper",
+    "category": "WanVideoWrapper",
+    "output_node": false
+  },
+  "WanVideoExperimentalArgs": {
+    "input": {
+      "required": {
+        "video_attention_split_steps": [
+          "STRING",
+          {
+            "default": "",
+            "tooltip": "Steps to split self attention when using multiple prompts"
+          }
+        ],
+        "cfg_zero_star": [
+          "BOOLEAN",
+          {
+            "default": false,
+            "tooltip": "https://github.com/WeichenFan/CFG-Zero-star"
+          }
+        ],
+        "use_zero_init": [
+          "BOOLEAN",
+          {
+            "default": false
+          }
+        ],
+        "zero_star_steps": [
+          "INT",
+          {
+            "default": 0,
+            "min": 0,
+            "tooltip": "Steps to split self attention when using multiple prompts"
+          }
+        ],
+        "use_fresca": [
+          "BOOLEAN",
+          {
+            "default": false,
+            "tooltip": "https://github.com/WikiChao/FreSca"
+          }
+        ],
+        "fresca_scale_low": [
+          "FLOAT",
+          {
+            "default": 1,
+            "min": 0,
+            "max": 10,
+            "step": 0.01
+          }
+        ],
+        "fresca_scale_high": [
+          "FLOAT",
+          {
+            "default": 1.25,
+            "min": 0,
+            "max": 10,
+            "step": 0.01
+          }
+        ],
+        "fresca_freq_cutoff": [
+          "INT",
+          {
+            "default": 20,
+            "min": 0,
+            "max": 10000,
+            "step": 1
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": [
+        "video_attention_split_steps",
+        "cfg_zero_star",
+        "use_zero_init",
+        "zero_star_steps",
+        "use_fresca",
+        "fresca_scale_low",
+        "fresca_scale_high",
+        "fresca_freq_cutoff"
+      ]
+    },
+    "output": [
+      "EXPERIMENTALARGS"
+    ],
+    "output_is_list": [
+      false
+    ],
+    "output_name": [
+      "exp_args"
+    ],
+    "name": "WanVideoExperimentalArgs",
+    "display_name": "WanVideo Experimental Args",
+    "description": "Experimental stuff",
+    "python_module": "custom_nodes.ComfyUI-WanVideoWrapper",
+    "category": "WanVideoWrapper",
+    "output_node": false,
+    "experimental": true
+  },
+  "WanVideoVACEEncode": {
+    "input": {
+      "required": {
+        "vae": [
+          "WANVAE"
+        ],
+        "width": [
+          "INT",
+          {
+            "default": 832,
+            "min": 64,
+            "max": 2048,
+            "step": 8,
+            "tooltip": "Width of the image to encode"
+          }
+        ],
+        "height": [
+          "INT",
+          {
+            "default": 480,
+            "min": 64,
+            "max": 29048,
+            "step": 8,
+            "tooltip": "Height of the image to encode"
+          }
+        ],
+        "num_frames": [
+          "INT",
+          {
+            "default": 81,
+            "min": 1,
+            "max": 10000,
+            "step": 4,
+            "tooltip": "Number of frames to encode"
+          }
+        ],
+        "strength": [
+          "FLOAT",
+          {
+            "default": 1,
+            "min": 0,
+            "max": 10,
+            "step": 0.001
+          }
+        ],
+        "vace_start_percent": [
+          "FLOAT",
+          {
+            "default": 0,
+            "min": 0,
+            "max": 1,
+            "step": 0.01,
+            "tooltip": "Start percent of the steps to apply VACE"
+          }
+        ],
+        "vace_end_percent": [
+          "FLOAT",
+          {
+            "default": 1,
+            "min": 0,
+            "max": 1,
+            "step": 0.01,
+            "tooltip": "End percent of the steps to apply VACE"
+          }
+        ]
+      },
+      "optional": {
+        "input_frames": [
+          "IMAGE"
+        ],
+        "ref_images": [
+          "IMAGE"
+        ],
+        "input_masks": [
+          "MASK"
+        ],
+        "prev_vace_embeds": [
+          "WANVIDIMAGE_EMBEDS"
+        ],
+        "tiled_vae": [
+          "BOOLEAN",
+          {
+            "default": false,
+            "tooltip": "Use tiled VAE encoding for reduced memory use"
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": [
+        "vae",
+        "width",
+        "height",
+        "num_frames",
+        "strength",
+        "vace_start_percent",
+        "vace_end_percent"
+      ],
+      "optional": [
+        "input_frames",
+        "ref_images",
+        "input_masks",
+        "prev_vace_embeds",
+        "tiled_vae"
+      ]
+    },
+    "output": [
+      "WANVIDIMAGE_EMBEDS"
+    ],
+    "output_is_list": [
+      false
+    ],
+    "output_name": [
+      "vace_embeds"
+    ],
+    "name": "WanVideoVACEEncode",
+    "display_name": "WanVideo VACE Encode",
+    "description": "",
+    "python_module": "custom_nodes.ComfyUI-WanVideoWrapper",
+    "category": "WanVideoWrapper",
+    "output_node": false
+  },
+  "WanVideoVACEStartToEndFrame": {
+    "input": {
+      "required": {
+        "num_frames": [
+          "INT",
+          {
+            "default": 81,
+            "min": 1,
+            "max": 10000,
+            "step": 4,
+            "tooltip": "Number of frames to encode"
+          }
+        ],
+        "empty_frame_level": [
+          "FLOAT",
+          {
+            "default": 0.5,
+            "min": 0,
+            "max": 1,
+            "step": 0.01,
+            "tooltip": "White level of empty frame to use"
+          }
+        ]
+      },
+      "optional": {
+        "start_image": [
+          "IMAGE"
+        ],
+        "end_image": [
+          "IMAGE"
+        ],
+        "control_images": [
+          "IMAGE"
+        ],
+        "inpaint_mask": [
+          "MASK",
+          {
+            "tooltip": "Inpaint mask to use for the empty frames"
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": [
+        "num_frames",
+        "empty_frame_level"
+      ],
+      "optional": [
+        "start_image",
+        "end_image",
+        "control_images",
+        "inpaint_mask"
+      ]
+    },
+    "output": [
+      "IMAGE",
+      "MASK"
+    ],
+    "output_is_list": [
+      false,
+      false
+    ],
+    "output_name": [
+      "images",
+      "masks"
+    ],
+    "name": "WanVideoVACEStartToEndFrame",
+    "display_name": "WanVideo VACE Start To End Frame",
+    "description": "Helper node to create start/end frame batch and masks for VACE",
+    "python_module": "custom_nodes.ComfyUI-WanVideoWrapper",
+    "category": "WanVideoWrapper",
+    "output_node": false
+  },
+  "WanVideoVACEModelSelect": {
+    "input": {
+      "required": {
+        "vace_model": [
+          [
+            "wan2.1_i2v_720p_14B_fp8_scaled.safetensors",
+            "wan2.1_t2v_1.3B_fp16.safetensors"
+          ],
+          {
+            "tooltip": "These models are loaded from the 'ComfyUI/models/diffusion_models' VACE model to use when not using model that has it included"
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": [
+        "vace_model"
+      ]
+    },
+    "output": [
+      "VACEPATH"
+    ],
+    "output_is_list": [
+      false
+    ],
+    "output_name": [
+      "vace_model"
+    ],
+    "name": "WanVideoVACEModelSelect",
+    "display_name": "WanVideo VACE Model Select",
+    "description": "VACE model to use when not using model that has it included, loaded from 'ComfyUI/models/diffusion_models'",
+    "python_module": "custom_nodes.ComfyUI-WanVideoWrapper",
+    "category": "WanVideoWrapper",
+    "output_node": false
+  },
+  "WanVideoPhantomEmbeds": {
+    "input": {
+      "required": {
+        "num_frames": [
+          "INT",
+          {
+            "default": 81,
+            "min": 1,
+            "max": 10000,
+            "step": 4,
+            "tooltip": "Number of frames to encode"
+          }
+        ],
+        "phantom_latent_1": [
+          "LATENT",
+          {
+            "tooltip": "reference latents for the phantom model"
+          }
+        ],
+        "phantom_cfg_scale": [
+          "FLOAT",
+          {
+            "default": 5,
+            "min": 0,
+            "max": 10,
+            "step": 0.01,
+            "tooltip": "CFG scale for the extra phantom cond pass"
+          }
+        ],
+        "phantom_start_percent": [
+          "FLOAT",
+          {
+            "default": 0,
+            "min": 0,
+            "max": 1,
+            "step": 0.01,
+            "tooltip": "Start percent of the phantom model"
+          }
+        ],
+        "phantom_end_percent": [
+          "FLOAT",
+          {
+            "default": 1,
+            "min": 0,
+            "max": 1,
+            "step": 0.01,
+            "tooltip": "End percent of the phantom model"
+          }
+        ]
+      },
+      "optional": {
+        "phantom_latent_2": [
+          "LATENT",
+          {
+            "tooltip": "reference latents for the phantom model"
+          }
+        ],
+        "phantom_latent_3": [
+          "LATENT",
+          {
+            "tooltip": "reference latents for the phantom model"
+          }
+        ],
+        "phantom_latent_4": [
+          "LATENT",
+          {
+            "tooltip": "reference latents for the phantom model"
+          }
+        ],
+        "vace_embeds": [
+          "WANVIDIMAGE_EMBEDS",
+          {
+            "tooltip": "VACE embeds"
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": [
+        "num_frames",
+        "phantom_latent_1",
+        "phantom_cfg_scale",
+        "phantom_start_percent",
+        "phantom_end_percent"
+      ],
+      "optional": [
+        "phantom_latent_2",
+        "phantom_latent_3",
+        "phantom_latent_4",
+        "vace_embeds"
+      ]
+    },
+    "output": [
+      "WANVIDIMAGE_EMBEDS"
+    ],
+    "output_is_list": [
+      false
+    ],
+    "output_name": [
+      "image_embeds"
+    ],
+    "name": "WanVideoPhantomEmbeds",
+    "display_name": "WanVideo Phantom Embeds",
+    "description": "",
+    "python_module": "custom_nodes.ComfyUI-WanVideoWrapper",
+    "category": "WanVideoWrapper",
+    "output_node": false
+  },
+  "CreateCFGScheduleFloatList": {
+    "input": {
+      "required": {
+        "steps": [
+          "INT",
+          {
+            "default": 30,
+            "min": 2,
+            "max": 1000,
+            "step": 1,
+            "tooltip": "Number of steps to schedule cfg for"
+          }
+        ],
+        "cfg_scale_start": [
+          "FLOAT",
+          {
+            "default": 5,
+            "min": 0,
+            "max": 30,
+            "step": 0.01,
+            "round": 0.01,
+            "tooltip": "CFG scale to use for the steps"
+          }
+        ],
+        "cfg_scale_end": [
+          "FLOAT",
+          {
+            "default": 5,
+            "min": 0,
+            "max": 30,
+            "step": 0.01,
+            "round": 0.01,
+            "tooltip": "CFG scale to use for the steps"
+          }
+        ],
+        "interpolation": [
+          [
+            "linear",
+            "ease_in",
+            "ease_out"
+          ],
+          {
+            "default": "linear",
+            "tooltip": "Interpolation method to use for the cfg scale"
+          }
+        ],
+        "start_percent": [
+          "FLOAT",
+          {
+            "default": 0,
+            "min": 0,
+            "max": 1,
+            "step": 0.01,
+            "round": 0.01,
+            "tooltip": "Start percent of the steps to apply cfg"
+          }
+        ],
+        "end_percent": [
+          "FLOAT",
+          {
+            "default": 1,
+            "min": 0,
+            "max": 1,
+            "step": 0.01,
+            "round": 0.01,
+            "tooltip": "End percent of the steps to apply cfg"
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": [
+        "steps",
+        "cfg_scale_start",
+        "cfg_scale_end",
+        "interpolation",
+        "start_percent",
+        "end_percent"
+      ]
+    },
+    "output": [
+      "FLOAT"
+    ],
+    "output_is_list": [
+      false
+    ],
+    "output_name": [
+      "float_list"
+    ],
+    "name": "CreateCFGScheduleFloatList",
+    "display_name": "WanVideo CFG Schedule Float List",
+    "description": "Helper node to generate a list of floats that can be used to schedule cfg scale for the steps, outside the set range cfg is set to 1.0",
+    "python_module": "custom_nodes.ComfyUI-WanVideoWrapper",
+    "category": "WanVideoWrapper",
+    "output_node": false
+  },
+  "WanVideoReCamMasterCameraEmbed": {
+    "input": {
+      "required": {
+        "camera_poses": [
+          "CAMERAPOSES"
+        ],
+        "latents": [
+          "LATENT",
+          {
+            "tooltip": "source video"
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": [
+        "camera_poses",
+        "latents"
+      ]
+    },
+    "output": [
+      "WANVIDIMAGE_EMBEDS",
+      "CAMERAPOSES"
+    ],
+    "output_is_list": [
+      false,
+      false
+    ],
+    "output_name": [
+      "camera_embeds",
+      "camera_poses"
+    ],
+    "name": "WanVideoReCamMasterCameraEmbed",
+    "display_name": "WanVideo ReCamMaster Camera Embed",
+    "description": "https://github.com/KwaiVGI/ReCamMaster",
+    "python_module": "custom_nodes.ComfyUI-WanVideoWrapper",
+    "category": "WanVideoWrapper",
+    "output_node": false
+  },
+  "ReCamMasterPoseVisualizer": {
+    "input": {
+      "required": {
+        "camera_poses": [
+          "CAMERAPOSES"
+        ],
+        "base_xval": [
+          "FLOAT",
+          {
+            "default": 0.2,
+            "min": 0,
+            "max": 100,
+            "step": 0.01
+          }
+        ],
+        "zval": [
+          "FLOAT",
+          {
+            "default": 0.3,
+            "min": 0,
+            "max": 100,
+            "step": 0.01
+          }
+        ],
+        "scale": [
+          "FLOAT",
+          {
+            "default": 1,
+            "min": 0.01,
+            "max": 10,
+            "step": 0.01
+          }
+        ],
+        "arrow_length": [
+          "FLOAT",
+          {
+            "default": 1,
+            "min": 0,
+            "max": 100,
+            "step": 0.01
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": [
+        "camera_poses",
+        "base_xval",
+        "zval",
+        "scale",
+        "arrow_length"
+      ]
+    },
+    "output": [
+      "IMAGE"
+    ],
+    "output_is_list": [
+      false
+    ],
+    "output_name": [
+      "IMAGE"
+    ],
+    "name": "ReCamMasterPoseVisualizer",
+    "display_name": "ReCamMaster Pose Visualizer",
+    "description": "\nVisualizes the camera poses, from Animatediff-Evolved CameraCtrl Pose  \nor a .txt file with RealEstate camera intrinsics and coordinates, in a 3D plot. \n",
+    "python_module": "custom_nodes.ComfyUI-WanVideoWrapper",
+    "category": "WanVideoWrapper",
+    "output_node": false
+  },
+  "WanVideoReCamMasterGenerateOrbitCamera": {
+    "input": {
+      "required": {
+        "num_frames": [
+          "INT",
+          {
+            "default": 81,
+            "min": 1,
+            "max": 1000,
+            "step": 1,
+            "tooltip": "Number of frames to generate"
+          }
+        ],
+        "degrees": [
+          "INT",
+          {
+            "default": 90,
+            "min": -180,
+            "max": 180,
+            "step": 1,
+            "tooltip": "Degrees to orbit"
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": [
+        "num_frames",
+        "degrees"
+      ]
+    },
+    "output": [
+      "CAMERAPOSES"
+    ],
+    "output_is_list": [
+      false
+    ],
+    "output_name": [
+      "camera_poses"
+    ],
+    "name": "WanVideoReCamMasterGenerateOrbitCamera",
+    "display_name": "WanVideo ReCamMaster Generate Orbit Camera",
+    "description": "https://github.com/KwaiVGI/ReCamMaster",
+    "python_module": "custom_nodes.ComfyUI-WanVideoWrapper",
+    "category": "WanVideoWrapper",
+    "output_node": false
+  },
+  "WanVideoReCamMasterDefaultCamera": {
+    "input": {
+      "required": {
+        "camera_type": [
+          [
+            "pan_right",
+            "pan_left",
+            "tilt_up",
+            "tilt_down",
+            "zoom_in",
+            "zoom_out",
+            "translate_up",
+            "translate_down",
+            "arc_left",
+            "arc_right"
+          ],
+          {
+            "default": "pan_right",
+            "tooltip": "Camera type to use"
+          }
+        ],
+        "latents": [
+          "LATENT",
+          {
+            "tooltip": "source video"
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": [
+        "camera_type",
+        "latents"
+      ]
+    },
+    "output": [
+      "CAMERAPOSES"
+    ],
+    "output_is_list": [
+      false
+    ],
+    "output_name": [
+      "camera_poses"
+    ],
+    "name": "WanVideoReCamMasterDefaultCamera",
+    "display_name": "WanVideo ReCamMaster Default Camera",
+    "description": "https://github.com/KwaiVGI/ReCamMaster",
+    "python_module": "custom_nodes.ComfyUI-WanVideoWrapper",
+    "category": "WanVideoWrapper",
+    "output_node": false
+  },
+  "WanVideoUniAnimatePoseInput": {
+    "input": {
+      "required": {
+        "pose_images": [
+          "IMAGE",
+          {
+            "tooltip": "Pose images"
+          }
+        ],
+        "strength": [
+          "FLOAT",
+          {
+            "default": 1,
+            "min": 0,
+            "max": 1,
+            "step": 0.01,
+            "tooltip": "Strength of the pose control"
+          }
+        ],
+        "start_percent": [
+          "FLOAT",
+          {
+            "default": 0,
+            "min": 0,
+            "max": 1,
+            "step": 0.01,
+            "tooltip": "Start percentage for the pose control"
+          }
+        ],
+        "end_percent": [
+          "FLOAT",
+          {
+            "default": 1,
+            "min": 0,
+            "max": 1,
+            "step": 0.01,
+            "tooltip": "End percentage for the pose control"
+          }
+        ]
+      },
+      "optional": {
+        "reference_pose_image": [
+          "IMAGE",
+          {
+            "tooltip": "Reference pose image"
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": [
+        "pose_images",
+        "strength",
+        "start_percent",
+        "end_percent"
+      ],
+      "optional": [
+        "reference_pose_image"
+      ]
+    },
+    "output": [
+      "UNIANIMATE_POSE"
+    ],
+    "output_is_list": [
+      false
+    ],
+    "output_name": [
+      "unianimate_poses"
+    ],
+    "name": "WanVideoUniAnimatePoseInput",
+    "display_name": "WanVideo UniAnimate Pose Input",
+    "description": "",
+    "python_module": "custom_nodes.ComfyUI-WanVideoWrapper",
+    "category": "WanVideoWrapper",
+    "output_node": false
+  },
+  "WanVideoUniAnimateDWPoseDetector": {
+    "input": {
+      "required": {
+        "pose_images": [
+          "IMAGE",
+          {
+            "tooltip": "Pose images"
+          }
+        ],
+        "score_threshold": [
+          "FLOAT",
+          {
+            "default": 0.3,
+            "min": 0,
+            "max": 1,
+            "step": 0.01,
+            "tooltip": "Score threshold for pose detection"
+          }
+        ],
+        "stick_width": [
+          "INT",
+          {
+            "default": 4,
+            "min": 1,
+            "max": 100,
+            "step": 1,
+            "tooltip": "Stick width for drawing keypoints"
+          }
+        ],
+        "draw_body": [
+          "BOOLEAN",
+          {
+            "default": true,
+            "tooltip": "Draw body keypoints"
+          }
+        ],
+        "body_keypoint_size": [
+          "INT",
+          {
+            "default": 4,
+            "min": 0,
+            "max": 100,
+            "step": 1,
+            "tooltip": "Body keypoint size"
+          }
+        ],
+        "draw_feet": [
+          "BOOLEAN",
+          {
+            "default": true,
+            "tooltip": "Draw feet keypoints"
+          }
+        ],
+        "draw_hands": [
+          "BOOLEAN",
+          {
+            "default": true,
+            "tooltip": "Draw hand keypoints"
+          }
+        ],
+        "hand_keypoint_size": [
+          "INT",
+          {
+            "default": 4,
+            "min": 0,
+            "max": 100,
+            "step": 1,
+            "tooltip": "Hand keypoint size"
+          }
+        ],
+        "colorspace": [
+          [
+            "RGB",
+            "BGR"
+          ],
+          {
+            "tooltip": "Color space for the output image"
+          }
+        ],
+        "handle_not_detected": [
+          [
+            "empty",
+            "repeat"
+          ],
+          {
+            "default": "empty",
+            "tooltip": "How to handle undetected poses, empty inserts black and repeat inserts previous detection"
+          }
+        ]
+      },
+      "optional": {
+        "reference_pose_image": [
+          "IMAGE",
+          {
+            "tooltip": "Reference pose image"
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": [
+        "pose_images",
+        "score_threshold",
+        "stick_width",
+        "draw_body",
+        "body_keypoint_size",
+        "draw_feet",
+        "draw_hands",
+        "hand_keypoint_size",
+        "colorspace",
+        "handle_not_detected"
+      ],
+      "optional": [
+        "reference_pose_image"
+      ]
+    },
+    "output": [
+      "IMAGE",
+      "IMAGE"
+    ],
+    "output_is_list": [
+      false,
+      false
+    ],
+    "output_name": [
+      "poses",
+      "reference_pose"
+    ],
+    "name": "WanVideoUniAnimateDWPoseDetector",
+    "display_name": "WanVideo UniAnimate DWPose Detector",
+    "description": "",
+    "python_module": "custom_nodes.ComfyUI-WanVideoWrapper",
+    "category": "WanVideoWrapper",
+    "output_node": false
+  },
+  "WanVideoDiffusionForcingSampler": {
+    "input": {
+      "required": {
+        "model": [
+          "WANVIDEOMODEL"
+        ],
+        "text_embeds": [
+          "WANVIDEOTEXTEMBEDS"
+        ],
+        "image_embeds": [
+          "WANVIDIMAGE_EMBEDS"
+        ],
+        "addnoise_condition": [
+          "INT",
+          {
+            "default": 10,
+            "min": 0,
+            "max": 1000,
+            "tooltip": "Improves consistency in long video generation"
+          }
+        ],
+        "fps": [
+          "FLOAT",
+          {
+            "default": 24,
+            "min": 1,
+            "max": 120,
+            "step": 0.01
+          }
+        ],
+        "steps": [
+          "INT",
+          {
+            "default": 30,
+            "min": 1
+          }
+        ],
+        "cfg": [
+          "FLOAT",
+          {
+            "default": 6,
+            "min": 0,
+            "max": 30,
+            "step": 0.01
+          }
+        ],
+        "shift": [
+          "FLOAT",
+          {
+            "default": 8,
+            "min": 0,
+            "max": 1000,
+            "step": 0.01
+          }
+        ],
+        "seed": [
+          "INT",
+          {
+            "default": 0,
+            "min": 0,
+            "max": 1.8446744073709552e+19
+          }
+        ],
+        "force_offload": [
+          "BOOLEAN",
+          {
+            "default": true,
+            "tooltip": "Moves the model to the offload device after sampling"
+          }
+        ],
+        "scheduler": [
+          [
+            "unipc",
+            "unipc/beta",
+            "euler",
+            "euler/beta",
+            "lcm",
+            "lcm/beta"
+          ],
+          {
+            "default": "unipc"
+          }
+        ]
+      },
+      "optional": {
+        "samples": [
+          "LATENT",
+          {
+            "tooltip": "init Latents to use for video2video process"
+          }
+        ],
+        "prefix_samples": [
+          "LATENT",
+          {
+            "tooltip": "prefix latents"
+          }
+        ],
+        "denoise_strength": [
+          "FLOAT",
+          {
+            "default": 1,
+            "min": 0,
+            "max": 1,
+            "step": 0.01
+          }
+        ],
+        "teacache_args": [
+          "TEACACHEARGS"
+        ],
+        "slg_args": [
+          "SLGARGS"
+        ],
+        "rope_function": [
+          [
+            "default",
+            "comfy"
+          ],
+          {
+            "default": "comfy",
+            "tooltip": "Comfy's RoPE implementation doesn't use complex numbers and can thus be compiled, that should be a lot faster when using torch.compile"
+          }
+        ],
+        "experimental_args": [
+          "EXPERIMENTALARGS"
+        ],
+        "unianimate_poses": [
+          "UNIANIMATE_POSE"
+        ]
+      }
+    },
+    "input_order": {
+      "required": [
+        "model",
+        "text_embeds",
+        "image_embeds",
+        "addnoise_condition",
+        "fps",
+        "steps",
+        "cfg",
+        "shift",
+        "seed",
+        "force_offload",
+        "scheduler"
+      ],
+      "optional": [
+        "samples",
+        "prefix_samples",
+        "denoise_strength",
+        "teacache_args",
+        "slg_args",
+        "rope_function",
+        "experimental_args",
+        "unianimate_poses"
+      ]
+    },
+    "output": [
+      "LATENT"
+    ],
+    "output_is_list": [
+      false
+    ],
+    "output_name": [
+      "samples"
+    ],
+    "name": "WanVideoDiffusionForcingSampler",
+    "display_name": "WanVideo Diffusion Forcing Sampler",
+    "description": "",
+    "python_module": "custom_nodes.ComfyUI-WanVideoWrapper",
+    "category": "WanVideoWrapper",
+    "output_node": false
+  },
+  "DownloadAndLoadWav2VecModel": {
+    "input": {
+      "required": {
+        "model": [
+          [
+            "facebook/wav2vec2-base-960h"
+          ]
+        ],
+        "base_precision": [
+          [
+            "fp32",
+            "bf16",
+            "fp16"
+          ],
+          {
+            "default": "fp16"
+          }
+        ],
+        "load_device": [
+          [
+            "main_device",
+            "offload_device"
+          ],
+          {
+            "default": "main_device",
+            "tooltip": "Initial device to load the model to, NOT recommended with the larger models unless you have 48GB+ VRAM"
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": [
+        "model",
+        "base_precision",
+        "load_device"
+      ]
+    },
+    "output": [
+      "WAV2VECMODEL"
+    ],
+    "output_is_list": [
+      false
+    ],
+    "output_name": [
+      "wav2vec_model"
+    ],
+    "name": "DownloadAndLoadWav2VecModel",
+    "display_name": "(Down)load Wav2Vec Model",
+    "description": "",
+    "python_module": "custom_nodes.ComfyUI-WanVideoWrapper",
+    "category": "WanVideoWrapper",
+    "output_node": false
+  },
+  "FantasyTalkingModelLoader": {
+    "input": {
+      "required": {
+        "model": [
+          [
+            "wan2.1_i2v_720p_14B_fp8_scaled.safetensors",
+            "wan2.1_t2v_1.3B_fp16.safetensors"
+          ],
+          {
+            "tooltip": "These models are loaded from the 'ComfyUI/models/diffusion_models' -folder"
+          }
+        ],
+        "base_precision": [
+          [
+            "fp32",
+            "bf16",
+            "fp16"
+          ],
+          {
+            "default": "fp16"
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": [
+        "model",
+        "base_precision"
+      ]
+    },
+    "output": [
+      "FANTASYTALKINGMODEL"
+    ],
+    "output_is_list": [
+      false
+    ],
+    "output_name": [
+      "model"
+    ],
+    "name": "FantasyTalkingModelLoader",
+    "display_name": "FantasyTalking Model Loader",
+    "description": "",
+    "python_module": "custom_nodes.ComfyUI-WanVideoWrapper",
+    "category": "WanVideoWrapper",
+    "output_node": false
+  },
+  "FantasyTalkingWav2VecEmbeds": {
+    "input": {
+      "required": {
+        "wav2vec_model": [
+          "WAV2VECMODEL"
+        ],
+        "fantasytalking_model": [
+          "FANTASYTALKINGMODEL"
+        ],
+        "audio": [
+          "AUDIO"
+        ],
+        "num_frames": [
+          "INT",
+          {
+            "default": 81,
+            "min": 1,
+            "max": 1000,
+            "step": 1
+          }
+        ],
+        "fps": [
+          "FLOAT",
+          {
+            "default": 23,
+            "min": 1,
+            "max": 60,
+            "step": 0.1
+          }
+        ],
+        "audio_scale": [
+          "FLOAT",
+          {
+            "default": 1,
+            "min": 0,
+            "max": 100,
+            "step": 0.1,
+            "tooltip": "Strength of the audio conditioning"
+          }
+        ],
+        "audio_cfg_scale": [
+          "FLOAT",
+          {
+            "default": 1,
+            "min": 0,
+            "max": 100,
+            "step": 0.1,
+            "tooltip": "When not 1.0, an extra model pass without audio conditioning is done: slower inference but more motion is allowed"
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": [
+        "wav2vec_model",
+        "fantasytalking_model",
+        "audio",
+        "num_frames",
+        "fps",
+        "audio_scale",
+        "audio_cfg_scale"
+      ]
+    },
+    "output": [
+      "FANTASYTALKING_EMBEDS"
+    ],
+    "output_is_list": [
+      false
+    ],
+    "output_name": [
+      "fantasytalking_embeds"
+    ],
+    "name": "FantasyTalkingWav2VecEmbeds",
+    "display_name": "FantasyTalking Wav2Vec Embeds",
+    "description": "",
+    "python_module": "custom_nodes.ComfyUI-WanVideoWrapper",
+    "category": "WanVideoWrapper",
+    "output_node": false
+  },
+  "WanVideoFunCameraEmbeds": {
+    "input": {
+      "required": {
+        "poses": [
+          "CAMERACTRL_POSES"
+        ],
+        "width": [
+          "INT",
+          {
+            "default": 832,
+            "min": 64,
+            "max": 2048,
+            "step": 8,
+            "tooltip": "Width of the image to encode"
+          }
+        ],
+        "height": [
+          "INT",
+          {
+            "default": 480,
+            "min": 64,
+            "max": 29048,
+            "step": 8,
+            "tooltip": "Height of the image to encode"
+          }
+        ],
+        "strength": [
+          "FLOAT",
+          {
+            "default": 1,
+            "min": 0,
+            "max": 1,
+            "step": 0.01,
+            "tooltip": "Strength of the camera motion"
+          }
+        ],
+        "start_percent": [
+          "FLOAT",
+          {
+            "default": 0,
+            "min": 0,
+            "max": 1,
+            "step": 0.01,
+            "tooltip": "Start percent of the steps to apply camera motion"
+          }
+        ],
+        "end_percent": [
+          "FLOAT",
+          {
+            "default": 1,
+            "min": 0,
+            "max": 1,
+            "step": 0.01,
+            "tooltip": "End percent of the steps to apply camera motion"
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": [
+        "poses",
+        "width",
+        "height",
+        "strength",
+        "start_percent",
+        "end_percent"
+      ]
+    },
+    "output": [
+      "WANVIDIMAGE_EMBEDS"
+    ],
+    "output_is_list": [
+      false
+    ],
+    "output_name": [
+      "image_embeds"
+    ],
+    "name": "WanVideoFunCameraEmbeds",
+    "display_name": "WanVideo FunCamera Embeds",
+    "description": "",
+    "python_module": "custom_nodes.ComfyUI-WanVideoWrapper",
+    "category": "WanVideoWrapper",
+    "output_node": false
+  }
+}
