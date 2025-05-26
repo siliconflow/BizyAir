@@ -1,0 +1,193 @@
+import json
+import time
+from PIL import Image
+import requests
+
+from ..core.nodes_base import BizyAirBaseNode
+from ..core.common import client
+from ..core.image_utils import encode_data
+class WanApiNodeBase:
+    model_endpoints = {
+        "Wan-AI/Wan2.1-I2V-14B-480P-Diffusers" : "https://bizyair-api.siliconflow.cn/x/v1/supernode/faas-wan-i2v-14b-480p-server"
+    }
+
+
+
+class Wan_LoraLoader(BizyAirBaseNode):
+     
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "lora_name": (
+                    "STRING",
+                    {
+                        "multiline": True,
+                        "default": "https://huggingface.co/Remade-AI/Squish/resolve/main/squish_18.safetensors",
+                        "tooltip": "LoRA 模型下载地址",
+                    },
+                ),
+            },
+            "optional": {
+                "lora_weight": ("FLOAT", {
+                    "default": 1,
+                    "min": 0.0,
+                    "max": 1.0,
+                    "step": 0.05,
+                    "tooltip": "LoRA权重强度"
+                })
+            }
+        }
+
+    RETURN_TYPES = ("LORA_CONFIG",)
+    RETURN_NAMES = ("lora_config",)
+    FUNCTION = "apply_lora"
+    CATEGORY = "Diffusers/WAN Video Generation" 
+    def apply_lora(self, lora_name, lora_weight=0.75):
+        return ([(lora_name, lora_weight)], )
+    
+class Wan_ImageToVideoPipeline(WanApiNodeBase,BizyAirBaseNode):  
+        
+    POLLING_INTERVAL = 10   # sec
+    MAX_POLLING_TIME = 60*20  # sec      
+
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "image": ("IMAGE", {
+                    "default": None,
+                    "tooltip": "Optional reference image to guide video generation",
+                }),
+                "model_id": (["Wan-AI/Wan2.1-I2V-14B-480P-Diffusers"], ),
+                "prompt": (
+                    "STRING",
+                    {
+                        "multiline": True,
+                        "default": "",
+                        "tooltip": "Text description of the video",
+                    },
+                ),
+            },
+            "optional": {
+                "negative_prompt": (
+                    "STRING",
+                    {
+                        "multiline": True,
+                        "default": "",
+                        "tooltip": "Negative text prompt to guide what to avoid in the video",
+                    },
+                ),
+                "steps": ("INT", {"default": 30, "min": 1, "max": 40}),
+                "cfg": ("FLOAT", {"default": 6.0, "min": 0.0, "max": 100.0, "step":0.1, "round": 0.01}),
+                "seed": (
+                    "INT",
+                    {
+                        "default": 0,
+                        "min": 0,
+                        "max": 0xFFFFFFFF,
+                        "step": 1,
+                        "display": "number",
+                        "control_after_generate": True,
+                        "tooltip": "Seed for video generation (0 for random)",
+                    },
+                ),
+                "use_teacache": (["enable", "disable"],),
+                "lora_config":(
+                    "LORA_CONFIG", {})
+            },
+        }
+        
+
+    RETURN_TYPES = ("STRING",)
+
+    FUNCTION = "generate_video"
+    CATEGORY = "Diffusers/WAN Video Generation" 
+    
+    def _encode_image(self, image_tensor):
+        # https://docs.comfy.org/custom-nodes/backend/snippets
+        import numpy as np 
+        import io
+        from PIL import Image
+        import base64
+        assert len(image_tensor) == 1
+        i = 255. * image_tensor[0].cpu().numpy()
+        img = Image.fromarray(np.clip(i, 0, 255).astype(np.uint8))
+        byte_arr = io.BytesIO()
+        img.save(byte_arr, format="webp")
+        byte_arr = byte_arr.getvalue()
+        base64_str = base64.b64encode(byte_arr)
+        base64_str = "data:image/webp;base64," + base64_str.decode()
+        return base64_str
+        
+    def _prepare_headers(self):
+        headers = client._headers()
+        headers["X-Fn-Task-Mode"] = "non-blocking"
+        return headers 
+    
+    def _send_initial_request(self, endpoint, request_data):
+        headers = self._prepare_headers()
+        response = client.send_request(
+            url=endpoint,
+            data=json.dumps({"prompt": request_data}).encode(),
+            headers=headers
+        )
+        return response["query_url"]
+    
+    def _poll_for_completion(self, query_url):
+        start_time = time.time()
+        headers = self._prepare_headers()
+        
+        while time.time() - start_time < self.MAX_POLLING_TIME:
+            response = requests.get(query_url, headers=headers)
+            try:
+                response_data = response.json()
+                if response_data["data_status"] == "COMPLETED":
+                    return response_data
+                time.sleep(self.POLLING_INTERVAL)
+            except (json.JSONDecodeError, KeyError) as e:
+                print(f"响应解析异常: {e} | 原始响应: {response.text}")
+                time.sleep(self.POLLING_INTERVAL)
+        
+        raise TimeoutError("任务处理超时")
+    
+    def _process_result(self, result_data):
+        print(result_data)
+        import pdb; pdb.set_trace()
+        
+    def generate_video(
+        self,
+        model_id: str,
+        prompt: str,
+        negative_prompt: str="",
+        seed: int = 0,
+        image=None,
+        lora_config = [],
+        use_teacache = "enable",
+        **kwargs,
+    ):  
+        
+        req_dict = {}
+        req_dict['guidance_scale']  = kwargs.pop('cfg', 6.0)
+        req_dict['num_inference_steps'] = kwargs.pop('steps', 30)
+        endpoint = self.model_endpoints[model_id]
+        req_dict['prompt'] = prompt
+        req_dict['negative_prompt']=negative_prompt
+        req_dict['seed'] = seed
+        if lora_config:
+            if len(lora_config) > 1:
+                raise NotImplementedError(f"TODO, tmp only support one lora")
+            req_dict['lora_name_list'] = [x[0] for x in lora_config]
+            req_dict['lora_weight_list'] = [x[1] for x in lora_config]
+
+        if use_teacache == 'enable':
+            req_dict['teacache'] = 0.3
+        else:
+            req_dict['teacache'] = 0
+        
+        req_dict["image"] = self._encode_image(image_tensor=image)
+        endpoint = self.MODEL_ENDPOINTS[model_id]
+        query_url = self._send_initial_request(endpoint, request_data=req_dict)
+        result = self._poll_for_completion(query_url)
+        return self._process_result(result)
+    
