@@ -267,9 +267,11 @@ def initialize_custom_nodes() -> None:
     
     for config_file in node_directory.glob('*.json'):
         try:
+            if config_file.name.endswith('.disabled'):continue 
             load_node_definitions(config_file)
         except IOError as file_error:
             print(f"File processing error {config_file}: {str(file_error)}")
+
 
 # Initialize nodes on module import
 if __name__ != "__main__":
