@@ -1,11 +1,22 @@
 import json
 import time
+import warnings
 
 import requests
-from comfy_api_nodes.apinode_utils import (
-    download_url_to_video_output,
-    tensor_to_base64_string,
-)
+
+try:
+    from comfy_api_nodes.apinode_utils import (
+        download_url_to_video_output,
+        tensor_to_base64_string,
+    )
+except ModuleNotFoundError as e:
+    download_url_to_video_output = None
+    tensor_to_base64_string = None
+
+    ERROR_MSG = f"Error {e} ComfyUI API nodes module not found. Please ensure you have ComfyUI version 0.3.36 or later installed."
+
+    warnings.warn(ERROR_MSG)
+
 
 from ..core.common import client
 from ..core.common.env_var import BIZYAIR_DEBUG
@@ -181,6 +192,8 @@ class Wan_ImageToVideoPipeline(WanApiNodeBase, BizyAirBaseNode):
         use_teacache="enable",
         **kwargs,
     ):
+        if download_url_to_video_output is None or tensor_to_base64_string is None:
+            raise ImportError(ERROR_MSG)
 
         req_dict = {}
         req_dict["guidance_scale"] = kwargs.pop("cfg", 6.0)
