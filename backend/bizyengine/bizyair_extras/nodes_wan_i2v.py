@@ -1,13 +1,14 @@
 import json
 import time
-from PIL import Image
 import requests
 
+from comfy_api_nodes.apinode_utils import download_url_to_video_output
+
+from ..core.common.env_var import BIZYAIR_DEBUG
 from ..core.nodes_base import BizyAirBaseNode
 from ..core.common import client
-from ..core.image_utils import encode_data
 class WanApiNodeBase:
-    model_endpoints = {
+    MODEL_ENDPOINTS = {
         "Wan-AI/Wan2.1-I2V-14B-480P-Diffusers" : "https://bizyair-api.siliconflow.cn/x/v1/supernode/faas-wan-i2v-14b-480p-server"
     }
 
@@ -99,7 +100,7 @@ class Wan_ImageToVideoPipeline(WanApiNodeBase,BizyAirBaseNode):
         }
         
 
-    RETURN_TYPES = ("STRING",)
+    RETURN_TYPES = ("VIDEO",)
 
     FUNCTION = "generate_video"
     CATEGORY = "Diffusers/WAN Video Generation" 
@@ -146,14 +147,17 @@ class Wan_ImageToVideoPipeline(WanApiNodeBase,BizyAirBaseNode):
                     return response_data
                 time.sleep(self.POLLING_INTERVAL)
             except (json.JSONDecodeError, KeyError) as e:
-                print(f"响应解析异常: {e} | 原始响应: {response.text}")
+                if BIZYAIR_DEBUG:
+                    print(f"Response parsing error: {e} | Raw response: {response.text}")
                 time.sleep(self.POLLING_INTERVAL)
         
-        raise TimeoutError("任务处理超时")
+        raise TimeoutError("Task processing timeout")
     
     def _process_result(self, result_data):
         print(result_data)
-        import pdb; pdb.set_trace()
+        video_url = result_data['data']['payload']['data']['payload'] 
+     
+        return (download_url_to_video_output(video_url),)
         
     def generate_video(
         self,
@@ -170,7 +174,6 @@ class Wan_ImageToVideoPipeline(WanApiNodeBase,BizyAirBaseNode):
         req_dict = {}
         req_dict['guidance_scale']  = kwargs.pop('cfg', 6.0)
         req_dict['num_inference_steps'] = kwargs.pop('steps', 30)
-        endpoint = self.model_endpoints[model_id]
         req_dict['prompt'] = prompt
         req_dict['negative_prompt']=negative_prompt
         req_dict['seed'] = seed
