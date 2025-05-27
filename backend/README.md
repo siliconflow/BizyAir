@@ -16,7 +16,7 @@ prompt_text = """
 {
   "36": {
     "inputs": {
-      "clip_name1": "t5xxl_fp8_e4m3fn.safetensors",
+      "clip_name1": "t5xxl_fp16.safetensors",
       "clip_name2": "clip_l.safetensors",
       "type": "flux"
     },
@@ -27,10 +27,10 @@ prompt_text = """
   },
   "37": {
     "inputs": {
-      "text": "a very cute cat.",
+      "text": "close up photo of a rabbit, forest in spring, haze, halation, bloom, dramatic atmosphere, centred, rule of thirds, 200mm 1.4f macro shot",
       "clip": [
-        "65",
-        1
+        "36",
+        0
       ]
     },
     "class_type": "BizyAir_CLIPTextEncode",
@@ -41,11 +41,11 @@ prompt_text = """
   "47": {
     "inputs": {
       "model": [
-        "65",
+        "48",
         0
       ],
       "conditioning": [
-        "67",
+        "37",
         0
       ]
     },
@@ -56,8 +56,8 @@ prompt_text = """
   },
   "48": {
     "inputs": {
-      "unet_name": "flux/flux1-dev.sft",
-      "weight_dtype": "fp8_e4m3fn"
+      "unet_name": "flux/pixelwave-flux1-dev.safetensors",
+      "weight_dtype": "default"
     },
     "class_type": "BizyAir_UNETLoader",
     "_meta": {
@@ -83,24 +83,13 @@ prompt_text = """
         0
       ],
       "latent_image": [
-        "51",
+        "66",
         0
       ]
     },
     "class_type": "BizyAir_SamplerCustomAdvanced",
     "_meta": {
       "title": "☁️BizyAir SamplerCustomAdvanced"
-    }
-  },
-  "51": {
-    "inputs": {
-      "width": 1024,
-      "height": 1024,
-      "batch_size": 1
-    },
-    "class_type": "EmptyLatentImage",
-    "_meta": {
-      "title": "空Latent图像"
     }
   },
   "54": {
@@ -128,13 +117,25 @@ prompt_text = """
       "title": "☁️BizyAir Load VAE"
     }
   },
+  "56": {
+    "inputs": {
+      "images": [
+        "54",
+        0
+      ]
+    },
+    "class_type": "PreviewImage",
+    "_meta": {
+      "title": "预览图像"
+    }
+  },
   "58": {
     "inputs": {
-      "scheduler": "normal",
+      "scheduler": "simple",
       "steps": 20,
       "denoise": 1,
       "model": [
-        "65",
+        "48",
         0
       ]
     },
@@ -145,7 +146,7 @@ prompt_text = """
   },
   "59": {
     "inputs": {
-      "noise_seed": 9999921
+      "noise_seed": 0
     },
     "class_type": "BizyAir_RandomNoise",
     "_meta": {
@@ -161,61 +162,17 @@ prompt_text = """
       "title": "☁️BizyAir KSamplerSelect"
     }
   },
-  "65": {
+  "66": {
     "inputs": {
-      "lora_name": "墨幽-F.1-Lora-3D卡通_v1",
-      "strength_model": 1,
-      "strength_clip": 1,
-      "model_version_id": 213,
-      "model": [
-        "48",
-        0
-      ],
-      "clip": [
-        "36",
-        0
-      ]
+      "width": 1024,
+      "height": 1024,
+      "batch_size": 1
     },
-    "class_type": "BizyAir_LoraLoader",
+    "class_type": "EmptySD3LatentImage",
     "_meta": {
-      "title": "☁️BizyAir Load LoRA"
+      "title": "空Latent图像（SD3）"
     }
-  },
-  "67": {
-    "inputs": {
-      "guidance": 3.5,
-      "conditioning": [
-        "37",
-        0
-      ]
-    },
-    "class_type": "BizyAir_FluxGuidance",
-    "_meta": {
-      "title": "☁️BizyAir FluxGuidance"
-    }
-  },
-  "70": {
-    "inputs": {
-      "filename_prefix": "ComfyUI",
-      "images": [
-        "54",
-        0
-      ]
-    },
-    "class_type": "SaveImage",
-    "_meta": {
-      "title": "保存图像"
-    }
-  },
-    "bizyair_magic_node": {
-        "inputs": {},
-        "class_type": "BizyAir_PassParameter",
-        "_meta": {
-        "title": "☁️BizyAir PassParameter",
-        "api_key": "",
-        "prompt_id": "a-unique-prompt-id"
-        }
-    }
+  }
 }
 """
 
@@ -227,7 +184,15 @@ def queue_prompt(prompt):
 
 
 prompt = json.loads(prompt_text)
-prompt["bizyair_magic_node"]["_meta"]["api_key"]=BIZYAIR_API_KEY
-
+param_node =  {
+        "inputs": {},
+        "class_type": "BizyAir_PassParameter",
+        "_meta": {
+        "title": "☁️BizyAir PassParameter",
+        "api_key": BIZYAIR_API_KEY,
+        "prompt_id": "a-unique-prompt-id"
+        }
+    }
+prompt["bizyair_magic_node"]=param_node
 queue_prompt(prompt)
 ```
