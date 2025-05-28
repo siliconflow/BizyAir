@@ -63,7 +63,7 @@ class Wan_LoraLoader(BizyAirBaseNode):
     FUNCTION = "apply_lora"
     CATEGORY = "Diffusers/WAN Video Generation"
 
-    def apply_lora(self, lora_name, lora_weight=0.75):
+    def apply_lora(self, lora_name, lora_weight=0.75, **kwargs):
         return ([(lora_name, lora_weight)],)
 
 

@@ -124,7 +124,7 @@ class UltimateSDUpscale(BizyAirBaseNode):
         return prepare_inputs(required, optional)
 
     RETURN_TYPES = ("IMAGE",)
-    FUNCTION = "upscale"
+    # FUNCTION = "upscale"
     CATEGORY = "image/upscaling"
 
     def upscale(self, **kwargs):

@@ -8,13 +8,13 @@ import os
 
 import numpy as np
 import requests
+from bizyengine.core import BizyAirMiscBaseNode, pop_api_key_and_prompt_id
+from bizyengine.core.common import client
 from bizyengine.core.common.env_var import BIZYAIR_SERVER_ADDRESS
 from bizyengine.core.image_utils import decode_comfy_image, encode_comfy_image
 
-from .utils import get_api_key
 
-
-class StableDiffusionXLControlNetUnionPipeline:
+class StableDiffusionXLControlNetUnionPipeline(BizyAirMiscBaseNode):
     API_URL = f"{BIZYAIR_SERVER_ADDRESS}/supernode/diffusers-v1-stablediffusionxlcontrolnetunionpipeline"
 
     @classmethod
@@ -83,14 +83,6 @@ class StableDiffusionXLControlNetUnionPipeline:
     FUNCTION = "process"
     CATEGORY = "☁️BizyAir/ControlNet"
 
-    @staticmethod
-    def get_headers():
-        return {
-            "accept": "application/json",
-            "content-type": "application/json",
-            "authorization": f"Bearer {get_api_key()}",
-        }
-
     def process(
         self,
         openpose_image=None,
@@ -101,6 +93,7 @@ class StableDiffusionXLControlNetUnionPipeline:
         segment_image=None,
         **kwargs,
     ):
+        extra_data = pop_api_key_and_prompt_id(kwargs)
         controlnet_img = {
             0: openpose_image,
             1: depth_image,
@@ -143,7 +136,7 @@ class StableDiffusionXLControlNetUnionPipeline:
         response = requests.post(
             self.API_URL,
             json=payload,
-            headers=self.get_headers(),
+            headers=client.headers(api_key=extra_data["api_key"]),
         )
 
         result = response.json()

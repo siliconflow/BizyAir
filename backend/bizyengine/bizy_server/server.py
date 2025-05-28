@@ -10,7 +10,9 @@ import urllib.parse
 import uuid
 
 import aiohttp
+import execution
 import openai
+from bizyengine.core.common.env_var import BIZYAIR_SERVER_MODE
 from server import PromptServer
 
 from .api_client import APIClient
@@ -30,6 +32,12 @@ MODEL_API = f"{API_PREFIX}/model"
 logging.basicConfig(level=logging.DEBUG)
 
 
+def _get_request_api_key(request_headers):
+    if BIZYAIR_SERVER_MODE:
+        return request_headers.get("api_key")
+    return None
+
+
 class BizyAirServer:
     def __init__(self):
         BizyAirServer.instance = self
@@ -42,6 +50,8 @@ class BizyAirServer:
         self.setup_routes()
 
     def setup_routes(self):
+        # 以下路径不论本地模式还是服务器模式都要注册
+
         @self.prompt_server.routes.get(f"/{COMMUNITY_API}/model_types")
         async def list_model_types(request):
             return OKResponse(types())
@@ -49,6 +59,652 @@ class BizyAirServer:
         @self.prompt_server.routes.get(f"/{COMMUNITY_API}/base_model_types")
         async def list_base_model_types(request):
             return OKResponse(base_model_types())
+
+        @self.prompt_server.routes.post(f"/{COMMUNITY_API}/datasets/query")
+        async def query_my_datasets(request):
+            current = int(request.rel_url.query.get("current", "1"))
+            page_size = int(request.rel_url.query.get("page_size", "10"))
+            keyword = None
+            annotated = None
+            if request.body_exists:
+                json_data = await request.json()
+                keyword = json_data["keyword"]
+                annotated = json_data["annotated"]
+            resp, err = None, None
+
+            # 调用API查询数据集
+            request_api_key = _get_request_api_key(request.headers)
+            resp, err = await self.api_client.query_datasets(
+                current,
+                page_size,
+                keyword=keyword,
+                annotated=annotated,
+                request_api_key=request_api_key,
+            )
+            if err:
+                return ErrResponse(err)
+
+            return OKResponse(resp)
+
+        @self.prompt_server.routes.get(
+            f"/{COMMUNITY_API}/datasets/{{dataset_id}}/detail"
+        )
+        async def get_dataset_detail(request):
+            # 获取路径参数中的数据集ID
+            dataset_id = int(request.match_info["dataset_id"])
+
+            # 检查dataset_id是否合法
+            if not dataset_id or dataset_id <= 0:
+                return ErrResponse(errnos.INVALID_DATASET_ID)
+
+            # 调用API获取数据集详情
+            request_api_key = _get_request_api_key(request.headers)
+            resp, err = await self.api_client.get_dataset_detail(
+                dataset_id, request_api_key=request_api_key
+            )
+            if err:
+                return ErrResponse(err)
+
+            return OKResponse(resp)
+
+        @self.prompt_server.routes.post(f"/{COMMUNITY_API}/models/query")
+        async def query_my_models(request):
+            # 获取查询参数
+            mode = request.rel_url.query.get("mode", "")
+            if not mode or mode not in ["my", "my_fork", "publicity", "official"]:
+                return ErrResponse(errnos.INVALID_QUERY_MODE)
+
+            current = int(request.rel_url.query.get("current", "1"))
+            page_size = int(request.rel_url.query.get("page_size", "10"))
+            json_data = await request.json()
+            keyword = json_data["keyword"]
+            model_types = json_data.get("model_types", [])
+            base_models = json_data.get("base_models", [])
+            sort = json_data.get("sort", "")
+            resp, err = None, None
+
+            request_api_key = _get_request_api_key(request.headers)
+            if mode in ["my", "my_fork"]:
+                # 调用API查询模型
+                resp, err = await self.api_client.query_models(
+                    mode,
+                    current,
+                    page_size,
+                    keyword=keyword,
+                    model_types=model_types,
+                    base_models=base_models,
+                    sort=sort,
+                    request_api_key=request_api_key,
+                )
+            elif mode == "publicity":
+                # 调用API查询社区模型
+                resp, err = await self.api_client.query_community_models(
+                    current,
+                    page_size,
+                    keyword=keyword,
+                    model_types=model_types,
+                    base_models=base_models,
+                    sort=sort,
+                    request_api_key=request_api_key,
+                )
+            elif mode == "official":
+                resp, err = await self.api_client.query_official_models(
+                    current,
+                    page_size,
+                    keyword=keyword,
+                    model_types=model_types,
+                    base_models=base_models,
+                    sort=sort,
+                    request_api_key=request_api_key,
+                )
+            if err:
+                return ErrResponse(err)
+
+            return OKResponse(resp)
+
+        @self.prompt_server.routes.get(f"/{COMMUNITY_API}/models/{{model_id}}/detail")
+        async def get_model_detail(request):
+            # 获取路径参数中的模型ID
+            model_id = int(request.match_info["model_id"])
+
+            # 检查model_id是否合法
+            if not model_id or model_id <= 0:
+                return ErrResponse(errnos.INVALID_MODEL_ID)
+
+            source = request.rel_url.query.get("source", "")
+
+            # 调用API获取模型详情
+            request_api_key = _get_request_api_key(request.headers)
+            resp, err = await self.api_client.get_model_detail(
+                model_id, source, request_api_key=request_api_key
+            )
+            if err:
+                return ErrResponse(err)
+
+            return OKResponse(resp)
+
+        @self.prompt_server.routes.delete(f"/{COMMUNITY_API}/models/{{model_id}}")
+        async def delete_model(request):
+            # 获取路径参数中的模型ID
+            model_id = int(request.match_info["model_id"])
+
+            # 检查model_id是否合法
+            if not model_id or model_id <= 0:
+                return ErrResponse(errnos.INVALID_MODEL_ID)
+
+            # 调用API删除模型
+            request_api_key = _get_request_api_key(request.headers)
+            resp, err = await self.api_client.delete_bizy_model(
+                model_id, request_api_key=request_api_key
+            )
+            if err:
+                return ErrResponse(err)
+
+            return OKResponse(resp)
+
+        @self.prompt_server.routes.put(f"/{COMMUNITY_API}/models/{{model_id}}")
+        async def update_model(request):
+            sid = request.rel_url.query.get("clientId", "")
+            if not is_string_valid(sid):
+                return ErrResponse(errnos.INVALID_CLIENT_ID)
+            # 获取路径参数中的模型ID
+            model_id = int(request.match_info["model_id"])
+
+            # 检查model_id是否合法
+            if not model_id or model_id <= 0:
+                return ErrResponse(errnos.INVALID_MODEL_ID)
+
+            # 获取请求体数据
+            json_data = await request.json()
+
+            # 校验name和type
+            err = check_str_param(json_data, "name", errnos.INVALID_NAME)
+            if err is not None:
+                return err
+
+            if "/" in json_data["name"]:
+                return ErrResponse(errnos.INVALID_NAME)
+
+            err = check_type(json_data)
+            if err is not None:
+                return err
+
+            # 校验versions
+            if "versions" not in json_data or not isinstance(
+                json_data["versions"], list
+            ):
+                return ErrResponse(errnos.INVALID_VERSIONS)
+
+            versions = json_data["versions"]
+            version_names = set()
+
+            for version in versions:
+                # 检查version是否重复
+                if version.get("version") in version_names:
+                    return ErrResponse(errnos.DUPLICATE_VERSION)
+
+                # 检查version字段是否合法
+                if not is_string_valid(version.get("version")) or "/" in version.get(
+                    "version"
+                ):
+                    return ErrResponse(errnos.INVALID_VERSION_NAME)
+
+                version_names.add(version.get("version"))
+
+                # 检查base_model, path和sign是否有值
+                for field in ["base_model", "path", "sign"]:
+                    if not is_string_valid(version.get(field)):
+                        return ErrResponse(errnos.INVALID_VERSION_FIELD(field))
+
+            # 调用API更新模型
+            request_api_key = _get_request_api_key(request.headers)
+            resp, err = await self.api_client.update_model(
+                model_id,
+                json_data["name"],
+                json_data["type"],
+                versions,
+                request_api_key=request_api_key,
+            )
+            if err:
+                return ErrResponse(err)
+
+            # 开启线程检查同步状态
+            threading.Thread(
+                target=self.check_sync_status,
+                args=(resp["id"], resp["version_ids"]),
+                daemon=True,
+            ).start()
+
+            return OKResponse(None)
+
+        @self.prompt_server.routes.post(
+            f"/{COMMUNITY_API}/models/fork/{{model_version_id}}"
+        )
+        async def fork_model_version(request):
+            try:
+                # 获取version_id参数
+                version_id = request.match_info["model_version_id"]
+                if not version_id:
+                    return ErrResponse(errnos.INVALID_MODEL_VERSION_ID)
+
+                # 调用API fork模型版本
+                request_api_key = _get_request_api_key(request.headers)
+                _, err = await self.api_client.fork_model_version(
+                    version_id, request_api_key=request_api_key
+                )
+                if err:
+                    return ErrResponse(err)
+
+                return OKResponse(None)
+
+            except Exception as e:
+                print(f"\033[31m[BizyAir]\033[0m Fail to fork model version: {str(e)}")
+                return ErrResponse(errnos.FORK_MODEL_VERSION)
+
+        @self.prompt_server.routes.delete(
+            f"/{COMMUNITY_API}/models/fork/{{model_version_id}}"
+        )
+        async def unfork_model_version(request):
+            try:
+                # 获取version_id参数
+                version_id = request.match_info["model_version_id"]
+                if not version_id:
+                    return ErrResponse(errnos.INVALID_MODEL_VERSION_ID)
+
+                # 调用API fork模型版本
+                request_api_key = _get_request_api_key(request.headers)
+                _, err = await self.api_client.unfork_model_version(
+                    version_id, request_api_key=request_api_key
+                )
+                if err:
+                    return ErrResponse(err)
+
+                return OKResponse(None)
+
+            except Exception as e:
+                print(
+                    f"\033[31m[BizyAir]\033[0m Fail to unfork model version: {str(e)}"
+                )
+                return ErrResponse(errnos.FORK_MODEL_VERSION)
+
+        @self.prompt_server.routes.post(
+            f"/{COMMUNITY_API}/models/like/{{model_version_id}}"
+        )
+        async def like_model_version(request):
+            try:
+                # 获取version_id参数
+                version_id = request.match_info["model_version_id"]
+                if not version_id:
+                    return ErrResponse(errnos.INVALID_MODEL_VERSION_ID)
+
+                # 调用API like模型版本
+                request_api_key = _get_request_api_key(request.headers)
+                _, err = await self.api_client.toggle_user_like(
+                    "model_version", version_id, request_api_key=request_api_key
+                )
+                if err:
+                    return ErrResponse(err)
+
+                return OKResponse(None)
+
+            except Exception as e:
+                print(
+                    f"\033[31m[BizyAir]\033[0m Fail to toggle like model version: {str(e)}"
+                )
+                return ErrResponse(errnos.TOGGLE_USER_LIKE)
+
+        @self.prompt_server.routes.get(
+            f"/{COMMUNITY_API}/models/versions/{{model_version_id}}/workflow_json/{{sign}}"
+        )
+        async def get_workflow_json(request):
+            model_version_id = int(request.match_info["model_version_id"])
+            # 检查model_version_id是否合法
+            if not model_version_id or model_version_id <= 0:
+                return ErrResponse(errnos.INVALID_MODEL_VERSION_ID)
+
+            sign = str(request.match_info["sign"])
+            if not sign:
+                return ErrResponse(errnos.INVALID_SIGN)
+
+            # 获取上传凭证
+            request_api_key = _get_request_api_key(request.headers)
+            url, err = await self.api_client.get_download_url(
+                sign=sign,
+                model_version_id=model_version_id,
+                request_api_key=request_api_key,
+            )
+            if err:
+                return ErrResponse(err)
+
+            # 请求该url，获取文件内容
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url) as response:
+                    if response.status != 200:
+                        return ErrResponse(errnos.FAILED_TO_FETCH_WORKFLOW_JSON)
+                    json_content = await response.json()
+
+            return OKResponse(json_content)
+
+        @self.prompt_server.routes.get(f"/{API_PREFIX}/dict")
+        async def get_data_dict(request):
+            request_api_key = _get_request_api_key(request.headers)
+            data_dict, err = await self.api_client.get_data_dict(
+                request_api_key=request_api_key
+            )
+            if err is not None:
+                return ErrResponse(err)
+
+            return OKResponse(data_dict)
+
+        @self.prompt_server.routes.post(f"/{COMMUNITY_API}/datasets")
+        async def commit_dataset(request):
+            sid = request.rel_url.query.get("clientId", "")
+            if not is_string_valid(sid):
+                return ErrResponse(errnos.INVALID_CLIENT_ID)
+
+            json_data = await request.json()
+
+            # 校验name和type
+            err = check_str_param(json_data, "name", errnos.INVALID_DATASET_NAME)
+            if err is not None:
+                return err
+
+            if "/" in json_data["name"]:
+                return ErrResponse(errnos.INVALID_DATASET_NAME)
+
+            # 校验versions
+            if "versions" not in json_data or not isinstance(
+                json_data["versions"], list
+            ):
+                return ErrResponse(errnos.INVALID_VERSIONS)
+
+            versions = json_data["versions"]
+            version_names = set()
+
+            for version in versions:
+                # 检查version是否重复
+                if version.get("version") in version_names:
+                    return ErrResponse(errnos.DUPLICATE_VERSION)
+
+                # 检查version字段是否合法
+                if not is_string_valid(version.get("version")) or "/" in version.get(
+                    "version"
+                ):
+                    return ErrResponse(errnos.INVALID_DATASET_VERSION)
+
+                version_names.add(version.get("version"))
+
+            # 调用API提交数据集
+            request_api_key = _get_request_api_key(request.headers)
+            resp, err = await self.api_client.commit_dataset(
+                payload=json_data, request_api_key=request_api_key
+            )
+            if err:
+                return ErrResponse(err)
+
+            # print("resp------------------------------->", json_data, resp)
+            # 开启线程检查同步状态
+            threading.Thread(
+                target=self.check_dataset_sync_status,
+                args=(resp["id"], resp["version_ids"], sid),
+                daemon=True,
+            ).start()
+
+            # enable refresh for lora
+            # TODO: enable refresh for other types
+            # bizyengine.core.path_utils.path_manager.enable_refresh_options("loras")
+
+            return OKResponse(resp)
+
+        @self.prompt_server.routes.put(f"/{COMMUNITY_API}/datasets/{{dataset_id}}")
+        async def update_dataset(request):
+            sid = request.rel_url.query.get("clientId", "")
+            if not is_string_valid(sid):
+                return ErrResponse(errnos.INVALID_CLIENT_ID)
+            # 获取路径参数中的数据集ID
+            dataset_id = int(request.match_info["dataset_id"])
+
+            # 检查model_id是否合法
+            if not dataset_id or dataset_id <= 0:
+                return ErrResponse(errnos.INVALID_DATASET_ID)
+
+            # 获取请求体数据
+            json_data = await request.json()
+
+            # 校验name和type
+            err = check_str_param(json_data, "name", errnos.INVALID_DATASET_NAME)
+            if err is not None:
+                return err
+
+            if "/" in json_data["name"]:
+                return ErrResponse(errnos.INVALID_DATASET_NAME)
+
+            # 校验versions
+            if "versions" not in json_data or not isinstance(
+                json_data["versions"], list
+            ):
+                return ErrResponse(errnos.INVALID_VERSIONS)
+
+            versions = json_data["versions"]
+            version_names = set()
+
+            for version in versions:
+                # 检查version是否重复
+                if version.get("version") in version_names:
+                    return ErrResponse(errnos.DUPLICATE_VERSION)
+
+                # 检查version字段是否合法
+                if not is_string_valid(version.get("version")) or "/" in version.get(
+                    "version"
+                ):
+                    return ErrResponse(errnos.INVALID_VERSION_NAME)
+
+                version_names.add(version.get("version"))
+
+            # 调用API更新数据集
+            request_api_key = _get_request_api_key(request.headers)
+            resp, err = await self.api_client.update_dataset(
+                dataset_id, json_data["name"], versions, request_api_key=request_api_key
+            )
+            if err:
+                return ErrResponse(err)
+
+            # 开启线程检查同步状态
+            threading.Thread(
+                target=self.check_dataset_sync_status,
+                args=(resp["id"], resp["version_ids"]),
+                daemon=True,
+            ).start()
+
+            return OKResponse(None)
+
+        @self.prompt_server.routes.delete(f"/{COMMUNITY_API}/datasets/{{dataset_id}}")
+        async def delete_dataset(request):
+            # 获取路径参数中的数据集ID
+            dataset_id = int(request.match_info["dataset_id"])
+
+            # 检查model_id是否合法
+            if not dataset_id or dataset_id <= 0:
+                return ErrResponse(errnos.INVALID_DATASET_ID)
+
+            # 调用API删除数据集
+            request_api_key = _get_request_api_key(request.headers)
+            resp, err = await self.api_client.delete_dataset(
+                dataset_id, request_api_key=request_api_key
+            )
+            if err:
+                return ErrResponse(err)
+
+            return OKResponse(resp)
+
+        @self.prompt_server.routes.post(f"/{COMMUNITY_API}/share")
+        async def create_share(request):
+            json_data = await request.json()
+            if "biz_id" not in json_data:
+                return ErrResponse(errnos.INVALID_SHARE_BIZ_ID)
+
+            biz_id = int(json_data["biz_id"])
+            if not biz_id or biz_id <= 0:
+                return ErrResponse(errnos.INVALID_SHARE_BIZ_ID)
+
+            if "type" not in json_data:
+                return ErrResponse(errnos.INVALID_SHARE_TYPE)
+            if not is_string_valid(json_data["type"]) or (
+                json_data["type"] != "bizy_model_version"
+            ):
+                return ErrResponse(errnos.INVALID_SHARE_TYPE)
+
+            # 调用API提交数据集
+            request_api_key = _get_request_api_key(request.headers)
+            resp, err = await self.api_client.create_share(
+                payload=json_data, request_api_key=request_api_key
+            )
+            if err:
+                return ErrResponse(err)
+
+            return OKResponse(resp)
+
+        @self.prompt_server.routes.get(f"/{COMMUNITY_API}/model_version/{{version_id}}")
+        async def get_model_version_detail(request):
+            # 获取路径参数中的数据集ID
+            version_id = int(request.match_info["version_id"])
+
+            # 检查version_id是否合法
+            if not version_id or version_id <= 0:
+                return ErrResponse(errnos.INVALID_MODEL_VERSION_ID)
+
+            # 调用API获取数据集详情
+            request_api_key = _get_request_api_key(request.headers)
+            resp, err = await self.api_client.get_model_version_detail(
+                version_id, request_api_key=request_api_key
+            )
+            if err:
+                return ErrResponse(err)
+
+            return OKResponse(resp)
+
+        @self.prompt_server.routes.get(f"/{COMMUNITY_API}/sign")
+        async def sign(request):
+            sha256sum = request.rel_url.query.get("sha256sum")
+            if not is_string_valid(sha256sum):
+                return ErrResponse(errnos.EMPTY_SHA256SUM)
+
+            type = request.rel_url.query.get("type")
+            request_api_key = _get_request_api_key(request.headers)
+            sign_data, err = await self.api_client.sign(
+                sha256sum, type, request_api_key=request_api_key
+            )
+            if err is not None:
+                return ErrResponse(err)
+
+            return OKResponse(sign_data)
+
+        @self.prompt_server.routes.get(f"/{COMMUNITY_API}/upload_token")
+        async def upload_token(request):
+            filename = request.rel_url.query.get("filename", "")
+            # 校验filename
+            if not is_string_valid(filename):
+                return ErrResponse(errnos.INVALID_FILENAME)
+
+            filename = urllib.parse.quote(filename)
+            request_api_key = _get_request_api_key(request.headers)
+            token, err = await self.api_client.get_upload_token(
+                filename=filename, request_api_key=request_api_key
+            )
+            if err is not None:
+                return ErrResponse(err)
+            return OKResponse(token)
+
+        @self.prompt_server.routes.post(f"/{COMMUNITY_API}/commit_file")
+        async def commit_file(request):
+            json_data = await request.json()
+
+            if "sha256sum" not in json_data:
+                return ErrResponse(errnos.EMPTY_SHA256SUM)
+            sha256sum = json_data.get("sha256sum")
+
+            if "object_key" not in json_data:
+                return ErrResponse(errnos.INVALID_OBJECT_KEY)
+            object_key = json_data.get("object_key")
+
+            if "type" not in json_data:
+                return ErrResponse(errnos.INVALID_TYPE)
+            type = json_data.get("type")
+
+            md5_hash = ""
+            if "md5_hash" in json_data:
+                md5_hash = json_data.get("md5_hash")
+
+            request_api_key = _get_request_api_key(request.headers)
+            commit_data, err = await self.api_client.commit_file(
+                signature=sha256sum,
+                object_key=object_key,
+                md5_hash=md5_hash,
+                type=type,
+                request_api_key=request_api_key,
+            )
+            # print("commit_data", commit_data)
+            if err is not None:
+                return ErrResponse(err)
+
+            return OKResponse(None)
+
+        # 由于历史原因，前端请求body里有apikey所以是post
+        @self.prompt_server.routes.post(f"/{API_PREFIX}/get_silicon_cloud_llm_models")
+        async def get_silicon_cloud_llm_models_endpoint(request):
+            request_api_key = _get_request_api_key(request.headers)
+            all_models = await self.api_client.fetch_all_llm_models(
+                request_api_key=request_api_key
+            )
+            llm_models = [model for model in all_models if "vl" not in model.lower()]
+            llm_models.append("No LLM Enhancement")
+            return aiohttp.web.json_response(llm_models)
+
+        # 由于历史原因，前端请求body里有apikey所以是post
+        @self.prompt_server.routes.post(f"/{API_PREFIX}/get_silicon_cloud_vlm_models")
+        async def get_silicon_cloud_vlm_models_endpoint(request):
+            request_api_key = _get_request_api_key(request.headers)
+            all_models = await self.api_client.fetch_all_llm_models(
+                request_api_key=request_api_key
+            )
+            vlm_models = [model for model in all_models if "vl" in model.lower()]
+            vlm_models.append("No VLM Enhancement")
+            return aiohttp.web.json_response(vlm_models)
+
+        @self.prompt_server.routes.post(f"/{API_PREFIX}/validate_prompt")
+        async def validate_prompt(request):
+            json_data = await request.json()
+            if not "prompt" in json_data:
+                return ErrResponse(errnos.MISSING_PROMPT)
+
+            valid = execution.validate_prompt(json_data["prompt"])
+            if valid[0]:
+                return OKResponse(None)
+            else:
+                err = errnos.INVALID_PROMPT.copy()
+                err.data = {"error": valid[1], "node_errors": valid[3]}
+                return ErrResponse(err)
+
+        # 服务器模式下以下路径不会注册
+        if BIZYAIR_SERVER_MODE:
+            return
+
+        @self.prompt_server.routes.get(f"/{MODEL_HOST_API}" + "/{shareId}/models/files")
+        async def list_share_model_files(request):
+            shareId = request.match_info["shareId"]
+            if not is_string_valid(shareId):
+                return ErrResponse("INVALID_SHARE_ID")
+            payload = {}
+            query_params = ["type", "name", "ext_name"]
+            for param in query_params:
+                if param in request.rel_url.query and request.rel_url.query[param]:
+                    payload[param] = request.rel_url.query[param]
+            model_files, err = await self.api_client.get_share_model_files(
+                shareId=shareId, payload=payload
+            )
+            if err is not None:
+                return ErrResponse(err)
+            return OKResponse(model_files)
 
         @self.prompt_server.routes.get(f"/{USER_API}/info")
         async def user_info(request):
@@ -88,62 +744,6 @@ class BizyAirServer:
             finally:
                 self.sockets.pop(sid, None)
             return ws
-
-        @self.prompt_server.routes.get(f"/{COMMUNITY_API}/sign")
-        async def sign(request):
-            sha256sum = request.rel_url.query.get("sha256sum")
-            if not is_string_valid(sha256sum):
-                return ErrResponse(errnos.EMPTY_SHA256SUM)
-
-            type = request.rel_url.query.get("type")
-
-            sign_data, err = await self.api_client.sign(sha256sum, type)
-            if err is not None:
-                return ErrResponse(err)
-
-            return OKResponse(sign_data)
-
-        @self.prompt_server.routes.get(f"/{COMMUNITY_API}/upload_token")
-        async def upload_token(request):
-            filename = request.rel_url.query.get("filename", "")
-            # 校验filename
-            if not is_string_valid(filename):
-                return ErrResponse(errnos.INVALID_FILENAME)
-
-            filename = urllib.parse.quote(filename)
-            token, err = await self.api_client.get_upload_token(filename=filename)
-            if err is not None:
-                return ErrResponse(err)
-            return OKResponse(token)
-
-        @self.prompt_server.routes.post(f"/{COMMUNITY_API}/commit_file")
-        async def commit_file(request):
-            json_data = await request.json()
-
-            if "sha256sum" not in json_data:
-                return ErrResponse(errnos.EMPTY_SHA256SUM)
-            sha256sum = json_data.get("sha256sum")
-
-            if "object_key" not in json_data:
-                return ErrResponse(errnos.INVALID_OBJECT_KEY)
-            object_key = json_data.get("object_key")
-
-            if "type" not in json_data:
-                return ErrResponse(errnos.INVALID_TYPE)
-            type = json_data.get("type")
-
-            md5_hash = ""
-            if "md5_hash" in json_data:
-                md5_hash = json_data.get("md5_hash")
-
-            commit_data, err = await self.api_client.commit_file(
-                signature=sha256sum, object_key=object_key, md5_hash=md5_hash, type=type
-            )
-            # print("commit_data", commit_data)
-            if err is not None:
-                return ErrResponse(err)
-
-            return OKResponse(None)
 
         @self.prompt_server.routes.post(f"/{COMMUNITY_API}/models")
         async def commit_bizy_model(request):
@@ -213,484 +813,6 @@ class BizyAirServer:
 
             return OKResponse(resp)
 
-        @self.prompt_server.routes.post(f"/{COMMUNITY_API}/models/query")
-        async def query_my_models(request):
-            # 获取查询参数
-            mode = request.rel_url.query.get("mode", "")
-            if not mode or mode not in ["my", "my_fork", "publicity", "official"]:
-                return ErrResponse(errnos.INVALID_QUERY_MODE)
-
-            current = int(request.rel_url.query.get("current", "1"))
-            page_size = int(request.rel_url.query.get("page_size", "10"))
-            json_data = await request.json()
-            keyword = json_data["keyword"]
-            model_types = json_data.get("model_types", [])
-            base_models = json_data.get("base_models", [])
-            sort = json_data.get("sort", "")
-            resp, err = None, None
-
-            if mode in ["my", "my_fork"]:
-                # 调用API查询模型
-                resp, err = await self.api_client.query_models(
-                    mode,
-                    current,
-                    page_size,
-                    keyword=keyword,
-                    model_types=model_types,
-                    base_models=base_models,
-                    sort=sort,
-                )
-            elif mode == "publicity":
-                # 调用API查询社区模型
-                resp, err = await self.api_client.query_community_models(
-                    current,
-                    page_size,
-                    keyword=keyword,
-                    model_types=model_types,
-                    base_models=base_models,
-                    sort=sort,
-                )
-            elif mode == "official":
-                resp, err = await self.api_client.query_official_models(
-                    current,
-                    page_size,
-                    keyword=keyword,
-                    model_types=model_types,
-                    base_models=base_models,
-                    sort=sort,
-                )
-            if err:
-                return ErrResponse(err)
-
-            return OKResponse(resp)
-
-        @self.prompt_server.routes.get(f"/{COMMUNITY_API}/models/{{model_id}}/detail")
-        async def get_model_detail(request):
-            # 获取路径参数中的模型ID
-            model_id = int(request.match_info["model_id"])
-
-            # 检查model_id是否合法
-            if not model_id or model_id <= 0:
-                return ErrResponse(errnos.INVALID_MODEL_ID)
-
-            source = request.rel_url.query.get("source", "")
-
-            # 调用API获取模型详情
-            resp, err = await self.api_client.get_model_detail(model_id, source)
-            if err:
-                return ErrResponse(err)
-
-            return OKResponse(resp)
-
-        @self.prompt_server.routes.delete(f"/{COMMUNITY_API}/models/{{model_id}}")
-        async def delete_model(request):
-            # 获取路径参数中的模型ID
-            model_id = int(request.match_info["model_id"])
-
-            # 检查model_id是否合法
-            if not model_id or model_id <= 0:
-                return ErrResponse(errnos.INVALID_MODEL_ID)
-
-            # 调用API删除模型
-            resp, err = await self.api_client.delete_bizy_model(model_id)
-            if err:
-                return ErrResponse(err)
-
-            return OKResponse(resp)
-
-        @self.prompt_server.routes.put(f"/{COMMUNITY_API}/models/{{model_id}}")
-        async def update_model(request):
-            sid = request.rel_url.query.get("clientId", "")
-            if not is_string_valid(sid):
-                return ErrResponse(errnos.INVALID_CLIENT_ID)
-            # 获取路径参数中的模型ID
-            model_id = int(request.match_info["model_id"])
-
-            # 检查model_id是否合法
-            if not model_id or model_id <= 0:
-                return ErrResponse(errnos.INVALID_MODEL_ID)
-
-            # 获取请求体数据
-            json_data = await request.json()
-
-            # 校验name和type
-            err = check_str_param(json_data, "name", errnos.INVALID_NAME)
-            if err is not None:
-                return err
-
-            if "/" in json_data["name"]:
-                return ErrResponse(errnos.INVALID_NAME)
-
-            err = check_type(json_data)
-            if err is not None:
-                return err
-
-            # 校验versions
-            if "versions" not in json_data or not isinstance(
-                json_data["versions"], list
-            ):
-                return ErrResponse(errnos.INVALID_VERSIONS)
-
-            versions = json_data["versions"]
-            version_names = set()
-
-            for version in versions:
-                # 检查version是否重复
-                if version.get("version") in version_names:
-                    return ErrResponse(errnos.DUPLICATE_VERSION)
-
-                # 检查version字段是否合法
-                if not is_string_valid(version.get("version")) or "/" in version.get(
-                    "version"
-                ):
-                    return ErrResponse(errnos.INVALID_VERSION_NAME)
-
-                version_names.add(version.get("version"))
-
-                # 检查base_model, path和sign是否有值
-                for field in ["base_model", "path", "sign"]:
-                    if not is_string_valid(version.get(field)):
-                        return ErrResponse(errnos.INVALID_VERSION_FIELD(field))
-
-            # 调用API更新模型
-            resp, err = await self.api_client.update_model(
-                model_id, json_data["name"], json_data["type"], versions
-            )
-            if err:
-                return ErrResponse(err)
-
-            # 开启线程检查同步状态
-            threading.Thread(
-                target=self.check_sync_status,
-                args=(resp["id"], resp["version_ids"]),
-                daemon=True,
-            ).start()
-
-            return OKResponse(None)
-
-        @self.prompt_server.routes.post(
-            f"/{COMMUNITY_API}/models/fork/{{model_version_id}}"
-        )
-        async def fork_model_version(request):
-            try:
-                # 获取version_id参数
-                version_id = request.match_info["model_version_id"]
-                if not version_id:
-                    return ErrResponse(errnos.INVALID_MODEL_VERSION_ID)
-
-                # 调用API fork模型版本
-                _, err = await self.api_client.fork_model_version(version_id)
-                if err:
-                    return ErrResponse(err)
-
-                return OKResponse(None)
-
-            except Exception as e:
-                print(f"\033[31m[BizyAir]\033[0m Fail to fork model version: {str(e)}")
-                return ErrResponse(errnos.FORK_MODEL_VERSION)
-
-        @self.prompt_server.routes.delete(
-            f"/{COMMUNITY_API}/models/fork/{{model_version_id}}"
-        )
-        async def unfork_model_version(request):
-            try:
-                # 获取version_id参数
-                version_id = request.match_info["model_version_id"]
-                if not version_id:
-                    return ErrResponse(errnos.INVALID_MODEL_VERSION_ID)
-
-                # 调用API fork模型版本
-                _, err = await self.api_client.unfork_model_version(version_id)
-                if err:
-                    return ErrResponse(err)
-
-                return OKResponse(None)
-
-            except Exception as e:
-                print(
-                    f"\033[31m[BizyAir]\033[0m Fail to unfork model version: {str(e)}"
-                )
-                return ErrResponse(errnos.FORK_MODEL_VERSION)
-
-        @self.prompt_server.routes.post(
-            f"/{COMMUNITY_API}/models/like/{{model_version_id}}"
-        )
-        async def like_model_version(request):
-            try:
-                # 获取version_id参数
-                version_id = request.match_info["model_version_id"]
-                if not version_id:
-                    return ErrResponse(errnos.INVALID_MODEL_VERSION_ID)
-
-                # 调用API like模型版本
-                _, err = await self.api_client.toggle_user_like(
-                    "model_version", version_id
-                )
-                if err:
-                    return ErrResponse(err)
-
-                return OKResponse(None)
-
-            except Exception as e:
-                print(
-                    f"\033[31m[BizyAir]\033[0m Fail to toggle like model version: {str(e)}"
-                )
-                return ErrResponse(errnos.TOGGLE_USER_LIKE)
-
-        @self.prompt_server.routes.get(
-            f"/{COMMUNITY_API}/models/versions/{{model_version_id}}/workflow_json/{{sign}}"
-        )
-        async def get_workflow_json(request):
-            model_version_id = int(request.match_info["model_version_id"])
-            # 检查model_version_id是否合法
-            if not model_version_id or model_version_id <= 0:
-                return ErrResponse(errnos.INVALID_MODEL_VERSION_ID)
-
-            sign = str(request.match_info["sign"])
-            if not sign:
-                return ErrResponse(errnos.INVALID_SIGN)
-
-            # 获取上传凭证
-            url, err = await self.api_client.get_download_url(
-                sign=sign, model_version_id=model_version_id
-            )
-            if err:
-                return ErrResponse(err)
-
-            # 请求该url，获取文件内容
-            async with aiohttp.ClientSession() as session:
-                async with session.get(url) as response:
-                    if response.status != 200:
-                        return ErrResponse(errnos.FAILED_TO_FETCH_WORKFLOW_JSON)
-                    json_content = await response.json()
-
-            return OKResponse(json_content)
-
-        @self.prompt_server.routes.get(f"/{MODEL_HOST_API}" + "/{shareId}/models/files")
-        async def list_share_model_files(request):
-            shareId = request.match_info["shareId"]
-            if not is_string_valid(shareId):
-                return ErrResponse("INVALID_SHARE_ID")
-            payload = {}
-            query_params = ["type", "name", "ext_name"]
-            for param in query_params:
-                if param in request.rel_url.query and request.rel_url.query[param]:
-                    payload[param] = request.rel_url.query[param]
-            model_files, err = await self.api_client.get_share_model_files(
-                shareId=shareId, payload=payload
-            )
-            if err is not None:
-                return ErrResponse(err)
-            return OKResponse(model_files)
-
-        @self.prompt_server.routes.get(f"/{API_PREFIX}/dict")
-        async def get_data_dict(request):
-            data_dict, err = await self.api_client.get_data_dict()
-            if err is not None:
-                return ErrResponse(err)
-
-            return OKResponse(data_dict)
-
-        @self.prompt_server.routes.post(f"/{COMMUNITY_API}/datasets")
-        async def commit_dataset(request):
-            sid = request.rel_url.query.get("clientId", "")
-            if not is_string_valid(sid):
-                return ErrResponse(errnos.INVALID_CLIENT_ID)
-
-            json_data = await request.json()
-
-            # 校验name和type
-            err = check_str_param(json_data, "name", errnos.INVALID_DATASET_NAME)
-            if err is not None:
-                return err
-
-            if "/" in json_data["name"]:
-                return ErrResponse(errnos.INVALID_DATASET_NAME)
-
-            # 校验versions
-            if "versions" not in json_data or not isinstance(
-                json_data["versions"], list
-            ):
-                return ErrResponse(errnos.INVALID_VERSIONS)
-
-            versions = json_data["versions"]
-            version_names = set()
-
-            for version in versions:
-                # 检查version是否重复
-                if version.get("version") in version_names:
-                    return ErrResponse(errnos.DUPLICATE_VERSION)
-
-                # 检查version字段是否合法
-                if not is_string_valid(version.get("version")) or "/" in version.get(
-                    "version"
-                ):
-                    return ErrResponse(errnos.INVALID_DATASET_VERSION)
-
-                version_names.add(version.get("version"))
-
-            # 调用API提交数据集
-            resp, err = await self.api_client.commit_dataset(payload=json_data)
-            if err:
-                return ErrResponse(err)
-
-            # print("resp------------------------------->", json_data, resp)
-            # 开启线程检查同步状态
-            threading.Thread(
-                target=self.check_dataset_sync_status,
-                args=(resp["id"], resp["version_ids"], sid),
-                daemon=True,
-            ).start()
-
-            # enable refresh for lora
-            # TODO: enable refresh for other types
-            # bizyengine.core.path_utils.path_manager.enable_refresh_options("loras")
-
-            return OKResponse(resp)
-
-        @self.prompt_server.routes.put(f"/{COMMUNITY_API}/datasets/{{dataset_id}}")
-        async def update_dataset(request):
-            sid = request.rel_url.query.get("clientId", "")
-            if not is_string_valid(sid):
-                return ErrResponse(errnos.INVALID_CLIENT_ID)
-            # 获取路径参数中的数据集ID
-            dataset_id = int(request.match_info["dataset_id"])
-
-            # 检查model_id是否合法
-            if not dataset_id or dataset_id <= 0:
-                return ErrResponse(errnos.INVALID_DATASET_ID)
-
-            # 获取请求体数据
-            json_data = await request.json()
-
-            # 校验name和type
-            err = check_str_param(json_data, "name", errnos.INVALID_DATASET_NAME)
-            if err is not None:
-                return err
-
-            if "/" in json_data["name"]:
-                return ErrResponse(errnos.INVALID_DATASET_NAME)
-
-            # 校验versions
-            if "versions" not in json_data or not isinstance(
-                json_data["versions"], list
-            ):
-                return ErrResponse(errnos.INVALID_VERSIONS)
-
-            versions = json_data["versions"]
-            version_names = set()
-
-            for version in versions:
-                # 检查version是否重复
-                if version.get("version") in version_names:
-                    return ErrResponse(errnos.DUPLICATE_VERSION)
-
-                # 检查version字段是否合法
-                if not is_string_valid(version.get("version")) or "/" in version.get(
-                    "version"
-                ):
-                    return ErrResponse(errnos.INVALID_VERSION_NAME)
-
-                version_names.add(version.get("version"))
-
-            # 调用API更新数据集
-            resp, err = await self.api_client.update_dataset(
-                dataset_id, json_data["name"], versions
-            )
-            if err:
-                return ErrResponse(err)
-
-            # 开启线程检查同步状态
-            threading.Thread(
-                target=self.check_dataset_sync_status,
-                args=(resp["id"], resp["version_ids"]),
-                daemon=True,
-            ).start()
-
-            return OKResponse(None)
-
-        @self.prompt_server.routes.delete(f"/{COMMUNITY_API}/datasets/{{dataset_id}}")
-        async def delete_dataset(request):
-            # 获取路径参数中的数据集ID
-            dataset_id = int(request.match_info["dataset_id"])
-
-            # 检查model_id是否合法
-            if not dataset_id or dataset_id <= 0:
-                return ErrResponse(errnos.INVALID_DATASET_ID)
-
-            # 调用API删除数据集
-            resp, err = await self.api_client.delete_dataset(dataset_id)
-            if err:
-                return ErrResponse(err)
-
-            return OKResponse(resp)
-
-        @self.prompt_server.routes.post(f"/{COMMUNITY_API}/datasets/query")
-        async def query_my_datasets(request):
-            current = int(request.rel_url.query.get("current", "1"))
-            page_size = int(request.rel_url.query.get("page_size", "10"))
-            keyword = None
-            annotated = None
-            if request.body_exists:
-                json_data = await request.json()
-                keyword = json_data["keyword"]
-                annotated = json_data["annotated"]
-            resp, err = None, None
-
-            # 调用API查询数据集
-            resp, err = await self.api_client.query_datasets(
-                current,
-                page_size,
-                keyword=keyword,
-                annotated=annotated,
-            )
-            if err:
-                return ErrResponse(err)
-
-            return OKResponse(resp)
-
-        @self.prompt_server.routes.get(
-            f"/{COMMUNITY_API}/datasets/{{dataset_id}}/detail"
-        )
-        async def get_dataset_detail(request):
-            # 获取路径参数中的数据集ID
-            dataset_id = int(request.match_info["dataset_id"])
-
-            # 检查dataset_id是否合法
-            if not dataset_id or dataset_id <= 0:
-                return ErrResponse(errnos.INVALID_DATASET_ID)
-
-            # 调用API获取数据集详情
-            resp, err = await self.api_client.get_dataset_detail(dataset_id)
-            if err:
-                return ErrResponse(err)
-
-            return OKResponse(resp)
-
-        @self.prompt_server.routes.post(f"/{COMMUNITY_API}/share")
-        async def create_share(request):
-            json_data = await request.json()
-            if "biz_id" not in json_data:
-                return ErrResponse(errnos.INVALID_SHARE_BIZ_ID)
-
-            biz_id = int(json_data["biz_id"])
-            if not biz_id or biz_id <= 0:
-                return ErrResponse(errnos.INVALID_SHARE_BIZ_ID)
-
-            if "type" not in json_data:
-                return ErrResponse(errnos.INVALID_SHARE_TYPE)
-            if not is_string_valid(json_data["type"]) or (
-                json_data["type"] != "bizy_model_version"
-            ):
-                return ErrResponse(errnos.INVALID_SHARE_TYPE)
-
-            # 调用API提交数据集
-            resp, err = await self.api_client.create_share(payload=json_data)
-            if err:
-                return ErrResponse(err)
-
-            return OKResponse(resp)
-
         @self.prompt_server.routes.get(f"/{COMMUNITY_API}/share/{{code}}")
         async def get_share_detail(request):
             # 获取路径参数中的数据集ID
@@ -702,22 +824,6 @@ class BizyAirServer:
 
             # 调用API获取数据集详情
             resp, err = await self.api_client.get_share_detail(code)
-            if err:
-                return ErrResponse(err)
-
-            return OKResponse(resp)
-
-        @self.prompt_server.routes.get(f"/{COMMUNITY_API}/model_version/{{version_id}}")
-        async def get_model_version_detail(request):
-            # 获取路径参数中的数据集ID
-            version_id = int(request.match_info["version_id"])
-
-            # 检查version_id是否合法
-            if not version_id or version_id <= 0:
-                return ErrResponse(errnos.INVALID_MODEL_VERSION_ID)
-
-            # 调用API获取数据集详情
-            resp, err = await self.api_client.get_model_version_detail(version_id)
             if err:
                 return ErrResponse(err)
 
@@ -744,7 +850,11 @@ class BizyAirServer:
             last_broadcast_id = int(request.rel_url.query.get("last_broadcast_id", "0"))
 
             resp, err = await self.api_client.fetch_notifications(
-                page_size, last_pm_id, last_broadcast_id, types, read_status
+                page_size,
+                last_pm_id,
+                last_broadcast_id,
+                types,
+                read_status,
             )
             if err:
                 return ErrResponse(err)
@@ -913,7 +1023,9 @@ class BizyAirServer:
             if not year:
                 return ErrResponse(errnos.INVALID_YEAR_PARAM)
 
-            resp, err = await self.api_client.get_year_cost(year=year, api_key=api_key)
+            resp, err = await self.api_client.get_year_cost(
+                year=year, query_api_key=api_key
+            )
             if err is not None:
                 return ErrResponse(err)
 
@@ -928,7 +1040,7 @@ class BizyAirServer:
                 return ErrResponse(errnos.INVALID_MONTH_PARAM)
 
             resp, err = await self.api_client.get_month_cost(
-                month=month, api_key=api_key
+                month=month, query_api_key=api_key
             )
             if err is not None:
                 return ErrResponse(err)
@@ -943,7 +1055,9 @@ class BizyAirServer:
             if not day:
                 return ErrResponse(errnos.INVALID_DAY_PARAM)
 
-            resp, err = await self.api_client.get_day_cost(day=day, api_key=api_key)
+            resp, err = await self.api_client.get_day_cost(
+                day=day, query_api_key=api_key
+            )
             if err is not None:
                 return ErrResponse(err)
 
@@ -954,7 +1068,7 @@ class BizyAirServer:
 
             api_key = request.rel_url.query.get("api_key", "")
 
-            resp, err = await self.api_client.get_recent_cost(api_key=api_key)
+            resp, err = await self.api_client.get_recent_cost(query_api_key=api_key)
             if err is not None:
                 return ErrResponse(err)
 
