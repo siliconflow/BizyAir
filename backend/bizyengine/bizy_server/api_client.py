@@ -11,6 +11,7 @@ from bizyengine.core.common.env_var import (
     BIZYAIR_X_SERVER,
     BIZYAIR_Y_SERVER,
 )
+from openai import OpenAI
 
 from .errno import ErrorNo, errnos
 from .error_handler import ErrorHandler
@@ -64,13 +65,16 @@ class APIClient:
             async with session.get(url, headers=headers) as response:
                 resp_json = await response.json()
                 if response.status != 200:
+                    isJson = isinstance(resp_json, dict)
                     return None, ErrorNo(
                         response.status,
-                        resp_json.get("code", response.status),
+                        resp_json.get("code", response.status) if isJson else resp_json,
                         None,
                         {
-                            user_profile.getLang(): resp_json.get(
-                                "message", await response.text()
+                            user_profile.getLang(): (
+                                resp_json.get("message", await response.text())
+                                if isJson
+                                else resp_json
                             )
                         },
                     )
@@ -81,13 +85,16 @@ class APIClient:
             async with session.post(url, json=data, headers=headers) as response:
                 resp_json = await response.json()
                 if response.status != 200:
+                    isJson = isinstance(resp_json, dict)
                     return None, ErrorNo(
                         response.status,
-                        resp_json.get("code", response.status),
+                        resp_json.get("code", response.status) if isJson else resp_json,
                         None,
                         {
-                            user_profile.getLang(): resp_json.get(
-                                "message", await response.text()
+                            user_profile.getLang(): (
+                                resp_json.get("message", await response.text())
+                                if isJson
+                                else resp_json
                             )
                         },
                     )
@@ -98,13 +105,16 @@ class APIClient:
             async with session.put(url, json=data, headers=headers) as response:
                 resp_json = await response.json()
                 if response.status != 200:
+                    isJson = isinstance(resp_json, dict)
                     return None, ErrorNo(
                         response.status,
-                        resp_json.get("code", response.status),
+                        resp_json.get("code", response.status) if isJson else resp_json,
                         None,
                         {
-                            user_profile.getLang(): resp_json.get(
-                                "message", await response.text()
+                            user_profile.getLang(): (
+                                resp_json.get("message", await response.text())
+                                if isJson
+                                else resp_json
                             )
                         },
                     )
@@ -115,13 +125,16 @@ class APIClient:
             async with session.delete(url, json=data, headers=headers) as response:
                 resp_json = await response.json()
                 if response.status != 200:
+                    isJson = isinstance(resp_json, dict)
                     return None, ErrorNo(
                         response.status,
-                        resp_json.get("code", response.status),
+                        resp_json.get("code", response.status) if isJson else resp_json,
                         None,
                         {
-                            user_profile.getLang(): resp_json.get(
-                                "message", await response.text()
+                            user_profile.getLang(): (
+                                resp_json.get("message", await response.text())
+                                if isJson
+                                else resp_json
                             )
                         },
                     )
@@ -1078,14 +1091,11 @@ class APIClient:
             print(f"\033[31m[BizyAir]\033[0m Fail to get recent cost: {str(e)}")
             return None, errnos.GET_RECENT_COST
 
-    async def forward_model_request(self, request_data):
+    def forward_model_request(self, request_data):
         try:
-            import asyncio
-            import json
-
-            from .stream_response import StreamResponse
-
             request_data["stream"] = True
+            # 硅基云API接受top_k但是openai库不支持
+            request_data.pop("top_k")
             # 参数检查
             if "messages" not in request_data:
                 return None, errnos.MODEL_API_ERROR
@@ -1096,97 +1106,25 @@ class APIClient:
             ):
                 return None, errnos.MODEL_API_ERROR
 
-            # 获取用户API密钥
-            api_key = get_api_key()
+            if "model" not in request_data:
+                return None, errnos.MODEL_API_ERROR
 
-            # 创建自定义流式响应对象，设置60秒超时
-            response_stream = StreamResponse(request_data, timeout=60)
+            # TODO: 前端能选择provider、model之后删除下句
+            request_data["model"] = f"SiliconFlow:{request_data['model']}"
 
-            # 异步启动连接和数据请求
-            asyncio.create_task(response_stream.connect_and_request(api_key))
-
-            # 返回流式响应对象
-            return response_stream, None
+            client = OpenAI(
+                base_url=BIZYAIR_X_SERVER,
+                api_key=get_api_key(),
+                timeout=60.0,
+                max_retries=0,
+            )
+            return client.chat.completions.with_streaming_response.create(
+                **request_data
+            )
 
         except Exception as e:
             print(f"\033[31m[BizyAir]\033[0m Model API forwarding failed: {str(e)}")
             return None, errnos.MODEL_API_ERROR
-
-    async def stream_model_response(self, response):
-        """
-        流式传输模型响应
-
-        Args:
-            response: 从API获取的StreamResponse对象
-
-        Returns:
-            一个异步生成器，用于流式传输响应数据
-        """
-        # 生成请求ID用于日志
-        req_id = f"stream-{id(response)}"
-
-        # 验证response对象是否有效
-        if not response:
-            print(f"\033[31m[BizyAir-{req_id}]\033[0m 无效的response对象 (为None)")
-            yield b'data: {"error": "Invalid response object (None)"}\n\n'
-            yield b"data: [DONE]\n\n"
-            return
-
-        if not hasattr(response, "content") or not hasattr(
-            response.content, "iter_any"
-        ):
-            print(
-                f"\033[31m[BizyAir-{req_id}]\033[0m 无效的response对象 (缺少必要方法)"
-            )
-            yield b'data: {"error": "Invalid response object (missing methods)"}\n\n'
-            yield b"data: [DONE]\n\n"
-            return
-
-        error_occurred = False
-        chunks_forwarded = 0
-        chunk = None  # 定义在外部，以便finally块可以访问
-
-        try:
-            # 使用StreamResponse.iter_any方法创建流式传输生成器
-            async for chunk in response.content.iter_any():
-                chunks_forwarded += 1
-
-                yield chunk
-                # 是否是结束标记
-                if b"data: [DONE]" in chunk:
-                    break
-                # 是否包含错误
-                if b'data: {"error"' in chunk or b'data: {"message":' in chunk:
-                    error_occurred = True
-
-        except Exception as e:
-            error_occurred = True
-            error_msg = f"读取流式数据失败: {str(e)}"
-            print(f"\033[31m[BizyAir-{req_id}]\033[0m {error_msg}")
-
-            # 返回错误消息
-            error_json = json.dumps({"error": error_msg})
-            yield f"data: {error_json}\n\n".encode("utf-8")
-
-            # 如果还没有发送过DONE，则发送
-            if chunks_forwarded == 0 or (chunk and not b"data: [DONE]" in chunk):
-                yield b"data: [DONE]\n\n"
-
-        finally:
-            # 如果没有发生错误，但也没有转发任何数据，发送一个空响应
-            if not error_occurred and chunks_forwarded == 0:
-                yield b'data: {"content": ""}\n\n'
-                yield b"data: [DONE]\n\n"
-
-    async def release(self):
-        """关闭连接"""
-        if self.writer and not self.closed:
-            self.writer.close()
-            try:
-                await self.writer.wait_closed()
-            except Exception:
-                pass
-            self.closed = True
 
     async def forward_image_request(self, request_data):
         try:
