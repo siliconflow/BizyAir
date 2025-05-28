@@ -8,13 +8,13 @@ import os
 
 import numpy as np
 import requests
-from bizyengine.core import pop_api_key_and_prompt_id
+from bizyengine.core import BizyAirMiscBaseNode, pop_api_key_and_prompt_id
 from bizyengine.core.common import client
 from bizyengine.core.common.env_var import BIZYAIR_SERVER_ADDRESS
 from bizyengine.core.image_utils import decode_comfy_image, encode_comfy_image
 
 
-class StableDiffusionXLControlNetUnionPipeline:
+class StableDiffusionXLControlNetUnionPipeline(BizyAirMiscBaseNode):
     API_URL = f"{BIZYAIR_SERVER_ADDRESS}/supernode/diffusers-v1-stablediffusionxlcontrolnetunionpipeline"
 
     @classmethod
