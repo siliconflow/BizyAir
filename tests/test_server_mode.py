@@ -1,3 +1,9 @@
+"""Run a ComfyUI workflow with BizyAir server mode enabled.
+This script allows you to run a ComfyUI workflow with BizyAir server mode enabled.
+It loads a workflow from a JSON file, sets up the necessary parameters, and sends the prompt to the ComfyUI server.
+
+python tests/test_server_mode.py -w path/to/your/workflow.json
+"""
 import argparse
 import json
 import os
