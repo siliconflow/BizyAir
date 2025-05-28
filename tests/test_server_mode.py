@@ -4,6 +4,7 @@ It loads a workflow from a JSON file, sets up the necessary parameters, and send
 
 python tests/test_server_mode.py -w path/to/your/workflow.json
 """
+
 import argparse
 import json
 import os
