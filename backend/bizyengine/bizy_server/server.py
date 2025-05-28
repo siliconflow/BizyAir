@@ -658,7 +658,7 @@ class BizyAirServer:
             )
             llm_models = [model for model in all_models if "vl" not in model.lower()]
             llm_models.append("No LLM Enhancement")
-            return OKResponse(llm_models)
+            return aiohttp.web.json_response(llm_models)
 
         # 由于历史原因，前端请求body里有apikey所以是post
         @self.prompt_server.routes.post(f"/{API_PREFIX}/get_silicon_cloud_vlm_models")
@@ -669,7 +669,7 @@ class BizyAirServer:
             )
             vlm_models = [model for model in all_models if "vl" in model.lower()]
             vlm_models.append("No VLM Enhancement")
-            return OKResponse(vlm_models)
+            return aiohttp.web.json_response(vlm_models)
 
         @self.prompt_server.routes.post(f"/{API_PREFIX}/validate_prompt")
         async def validate_prompt(request):
