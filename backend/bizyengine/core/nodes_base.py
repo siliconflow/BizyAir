@@ -43,7 +43,9 @@ def pop_api_key_and_prompt_id(kwargs):
             extra_data["prompt_id"] = prompt[BIZYAIR_PARAM_MAGIC_NODE_ID]["_meta"][
                 "prompt_id"
             ]
-            print("Using server mode passed in prompt_id: " + extra_data["prompt_id"])
+            logging.debug(
+                "Using server mode passed in prompt_id: " + extra_data["prompt_id"]
+            )
     else:
         extra_data["api_key"] = get_api_key()
         if (
@@ -166,7 +168,7 @@ class BizyAirBaseNode:
 
     @classmethod
     def setup_input_types(cls):
-        # https://docs.comfy.org/essentials/custom_node_more_on_inputs#hidden-inputs
+        # https://docs.comfy.org/custom-nodes/backend/more_on_inputs#hidden-and-flexible-inputs
         new_input_types_func, original_has_unique_id = (
             ensure_hidden_unique_id_and_prompt(cls.INPUT_TYPES)
         )
@@ -242,7 +244,7 @@ class BizyAirMiscBaseNode:
     def setup_input_types(cls):
         if not hasattr(cls, "INPUT_TYPES"):
             cls.INPUT_TYPES = lambda: {}
-        # https://docs.comfy.org/essentials/custom_node_more_on_inputs#hidden-inputs
+        # https://docs.comfy.org/custom-nodes/backend/more_on_inputs#hidden-and-flexible-inputs
         new_input_types_func, original_has_unique_id = (
             ensure_hidden_unique_id_and_prompt(cls.INPUT_TYPES)
         )
