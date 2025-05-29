@@ -160,7 +160,7 @@ class BizyAir_CheckpointLoaderSimple(BizyAirBaseNode):
         }
 
     RETURN_TYPES = (data_types.MODEL, data_types.CLIP, data_types.VAE)
-    # FUNCTION = "load_checkpoint"
+    FUNCTION = "load_checkpoint"
     CATEGORY = f"{PREFIX}/loaders"
     RETURN_NAMES = (
         f"model",
@@ -178,7 +178,7 @@ class BizyAir_CheckpointLoaderSimple(BizyAirBaseNode):
             return False
         return True
 
-    def load_checkpoint(self, ckpt_name, model_version_id=""):
+    def load_checkpoint(self, ckpt_name, model_version_id="", **kwargs):
         if model_version_id != "":
             # use model version id as lora name
             ckpt_name = (
@@ -472,7 +472,7 @@ class BizyAir_ControlNetLoader(BizyAirBaseNode):
 
     RETURN_TYPES = (data_types.CONTROL_NET,)
     RETURN_NAMES = ("CONTROL_NET",)
-    # FUNCTION = "load_controlnet"
+    FUNCTION = "load_controlnet"
 
     CATEGORY = f"{PREFIX}/loaders"
 
@@ -484,7 +484,7 @@ class BizyAir_ControlNetLoader(BizyAirBaseNode):
             return True
         return True
 
-    def load_controlnet(self, control_net_name, model_version_id):
+    def load_controlnet(self, control_net_name, model_version_id, **kwargs):
         if model_version_id is not None and model_version_id != "":
             control_net_name = (
                 f"{config_manager.get_model_version_id_prefix()}{model_version_id}"
