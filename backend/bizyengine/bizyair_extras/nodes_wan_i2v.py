@@ -21,6 +21,7 @@ except ModuleNotFoundError as e:
 from ..core.common import client
 from ..core.common.env_var import BIZYAIR_DEBUG
 from ..core.nodes_base import BizyAirBaseNode
+from ..core.path_utils import compose_model_name
 
 
 class WanApiNodeBase:
@@ -30,17 +31,19 @@ class WanApiNodeBase:
 
 
 class Wan_LoraLoader(BizyAirBaseNode):
-
     @classmethod
     def INPUT_TYPES(cls):
         return {
             "required": {
                 "lora_name": (
+                    [
+                        "to choose",
+                    ],
+                ),
+                "model_version_id": (
                     "STRING",
                     {
-                        "multiline": True,
-                        "default": "https://huggingface.co/Remade-AI/Squish/resolve/main/squish_18.safetensors",
-                        "tooltip": "LoRA 模型下载地址",
+                        "default": "",
                     },
                 ),
             },
@@ -54,7 +57,7 @@ class Wan_LoraLoader(BizyAirBaseNode):
                         "step": 0.05,
                         "tooltip": "LoRA权重强度",
                     },
-                )
+                ),
             },
         }
 
@@ -63,7 +66,16 @@ class Wan_LoraLoader(BizyAirBaseNode):
     FUNCTION = "apply_lora"
     CATEGORY = "Diffusers/WAN Video Generation"
 
-    def apply_lora(self, lora_name, lora_weight=0.75, **kwargs):
+    @classmethod
+    def VALIDATE_INPUTS(cls, lora_name, model_version_id):
+        if lora_name == "to choose":
+            return False
+        if model_version_id is not None and model_version_id != "":
+            return True
+        return True
+
+    def apply_lora(self, lora_name, lora_weight=0.75, model_version_id="", **kwargs):
+        lora_name = compose_model_name(model_version_id, fallback_name=lora_name)
         return ([(lora_name, lora_weight)],)
 
 
