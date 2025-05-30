@@ -158,7 +158,7 @@ class BizyAirBaseNode:
         register_node(cls, PREFIX)
         cls.setup_input_types()
 
-        # 验证FUNCTION接受**kwargs
+        # TODO refine 验证FUNCTION接受**kwargs
         if BIZYAIR_DEBUG:
             import inspect
 

@@ -74,7 +74,7 @@ class Wan_LoraLoader(BizyAirBaseNode):
             return True
         return True
 
-    def apply_lora(self, lora_name, lora_weight=0.75, model_version_id=""):
+    def apply_lora(self, lora_name, lora_weight=0.75, model_version_id="", **kwargs):
         lora_name = compose_model_name(model_version_id, fallback_name=lora_name)
         return ([(lora_name, lora_weight)],)
 
