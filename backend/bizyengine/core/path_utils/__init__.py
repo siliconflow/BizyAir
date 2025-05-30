@@ -6,4 +6,4 @@ from .path_manager import (
     guess_config,
     guess_url_from_node,
 )
-from .utils import filter_files_extensions
+from .utils import compose_model_name, filter_files_extensions

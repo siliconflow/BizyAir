@@ -1,6 +1,8 @@
 import glob
+import hashlib
 import json
 import os
+import threading
 import time
 from abc import ABC, abstractmethod
 from collections import OrderedDict
@@ -47,7 +49,23 @@ class CacheManager(ABC):
         pass
 
 
-class BizyAirTaskCache(CacheManager):
+class ConfigSingleton:
+    _instance_lock = threading.Lock()
+    _instances = {}
+
+    def __new__(cls, config, *args, **kwargs):
+        config_str = str(config)
+        config_key = hashlib.sha256(config_str.encode()).hexdigest()
+        if config_key not in cls._instances:
+            with cls._instance_lock:
+                if config_key not in cls._instances:
+                    instance = super().__new__(cls)
+                    cls._instances[config_key] = instance
+
+        return cls._instances[config_key]
+
+
+class BizyAirTaskCache(ConfigSingleton, CacheManager):
     def __init__(self, config: CacheConfig):
         self.config = config
         self.cache = OrderedDict()
@@ -180,6 +198,10 @@ class BizyAirTaskCache(CacheManager):
 if __name__ == "__main__":
     cache_config = CacheConfig(max_size=12, expiration=10, cache_dir="./cache")
     cache = BizyAirTaskCache(cache_config)
+    assert (
+        BizyAirTaskCache(CacheConfig(max_size=12, expiration=10, cache_dir="./cache"))
+        is cache
+    )
 
     # Set some cache values
     cache.set("key1", "This is the value for key1")
