@@ -318,7 +318,7 @@ class BizyAirJoyCaption2(BizyAirMiscBaseNode):
 
     CATEGORY = "☁️BizyAir/AI Assistants"
 
-    def resize_if_large(self, image, max_size=384):
+    def resize_if_large(self, image, max_size=2048):
         import torch.nn.functional as F
 
         _, h, w, _ = image.shape
