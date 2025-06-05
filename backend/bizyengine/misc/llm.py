@@ -320,22 +320,25 @@ class BizyAirJoyCaption2(BizyAirMiscBaseNode):
 
     def resize_if_large(self, image, max_size=384):
         import torch.nn.functional as F
+
         _, h, w, _ = image.shape
-        
+
         if h <= max_size and w <= max_size:
             return image
-        
+
         if h > w:
             new_h = max_size
             new_w = int(w * (max_size / h))
         else:
             new_w = max_size
             new_h = int(h * (max_size / w))
-        
+
         image = image.permute(0, 3, 1, 2)
-        resized_image = F.interpolate(image, size=(new_h, new_w), mode='bilinear', align_corners=False)
+        resized_image = F.interpolate(
+            image, size=(new_h, new_w), mode="bilinear", align_corners=False
+        )
         resized_image = resized_image.permute(0, 2, 3, 1)
-        
+
         return resized_image
 
     def joycaption2(
