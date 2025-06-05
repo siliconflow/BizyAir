@@ -74,7 +74,7 @@ jobs:
       with:
         repository: comfyanonymous/ComfyUI
         path: ComfyUI
-        ref: v0.3.7
+        ref: v0.3.40
 
     - name: Checkout plugin repository
       uses: actions/checkout@v4

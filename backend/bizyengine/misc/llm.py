@@ -318,6 +318,26 @@ class BizyAirJoyCaption2(BizyAirMiscBaseNode):
 
     CATEGORY = "☁️BizyAir/AI Assistants"
 
+    def resize_if_large(self, image, max_size=384):
+        import torch.nn.functional as F
+        _, h, w, _ = image.shape
+        
+        if h <= max_size and w <= max_size:
+            return image
+        
+        if h > w:
+            new_h = max_size
+            new_w = int(w * (max_size / h))
+        else:
+            new_w = max_size
+            new_h = int(h * (max_size / w))
+        
+        image = image.permute(0, 3, 1, 2)
+        resized_image = F.interpolate(image, size=(new_h, new_w), mode='bilinear', align_corners=False)
+        resized_image = resized_image.permute(0, 2, 3, 1)
+        
+        return resized_image
+
     def joycaption2(
         self,
         image,
@@ -333,12 +353,7 @@ class BizyAirJoyCaption2(BizyAirMiscBaseNode):
     ):
         extra_data = pop_api_key_and_prompt_id(kwargs)
         headers = client.headers(api_key=extra_data["api_key"])
-
-        SIZE_LIMIT = 1536
-        _, w, h, c = image.shape
-        assert (
-            w <= SIZE_LIMIT and h <= SIZE_LIMIT
-        ), f"width and height must be less than {SIZE_LIMIT}x{SIZE_LIMIT}, but got {w} and {h}"
+        image = self.resize_if_large(image)
 
         payload = {
             "image": None,
