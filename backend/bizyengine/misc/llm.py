@@ -380,15 +380,21 @@ class BizyAirJoyCaption2(BizyAirMiscBaseNode):
         return (caption,)
 
 
+class BizyAirJoyCaption3(BizyAirJoyCaption2):
+    API_URL = f"{BIZYAIR_SERVER_ADDRESS}/supernode/joycaption3"
+
+
 NODE_CLASS_MAPPINGS = {
     "BizyAirSiliconCloudLLMAPI": SiliconCloudLLMAPI,
     "BizyAirSiliconCloudVLMAPI": SiliconCloudVLMAPI,
     "BizyAirJoyCaption": BizyAirJoyCaption,
     "BizyAirJoyCaption2": BizyAirJoyCaption2,
+    "BizyAirJoyCaption3": BizyAirJoyCaption3,
 }
 NODE_DISPLAY_NAME_MAPPINGS = {
     "BizyAirSiliconCloudLLMAPI": "☁️BizyAir SiliconCloud LLM API",
     "BizyAirSiliconCloudVLMAPI": "☁️BizyAir SiliconCloud VLM API",
     "BizyAirJoyCaption": "☁️BizyAir Joy Caption",
     "BizyAirJoyCaption2": "☁️BizyAir Joy Caption2",
+    "BizyAirJoyCaption3": "☁️BizyAir Joy Caption3",
 }
