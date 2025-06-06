@@ -34,7 +34,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 def _get_request_api_key(request_headers):
     if BIZYAIR_SERVER_MODE:
-        return request_headers.get("api_key")
+        return request_headers.get("Authorization")
     return None
 
 
