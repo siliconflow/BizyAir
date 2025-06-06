@@ -154,7 +154,14 @@ def install_dependencies():
             ):
                 try:
                     print(f"\033[92m[BizyAir]\033[0m Try to install depency {package}")
-                    install_comamnd = [sys.executable, "-m", "pip", "install", package]
+                    install_comamnd = [
+                        sys.executable,
+                        "-m",
+                        "pip",
+                        "install",
+                        "-U",
+                        package,
+                    ]
                     subprocess.check_call(install_comamnd)
                 except subprocess.CalledProcessError as e:
                     print(f"\033[91m[BizyAir]\033[0m Failed to install {package}: {e}")
@@ -196,7 +203,14 @@ def yes_or_no(package_name) -> str:
 def update_bizyengine_bizyui():
     def _update_package_when_needed(package_name):
         try:
-            update_command = [sys.executable, "-m", "pip", "install", package_name]
+            update_command = [
+                sys.executable,
+                "-m",
+                "pip",
+                "install",
+                "-U",
+                package_name,
+            ]
             if package_name not in installed_packages:
                 print(f"\033[92m[BizyAir]\033[0m Try to install {package_name}")
                 subprocess.check_call(update_command)
@@ -221,7 +235,7 @@ def update_bizyengine_bizyui():
                         "-m",
                         "pip",
                         "install",
-                        "--upgrade",
+                        "-U",
                         package_name,
                     ]
                     subprocess.check_call(update_command)

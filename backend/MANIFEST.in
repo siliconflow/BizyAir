@@ -1,3 +1,0 @@
-include bizyengine/core/configs/*.json
-include bizyengine/core/configs/*.yaml
-include bizyengine/version.txt
