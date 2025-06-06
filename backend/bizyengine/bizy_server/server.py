@@ -51,6 +51,9 @@ class BizyAirServer:
 
     def setup_routes(self):
         # 以下路径不论本地模式还是服务器模式都要注册
+        @self.prompt_server.routes.get(f"/{API_PREFIX}/server_mode")
+        async def get_server_mode(request):
+            return OKResponse({"server_mode": BIZYAIR_SERVER_MODE})
 
         @self.prompt_server.routes.get(f"/{COMMUNITY_API}/model_types")
         async def list_model_types(request):
