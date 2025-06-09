@@ -17,7 +17,7 @@ except ModuleNotFoundError as e:
 
     warnings.warn(ERROR_MSG)
 
-
+from ..core import pop_api_key_and_prompt_id
 from ..core.common import client
 from ..core.common.env_var import BIZYAIR_DEBUG
 from ..core.nodes_base import BizyAirBaseNode
@@ -155,23 +155,26 @@ class Wan_ImageToVideoPipeline(WanApiNodeBase, BizyAirBaseNode):
         )
         return base64_str
 
-    def _prepare_headers(self):
-        headers = client._headers()
+    def _prepare_headers(self, api_key):
+        headers = client._headers(api_key=api_key)
         headers["X-Fn-Task-Mode"] = "non-blocking"
         return headers
 
-    def _send_initial_request(self, endpoint, request_data):
-        headers = self._prepare_headers()
+    def _send_initial_request(self, endpoint, request_data, **kwargs):
+        headers = self._prepare_headers(api_key=kwargs["api_key"])
+        payload = {"prompt": request_data}
+        if "prompt_id" in kwargs:
+            payload["prompt_id"] = kwargs["prompt_id"]
         response = client.send_request(
             url=endpoint,
-            data=json.dumps({"prompt": request_data}).encode(),
+            data=json.dumps(payload).encode(),
             headers=headers,
         )
         return response["query_url"]
 
-    def _poll_for_completion(self, query_url):
+    def _poll_for_completion(self, query_url, **kwargs):
         start_time = time.time()
-        headers = self._prepare_headers()
+        headers = self._prepare_headers(api_key=kwargs["api_key"])
 
         while time.time() - start_time < self.MAX_POLLING_TIME:
             response = requests.get(query_url, headers=headers)
@@ -227,8 +230,11 @@ class Wan_ImageToVideoPipeline(WanApiNodeBase, BizyAirBaseNode):
         else:
             req_dict["teacache"] = 0
 
+        extra_data = pop_api_key_and_prompt_id(kwargs)
         req_dict["image"] = self._encode_image(image_tensor=image)
         endpoint = self.MODEL_ENDPOINTS[model_id]
-        query_url = self._send_initial_request(endpoint, request_data=req_dict)
-        result = self._poll_for_completion(query_url)
+        query_url = self._send_initial_request(
+            endpoint, request_data=req_dict, **extra_data
+        )
+        result = self._poll_for_completion(query_url, **extra_data)
         return self._process_result(result)
