@@ -36,6 +36,8 @@ USER_API = f"{API_PREFIX}/user"
 INVOICE_API = f"{API_PREFIX}/invoices"
 MODEL_API = f"{API_PREFIX}/model"
 
+_SERVER_MODE_HC_FLAG = True
+
 logging.basicConfig(level=logging.DEBUG)
 
 
@@ -738,10 +740,24 @@ class BizyAirServer:
                 err.data = {"error": valid[1], "node_errors": valid[3]}
                 return ErrResponse(err)
 
-        # 服务器模式下以下路径不会注册
+        # 服务器模式独占
         if BIZYAIR_SERVER_MODE:
+
+            @self.prompt_server.routes.get(f"/{API_PREFIX}/are_you_alive")
+            async def are_you_alive(request):
+                if _SERVER_MODE_HC_FLAG:
+                    return OKResponse(None)
+                return ErrResponse(errnos.INTERNAL_ERROR)
+
+            @self.prompt_server.routes.post(f"/{API_PREFIX}/are_you_alive")
+            async def toggle_are_you_alive(request):
+                global _SERVER_MODE_HC_FLAG
+                _SERVER_MODE_HC_FLAG = not _SERVER_MODE_HC_FLAG
+                return OKResponse(None)
+
             return
 
+        # 服务器模式下以下路径不会注册
         @self.prompt_server.routes.get(f"/{MODEL_HOST_API}" + "/{shareId}/models/files")
         async def list_share_model_files(request):
             shareId = request.match_info["shareId"]
