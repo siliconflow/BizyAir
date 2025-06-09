@@ -1,5 +1,15 @@
+import base64
+import json
 import os
+import time
 from pathlib import Path
+
+from bizyengine.core.common.env_var import (
+    BIZYAIR_SERVER_MODE,
+    BIZYAIR_SERVER_MODE_RSA_PRIVATE_KEY_PATH,
+)
+from Crypto.Cipher import PKCS1_v1_5
+from Crypto.PublicKey import RSA
 
 from .errno import errnos
 from .resp import ErrResponse
@@ -45,6 +55,8 @@ ALLOW_UPLOADABLE_EXT_NAMES = [
 ]
 
 current_path = os.path.abspath(os.path.dirname(__file__))
+
+_RSA_CIPHER = None
 
 
 def get_html_content(filename: str):
@@ -103,3 +115,25 @@ def is_allow_ext_name(local_file_name):
         return False
     _, ext = os.path.splitext(local_file_name)
     return ext.lower() in ALLOW_UPLOADABLE_EXT_NAMES
+
+
+def decrypt_apikey(apikey_ciphertext):
+    if not BIZYAIR_SERVER_MODE_RSA_PRIVATE_KEY_PATH:
+        return apikey_ciphertext, None
+    global _RSA_CIPHER
+    if not _RSA_CIPHER:
+        with open(BIZYAIR_SERVER_MODE_RSA_PRIVATE_KEY_PATH, "rb") as f:
+            private_key_data = f.read()
+            private_key = RSA.import_key(private_key_data)
+            _RSA_CIPHER = PKCS1_v1_5.new(private_key)
+    plaintext = _RSA_CIPHER.decrypt(base64.b64decode(apikey_ciphertext), None)
+    if not plaintext:
+        return None, errnos.INVALID_API_KEY
+    dict = json.loads(plaintext.decode("utf-8"))
+    if "timestamp" in dict and "expiresIn" in dict:
+        now = time.time_ns() // 1_000_000
+        if now - int(dict["timestamp"]) > int(dict["expiresIn"]):
+            return None, errnos.INVALID_API_KEY
+    else:
+        return None, errnos.INVALID_API_KEY
+    return dict["data"], None
