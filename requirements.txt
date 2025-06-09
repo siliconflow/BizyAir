@@ -1,3 +1,4 @@
 requests
 inputimeout
 openai>=1.77.0
+pycryptodome
