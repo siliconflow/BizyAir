@@ -118,7 +118,7 @@ def is_allow_ext_name(local_file_name):
 
 
 def decrypt_apikey(apikey_ciphertext):
-    if not BIZYAIR_SERVER_MODE:
+    if not BIZYAIR_SERVER_MODE_RSA_PRIVATE_KEY_PATH:
         return apikey_ciphertext, None
     global _RSA_CIPHER
     if not _RSA_CIPHER:
