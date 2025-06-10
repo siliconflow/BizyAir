@@ -187,3 +187,48 @@ class NunchakuFluxLoraLoader(BizyAirBaseNode):
             outputs={"slot_index": 0},
         )
         return (new_model,)
+
+
+class NunchakuPulidApply(BizyAirBaseNode):
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "pulid": ("BIZYAIR_PULID", {"tooltip": "from Nunchaku Pulid Loader"}),
+                "image": ("IMAGE", {"tooltip": "The image to encode"}),
+                "model": (data_types.MODEL, {"tooltip": "The nunchaku model."}),
+                "ip_weight": (
+                    "FLOAT",
+                    {
+                        "default": 1.0,
+                        "min": 0.0,
+                        "max": 2.0,
+                        "step": 0.01,
+                        "tooltip": "ip_weight",
+                    },
+                ),
+            }
+        }
+
+    RETURN_TYPES = (data_types.MODEL,)
+    # FUNCTION = "apply"
+    CATEGORY = "Nunchaku"
+    TITLE = "Nunchaku Pulid Apply"
+
+
+class NunchakuPulidLoader(BizyAirBaseNode):
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "model": (data_types.MODEL, {"tooltip": "The nunchaku model."}),
+            }
+        }
+
+    RETURN_TYPES = (
+        data_types.MODEL,
+        "BIZYAIR_PULID",
+    )
+    # FUNCTION = "load"
+    CATEGORY = "Nunchaku"
+    TITLE = "Nunchaku Pulid Loader"
