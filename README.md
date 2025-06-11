@@ -1,4 +1,14 @@
 # BizyAir
+
+- [2025/06/05] 🌩️ BizyAir supports Joycaption beta one (Joycaption3).
+- [2025/05/30] 🌩️ BizyAir supports Wan2.1 I2V and Wan LoRAs.
+- [2025/04/24] 🌩️ BizyAir introduces new billing functionality.
+- [2025/03/12] 🌩️ BizyAir adds BizyBot
+- [2025/03/06] 🌩️ BizyAir supports cogview4 6b.
+- [2025/02/27] 🌩️ BizyAir supports wan_t2v_1.3b.
+- [2025/02/23] 🌩️ BizyAir supports Joycaption.
+- [2025/01/28] 🌩️ BizyAir supports Janus Pro.
+- [2025/01/24] 🌩️ BizyAir add trellis nodes.
 - [2025/01/09] 🌩️ BizyAir supports Shuttle 3.1 Aesthetic. [Shuttle 3.1 Aesthetic](./examples/bizyair-shuttleai_shuttle_3_1_aesthetic.json)
 - [2024/12/17] 🌩️ BizyAir supports Flux Upscale Model. [FLUX Upscale](./examples/bizyair-flux1-upscale.json)
 - [2024/11/27] 🌩️ BizyAir supports Stable Diffusion 3.5 Large ControlNet Canny, Depth, and Blur. [ControlNet Canny](./examples/bizyair_sd3_5_canny.json) [ControlNet Depth](./examples/bizyair_sd3_5_depth.json) [ControlNet Blur](./examples/bizyair_sd3_5_blur.json)
@@ -18,7 +28,7 @@
 - [2024/08/02] 🌩️ FLUX.1-schnell has been supported. [FLUX.1-schnell Text to Image](./examples/bizyair_flux_schnell_workflow.json)
 - [2024/08/01] 🌩️  [BizyAir MinusZone Kolors](https://siliconflow.github.io/BizyAir/kolors/introduce.html) nodes have been released(thanks to [MinusZoneAI/ComfyUI-Kolors-MZ](https://github.com/MinusZoneAI/ComfyUI-Kolors-MZ)), and BizyAir now supports over 10 new base models. They all support ControlNet, LoRA, and IPAdapter. [BizyAir KSampler](https://siliconflow.github.io/BizyAir/ksampler/introduce.html)
 - [2024/07/31] 🌩️ The super-resolution node has been released, capable of enlarging images four times their original size. [BizyAir Photorealistic Image Super Resolution](https://siliconflow.github.io/BizyAir/others/index.html#bizyair-photorealistic-image-super-resolution)
-- [2024/07/25] 🌩️ Users can load BizyAir workflow examples directly by clicking the "☁️BizyAir Workflow Examples" button. [Example GIF](./docs/docs/getting-started/imgs/text-guided-segment-anything.gif)
+- [2024/07/25] 🌩️ Users can load BizyAir workflow examples directly by clicking the "☁️BizyAir Workflow Examples" button. [Get started](https://docs.bizyair.cn/guides/quickstart.html)
 - [2024/07/23] 🌩️ BizyAir ChatGLM3 Text Encode node is released.
 - [2024/07/16] 🌩️ [BizyAir Controlnet Union SDXL 1.0](https://siliconflow.github.io/BizyAir/controlnet-union/introduce.html) node is released.
 - [2024/07/14] 🌩️ We release Image Caption nodes and add a tutorial for utilizing the LLM node. [AI Assistant](https://siliconflow.github.io/BizyAir/ai-assistants/introduce.html)
@@ -28,11 +38,9 @@
 
 BizyAir is a collection of [ComfyUI](https://github.com/comfyanonymous/ComfyUI) nodes that help you overcome environmental and hardware limitations, allowing you to more easily generate high-quality content with ComfyUI.
 
-![](./docs/docs/getting-started/imgs/Kolors-text2img.gif)
-
 BizyAir now supports many models and nodes.
+[Product introduction](https://docs.bizyair.cn/index.html)
 
-![](./docs/docs/getting-started/imgs/models-and-nodes.gif)
 
 
 ## Table of Contents
@@ -49,11 +57,10 @@ Run ComfyUI anywhere, anytime, without worrying about the environment or hardwar
 
 ## Usage
 
-Please see the [Quick Start](https://siliconflow.github.io/BizyAir/getting-started/quick-start.html) page to set up BizyAir.
+Please see the [Install](https://docs.bizyair.cn/guides/install.html) page to set up BizyAir.
 
-Make sure to **set your API KEY** for the **first time** use! You can click on the "click to login" link for a quick setup.
+Make sure to **set your API KEY** for the **first time** use! You can click on the "click to login" link for a quick setup.[Register an account](https://docs.bizyair.cn/guides/signin.html)
 
-![](./docs/docs/getting-started/imgs/how-to-set-key.gif)
 
 ## Installation
 
@@ -61,8 +68,7 @@ You can install BizyAir through several methods: using the ComfyUI Manager, the 
 
 ### Method 1: Install via ComfyUI Manager
 
-Assuming your ComfyUI already has the [ComfyUI Manager installed](https://github.com/ltdrdata/ComfyUI-Manager?tab=readme-ov-file#installation), search for BizyAir as shown in the image below. Click "Install" to complete the installation.
-![ComfyUI_Manager_BizyAir_Search_Screenshot](./docs/docs/getting-started/imgs/ComfyUI_Manager_BizyAir_Search_Screenshot.png)
+Assuming your ComfyUI already has the [ComfyUI Manager installed](https://github.com/ltdrdata/ComfyUI-Manager?tab=readme-ov-file#installation), search for BizyAir. Click "Install" to complete the installation.
 
 
 ### Method 2: Install via git clone
