@@ -1,11 +1,13 @@
 # BizyAir
-- [2025/04/24] 🌩️ BizyAir add Illustrious、Pony model and billing function.
-- [2025/03/31] 🌩️ BizyAir fix some problems.
-- [2025/03/12] 🌩️ BizyAir add message box and refactor packaging
-- [2025/03/06] 🌩️ BizyAir Support cogview4 6b.
+
+- [2025/06/05] 🌩️ BizyAir supports Joycaption beta one (Joycaption3).
+- [2025/05/30] 🌩️ BizyAir supports Wan2.1 I2V and Wan LoRAs.
+- [2025/04/24] 🌩️ BizyAir introduces new billing functionality.
+- [2025/03/12] 🌩️ BizyAir adds BizyBot
+- [2025/03/06] 🌩️ BizyAir supports cogview4 6b.
 - [2025/02/27] 🌩️ BizyAir supports wan_t2v_1.3b.
-- [2025/02/23] 🌩️ BizyAir optimize joycaptio.
-- [2025/01/28] 🌩️ BizyAir supports Janus_Pro_7B Model.
+- [2025/02/23] 🌩️ BizyAir supports Joycaption.
+- [2025/01/28] 🌩️ BizyAir supports Janus Pro.
 - [2025/01/24] 🌩️ BizyAir add trellis nodes.
 - [2025/01/09] 🌩️ BizyAir supports Shuttle 3.1 Aesthetic. [Shuttle 3.1 Aesthetic](./examples/bizyair-shuttleai_shuttle_3_1_aesthetic.json)
 - [2024/12/17] 🌩️ BizyAir supports Flux Upscale Model. [FLUX Upscale](./examples/bizyair-flux1-upscale.json)
