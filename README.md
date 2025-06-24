@@ -1,5 +1,8 @@
 # BizyAir
 
+- [2025/06/24] 🌩️ BizyAir supports nunchaku FLUX fill model.
+- [2025/06/23] 🌩️ BizyAir supports Hunyuan3D 2.1 shape mesh.
+- [2025/06/10] 🌩️ BizyAir supports nunchaku FLUX PulID.
 - [2025/06/05] 🌩️ BizyAir supports Joycaption beta one (Joycaption3).
 - [2025/05/30] 🌩️ BizyAir supports Wan2.1 I2V and Wan LoRAs.
 - [2025/04/24] 🌩️ BizyAir introduces new billing functionality.
