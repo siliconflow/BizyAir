@@ -1,5 +1,7 @@
 # BizyAir
 
+- [2025/07/02] 🌩️ BizyAir releases BizyBot which helps ComfyUI to edit image by text.
+- [2025/06/27] 🌩️ BizyAir supports FLUX Kontext dev model.
 - [2025/06/24] 🌩️ BizyAir supports nunchaku FLUX fill model.
 - [2025/06/23] 🌩️ BizyAir supports Hunyuan3D 2.1 shape mesh.
 - [2025/06/10] 🌩️ BizyAir supports nunchaku FLUX PulID.
