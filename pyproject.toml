@@ -11,4 +11,4 @@ Repository = "https://github.com/siliconflow/BizyAir"
 [tool.comfy]
 PublisherId = "siliconflow"
 DisplayName = "☁️BizyAir"
-Icon = "https://framerusercontent.com/images/4li2PjWxZJmoGkzXRMJWU1rJmI.svg"
+Icon = "https://bizy-air.oss-cn-beijing.aliyuncs.com/examples_asset/siliconflow_logo.png"
